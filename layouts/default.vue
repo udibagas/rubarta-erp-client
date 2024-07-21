@@ -23,10 +23,8 @@
         router
         :collapse="collapse"
         :default-active="$route.path"
-        background-color="#060446"
-        text-color="#fff"
+        background-color="#eee"
         class="sidebar"
-        active-text-color="#cc0000"
       >
         <el-menu-item v-for="(m, i) in links" :index="m.path" :key="i">
           <el-icon><component :is="icon[m.icon]" /></el-icon>

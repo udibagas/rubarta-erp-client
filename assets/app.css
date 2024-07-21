@@ -127,9 +127,7 @@ table {
 
 .brand-box {
   height: 150px;
-  background-color: #060446;
   text-align: center;
-  color: #fff;
 }
 
 .btn-big {
@@ -137,29 +135,25 @@ table {
 }
 
 .el-header {
-  background-color: #254ec1;
+  background-color: #009932;
   color: #fff;
   line-height: 60px;
 }
 
 .sidebar {
-  background-color: #060446;
-  border-color: #060446;
+  background-color: #eee;
   height: calc(100vh - 150px);
   overflow: auto;
 }
 
 .el-menu {
-    border-right: none !important;
-}
-
-.sidebar:not(.el-menu--collapse) {
-  width: 200px;
+  border-right: none !important;
 }
 
 .el-aside {
   height: 100vh;
-  background-color: #060446;
+  border-right: 1px solid #ddd;
+  background-color: #eee;
 }
 
 .el-main {
