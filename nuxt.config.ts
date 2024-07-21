@@ -14,6 +14,13 @@ export default defineNuxtConfig({
     storesDirs: ["./stores/**"],
   },
 
+  app: {
+    head: {
+      title: "Rubarta ERP System",
+      link: [{ rel: "icon", type: "image/x-icon", href: "/images/logo.png" }],
+    },
+  },
+
   css: ["@/assets/app.css"],
   plugins: ["@/plugins/mask.js"],
 
