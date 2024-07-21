@@ -45,6 +45,7 @@
           type="info"
           size="small"
           effect="dark"
+          class="mr-2"
         >
           {{ role }}
         </el-tag>
