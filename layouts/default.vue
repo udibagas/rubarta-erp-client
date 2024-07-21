@@ -23,7 +23,6 @@
         router
         :collapse="collapse"
         :default-active="$route.path"
-        background-color="#eee"
         class="sidebar"
       >
         <el-menu-item v-for="(m, i) in links" :index="m.path" :key="i">
@@ -46,8 +45,28 @@
 
           <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
 
+          <el-dropdown class="mr-5">
+            <span class="el-dropdown-link">
+              <el-badge :value="3" class="item">
+                <el-icon :size="24">
+                  <Bell />
+                </el-icon>
+              </el-badge>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>Action 1</el-dropdown-item>
+                <el-dropdown-item>Action 2</el-dropdown-item>
+                <el-dropdown-item>Action 3</el-dropdown-item>
+                <el-dropdown-item divided :icon="Delete"
+                  >Clear Notification</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+
           <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link text-white" style="cursor: pointer">
+            <span class="el-dropdown-link" style="cursor: pointer">
               Welcome, {{ user.name }}!
             </span>
             <template #dropdown>
@@ -87,6 +106,11 @@ import {
   DataAnalysis,
   ArrowRight,
   Setting,
+  Delete,
+  Coin,
+  Memo,
+  DataLine,
+  Stamp,
 } from "@element-plus/icons-vue";
 
 const icon = {
@@ -98,42 +122,43 @@ const icon = {
   CreditCard,
   DataAnalysis,
   Setting,
+  Coin,
+  Memo,
+  DataLine,
+  Stamp,
 };
 
 const links = [
   {
     label: "Dashboard",
     path: "/",
-    icon: "HomeFilled",
+    icon: "DataLine",
   },
   {
     label: "Payment Authorization",
     path: "/payment-authorizations",
-    icon: "Operation",
+    icon: "Stamp",
   },
   {
     label: "Expense Claims",
     path: "/expense-claims",
-    icon: "Operation",
+    icon: "DocumentCopy",
   },
   {
     label: "Expense Notes",
     path: "/expense-notes",
-    icon: "Operation",
+    icon: "Memo",
   },
   {
     label: "Master Data",
     path: "/master-data/companies",
-    icon: "Operation",
+    icon: "Coin",
   },
 ];
 
 const store = useWebsiteStore();
 const collapse = ref(false);
 const showProfile = ref(false);
-const navigationList = useHead({
-  title: "RUBARTA ERP SYSTEM",
-});
 
 const goBack = () => {
   window.history.back();
