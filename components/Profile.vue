@@ -1,33 +1,23 @@
 <template>
   <el-dialog title="PROFIL SAYA" :model-value="show" width="500px">
     <el-form label-width="180px" label-position="left">
-      <el-form-item label="Nama" :error="formErrors.name?.join(', ')">
-        <el-input placeholder="Nama" v-model="formModel.name"></el-input>
+      <el-form-item label="Name" :error="formErrors.name">
+        <el-input placeholder="Name" v-model="formModel.name"></el-input>
       </el-form-item>
 
-      <el-form-item label="Level">
-        <el-input
-          disabled
-          :value="formModel.role ? 'Admin' : 'Operator'"
-        ></el-input>
+      <el-form-item label="Email" :error="formErrors.email">
+        <el-input placeholder="Email" v-model="formModel.email"></el-input>
       </el-form-item>
 
-      <el-form-item label="Password" :error="formErrors.password?.join(', ')">
+      <el-form-item label="Roles">
+        <el-input disabled :value="formModel.roles"></el-input>
+      </el-form-item>
+
+      <el-form-item label="Password" :error="formErrors.password">
         <el-input
           type="password"
           placeholder="Password"
           v-model="formModel.password"
-        ></el-input>
-      </el-form-item>
-
-      <el-form-item
-        label="Konfirmasi Password"
-        :error="formErrors.password?.join(', ')"
-      >
-        <el-input
-          type="password"
-          placeholder="Konfirmasi Password"
-          v-model="formModel.password_confirmation"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -35,7 +25,7 @@
       <el-button @click="emit('close')" :icon="CircleCloseFilled">
         CLOSE
       </el-button>
-      <el-button type="primary" @click="save" :icon="SuccessFilled">
+      <el-button type="success" @click="save" :icon="SuccessFilled">
         SAVE
       </el-button>
     </template>
@@ -56,7 +46,7 @@ const save = () => {
   const loadingInstance = ElLoading.service({ target: ".el-dialog" });
 
   api(`/api/user/${formModel.value.id}`, {
-    method: "PUT",
+    method: "PATCH",
     body: formModel.value,
   })
     .then((_) => {
