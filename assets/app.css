@@ -135,13 +135,16 @@ table {
 }
 
 .el-header {
-  background-color: #009932;
-  color: #fff;
+  /* background-color: #009932;*/
+  /* color: #fff; */
+  /* background-color: #efefef; */
+  color: #009932;
   line-height: 60px;
+  border-bottom: 1px solid #ddd;
 }
 
 .sidebar {
-  background-color: #eee;
+  /* background-color: #eee; */
   height: calc(100vh - 150px);
   overflow: auto;
 }
@@ -153,7 +156,7 @@ table {
 .el-aside {
   height: 100vh;
   border-right: 1px solid #ddd;
-  background-color: #eee;
+  /* background-color: #eee; */
 }
 
 .el-main {
@@ -180,8 +183,24 @@ table {
   margin-left: 15px;
 }
 
+.mr-1 {
+  margin-right: 5px;
+}
+
 .mr-2 {
   margin-right: 10px;
+}
+
+.mr-3 {
+  margin-right: 15px;
+}
+
+.mr-4 {
+  margin-right: 20px;
+}
+
+.mr-5 {
+  margin-right: 25px;
 }
 
 .mt-0 {
