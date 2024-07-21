@@ -39,5 +39,9 @@ const links = [
     label: "Users",
     path: "users",
   },
+  {
+    label: "Approval Setting",
+    path: "approval-setting",
+  },
 ];
 </script>
