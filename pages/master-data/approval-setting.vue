@@ -105,7 +105,7 @@
     </el-form>
 
     <el-table :data="formModel.ApprovalSettingItem">
-      <el-table-column label="Level" min-width="180">
+      <el-table-column label="Level" width="180">
         <template #default="{ row }">
           <el-input-number
             v-model="row.level"
@@ -116,7 +116,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Approval Action" min-width="180">
+      <el-table-column label="Approval Action" width="180">
         <template #default="{ row }">
           <el-select
             v-model="row.approvalActionType"
