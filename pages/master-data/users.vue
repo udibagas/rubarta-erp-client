@@ -143,13 +143,7 @@
           multiple
         >
           <el-option
-            v-for="(role, i) in [
-              'USER',
-              'APPROVER',
-              'VERIFIER',
-              'AUTHORIZER',
-              'ADMIN',
-            ]"
+            v-for="(role, i) in store.roles"
             :value="role"
             :label="role"
             :key="i"
