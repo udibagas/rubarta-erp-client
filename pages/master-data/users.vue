@@ -101,7 +101,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="deleteData(row.id)"
+                @click.native.prevent="deleteData(row.id, store.getUsers)"
               >
                 Delete
               </el-dropdown-item>
@@ -220,7 +220,11 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save()">
+      <el-button
+        :icon="SuccessFilled"
+        type="success"
+        @click="save(store.getUsers)"
+      >
         SAVE
       </el-button>
     </template>
