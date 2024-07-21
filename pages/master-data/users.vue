@@ -25,19 +25,28 @@
   <el-table stripe v-loading="loading" :data="tableData">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column
-      prop="name"
-      label="Name"
-      sortable="custom"
-    ></el-table-column>
+    <el-table-column label="Name" min-width="150">
+      <template #default="{ row }">
+        <strong>{{ row.name }}</strong>
+        <br />
+        {{ row.email }}
+      </template>
+    </el-table-column>
 
-    <el-table-column
-      prop="email"
-      label="Email"
-      sortable="custom"
-    ></el-table-column>
+    <el-table-column label="Department" min-width="150">
+      <template #default="{ row }">
+        {{ row.Department?.name }}
+      </template>
+    </el-table-column>
 
-    <el-table-column prop="roles" label="Role" sortable="custom">
+    <el-table-column label="Bank" min-width="150">
+      <template #default="{ row }">
+        {{ row.Bank?.name }} <br />
+        {{ row.bankAccount }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="roles" label="Role" min-width="150">
       <template #default="{ row }">
         <el-tag
           v-for="role in row.roles"
@@ -45,7 +54,7 @@
           type="info"
           size="small"
           effect="dark"
-          class="mr-2"
+          class="mr-1"
         >
           {{ role }}
         </el-tag>
@@ -55,14 +64,13 @@
     <el-table-column
       prop="status"
       label="Status"
-      sortable="custom"
       align="center"
       header-align="center"
       width="100"
     >
       <template #default="{ row }">
         <el-tag
-          :type="row.active ? 'success' : 'info'"
+          :type="row.active ? 'success' : 'danger'"
           size="small"
           style="width: 100%"
           effect="dark"
@@ -130,7 +138,7 @@
       <el-form-item label="Roles" :error="formErrors.roles">
         <el-select
           v-model="formModel.roles"
-          placeholder="Level"
+          placeholder="Roles"
           style="width: 100%"
           multiple
         >
@@ -150,18 +158,58 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Department" :error="formErrors.departmentId">
+        <el-select
+          v-model="formModel.departmentId"
+          placeholder="Department"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(el, i) in departments"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Bank" :error="formErrors.bankId">
+        <el-select
+          v-model="formModel.bankId"
+          placeholder="Bank"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(el, i) in banks"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Bank Account" :error="formErrors.bankAccount">
+        <el-input
+          placeholder="Bank Account"
+          v-model="formModel.bankAccount"
+        ></el-input>
+      </el-form-item>
+
       <el-form-item label="Status" :error="formErrors.active">
         <el-switch
           :active-value="true"
           :inactive-value="false"
           v-model="formModel.active"
-          active-color="#13ce66"
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
         >
         </el-switch>
         <el-tag
-          :type="formModel.active ? 'success' : 'info'"
+          :type="formModel.active ? 'success' : 'danger'"
           size="small"
           style="margin-left: 10px"
+          effect="dark"
         >
           {{ !!formModel.active ? "Aktif" : "Nonaktif" }}
         </el-tag>
@@ -180,6 +228,8 @@
 </template>
 
 <script setup>
+const store = useWebsiteStore();
+
 import {
   Refresh,
   Plus,
@@ -191,17 +241,16 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
+const departments = computed(() => store.departments);
+const banks = computed(() => store.banks);
+
 const {
   showForm,
   formErrors,
   formModel,
-  pageSize,
   tableData,
   loading,
   keyword,
-  currentChange,
-  sizeChange,
-  sortChange,
   openForm,
   save,
   deleteData,
@@ -213,5 +262,10 @@ const {
 
 onMounted(() => {
   requestData();
+});
+
+onBeforeMount(async () => {
+  await store.getDepartments();
+  await store.getBanks();
 });
 </script>
