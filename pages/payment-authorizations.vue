@@ -1,0 +1,1 @@
+<template>Payment authorization</template>
