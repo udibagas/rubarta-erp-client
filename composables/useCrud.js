@@ -47,7 +47,7 @@ export default (url, paginated = true) => {
 
   const openForm = (data) => {
     formErrors.value = {};
-    formModel.value = { ...data };
+    formModel.value = JSON.parse(JSON.stringify(data));
     showForm.value = true;
   };
 
