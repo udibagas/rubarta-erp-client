@@ -210,8 +210,6 @@ const {
 } = useCrud("/api/approval-settings");
 
 const addItem = () => {
-  console.log(formModel.value.ApprovalSettingItem);
-
   const newRow = {
     level: undefined,
     approvalActionType: undefined,
