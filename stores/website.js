@@ -1,20 +1,11 @@
-import { ElMessage } from "element-plus";
 import { defineStore } from "pinia";
-
-const config = useRuntimeConfig();
-const fetch = $fetch.create({
-  baseURL: config.public.apiBase,
-  credentials: "include",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+const api = useApi();
 
 export const useWebsiteStore = defineStore("website", {
   state: () => ({
     banks: [],
     companies: [],
+    companyId: useCookie("companyId"),
     departments: [],
     expenseTypes: [],
     users: [],
@@ -55,28 +46,32 @@ export const useWebsiteStore = defineStore("website", {
 
   actions: {
     async getBanks() {
-      const data = await fetch("/api/banks");
+      const data = await api("/api/banks");
       this.banks = data;
     },
 
     async getCompanies() {
-      const data = await fetch("/api/companies");
+      const data = await api("/api/companies");
       this.companies = data;
     },
 
     async getDepartments() {
-      const data = await fetch("/api/departments");
+      const data = await api("/api/departments");
       this.departments = data;
     },
 
     async getExpenseTypes() {
-      const data = await fetch("/api/expense-types");
+      const data = await api("/api/expense-types");
       this.expenseTypes = data;
     },
 
     async getUsers() {
-      const data = await fetch("/api/users");
+      const data = await api("/api/users");
       this.users = data;
+    },
+
+    setCompany(id) {
+      this.companyId = id;
     },
   },
 });
