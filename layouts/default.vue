@@ -66,8 +66,8 @@
           </el-dropdown>
 
           <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link" style="cursor: pointer">
-              Welcome, {{ user.name }}!
+            <span style="cursor: pointer">
+              <el-avatar>{{ user.name[0].toUpperCase() }}</el-avatar>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
