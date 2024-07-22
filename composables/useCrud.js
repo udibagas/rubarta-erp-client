@@ -1,6 +1,6 @@
 import exportFromJSON from "export-from-json";
 
-export default (url, paginated = true) => {
+export default (url, paginated = false) => {
   const api = useApi();
   const showForm = ref(false);
   const formErrors = ref({});
@@ -8,7 +8,7 @@ export default (url, paginated = true) => {
   const keyword = ref("");
   const page = ref(1);
   const pageSize = ref(10);
-  const tableData = paginated ? ref([]) : ref({});
+  const tableData = paginated ? ref({}) : ref([]);
   const sort_prop = ref(null);
   const sort_order = ref(null);
   const filters = ref({});
@@ -136,14 +136,20 @@ export default (url, paginated = true) => {
 
   const requestData = () => {
     let params = {
-      page: page.value,
       keyword: keyword.value,
-      pageSize: pageSize.value,
       sort_prop: sort_prop.value,
       sort_order: sort_order.value,
-      paginated: paginated,
       ...filters.value,
     };
+
+    if (paginated) {
+      params = {
+        ...params,
+        paginated: true,
+        page: page.value,
+        pageSize: pageSize.value,
+      };
+    }
 
     // parse array
     for (let key in params) {
@@ -178,16 +184,6 @@ export default (url, paginated = true) => {
       .finally(() => (loading.value = false));
   };
 
-  const toRupiah = (value) => {
-    if (!value) return "-";
-    value = Number(value);
-    return value.toLocaleString("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    });
-  };
-
   return {
     api,
     showForm,
@@ -213,6 +209,5 @@ export default (url, paginated = true) => {
     closeForm,
     requestData,
     exportData,
-    toRupiah,
   };
 };
