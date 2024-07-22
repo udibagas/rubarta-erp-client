@@ -1,5 +1,10 @@
 <template>
-  <el-dialog title="PROFIL SAYA" :model-value="show" width="500px">
+  <el-dialog
+    title="MY PROFILE"
+    :model-value="show"
+    width="500px"
+    :before-close="(done) => emit('close')"
+  >
     <el-form label-width="180px" label-position="left">
       <el-form-item label="Name" :error="formErrors.name">
         <el-input placeholder="Name" v-model="formModel.name"></el-input>
@@ -10,7 +15,16 @@
       </el-form-item>
 
       <el-form-item label="Roles">
-        <el-input disabled :value="formModel.roles"></el-input>
+        <el-tag
+          v-for="role in formModel.roles"
+          :key="role"
+          type="info"
+          size="small"
+          effect="dark"
+          class="mr-1"
+        >
+          {{ role }}
+        </el-tag>
       </el-form-item>
 
       <el-form-item label="Password" :error="formErrors.password">
@@ -20,7 +34,47 @@
           v-model="formModel.password"
         ></el-input>
       </el-form-item>
+
+      <el-form-item label="Department" :error="formErrors.departmentId">
+        <el-select
+          v-model="formModel.departmentId"
+          placeholder="Department"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(el, i) in departments"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Bank" :error="formErrors.bankId">
+        <el-select
+          v-model="formModel.bankId"
+          placeholder="Bank"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(el, i) in banks"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Bank Account" :error="formErrors.bankAccount">
+        <el-input
+          placeholder="Bank Account"
+          v-model="formModel.bankAccount"
+        ></el-input>
+      </el-form-item>
     </el-form>
+
     <template #footer>
       <el-button @click="emit('close')" :icon="CircleCloseFilled">
         CLOSE
@@ -36,6 +90,7 @@
 const api = useApi();
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { user } = useSanctumAuth();
+const store = useWebsiteStore();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
 
@@ -45,7 +100,7 @@ const formErrors = ref({});
 const save = () => {
   const loadingInstance = ElLoading.service({ target: ".el-dialog" });
 
-  api(`/api/user/${formModel.value.id}`, {
+  api(`/api/users/${formModel.value.id}`, {
     method: "PATCH",
     body: formModel.value,
   })
@@ -57,8 +112,14 @@ const save = () => {
       });
     })
     .catch((e) => {
-      if (e.response.status == 422) {
-        formErrors.value = e.response._data.errors;
+      if (e.response.status == 400) {
+        const errors = {};
+
+        e.response._data.errors.forEach(({ error, property }) => {
+          errors[property] = error;
+        });
+
+        formErrors.value = errors;
       } else {
         formErrors.value = {};
       }
@@ -67,4 +128,12 @@ const save = () => {
       loadingInstance.close();
     });
 };
+
+const banks = computed(() => store.banks);
+const departments = computed(() => store.departments);
+
+onBeforeMount(async () => {
+  await store.getBanks();
+  await store.getDepartments();
+});
 </script>
