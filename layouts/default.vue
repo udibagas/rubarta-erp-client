@@ -10,7 +10,6 @@
             margin: 25px 0 10px 0;
             border-radius: 5px;
           "
-          alt
         />
 
         <div>
@@ -19,6 +18,26 @@
           <small>{{ user.email }}</small>
         </div>
       </div>
+
+      <div v-show="!collapse" style="text-align: center; margin-bottom: 20px">
+        <el-button
+          :icon="User"
+          type="success"
+          size="small"
+          @click="showProfile = true"
+        >
+          Profile
+        </el-button>
+        <el-button
+          :icon="ArrowRight"
+          type="danger"
+          size="small"
+          @click="handleClickLogout"
+        >
+          Sign Out
+        </el-button>
+      </div>
+
       <el-menu
         router
         :collapse="collapse"
@@ -45,41 +64,19 @@
 
           <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
 
-          <el-dropdown class="mr-5">
-            <span class="el-dropdown-link">
-              <el-badge :value="3" class="item">
-                <el-icon :size="24">
-                  <Bell />
-                </el-icon>
-              </el-badge>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item>Action 1</el-dropdown-item>
-                <el-dropdown-item>Action 2</el-dropdown-item>
-                <el-dropdown-item>Action 3</el-dropdown-item>
-                <el-dropdown-item divided :icon="Delete"
-                  >Clear Notification</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-
-          <el-dropdown @command="handleCommand">
-            <span style="cursor: pointer">
-              <el-avatar>{{ user.name[0].toUpperCase() }}</el-avatar>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item :icon="User" command="profile">
-                  My Profile
-                </el-dropdown-item>
-                <el-dropdown-item :icon="ArrowRight" command="logout">
-                  Sign Out
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <el-select
+            v-model="companyId"
+            placeholder="Select Company"
+            style="width: 270px"
+            @change="changeCompany"
+          >
+            <el-option
+              v-for="c in companies"
+              :key="c.id"
+              :label="`${c.code} - ${c.name}`"
+              :value="c.id"
+            />
+          </el-select>
         </div>
       </el-header>
 
@@ -93,6 +90,11 @@
 
 <script setup>
 const { user, logout } = useSanctumAuth();
+const store = useWebsiteStore();
+const api = useApi();
+const collapse = ref(false);
+const showProfile = ref(false);
+const companyId = computed(() => store.companyId);
 
 import {
   Fold,
@@ -105,6 +107,7 @@ import {
   CreditCard,
   DataAnalysis,
   ArrowRight,
+  ArrowDown,
   Setting,
   Delete,
   Coin,
@@ -156,27 +159,38 @@ const links = [
   },
 ];
 
-const store = useWebsiteStore();
-const collapse = ref(false);
-const showProfile = ref(false);
-
 const goBack = () => {
   window.history.back();
 };
 
 const handleCommand = (command) => {
   if (command === "logout") {
-    ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
-      confirmButtonText: "Ya",
-      cancelButtonText: "Tidak",
-      type: "warning",
-    })
-      .then(() => logout())
-      .catch(() => console.log("Action cancelled"));
+    handleClickLogout();
   }
 
   if (command === "profile") {
     showProfile.value = true;
   }
 };
+
+const handleClickLogout = () => {
+  ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
+    confirmButtonText: "Ya",
+    cancelButtonText: "Tidak",
+    type: "warning",
+  })
+    .then(() => logout())
+    .catch(() => console.log("Action cancelled"));
+};
+
+const changeCompany = async (id) => {
+  await api(`/api/companies/set/${id}`, { method: "POST" });
+  store.setCompany(id);
+};
+
+const companies = computed(() => store.companies);
+
+onBeforeMount(async () => {
+  await store.getCompanies();
+});
 </script>
