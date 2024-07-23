@@ -140,6 +140,7 @@ export default (url, paginated = false) => {
       sort_prop: sort_prop.value,
       sort_order: sort_order.value,
       ...filters.value,
+      companyId: useCookie("companyId").value, // jadi default filter untuk transaction data
     };
 
     if (paginated) {

@@ -9,6 +9,7 @@
           size="small"
           @click="
             openForm({
+              companyId: store.companyId,
               deduction: 0,
               PaymentAuthorizationItem: [{ ...newRow }],
             })
@@ -170,7 +171,7 @@
   >
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Company" :error="formErrors.companyId">
-        <el-select v-model="formModel.companyId" placeholder="Company">
+        <el-select v-model="formModel.companyId" placeholder="Company" disabled>
           <el-option
             v-for="(el, i) in companies"
             :value="el.id"
@@ -350,12 +351,6 @@
 </template>
 
 <script setup>
-const goBack = () => {
-  window.history.back();
-};
-
-const store = useWebsiteStore();
-
 import {
   Refresh,
   Plus,
@@ -366,22 +361,6 @@ import {
   MoreFilled,
   Search,
 } from "@element-plus/icons-vue";
-
-const companies = computed(() => store.companies);
-const users = computed(() => store.users);
-const banks = computed(() => store.banks);
-const amount = computed(() => {
-  return (
-    formModel.value.PaymentAuthorizationItem?.reduce(
-      (total, current) => total + Number(current.amount),
-      0
-    ) ?? 0
-  );
-});
-
-const netAmount = computed(() => {
-  return amount.value - Number(formModel.value.deduction);
-});
 
 const {
   showForm,
@@ -402,6 +381,39 @@ const {
   sizeChange,
   searchData,
 } = useCrud("/api/payment-authorizations", true);
+
+const store = useWebsiteStore();
+
+onBeforeMount(async () => {
+  await store.getCompanies();
+  await store.getBanks();
+  await store.getUsers();
+});
+
+onMounted(() => {
+  requestData();
+});
+
+const companies = computed(() => store.companies);
+const companyId = computed(() => store.companyId);
+const users = computed(() => store.users);
+const banks = computed(() => store.banks);
+const amount = computed(() => {
+  return (
+    formModel.value.PaymentAuthorizationItem?.reduce(
+      (total, current) => total + Number(current.amount),
+      0
+    ) ?? 0
+  );
+});
+
+watch(companyId, () => {
+  refreshData();
+});
+
+const netAmount = computed(() => {
+  return amount.value - Number(formModel.value.deduction);
+});
 
 const newRow = {
   date: undefined,
@@ -449,13 +461,7 @@ const updateBank = (id) => {
   }
 };
 
-onMounted(() => {
-  requestData();
-});
-
-onBeforeMount(async () => {
-  await store.getCompanies();
-  await store.getBanks();
-  await store.getUsers();
-});
+const goBack = () => {
+  window.history.back();
+};
 </script>

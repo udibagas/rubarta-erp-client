@@ -10,6 +10,7 @@
           @click="
             openForm({
               cashAdvance: 0,
+              companyId: store.companyId,
               departmentId: user.departmentId,
               ExpenseClaimItem: [{ ...newRow }],
             })
@@ -163,7 +164,7 @@
   >
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Company" :error="formErrors.companyId">
-        <el-select v-model="formModel.companyId" placeholder="Company">
+        <el-select v-model="formModel.companyId" placeholder="Company" disabled>
           <el-option
             v-for="(el, i) in companies"
             :value="el.id"
@@ -266,19 +267,29 @@
       </el-table-column>
     </el-table>
 
-    <!-- TODO: group by expense type -->
+    <el-table :data="summary">
+      <el-table-column
+        prop="expenseType"
+        label="Expense Type"
+      ></el-table-column>
+      <el-table-column label="Amount" align="right" header-align="right">
+        <template #default="{ row }">
+          <strong>{{ toRupiah(row.amount) }}</strong>
+        </template>
+      </el-table-column>
+    </el-table>
 
     <table class="table">
       <tbody>
         <tr>
-          <td style="width: 150px">TOTAL EXPENSE</td>
+          <td class="strong">TOTAL EXPENSE</td>
           <td class="text-right">
             <strong>{{ toRupiah(totalAmount) }}</strong>
           </td>
         </tr>
 
         <tr>
-          <td>CASH ADVANCE</td>
+          <td class="strong">CASH ADVANCE</td>
           <td class="text-right">
             <el-input
               type="number"
@@ -291,7 +302,7 @@
         </tr>
 
         <tr>
-          <td>{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
+          <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
           <td class="text-right">
             <strong :class="claim > 0 ? 'text-success' : 'text-danger'">
               {{ toRupiah(claim) }}
@@ -325,13 +336,6 @@
 </template>
 
 <script setup>
-const goBack = () => {
-  window.history.back();
-};
-
-const store = useWebsiteStore();
-const { user } = useSanctumAuth();
-
 import {
   Refresh,
   Plus,
@@ -343,22 +347,8 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const companies = computed(() => store.companies);
-const departments = computed(() => store.departments);
-const expenseTypes = computed(() => store.expenseTypes);
-
-const totalAmount = computed(() => {
-  return (
-    formModel.value.ExpenseClaimItem?.reduce(
-      (total, current) => total + Number(current.amount),
-      0
-    ) ?? 0
-  );
-});
-
-const claim = computed(() => {
-  return totalAmount.value - Number(formModel.value.cashAdvance);
-});
+const store = useWebsiteStore();
+const { user } = useSanctumAuth();
 
 const {
   showForm,
@@ -379,6 +369,65 @@ const {
   sizeChange,
   searchData,
 } = useCrud("/api/expense-claims", true);
+
+onBeforeMount(async () => {
+  await store.getCompanies();
+  await store.getDepartments();
+  await store.getExpenseTypes();
+});
+
+onMounted(() => {
+  requestData();
+});
+
+const companies = computed(() => store.companies);
+const companyId = computed(() => store.companyId);
+const departments = computed(() => store.departments);
+const expenseTypes = computed(() => store.expenseTypes);
+
+watch(companyId, () => {
+  refreshData();
+});
+
+const totalAmount = computed(() => {
+  return (
+    formModel.value.ExpenseClaimItem?.reduce(
+      (total, current) => total + Number(current.amount),
+      0
+    ) ?? 0
+  );
+});
+
+const claim = computed(() => {
+  return totalAmount.value - Number(formModel.value.cashAdvance);
+});
+
+const summary = computed(() => {
+  const summaryObj = {};
+
+  formModel.value.ExpenseClaimItem?.forEach((item) => {
+    if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
+    summaryObj[item.expenseTypeId] += item.amount;
+  });
+
+  // {1: 20000, 3: 20000, 4: 150000}
+
+  const summaryArr = Object.keys(summaryObj).map((k) => {
+    const expenseType =
+      expenseTypes.value.find((e) => e.id == k)?.name ?? "OTHER";
+
+    return {
+      expenseType,
+      amount: summaryObj[k],
+    };
+  });
+
+  return summaryArr;
+});
+
+const goBack = () => {
+  window.history.back();
+};
 
 const newRow = {
   date: undefined,
@@ -417,14 +466,4 @@ const saveWithStatus = (status) => {
 
   save();
 };
-
-onMounted(() => {
-  requestData();
-});
-
-onBeforeMount(async () => {
-  await store.getCompanies();
-  await store.getDepartments();
-  await store.getExpenseTypes();
-});
 </script>
