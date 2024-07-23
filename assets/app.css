@@ -83,6 +83,7 @@ body {
 .el-table th,
 .el-table thead.is-group th {
   padding: 4px 0;
+  text-transform: uppercase;
 }
 
 .text-red,
@@ -140,7 +141,7 @@ table {
   /* background-color: #efefef; */
   color: #009932;
   line-height: 60px;
-  border-bottom: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd; */
 }
 
 .sidebar {
@@ -349,3 +350,11 @@ table {
   align-items: center;
 }
 
+a {
+  text-decoration: none;
+  color: #05b740;
+}
+
+a:hover {
+  color: #078f35;
+}

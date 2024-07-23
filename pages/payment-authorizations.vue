@@ -1,14 +1,17 @@
 <template>
   <el-page-header @back="goBack">
     <template #content>
-      <span class="text-large font-600"> Payment Authorizations </span>
+      <span class="text-large font-600"> PAYMENT AUTHORIZATION </span>
     </template>
     <template #extra>
       <form @submit.prevent="searchData">
         <el-button
           size="small"
           @click="
-            openForm({ deduction: 0, PaymentAuthorizationItem: [newRow] })
+            openForm({
+              deduction: 0,
+              PaymentAuthorizationItem: [{ ...newRow }],
+            })
           "
           type="success"
           :icon="Plus"
@@ -35,35 +38,85 @@
   <el-table stripe v-loading="loading" :data="tableData.data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column prop="number" label="Number"> </el-table-column>
-
-    <el-table-column label="Number">
+    <el-table-column label="Number" width="220">
       <template #default="{ row }">
+        <strong>
+          <NuxtLink :to="`/payment-authorizations/${row.id}`">
+            {{ row.number }}</NuxtLink
+          >
+        </strong>
+        <br />
         {{ formatDate(row.date) }}
       </template>
     </el-table-column>
 
-    <!-- <el-table-column label="Requester">
+    <el-table-column label="Requester" min-width="150">
       <template #default="{ row }">
         {{ row.Requester?.name }}
       </template>
-    </el-table-column> -->
+    </el-table-column>
 
-    <el-table-column label="Employee">
+    <el-table-column label="Employee" min-width="150">
       <template #default="{ row }">
-        {{ row.Employee?.name }}
+        <strong>{{ row.Employee?.name }}</strong
+        ><br />
+        {{ row.Bank?.code }} - {{ row.bankAccount }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Net Amount">
+    <el-table-column
+      label="Gross Amount"
+      width="150"
+      align="right"
+      hader-align="right"
+    >
       <template #default="{ row }">
-        {{ toRupiah(row.netAmount) }}
+        {{ toRupiah(row.grossAmount) }}
       </template>
     </el-table-column>
-    <el-table-column prop="description" label="Description"> </el-table-column>
-    <el-table-column prop="status" label="Status"> </el-table-column>
 
-    <el-table-column width="60px" align="center" header-align="center">
+    <el-table-column
+      label="Deduction"
+      width="150"
+      align="right"
+      hader-align="right"
+    >
+      <template #default="{ row }">
+        {{ toRupiah(row.deduction) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column
+      label="Net Amount"
+      width="150"
+      align="right"
+      hader-align="right"
+    >
+      <template #default="{ row }">
+        <strong>{{ toRupiah(row.netAmount) }}</strong>
+      </template>
+    </el-table-column>
+
+    <el-table-column
+      label="Status"
+      align="center"
+      header-align="center"
+      width="150"
+      fixed="right"
+    >
+      <template #default="{ row }">
+        <el-tag type="primary" effect="dark" style="width: 100%">{{
+          row.status
+        }}</el-tag>
+      </template>
+    </el-table-column>
+
+    <el-table-column
+      width="60px"
+      align="center"
+      header-align="center"
+      fixed="right"
+    >
       <template #header>
         <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
@@ -111,11 +164,11 @@
 
   <el-dialog
     v-model="showForm"
-    width="800"
-    title="PAYMENT ATHORIZATION"
+    width="900"
+    title="PAYMENT AUTHORIZATION"
     :close-on-click-modal="false"
   >
-    <el-form label-width="160px" label-position="left">
+    <el-form label-width="150px" label-position="left">
       <el-form-item label="Company" :error="formErrors.companyId">
         <el-select v-model="formModel.companyId" placeholder="Company">
           <el-option
@@ -164,31 +217,10 @@
         <el-input v-model="formModel.bankAccount" placeholder="Bank Account" />
       </el-form-item>
 
-      <el-form-item label="Gross Amount" :error="formErrors.grossAmount">
-        <strong>{{ toRupiah(amount) }}</strong>
-      </el-form-item>
-
-      <el-form-item label="Deduction" :error="formErrors.deduction">
-        <div class="flex">
-          <el-input
-            type="number"
-            v-model="formModel.deduction"
-            placeholder="Deduction"
-            class="mr-2"
-          />
-
-          <strong>{{ toRupiah(formModel.deduction) }}</strong>
-        </div>
-      </el-form-item>
-
-      <el-form-item label="Net Amount" :error="formErrors.netAmount">
-        <strong>{{ toRupiah(netAmount) }}</strong>
-      </el-form-item>
-
       <el-form-item label="Description" :error="formErrors.description">
         <el-input
           type="textarea"
-          :rows="1"
+          :rows="3"
           v-model="formModel.description"
           placeholder="Description"
         />
@@ -198,7 +230,7 @@
     <el-table :data="formModel.PaymentAuthorizationItem">
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="Date" width="170">
+      <el-table-column label="DATE" width="170">
         <template #default="{ row }">
           <el-date-picker
             v-model="row.date"
@@ -211,7 +243,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Description">
+      <el-table-column label="DESCRIPTION">
         <template #default="{ row }">
           <el-input
             type="textarea"
@@ -223,14 +255,20 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Amount" width="150">
+      <el-table-column label="AMOUNT" width="150">
         <template #default="{ row }">
           <el-input type="number" v-model="row.amount" placeholder="Amount">
           </el-input>
         </template>
       </el-table-column>
 
-      <el-table-column width="60" header-align="center" align="center">
+      <el-table-column width="120" align="right">
+        <template #default="{ row }">
+          <strong>{{ toRupiah(row.amount) }}</strong>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="50" header-align="center" align="center">
         <template #header>
           <el-button
             link
@@ -253,11 +291,32 @@
     <table class="table">
       <tbody>
         <tr>
-          <td style="width: 150px">GRAND TOTAL</td>
-          <td>
+          <td>GRAND TOTAL/GROSS AMOUNT</td>
+          <td class="text-right">
             <strong>{{ toRupiah(amount) }}</strong>
           </td>
         </tr>
+
+        <tr>
+          <td>DEDUCTION</td>
+          <td class="text-right">
+            <el-input
+              type="number"
+              v-model="formModel.deduction"
+              placeholder="Deduction"
+              style="width: 120px; margin-right: 10px"
+            />
+            <strong>{{ toRupiah(formModel.deduction) }}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td>NET AMOUNT</td>
+          <td class="text-right">
+            <strong>{{ toRupiah(netAmount) }}</strong>
+          </td>
+        </tr>
+
         <tr>
           <td>TERBILANG</td>
           <td>
@@ -312,9 +371,11 @@ const companies = computed(() => store.companies);
 const users = computed(() => store.users);
 const banks = computed(() => store.banks);
 const amount = computed(() => {
-  return formModel.value.PaymentAuthorizationItem.reduce(
-    (total, current) => total + Number(current.amount),
-    0
+  return (
+    formModel.value.PaymentAuthorizationItem?.reduce(
+      (total, current) => total + Number(current.amount),
+      0
+    ) ?? 0
   );
 });
 
@@ -349,7 +410,7 @@ const newRow = {
 };
 
 const addItem = () => {
-  formModel.value.PaymentAuthorizationItem.push(newRow);
+  formModel.value.PaymentAuthorizationItem.push({ ...newRow });
 };
 
 const deleteItem = async (index, id) => {
@@ -370,8 +431,9 @@ const saveWithStatus = (status) => {
   formModel.value.grossAmount = amount;
   formModel.value.netAmount = netAmount;
   formModel.value.deduction = Number(formModel.value.deduction);
+
   formModel.value.PaymentAuthorizationItem.forEach((e) => {
-    e.date = new Date(e.date);
+    e.amount = Number(e.amount);
   });
 
   formModel.value.amount = amount;

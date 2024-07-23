@@ -69,6 +69,7 @@
             placeholder="Select Company"
             style="width: 270px"
             @change="changeCompany"
+            size="large"
           >
             <el-option
               v-for="c in companies"
@@ -107,9 +108,7 @@ import {
   CreditCard,
   DataAnalysis,
   ArrowRight,
-  ArrowDown,
   Setting,
-  Delete,
   Coin,
   Memo,
   DataLine,
@@ -136,6 +135,11 @@ const links = [
     label: "Dashboard",
     path: "/",
     icon: "DataLine",
+  },
+  {
+    label: "Notifications",
+    path: "/notifications",
+    icon: "Bell",
   },
   {
     label: "Payment Authorization",

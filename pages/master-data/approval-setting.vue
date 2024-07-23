@@ -3,7 +3,7 @@
     <el-button
       size="small"
       :icon="Plus"
-      @click="openForm({ ApprovalSettingItem: [] })"
+      @click="openForm({ ApprovalSettingItem: [{...newRow}] })"
       type="success"
     >
       ADD APPROVAL SETTING
@@ -209,13 +209,13 @@ const {
   api,
 } = useCrud("/api/approval-settings");
 
-const addItem = () => {
-  const newRow = {
-    level: undefined,
-    approvalActionType: undefined,
-    userId: undefined,
-  };
+const newRow = {
+  level: undefined,
+  approvalActionType: undefined,
+  userId: undefined,
+};
 
+const addItem = () => {
   formModel.value.ApprovalSettingItem.push(newRow);
 };
 
