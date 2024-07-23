@@ -83,11 +83,20 @@
     </el-table-column>
   </el-table>
 
+  <el-table :data="summary">
+    <el-table-column prop="expenseType" label="Expense Type"></el-table-column>
+    <el-table-column label="Amount" align="right" header-align="right">
+      <template #default="{ row }">
+        <strong>{{ toRupiah(row.amount) }}</strong>
+      </template>
+    </el-table-column>
+  </el-table>
+
   <table class="table">
     <tbody>
       <tr>
         <td>TOTAL</td>
-        <td class="text-right" style="padding-right: 71px">
+        <td class="text-right">
           <strong>
             {{
               toRupiah(
@@ -193,6 +202,14 @@ const {
   requestData,
 } = useCrud("/api/expense-notes");
 
+onBeforeMount(async () => {
+  await store.getExpenseTypes();
+});
+
+onMounted(() => {
+  requestData();
+});
+
 const expenseTypes = computed(() => store.expenseTypes);
 
 const goBack = () => {
@@ -208,11 +225,26 @@ const submit = () => {
   save();
 };
 
-onMounted(() => {
-  requestData();
-});
+const summary = computed(() => {
+  const summaryObj = {};
 
-onBeforeMount(async () => {
-  await store.getExpenseTypes();
+  tableData.value.forEach((item) => {
+    if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
+    summaryObj[item.expenseTypeId] += item.amount;
+  });
+
+  // {1: 20000, 3: 20000, 4: 150000}
+
+  const summaryArr = Object.keys(summaryObj).map((k) => {
+    const expenseType =
+      expenseTypes.value.find((e) => e.id == k)?.name ?? "OTHER";
+
+    return {
+      expenseType,
+      amount: summaryObj[k],
+    };
+  });
+
+  return summaryArr;
 });
 </script>
