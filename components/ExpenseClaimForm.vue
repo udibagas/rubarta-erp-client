@@ -235,7 +235,7 @@ const disabledDate = (time) => {
 const saveWithStatus = (status) => {
   ecs.formModel.status = status;
   ecs.formModel.totalAmount = totalAmount;
-  ecs.formModel.cashAdvance = Number(formModel.cashAdvance);
+  ecs.formModel.cashAdvance = Number(ecs.formModel.cashAdvance);
   ecs.formModel.claim = claim;
 
   ecs.formModel.ExpenseClaimItem.forEach((e) => {
