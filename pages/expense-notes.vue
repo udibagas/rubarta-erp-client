@@ -93,7 +93,7 @@
     </el-table-column>
   </el-table>
 
-  <el-table :data="expenseNoteStore.summary">
+  <el-table :data="summary">
     <el-table-column prop="expenseType" label="Expense Type"></el-table-column>
     <el-table-column label="Amount" align="right" header-align="right">
       <template #default="{ row }">

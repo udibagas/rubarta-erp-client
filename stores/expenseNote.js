@@ -80,29 +80,4 @@ export const useExpenseNoteStore = defineStore("expenseNoteStore", {
         .catch(() => console.log(e));
     },
   },
-
-  // getters: {
-  //   summary: (state) => {
-  //     const summaryObj = {};
-
-  //     state.expenseNotes.forEach((item) => {
-  //       if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
-  //       summaryObj[item.expenseTypeId] += item.amount;
-  //     });
-
-  //     // { 1: 20000, 3: 20000, 4: 150000 }
-
-  //     const summaryArr = Object.keys(summaryObj).map((k) => {
-  //       const expenseType =
-  //         store.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
-
-  //       return {
-  //         expenseType,
-  //         amount: summaryObj[k],
-  //       };
-  //     });
-
-  //     return summaryArr;
-  //   },
-  // },
 });
