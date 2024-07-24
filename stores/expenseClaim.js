@@ -109,13 +109,20 @@ export const useExpenseClaimStore = defineStore("expenseClaimStore", {
       const loadingInstance = ElLoading.service({ target: ".el-dialog" });
 
       this.formModel.status = status;
-      this.formModel.totalAmount = totalAmount;
       this.formModel.cashAdvance = Number(this.formModel.cashAdvance);
-      this.formModel.claim = claim;
 
       this.formModel.ExpenseClaimItem.forEach((e) => {
         e.amount = Number(e.amount);
       });
+
+      this.formModel.totalAmount =
+        this.formModel.ExpenseClaimItem?.reduce(
+          (total, current) => total + Number(current.amount),
+          0
+        ) ?? 0;
+
+      this.formModel.claim =
+        this.formModel.totalAmount - this.formModel.cashAdvance;
 
       const { id, ...payload } = this.formModel;
       let request;

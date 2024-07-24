@@ -35,7 +35,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departments"
+            v-for="(el, i) in departmentStore.departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -65,7 +65,7 @@
         <template #default="{ row }">
           <el-select v-model="row.expenseTypeId" placeholder="Expense Type">
             <el-option
-              v-for="(el, i) in expenseTypes"
+              v-for="(el, i) in expenseTypeStore.expenseTypes"
               :value="el.id"
               :label="el.name"
               :key="i"
@@ -174,7 +174,7 @@
       <el-button
         :icon="SuccessFilled"
         type="info"
-        @click="saveWithStatus('DRAFT')"
+        @click="expenseClaimStore.save('DRAFT')"
       >
         SAVE AS DRAFT
       </el-button>
@@ -182,7 +182,7 @@
       <el-button
         :icon="SuccessFilled"
         type="success"
-        @click="saveWithStatus('SUBMITTED')"
+        @click="expenseClaimStore.save('SUBMITTED')"
       >
         SUBMIT
       </el-button>
@@ -198,10 +198,14 @@ import {
   Delete,
 } from "@element-plus/icons-vue";
 
-const expenseClaimStore = useExpenseClaimsStore();
+const expenseClaimStore = useExpenseClaimStore();
 const companyStore = useCompanyStore();
 const departmentStore = useDepartmentStore();
 const expenseTypeStore = useExpenseTypeStore();
+
+onBeforeMount(async () => {
+  await expenseTypeStore.requestData();
+});
 
 const totalAmount = computed(() => {
   return (
@@ -225,7 +229,7 @@ const summary = computed(() => {
   // {1: 20000, 3: 20000, 4: 150000}
   const summaryArr = Object.keys(summaryObj).map((k) => {
     const expenseType =
-      expenseTypes.value.find((e) => e.id == k)?.name ?? "OTHER";
+      expenseTypeStore.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
     return {
       expenseType,
       amount: summaryObj[k],
@@ -236,20 +240,5 @@ const summary = computed(() => {
 
 const disabledDate = (time) => {
   return time.getTime() > Date.now();
-};
-
-const saveWithStatus = (status) => {
-  expenseClaimStore.formModel.status = status;
-  expenseClaimStore.formModel.totalAmount = totalAmount;
-  expenseClaimStore.formModel.cashAdvance = Number(
-    expenseClaimStore.formModel.cashAdvance
-  );
-  expenseClaimStore.formModel.claim = claim;
-
-  expenseClaimStore.formModel.ExpenseClaimItem.forEach((e) => {
-    e.amount = Number(e.amount);
-  });
-
-  expenseClaimStore.save();
 };
 </script>

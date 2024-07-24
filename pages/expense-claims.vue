@@ -176,7 +176,7 @@ import {
 
 const companyStore = useCompanyStore();
 const { user } = useSanctumAuth();
-const expenseClaimStore = useExpenseClaimsStore();
+const expenseClaimStore = useExpenseClaimStore();
 
 onMounted(() => {
   expenseClaimStore.requestData();
