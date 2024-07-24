@@ -86,7 +86,9 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="formModel.PaymentAuthorizationItem">
+    <el-table
+      :data="paymentAuthorizationStore.formModel.PaymentAuthorizationItem"
+    >
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="DATE" width="170">
@@ -152,7 +154,7 @@
         <tr>
           <td>GRAND TOTAL/GROSS AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(amount) }}</strong>
+            <strong>{{ toRupiah(paymentAuthorizationStore.amount) }}</strong>
           </td>
         </tr>
 
@@ -174,7 +176,7 @@
         <tr>
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(netAmount) }}</strong>
+            <strong>{{ toRupiah(paymentAuthorizationStore.netAmount) }}</strong>
           </td>
         </tr>
 
@@ -222,8 +224,14 @@ import {
 } from "@element-plus/icons-vue";
 
 const userStore = useUserStore();
+const bankStore = useBankStore();
 const companyStore = useCompanyStore();
 const paymentAuthorizationStore = usePaymentAuthorizationStore();
+
+onBeforeMount(async () => {
+  await bankStore.requestData();
+  await userStore.requestData();
+});
 
 const disabledDate = (time) => {
   return time.getTime() > Date.now();

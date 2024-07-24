@@ -107,18 +107,18 @@ export const usePaymentAuthorizationStore = defineStore(
       },
 
       save(status) {
-        this.formModel.grossAmount = amount;
-        this.formModel.netAmount = netAmount;
+        const loadingInstance = ElLoading.service({ target: ".el-dialog" });
+
+        this.formModel.grossAmount = this.amount;
+        this.formModel.netAmount = this.netAmount;
         this.formModel.deduction = Number(this.formModel.deduction);
 
         this.formModel.PaymentAuthorizationItem.forEach((e) => {
           e.amount = Number(e.amount);
         });
 
-        this.formModel.amount = amount;
+        this.formModel.amount = this.amount;
         this.formModel.status = status;
-
-        const loadingInstance = ElLoading.service({ target: ".el-dialog" });
 
         const { id, ...payload } = this.formModel;
         let request;
@@ -206,7 +206,7 @@ export const usePaymentAuthorizationStore = defineStore(
       },
 
       netAmount: (state) => {
-        return this.amount - Number(state.formModel.deduction);
+        return state.amount - Number(state.formModel.deduction);
       },
     },
   }

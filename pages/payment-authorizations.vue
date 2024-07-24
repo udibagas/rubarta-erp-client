@@ -9,7 +9,7 @@
           size="small"
           @click="
             paymentAuthorizationStore.openForm({
-              companyId: store.companyId,
+              companyId: companyStore.companyId,
               deduction: 0,
               PaymentAuthorizationItem: [
                 { ...paymentAuthorizationStore.newRow },
@@ -25,7 +25,7 @@
 
         <el-input
           size="small"
-          v-model="keyword"
+          v-model="paymentAuthorizationStore.keyword"
           placeholder="Cari"
           style="width: 180px"
           :prefix-icon="Search"
@@ -181,8 +181,6 @@
 import {
   Refresh,
   Plus,
-  SuccessFilled,
-  CircleCloseFilled,
   Edit,
   Delete,
   MoreFilled,
