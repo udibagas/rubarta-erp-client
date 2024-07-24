@@ -242,6 +242,6 @@ const saveWithStatus = (status) => {
     e.amount = Number(e.amount);
   });
 
-  save();
+  ecs.save();
 };
 </script>

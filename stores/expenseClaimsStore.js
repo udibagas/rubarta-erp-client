@@ -58,7 +58,6 @@ export const useExpenseClaimsStore = defineStore("expenseClaim", {
       this.formErrors = {};
       this.formModel = data;
       this.showForm = true;
-      console.log(this.showForm, this.formModel);
     },
 
     closeForm() {
