@@ -1,34 +1,34 @@
 <template>
   <el-dialog
-    v-model="companyStore.showForm"
-    title="COMPANY"
+    v-model="departmentStore.showForm"
+    title="DEPARTMENT"
     width="500px"
     :close-on-click-modal="false"
   >
     <el-form label-width="150px" label-position="left">
-      <el-form-item label="Code" :error="companyStore.formErrors.code">
+      <el-form-item label="Code" :error="departmentStore.formErrors.code">
         <el-input
           placeholder="Code"
-          v-model="companyStore.formModel.code"
+          v-model="departmentStore.formModel.code"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="Name" :error="companyStore.formErrors.name">
+      <el-form-item label="Name" :error="departmentStore.formErrors.name">
         <el-input
           placeholder="Name"
-          v-model="companyStore.formModel.name"
+          v-model="departmentStore.formModel.name"
         ></el-input>
       </el-form-item>
     </el-form>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="companyStore.closeForm">
+      <el-button :icon="CircleCloseFilled" @click="departmentStore.closeForm">
         CANCEL
       </el-button>
       <el-button
-        type="success"
         :icon="SuccessFilled"
-        @click="companyStore.save"
+        type="success"
+        @click="departmentStore.save()"
       >
         SAVE
       </el-button>
@@ -38,5 +38,5 @@
 
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
-const companyStore = useCompanyStore();
+const departmentStore = useDepartmentStore();
 </script>

@@ -71,7 +71,7 @@ import {
   MoreFilled,
 } from "@element-plus/icons-vue";
 
-const companyStore = useCompaniesStore();
+const companyStore = useCompanyStore();
 
 onMounted(() => {
   companyStore.requestData();

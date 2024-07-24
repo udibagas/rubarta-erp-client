@@ -1,9 +1,9 @@
-const url = "/api/companies";
+const url = "/api/departments";
 const api = useApi();
 
-export const useCompaniesStore = defineStore("companiesStore", {
+export const useDepartmentStore = defineStore("departmentStore", {
   state: () => ({
-    companies: [],
+    departments: [],
     showForm: false,
     formModel: {},
     formErrors: {},
@@ -26,7 +26,7 @@ export const useCompaniesStore = defineStore("companiesStore", {
     requestData() {
       this.loading = true;
       api(url)
-        .then((data) => (this.companies = data))
+        .then((data) => (this.departments = data))
         .finally(() => (this.loading = false));
     },
 
