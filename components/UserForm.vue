@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    v-model="showForm"
+    v-model="userStore.showForm"
     width="500px"
     :title="!!userStore.formModel.id ? 'EDIT USER' : 'ADD USER'"
     :close-on-click-modal="false"
@@ -55,7 +55,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departments"
+            v-for="(el, i) in departmentStore.departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -71,7 +71,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in banks"
+            v-for="(el, i) in bankStore.banks"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -123,4 +123,12 @@
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const userStore = useUserStore();
+const departmentStore = useDepartmentStore();
+const bankStore = useBankStore();
+const store = useWebsiteStore();
+
+onBeforeMount(async () => {
+  await departmentStore.requestData();
+  await bankStore.requestData();
+});
 </script>
