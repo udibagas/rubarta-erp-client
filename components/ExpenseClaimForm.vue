@@ -1,19 +1,22 @@
 <template>
   <el-dialog
-    v-model="ecs.showForm"
+    v-model="expenseClaimStore.showForm"
     width="1000"
     title="EXPENSE CLAIM"
     :close-on-click-modal="false"
   >
     <el-form label-width="150px" label-position="left">
-      <el-form-item label="Company" :error="ecs.formErrors.companyId">
+      <el-form-item
+        label="Company"
+        :error="expenseClaimStore.formErrors.companyId"
+      >
         <el-select
-          v-model="ecs.formModel.companyId"
+          v-model="expenseClaimStore.formModel.companyId"
           placeholder="Company"
           disabled
         >
           <el-option
-            v-for="(el, i) in companies"
+            v-for="(el, i) in companyStore.companies"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -22,9 +25,12 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Department" :error="ecs.formErrors.departmentId">
+      <el-form-item
+        label="Department"
+        :error="expenseClaimStore.formErrors.departmentId"
+      >
         <el-select
-          v-model="ecs.formModel.departmentId"
+          v-model="expenseClaimStore.formModel.departmentId"
           placeholder="Department"
           style="width: 100%"
         >
@@ -39,7 +45,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="ecs.formModel.ExpenseClaimItem">
+    <el-table :data="expenseClaimStore.formModel.ExpenseClaimItem">
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="DATE" width="170">
@@ -100,7 +106,7 @@
             link
             :icon="Plus"
             type="success"
-            @click="ecs.addItem"
+            @click="expenseClaimStore.addItem"
           ></el-button>
         </template>
         <template #default="{ row, $index }">
@@ -108,7 +114,7 @@
             link
             :icon="Delete"
             type="danger"
-            @click="ecs.removeItem($index, row.id)"
+            @click="expenseClaimStore.removeItem($index, row.id)"
           ></el-button>
         </template>
       </el-table-column>
@@ -140,11 +146,13 @@
           <td class="text-right">
             <el-input
               type="number"
-              v-model="ecs.formModel.cashAdvance"
+              v-model="expenseClaimStore.formModel.cashAdvance"
               placeholder="Cash Advance"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{ toRupiah(ecs.formModel.cashAdvance) }}</strong>
+            <strong>{{
+              toRupiah(expenseClaimStore.formModel.cashAdvance)
+            }}</strong>
           </td>
         </tr>
 
@@ -160,7 +168,7 @@
     </table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="ecs.closeForm">
+      <el-button :icon="CircleCloseFilled" @click="expenseClaimStore.closeForm">
         CANCEL
       </el-button>
       <el-button
@@ -190,16 +198,14 @@ import {
   Delete,
 } from "@element-plus/icons-vue";
 
-const store = useWebsiteStore();
-const ecs = useExpenseClaimsStore();
-
-const companies = computed(() => store.companies);
-const departments = computed(() => store.departments);
-const expenseTypes = computed(() => store.expenseTypes);
+const expenseClaimStore = useExpenseClaimsStore();
+const companyStore = useCompanyStore();
+const departmentStore = useDepartmentStore();
+const expenseTypeStore = useExpenseTypeStore();
 
 const totalAmount = computed(() => {
   return (
-    ecs.formModel.ExpenseClaimItem?.reduce(
+    expenseClaimStore.formModel.ExpenseClaimItem?.reduce(
       (total, current) => total + Number(current.amount),
       0
     ) ?? 0
@@ -207,12 +213,12 @@ const totalAmount = computed(() => {
 });
 
 const claim = computed(() => {
-  return totalAmount.value - Number(ecs.formModel.cashAdvance);
+  return totalAmount.value - Number(expenseClaimStore.formModel.cashAdvance);
 });
 
 const summary = computed(() => {
   const summaryObj = {};
-  ecs.formModel.ExpenseClaimItem?.forEach((item) => {
+  expenseClaimStore.formModel.ExpenseClaimItem?.forEach((item) => {
     if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
     summaryObj[item.expenseTypeId] += item.amount;
   });
@@ -233,15 +239,17 @@ const disabledDate = (time) => {
 };
 
 const saveWithStatus = (status) => {
-  ecs.formModel.status = status;
-  ecs.formModel.totalAmount = totalAmount;
-  ecs.formModel.cashAdvance = Number(ecs.formModel.cashAdvance);
-  ecs.formModel.claim = claim;
+  expenseClaimStore.formModel.status = status;
+  expenseClaimStore.formModel.totalAmount = totalAmount;
+  expenseClaimStore.formModel.cashAdvance = Number(
+    expenseClaimStore.formModel.cashAdvance
+  );
+  expenseClaimStore.formModel.claim = claim;
 
-  ecs.formModel.ExpenseClaimItem.forEach((e) => {
+  expenseClaimStore.formModel.ExpenseClaimItem.forEach((e) => {
     e.amount = Number(e.amount);
   });
 
-  ecs.save();
+  expenseClaimStore.save();
 };
 </script>

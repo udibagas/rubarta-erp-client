@@ -33,14 +33,3 @@
     <div class="preview flex-grow">ini nanti preview message-nya</div>
   </div>
 </template>
-
-<script setup>
-const store = useWebsiteStore();
-import { Refresh, Delete, Search } from "@element-plus/icons-vue";
-const { tableData, loading, keyword, requestData, searchData, refreshData } =
-  useCrud("/api/notifications");
-
-onMounted(() => {
-  requestData();
-});
-</script>

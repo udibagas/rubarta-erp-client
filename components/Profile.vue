@@ -42,7 +42,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departments"
+            v-for="(el, i) in departmentStore.departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -58,7 +58,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in banks"
+            v-for="(el, i) in bankStore.banks"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -90,7 +90,6 @@
 const api = useApi();
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { user } = useSanctumAuth();
-const store = useWebsiteStore();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
 
@@ -111,29 +110,15 @@ const save = () => {
         showClose: true,
       });
     })
-    .catch((e) => {
-      if (e.response.status == 400) {
-        const errors = {};
-
-        e.response._data.errors.forEach(({ error, property }) => {
-          errors[property] = error;
-        });
-
-        formErrors.value = errors;
-      } else {
-        formErrors.value = {};
-      }
-    })
-    .finally(() => {
-      loadingInstance.close();
-    });
+    .catch((e) => (formErrors.value = parseError(e)))
+    .finally(() => loadingInstance.close());
 };
 
-const banks = computed(() => store.banks);
-const departments = computed(() => store.departments);
+const bankStore = useBankStore();
+const departmentStore = useDepartmentStore();
 
 onBeforeMount(async () => {
-  await store.getBanks();
-  await store.getDepartments();
+  await bankStore.requestData();
+  await departmentStore.requestData();
 });
 </script>

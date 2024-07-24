@@ -33,15 +33,16 @@ export const useExpenseNoteStore = defineStore("expenseNoteStore", {
     save() {
       const { id, amount, ...payload } = this.formModel;
       const loadingInstance = ElLoading.service({ target: ".el-dialog" });
+      const body = { ...payload, amount: Number(amount) };
       let request;
 
       if (id) {
         request = api(`${url}/${id}`, {
           method: "PATCH",
-          body: { ...payload, amount: Number(amount) },
+          body,
         });
       } else {
-        request = api(url, { method: "POST", body: payload });
+        request = api(url, { method: "POST", body });
       }
 
       request
@@ -79,4 +80,29 @@ export const useExpenseNoteStore = defineStore("expenseNoteStore", {
         .catch(() => console.log(e));
     },
   },
+
+  // getters: {
+  //   summary: (state) => {
+  //     const summaryObj = {};
+
+  //     state.expenseNotes.forEach((item) => {
+  //       if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
+  //       summaryObj[item.expenseTypeId] += item.amount;
+  //     });
+
+  //     // { 1: 20000, 3: 20000, 4: 150000 }
+
+  //     const summaryArr = Object.keys(summaryObj).map((k) => {
+  //       const expenseType =
+  //         store.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
+
+  //       return {
+  //         expenseType,
+  //         amount: summaryObj[k],
+  //       };
+  //     });
+
+  //     return summaryArr;
+  //   },
+  // },
 });

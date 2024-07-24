@@ -8,11 +8,11 @@
         <el-button
           size="small"
           @click="
-            ecs.openForm({
+            expenseClaimStore.openForm({
               cashAdvance: 0,
-              companyId: store.companyId,
+              companyId: companyStore.companyId,
               departmentId: user.departmentId,
-              ExpenseClaimItem: [{ ...newRow }],
+              ExpenseClaimItem: [{ ...expenseClaimStore.newRow }],
             })
           "
           type="success"
@@ -24,7 +24,7 @@
 
         <el-input
           size="small"
-          v-model="ecs.keyword"
+          v-model="expenseClaimStore.keyword"
           placeholder="Cari"
           style="width: 180px"
           :prefix-icon="Search"
@@ -37,7 +37,11 @@
 
   <br />
 
-  <el-table stripe v-loading="ecs.loading" :data="ecs.tableData.data">
+  <el-table
+    stripe
+    v-loading="expenseClaimStore.loading"
+    :data="expenseClaimStore.tableData.data"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Date" width="150">
@@ -112,7 +116,8 @@
       fixed="right"
     >
       <template #header>
-        <el-button link @click="ecs.refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="expenseClaimStore.refreshData" :icon="Refresh">
+        </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -125,13 +130,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="ecs.openForm(row)"
+                @click.native.prevent="expenseClaimStore.openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="ecs.remove(row.id)"
+                @click.native.prevent="expenseClaimStore.remove(row.id)"
               >
                 Delete
               </el-dropdown-item>
@@ -145,15 +150,15 @@
   <br />
 
   <el-pagination
-    v-if="ecs.tableData.total"
+    v-if="expenseClaimStore.tableData.total"
     size="small"
     background
     layout="total, sizes, prev, pager, next"
-    :page-size="ecs.pageSize"
+    :page-size="expenseClaimStore.pageSize"
     :page-sizes="[10, 25, 50, 100]"
-    :total="ecs.tableData.total"
-    @current-change="ecs.currentChange"
-    @size-change="ecs.sizeChange"
+    :total="expenseClaimStore.tableData.total"
+    @current-change="expenseClaimStore.currentChange"
+    @size-change="expenseClaimStore.sizeChange"
   ></el-pagination>
 
   <ExpenseClaimForm />
@@ -169,24 +174,18 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const store = useWebsiteStore();
+const companyStore = useCompanyStore();
 const { user } = useSanctumAuth();
-const ecs = useExpenseClaimsStore();
-
-onBeforeMount(async () => {
-  await store.getCompanies();
-  await store.getDepartments();
-  await store.getExpenseTypes();
-});
+const expenseClaimStore = useExpenseClaimsStore();
 
 onMounted(() => {
-  ecs.requestData();
+  expenseClaimStore.requestData();
 });
 
-const companyId = computed(() => store.companyId);
+const companyId = computed(() => companyStore.companyId);
 
 watch(companyId, () => {
-  ecs.refreshData();
+  expenseClaimStore.refreshData();
 });
 
 const goBack = () => {

@@ -65,14 +65,14 @@
           <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
 
           <el-select
-            v-model="companyId"
+            v-model="companyStore.companyId"
             placeholder="Select Company"
             style="width: 270px"
-            @change="changeCompany"
+            @change="(id) => companyStore.changeCompany(id)"
             size="large"
           >
             <el-option
-              v-for="c in companies"
+              v-for="c in companyStore.companies"
               :key="c.id"
               :label="`${c.code} - ${c.name}`"
               :value="c.id"
@@ -91,11 +91,10 @@
 
 <script setup>
 const { user, logout } = useSanctumAuth();
-const store = useWebsiteStore();
+const companyStore = useCompanyStore();
 const api = useApi();
 const collapse = ref(false);
 const showProfile = ref(false);
-const companyId = computed(() => store.companyId);
 
 import {
   Fold,
@@ -167,16 +166,6 @@ const goBack = () => {
   window.history.back();
 };
 
-const handleCommand = (command) => {
-  if (command === "logout") {
-    handleClickLogout();
-  }
-
-  if (command === "profile") {
-    showProfile.value = true;
-  }
-};
-
 const handleClickLogout = () => {
   ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
     confirmButtonText: "Ya",
@@ -187,14 +176,7 @@ const handleClickLogout = () => {
     .catch(() => console.log("Action cancelled"));
 };
 
-const changeCompany = async (id) => {
-  await api(`/api/companies/set/${id}`, { method: "POST" });
-  store.setCompany(id);
-};
-
-const companies = computed(() => store.companies);
-
 onBeforeMount(async () => {
-  await store.getCompanies();
+  await companyStore.requestData(); // get all companies
 });
 </script>

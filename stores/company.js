@@ -3,6 +3,7 @@ const api = useApi();
 
 export const useCompanyStore = defineStore("companyStore", {
   state: () => ({
+    companyId: useCookie("companyId"),
     companies: [],
     showForm: false,
     formModel: {},
@@ -11,6 +12,11 @@ export const useCompanyStore = defineStore("companyStore", {
   }),
 
   actions: {
+    async changeCompany(id) {
+      await api(`${url}/set/${id}`, { method: "POST" });
+      this.companyId = id;
+    },
+
     openForm(data = {}) {
       this.formModel = { ...data };
       this.formErrors = {};

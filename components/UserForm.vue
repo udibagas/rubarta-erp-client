@@ -36,7 +36,7 @@
           multiple
         >
           <el-option
-            v-for="(role, i) in store.roles"
+            v-for="(role, i) in roles"
             :value="role"
             :label="role"
             :key="i"
@@ -122,10 +122,10 @@
 
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+import { roles } from "~/constants/roles";
 const userStore = useUserStore();
 const departmentStore = useDepartmentStore();
 const bankStore = useBankStore();
-const store = useWebsiteStore();
 
 onBeforeMount(async () => {
   await departmentStore.requestData();

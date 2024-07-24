@@ -1,7 +1,7 @@
 const url = "/api/expense-claims";
 const api = useApi();
 
-export const useExpenseClaimsStore = defineStore("expenseClaim", {
+export const useExpenseClaimStore = defineStore("expenseClaimStore", {
   state: () => ({
     tableData: {},
     page: 1,
@@ -101,15 +101,22 @@ export const useExpenseClaimsStore = defineStore("expenseClaim", {
 
       this.loading = true;
       api(url, { params })
-        .then((response) => {
-          this.loading = false;
-          this.tableData = response;
-        })
+        .then((response) => (this.tableData = response))
         .finally(() => (this.loading = false));
     },
 
-    save() {
+    save(status) {
       const loadingInstance = ElLoading.service({ target: ".el-dialog" });
+
+      this.formModel.status = status;
+      this.formModel.totalAmount = totalAmount;
+      this.formModel.cashAdvance = Number(this.formModel.cashAdvance);
+      this.formModel.claim = claim;
+
+      this.formModel.ExpenseClaimItem.forEach((e) => {
+        e.amount = Number(e.amount);
+      });
+
       const { id, ...payload } = this.formModel;
       let request;
 

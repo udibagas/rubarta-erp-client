@@ -37,7 +37,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(type, i) in store.approvalTypes"
+            v-for="(type, i) in approvalTypes"
             :value="type"
             :label="type"
             :key="i"
@@ -66,7 +66,7 @@
             placeholder="Approval Action"
           >
             <el-option
-              v-for="(type, i) in store.approvalActionTypes"
+              v-for="(type, i) in approvalActionTypes"
               :value="type"
               :label="type"
               :key="i"
@@ -129,6 +129,8 @@
 </template>
 
 <script setup>
+import { approvalTypes } from "~/constants/approvalTypes";
+import { approvalActionTypes } from "~/constants/approvalActionTypes";
 import {
   SuccessFilled,
   CircleCloseFilled,
@@ -137,7 +139,6 @@ import {
 } from "@element-plus/icons-vue";
 
 const approvalSettingStore = useApprovalSettingStore();
-const store = useWebsiteStore();
 const companyStore = useCompanyStore();
 const userStore = useUserStore();
 

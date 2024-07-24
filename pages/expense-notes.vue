@@ -93,7 +93,7 @@
     </el-table-column>
   </el-table>
 
-  <el-table :data="summary">
+  <el-table :data="expenseNoteStore.summary">
     <el-table-column prop="expenseType" label="Expense Type"></el-table-column>
     <el-table-column label="Amount" align="right" header-align="right">
       <template #default="{ row }">
@@ -127,7 +127,7 @@
 
 <script setup>
 const expenseNoteStore = useExpenseNoteStore();
-const store = useWebsiteStore();
+const expenseTypeStore = useExpenseTypeStore();
 
 import {
   Refresh,
@@ -158,7 +158,7 @@ const summary = computed(() => {
 
   const summaryArr = Object.keys(summaryObj).map((k) => {
     const expenseType =
-      store.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
+      expenseTypeStore.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
 
     return {
       expenseType,

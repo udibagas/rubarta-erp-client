@@ -26,7 +26,7 @@
           placeholder="Expense Type"
         >
           <el-option
-            v-for="(el, i) in store.expenseTypes"
+            v-for="(el, i) in expenseTypeStore.expenseTypes"
             :value="el.id"
             :label="el.name"
             :key="i"
@@ -78,9 +78,13 @@
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const expenseNoteStore = useExpenseNoteStore();
-const store = useWebsiteStore();
+const expenseTypeStore = useExpenseTypeStore();
 
 const disabledDate = (time) => {
   return time.getTime() > Date.now();
 };
+
+onBeforeMount(async () => {
+  await expenseTypeStore.requestData();
+});
 </script>

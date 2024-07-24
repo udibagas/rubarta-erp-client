@@ -358,3 +358,7 @@ a {
 a:hover {
   color: #078f35;
 }
+
+.strong {
+  font-weight: bold;
+}
