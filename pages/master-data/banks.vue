@@ -1,13 +1,18 @@
 <template>
   <div class="text-right">
-    <el-button size="small" :icon="Plus" @click="openForm()" type="success">
+    <el-button
+      size="small"
+      :icon="Plus"
+      @click="bankStore.openForm()"
+      type="success"
+    >
       ADD NEW BANK
     </el-button>
   </div>
 
   <br />
 
-  <el-table :data="tableData" v-loading="loading" stripe>
+  <el-table :data="bankStore.banks" v-loading="bankStore.loading" stripe>
     <el-table-column type="index" label="#"></el-table-column>
     <el-table-column min-width="100" label="Code" prop="code"></el-table-column>
     <el-table-column min-width="100" label="Name" prop="name"></el-table-column>
@@ -19,7 +24,8 @@
       header-align="center"
     >
       <template #header>
-        <el-button link @click="requestData" :icon="Refresh"> </el-button>
+        <el-button link @click="bankStore.requestData" :icon="Refresh">
+        </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -32,13 +38,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="openForm(row)"
+                @click.native.prevent="bankStore.openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="deleteData(row.id, getBanks)"
+                @click.native.prevent="bankStore.remove(row.id)"
               >
                 Delete
               </el-dropdown-item>
@@ -49,60 +55,21 @@
     </el-table-column>
   </el-table>
 
-  <el-dialog
-    v-model="showForm"
-    title="BANK"
-    width="500px"
-    :close-on-click-modal="false"
-  >
-    <el-form label-width="150px" label-position="left">
-      <el-form-item label="Code" :error="formErrors.code">
-        <el-input placeholder="Code" v-model="formModel.code"></el-input>
-      </el-form-item>
-
-      <el-form-item label="Name" :error="formErrors.name">
-        <el-input placeholder="Name" v-model="formModel.name"></el-input>
-      </el-form-item>
-    </el-form>
-
-    <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
-        CANCEL
-      </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save(getBanks)">
-        SAVE
-      </el-button>
-    </template>
-  </el-dialog>
+  <BankForm />
 </template>
 
 <script setup>
-const { getBanks } = useWebsiteStore();
-
 import {
   Refresh,
   Plus,
-  SuccessFilled,
-  CircleCloseFilled,
   Edit,
   Delete,
   MoreFilled,
 } from "@element-plus/icons-vue";
 
-const {
-  showForm,
-  formErrors,
-  formModel,
-  tableData,
-  loading,
-  openForm,
-  save,
-  deleteData,
-  closeForm,
-  requestData,
-} = useCrud("/api/banks");
+const bankStore = useBankStore();
 
 onMounted(() => {
-  requestData();
+  bankStore.requestData();
 });
 </script>
