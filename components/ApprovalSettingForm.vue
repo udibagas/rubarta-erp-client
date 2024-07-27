@@ -106,7 +106,7 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save()">
+      <el-button :icon="SuccessFilled" type="success" @click="save(form)">
         SAVE
       </el-button>
     </template>
@@ -125,6 +125,7 @@ import {
   Plus,
 } from "@element-plus/icons-vue";
 
+const url = "/api/approval-settings";
 const newRow = {
   level: undefined,
   approvalActionType: undefined,
@@ -132,7 +133,7 @@ const newRow = {
 };
 
 const { errors, form, show, closeForm, saveMutation } = useCrud({
-  url: "/api/approval-settings",
+  url,
   queryKey: "approval-settings",
 });
 
@@ -150,5 +151,15 @@ const { data: users } = useQuery({
 
 function addItem() {
   form.value.ApprovalSettingItem.push({ ...newRow });
+}
+
+async function removeItem(index, id) {
+  if (id) {
+    await request(`${url}/${form.value.id}/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  form.value.ApprovalSettingItem.splice(index, 1);
 }
 </script>
