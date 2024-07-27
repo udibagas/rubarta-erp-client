@@ -99,7 +99,7 @@ const formErrors = ref({});
 const save = () => {
   const loadingInstance = ElLoading.service({ target: ".el-dialog" });
 
-  api(`/api/users/${formModel.value.id}`, {
+  request(`/api/users/${formModel.value.id}`, {
     method: "PATCH",
     body: formModel.value,
   })

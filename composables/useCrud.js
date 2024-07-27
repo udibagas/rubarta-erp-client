@@ -15,7 +15,7 @@ export default ({ url, queryKey }) => {
     queryClient.invalidateQueries({ queryKey: [queryKey] });
   }
 
-  function saveMutation(queryKey) {
+  function saveMutation() {
     return useMutation({
       mutationFn: (data) => {
         return data.id

@@ -96,7 +96,7 @@
             link
             :icon="Plus"
             type="success"
-            @click="expenseClaimStore.addItem"
+            @click="addItem"
           ></el-button>
         </template>
         <template #default="{ row, $index }">
@@ -104,7 +104,7 @@
             link
             :icon="Delete"
             type="danger"
-            @click="expenseClaimStore.removeItem($index, row.id)"
+            @click="removeItem($index, row.id)"
           ></el-button>
         </template>
       </el-table-column>
@@ -187,6 +187,11 @@ import {
 } from "@element-plus/icons-vue";
 
 const request = useRequest();
+const { errors, form, show, closeForm, saveMutation } = useCrud({
+  url: "/api/expense-claims",
+  queryKey: "expense-claims",
+});
+const { mutate: save } = saveMutation();
 
 const { data: companies } = useQuery({
   queryKey: ["companies"],
@@ -215,6 +220,24 @@ const totalAmount = computed(() => {
 const claim = computed(() => {
   return totalAmount.value - Number(form.value.cashAdvance);
 });
+
+function saveWithStatus(status) {
+  form.value.status = status;
+  form.value.cashAdvance = Number(form.value.cashAdvance);
+
+  form.value.ExpenseClaimItem.forEach((e) => {
+    e.amount = Number(e.amount);
+  });
+
+  form.value.totalAmount =
+    form.value.ExpenseClaimItem?.reduce(
+      (total, current) => total + Number(current.amount),
+      0
+    ) ?? 0;
+
+  form.value.claim = form.value.totalAmount - form.value.cashAdvance;
+  save(form.value);
+}
 
 const summary = computed(() => {
   const summaryObj = {};

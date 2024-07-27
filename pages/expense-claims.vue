@@ -8,11 +8,18 @@
         <el-button
           size="small"
           @click="
-            expenseClaimStore.openForm({
+            openForm({
               cashAdvance: 0,
               companyId: companyStore.companyId,
               departmentId: user.departmentId,
-              ExpenseClaimItem: [{ ...expenseClaimStore.newRow }],
+              ExpenseClaimItem: [
+                {
+                  date: undefined,
+                  expenseTypeId: undefined,
+                  description: undefined,
+                  amount: 0,
+                },
+              ],
             })
           "
           type="success"
@@ -24,7 +31,7 @@
 
         <el-input
           size="small"
-          v-model="expenseClaimStore.keyword"
+          v-model="keyword"
           placeholder="Cari"
           style="width: 180px"
           :prefix-icon="Search"
@@ -144,17 +151,17 @@
 
   <br />
 
-  <!-- <el-pagination
+  <el-pagination
     v-if="data.total"
     size="small"
     background
     layout="total, sizes, prev, pager, next"
-    :page-size="expenseClaimStore.pageSize"
+    :page-size="pageSize"
     :page-sizes="[10, 25, 50, 100]"
-    :total="expenseClaimStore.tableData.total"
-    @current-change="expenseClaimStore.currentChange"
-    @size-change="expenseClaimStore.sizeChange"
-  ></el-pagination> -->
+    :total="data.total"
+    @current-change="currentChange"
+    @size-change="sizeChange"
+  ></el-pagination>
 
   <ExpenseClaimForm />
 </template>

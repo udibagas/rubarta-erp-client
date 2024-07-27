@@ -100,7 +100,7 @@
           <strong>
             {{
               toRupiah(
-                data.reduce(
+                data?.reduce(
                   (total, current) => total + Number(current.amount),
                   0
                 )
@@ -125,17 +125,19 @@ import {
   Checked,
 } from "@element-plus/icons-vue";
 
+const request = useRequest();
+
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
     url: "/api/expense-notes",
     queryKey: "expense-notes",
   });
 
-const { isPending, data } = fetchData();
+const { isPending, data, isSuccess } = fetchData();
 const { mutate: remove } = removeMutation();
 
 const { data: expenseTypes } = useQuery({
-  queryKey: ["expense-types"],
+  queryKey: ["expenseTypes"],
   queryFn: () => request("/api/expense-types"),
 });
 
@@ -145,8 +147,7 @@ const goBack = () => {
 
 const summary = computed(() => {
   const summaryObj = {};
-
-  data.forEach((item) => {
+  data.value?.forEach((item) => {
     if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
     summaryObj[item.expenseTypeId] += item.amount;
   });
@@ -154,14 +155,13 @@ const summary = computed(() => {
   // {1: 20000, 3: 20000, 4: 150000}
 
   const summaryArr = Object.keys(summaryObj).map((k) => {
-    const expenseType = expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
-
+    const expenseType =
+      expenseTypes.value?.find((e) => e.id == k)?.name ?? "OTHER";
     return {
       expenseType,
       amount: summaryObj[k],
     };
   });
-
   return summaryArr;
 });
 </script>

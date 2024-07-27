@@ -15,7 +15,7 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save()">
+      <el-button :icon="SuccessFilled" type="success" @click="save(form)">
         SAVE
       </el-button>
     </template>

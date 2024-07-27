@@ -19,7 +19,7 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save">
+      <el-button :icon="SuccessFilled" type="success" @click="save(form)">
         SAVE
       </el-button>
     </template>
@@ -29,8 +29,8 @@
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { errors, form, show, closeForm, saveMutation } = useCrud({
-  url: "/api/banks",
-  queryKey: "banks",
+  url: "/api/departments",
+  queryKey: "departments",
 });
 const { mutate: save } = saveMutation();
 </script>

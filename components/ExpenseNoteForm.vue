@@ -55,7 +55,7 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save()">
+      <el-button :icon="SuccessFilled" type="success" @click="submit(form)">
         SAVE
       </el-button>
     </template>
@@ -64,6 +64,7 @@
 
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+const request = useRequest();
 
 const disabledDate = (time) => {
   return time.getTime() > Date.now();
@@ -74,10 +75,15 @@ const { errors, form, show, closeForm, saveMutation } = useCrud({
   queryKey: "expense-notes",
 });
 
+const { mutate: save } = saveMutation();
+
 const { data: expenseTypes } = useQuery({
-  queryKey: ["expense-types"],
+  queryKey: ["expenseTypes"],
   queryFn: () => request("/api/expense-types"),
 });
 
-const { mutate: save } = saveMutation();
+function submit(data) {
+  const { amount, ...payload } = data;
+  save({ ...payload, amount: Number(amount) });
+}
 </script>
