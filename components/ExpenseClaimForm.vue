@@ -1,22 +1,15 @@
 <template>
   <el-dialog
-    v-model="expenseClaimStore.showForm"
+    v-model="show"
     width="1000"
     title="EXPENSE CLAIM"
     :close-on-click-modal="false"
   >
     <el-form label-width="150px" label-position="left">
-      <el-form-item
-        label="Company"
-        :error="expenseClaimStore.formErrors.companyId"
-      >
-        <el-select
-          v-model="expenseClaimStore.formModel.companyId"
-          placeholder="Company"
-          disabled
-        >
+      <el-form-item label="Company" :error="errors.companyId">
+        <el-select v-model="form.companyId" placeholder="Company" disabled>
           <el-option
-            v-for="(el, i) in companyStore.companies"
+            v-for="(el, i) in companies"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -25,17 +18,14 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="Department"
-        :error="expenseClaimStore.formErrors.departmentId"
-      >
+      <el-form-item label="Department" :error="errors.departmentId">
         <el-select
-          v-model="expenseClaimStore.formModel.departmentId"
+          v-model="form.departmentId"
           placeholder="Department"
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departmentStore.departments"
+            v-for="(el, i) in departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -45,7 +35,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="expenseClaimStore.formModel.ExpenseClaimItem">
+    <el-table :data="form.ExpenseClaimItem">
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="DATE" width="170">
@@ -65,7 +55,7 @@
         <template #default="{ row }">
           <el-select v-model="row.expenseTypeId" placeholder="Expense Type">
             <el-option
-              v-for="(el, i) in expenseTypeStore.expenseTypes"
+              v-for="(el, i) in expenseTypes"
               :value="el.id"
               :label="el.name"
               :key="i"
@@ -146,13 +136,11 @@
           <td class="text-right">
             <el-input
               type="number"
-              v-model="expenseClaimStore.formModel.cashAdvance"
+              v-model="form.cashAdvance"
               placeholder="Cash Advance"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{
-              toRupiah(expenseClaimStore.formModel.cashAdvance)
-            }}</strong>
+            <strong>{{ toRupiah(form.cashAdvance) }}</strong>
           </td>
         </tr>
 
@@ -168,13 +156,13 @@
     </table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="expenseClaimStore.closeForm">
+      <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
       <el-button
         :icon="SuccessFilled"
         type="info"
-        @click="expenseClaimStore.save('DRAFT')"
+        @click="saveWithStatus('DRAFT')"
       >
         SAVE AS DRAFT
       </el-button>
@@ -182,7 +170,7 @@
       <el-button
         :icon="SuccessFilled"
         type="success"
-        @click="expenseClaimStore.save('SUBMITTED')"
+        @click="saveWithStatus('SUBMITTED')"
       >
         SUBMIT
       </el-button>
@@ -198,18 +186,26 @@ import {
   Delete,
 } from "@element-plus/icons-vue";
 
-const expenseClaimStore = useExpenseClaimStore();
-const companyStore = useCompanyStore();
-const departmentStore = useDepartmentStore();
-const expenseTypeStore = useExpenseTypeStore();
+const request = useRequest();
 
-onBeforeMount(async () => {
-  await expenseTypeStore.requestData();
+const { data: companies } = useQuery({
+  queryKey: ["companies"],
+  queryFn: () => request("/api/companies"),
+});
+
+const { data: departments } = useQuery({
+  queryKey: ["departments"],
+  queryFn: () => request("/api/departments"),
+});
+
+const { data: expenseTypes } = useQuery({
+  queryKey: ["expense-types"],
+  queryFn: () => request("/api/expense-types"),
 });
 
 const totalAmount = computed(() => {
   return (
-    expenseClaimStore.formModel.ExpenseClaimItem?.reduce(
+    form.value.ExpenseClaimItem?.reduce(
       (total, current) => total + Number(current.amount),
       0
     ) ?? 0
@@ -217,19 +213,18 @@ const totalAmount = computed(() => {
 });
 
 const claim = computed(() => {
-  return totalAmount.value - Number(expenseClaimStore.formModel.cashAdvance);
+  return totalAmount.value - Number(form.value.cashAdvance);
 });
 
 const summary = computed(() => {
   const summaryObj = {};
-  expenseClaimStore.formModel.ExpenseClaimItem?.forEach((item) => {
+  form.value.ExpenseClaimItem?.forEach((item) => {
     if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
     summaryObj[item.expenseTypeId] += item.amount;
   });
   // {1: 20000, 3: 20000, 4: 150000}
   const summaryArr = Object.keys(summaryObj).map((k) => {
-    const expenseType =
-      expenseTypeStore.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
+    const expenseType = expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
     return {
       expenseType,
       amount: summaryObj[k],
@@ -241,4 +236,18 @@ const summary = computed(() => {
 const disabledDate = (time) => {
   return time.getTime() > Date.now();
 };
+
+async function removeItem(index, id) {
+  if (id) {
+    await request(`${url}/${form.value.id}/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  form.value.ExpenseClaimItem.splice(index, 1);
+}
+
+function addItem() {
+  form.value.ExpenseClaimItem.push({ ...newRow });
+}
 </script>

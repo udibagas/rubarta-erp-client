@@ -188,13 +188,12 @@ import {
 } from "@element-plus/icons-vue";
 
 const paymentAuthorizationStore = usePaymentAuthorizationStore();
-const companyStore = useCompanyStore();
 
 onMounted(() => {
   paymentAuthorizationStore.requestData();
 });
 
-const companyId = computed(() => companyStore.companyId);
+const companyId = computed(() => useCookie("companyId"));
 
 watch(companyId, () => {
   paymentAuthorizationStore.refreshData();

@@ -7,7 +7,12 @@ export default defineNuxtConfig({
     port: 4000,
   },
 
-  modules: ["@element-plus/nuxt", "@pinia/nuxt", "nuxt-auth-sanctum"],
+  modules: [
+    "@element-plus/nuxt",
+    "@pinia/nuxt",
+    "nuxt-auth-sanctum",
+    "@hebilicious/vue-query-nuxt",
+  ],
   elementPlus: {},
 
   pinia: {

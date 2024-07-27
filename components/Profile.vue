@@ -42,7 +42,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departmentStore.departments"
+            v-for="(el, i) in departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -58,7 +58,7 @@
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in bankStore.banks"
+            v-for="(el, i) in banks"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -87,11 +87,11 @@
 </template>
 
 <script setup>
-const api = useApi();
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { user } = useSanctumAuth();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
+const request = useRequest();
 
 const formModel = ref({ ...user.value });
 const formErrors = ref({});
@@ -114,11 +114,13 @@ const save = () => {
     .finally(() => loadingInstance.close());
 };
 
-const bankStore = useBankStore();
-const departmentStore = useDepartmentStore();
+const { data: departments } = useQuery({
+  queryKey: ["departments"],
+  queryFn: () => request("/api/departments"),
+});
 
-onBeforeMount(async () => {
-  await bankStore.requestData();
-  await departmentStore.requestData();
+const { data: banks } = useQuery({
+  queryKey: ["banks"],
+  queryFn: () => request("/api/banks"),
 });
 </script>

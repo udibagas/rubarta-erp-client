@@ -65,14 +65,14 @@
           <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
 
           <el-select
-            v-model="companyStore.companyId"
+            v-model="companyId"
             placeholder="Select Company"
             style="width: 270px"
-            @change="(id) => companyStore.changeCompany(id)"
+            @change="(id) => changeCompany(id)"
             size="large"
           >
             <el-option
-              v-for="c in companyStore.companies"
+              v-for="c in companies"
               :key="c.id"
               :label="`${c.code} - ${c.name}`"
               :value="c.id"
@@ -91,8 +91,7 @@
 
 <script setup>
 const { user, logout } = useSanctumAuth();
-const companyStore = useCompanyStore();
-const api = useApi();
+const request = useRequest();
 const collapse = ref(false);
 const showProfile = ref(false);
 
@@ -161,6 +160,7 @@ const links = [
     icon: "Coin",
   },
 ];
+const companyId = computed(() => useCookie("companyId"));
 
 const goBack = () => {
   window.history.back();
@@ -176,7 +176,13 @@ const handleClickLogout = () => {
     .catch(() => console.log("Action cancelled"));
 };
 
-onBeforeMount(async () => {
-  await companyStore.requestData(); // get all companies
+const { data: companies } = useQuery({
+  queryKey: ["companies"],
+  queryFn: () => request("/api/companies"),
+});
+
+const { mutate: changeCompany } = useMutation({
+  mutationFn: (id) => request(`/api/companies/set/${id}`, { method: "POST" }),
+  queryKey: ["companyId"],
 });
 </script>

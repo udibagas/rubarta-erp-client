@@ -1,3 +1,4 @@
+import exportFromJSON from "export-from-json";
 const url = "/api/expense-claims";
 const api = useApi();
 
@@ -102,6 +103,22 @@ export const useExpenseClaimStore = defineStore("expenseClaimStore", {
       this.loading = true;
       api(url, { params })
         .then((response) => (this.tableData = response))
+        .finally(() => (this.loading = false));
+    },
+
+    exportData(fileName) {
+      const params = {
+        sort_prop: this.sort_prop,
+        sort_order: this.sort_order,
+        ...this.filters,
+        action: "export",
+      };
+
+      this.loading = true;
+
+      api(url, { params })
+        .then((data) => exportFromJSON({ data, fileName, exportType: "xls" }))
+        .catch((e) => console.log(e))
         .finally(() => (this.loading = false));
     },
 

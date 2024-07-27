@@ -5,8 +5,14 @@
       :icon="Plus"
       type="success"
       @click="
-        approvalSettingStore.openForm({
-          ApprovalSettingItem: [{ ...approvalSettingStore.newRow }],
+        openForm({
+          ApprovalSettingItem: [
+            {
+              level: undefined,
+              approvalActionType: undefined,
+              userId: undefined,
+            },
+          ],
         })
       "
     >
@@ -16,11 +22,7 @@
 
   <br />
 
-  <el-table
-    stripe
-    v-loading="approvalSettingStore.loading"
-    :data="approvalSettingStore.approvalSettings"
-  >
+  <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Company" width="220">
@@ -42,12 +44,7 @@
 
     <el-table-column width="60px" align="center" header-align="center">
       <template #header>
-        <el-button
-          link
-          @click="approvalSettingStore.requestData"
-          :icon="Refresh"
-        >
-        </el-button>
+        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -60,13 +57,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="approvalSettingStore.openForm(row)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="approvalSettingStore.item(row.id)"
+                @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
               </el-dropdown-item>
@@ -89,9 +86,12 @@ import {
   MoreFilled,
 } from "@element-plus/icons-vue";
 
-const approvalSettingStore = useApprovalSettingStore();
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/approval-settings",
+    queryKey: "approval-settings",
+  });
 
-onMounted(() => {
-  approvalSettingStore.requestData();
-});
+const { isPending, data } = fetchData();
+const { mutate: remove } = removeMutation();
 </script>

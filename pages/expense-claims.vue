@@ -174,15 +174,20 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const companyStore = useCompanyStore();
+const request = useRequest();
 const { user } = useSanctumAuth();
 const expenseClaimStore = useExpenseClaimStore();
+
+const { data: companies } = useQuery({
+  queryKey: ["companies"],
+  queryFn: () => request("/api/companies"),
+});
 
 onMounted(() => {
   expenseClaimStore.requestData();
 });
 
-const companyId = computed(() => companyStore.companyId);
+const companyId = computed(() => useCookie("companyId"));
 
 watch(companyId, () => {
   expenseClaimStore.refreshData();

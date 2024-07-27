@@ -1,36 +1,30 @@
 <template>
   <el-dialog
-    v-model="userStore.showForm"
+    v-model="show"
     width="500px"
-    :title="!!userStore.formModel.id ? 'EDIT USER' : 'ADD USER'"
+    :title="!!form.id ? 'EDIT USER' : 'ADD USER'"
     :close-on-click-modal="false"
   >
     <el-form label-width="160px" label-position="left">
-      <el-form-item label="Name" :error="userStore.formErrors.name">
-        <el-input
-          placeholder="Name"
-          v-model="userStore.formModel.name"
-        ></el-input>
+      <el-form-item label="Name" :error="errors.name">
+        <el-input placeholder="Name" v-model="form.name"></el-input>
       </el-form-item>
 
-      <el-form-item label="Email" :error="userStore.formErrors.email">
-        <el-input
-          placeholder="Email"
-          v-model="userStore.formModel.email"
-        ></el-input>
+      <el-form-item label="Email" :error="errors.email">
+        <el-input placeholder="Email" v-model="form.email"></el-input>
       </el-form-item>
 
-      <el-form-item label="Password" :error="userStore.formErrors.password">
+      <el-form-item label="Password" :error="errors.password">
         <el-input
           type="password"
           placeholder="Password"
-          v-model="userStore.formModel.password"
+          v-model="form.password"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="Roles" :error="userStore.formErrors.roles">
+      <el-form-item label="Roles" :error="errors.roles">
         <el-select
-          v-model="userStore.formModel.roles"
+          v-model="form.roles"
           placeholder="Roles"
           style="width: 100%"
           multiple
@@ -45,17 +39,14 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="Department"
-        :error="userStore.formErrors.departmentId"
-      >
+      <el-form-item label="Department" :error="errors.departmentId">
         <el-select
-          v-model="userStore.formModel.departmentId"
+          v-model="form.departmentId"
           placeholder="Department"
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in departmentStore.departments"
+            v-for="(el, i) in departments"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -64,14 +55,10 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Bank" :error="userStore.formErrors.bankId">
-        <el-select
-          v-model="userStore.formModel.bankId"
-          placeholder="Bank"
-          style="width: 100%"
-        >
+      <el-form-item label="Bank" :error="errors.bankId">
+        <el-select v-model="form.bankId" placeholder="Bank" style="width: 100%">
           <el-option
-            v-for="(el, i) in bankStore.banks"
+            v-for="(el, i) in banks"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -80,40 +67,37 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="Bank Account"
-        :error="userStore.formErrors.bankAccount"
-      >
+      <el-form-item label="Bank Account" :error="errors.bankAccount">
         <el-input
           placeholder="Bank Account"
-          v-model="userStore.formModel.bankAccount"
+          v-model="form.bankAccount"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="Status" :error="userStore.formErrors.active">
+      <el-form-item label="Status" :error="errors.active">
         <el-switch
           :active-value="true"
           :inactive-value="false"
-          v-model="userStore.formModel.active"
+          v-model="form.active"
           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
         >
         </el-switch>
         <el-tag
-          :type="userStore.formModel.active ? 'success' : 'danger'"
+          :type="form.active ? 'success' : 'danger'"
           size="small"
           style="margin-left: 10px"
           effect="dark"
         >
-          {{ !!userStore.formModel.active ? "Aktif" : "Nonaktif" }}
+          {{ !!form.active ? "Aktif" : "Nonaktif" }}
         </el-tag>
       </el-form-item>
     </el-form>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="userStore.closeForm">
+      <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="userStore.save()">
+      <el-button :icon="SuccessFilled" type="success" @click="save()">
         SAVE
       </el-button>
     </template>
@@ -123,12 +107,21 @@
 <script setup>
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { roles } from "~/constants/roles";
-const userStore = useUserStore();
-const departmentStore = useDepartmentStore();
-const bankStore = useBankStore();
+const request = useRequest();
 
-onBeforeMount(async () => {
-  await departmentStore.requestData();
-  await bankStore.requestData();
+const { errors, form, show, closeForm, saveMutation } = useCrud({
+  url: "/api/users",
+  queryKey: "users",
+});
+const { mutate: save } = saveMutation();
+
+const { data: departments } = useQuery({
+  queryKey: ["departments"],
+  queryFn: () => request("/api/departments"),
+});
+
+const { data: banks } = useQuery({
+  queryKey: ["banks"],
+  queryFn: () => request("/api/banks"),
 });
 </script>

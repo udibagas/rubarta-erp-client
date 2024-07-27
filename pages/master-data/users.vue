@@ -1,11 +1,8 @@
 <template>
-  <form
-    class="flex justify-content-end"
-    @submit.prevent="userStore.requestData"
-  >
+  <form class="flex justify-content-end" @submit.prevent="requestData">
     <el-button
       size="small"
-      @click="userStore.openForm({ roles: ['USER'], password: '' })"
+      @click="openForm({ roles: ['USER'], password: '' })"
       type="success"
       :icon="Plus"
       class="mr-2"
@@ -14,19 +11,19 @@
     </el-button>
     <el-input
       size="small"
-      v-model="userStore.keyword"
+      v-model="keyword"
       placeholder="Cari"
       style="width: 180px"
       :prefix-icon="Search"
       :clearable="true"
-      @clear="userStore.requestData"
+      @clear="refreshData"
     >
     </el-input>
   </form>
 
   <br />
 
-  <el-table stripe v-loading="userStore.loading" :data="userStore.users">
+  <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Name" min-width="150">
@@ -86,8 +83,7 @@
 
     <el-table-column width="60px" align="center" header-align="center">
       <template #header>
-        <el-button link @click="userStore.requestData" :icon="Refresh">
-        </el-button>
+        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -100,13 +96,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="userStore.openForm(row)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="userStore.remove(row.id)"
+                @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
               </el-dropdown-item>
@@ -130,9 +126,12 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const userStore = useUserStore();
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/users",
+    queryKey: "users",
+  });
 
-onMounted(() => {
-  userStore.requestData();
-});
+const { isPending, data } = fetchData();
+const { mutate: remove } = removeMutation();
 </script>

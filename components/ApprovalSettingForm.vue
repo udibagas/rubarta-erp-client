@@ -1,24 +1,19 @@
 <template>
   <el-dialog
-    v-model="approvalSettingStore.showForm"
+    v-model="show"
     width="700"
-    :title="
-      approvalSettingStore.formModel.id ? 'EDIT APPROVAL' : 'ADD APPROVAL'
-    "
+    :title="form.id ? 'EDIT APPROVAL' : 'ADD APPROVAL'"
     :close-on-click-modal="false"
   >
     <el-form label-width="160px" label-position="left">
-      <el-form-item
-        label="Company"
-        :error="approvalSettingStore.formErrors.companyId"
-      >
+      <el-form-item label="Company" :error="errors.companyId">
         <el-select
-          v-model="approvalSettingStore.formModel.companyId"
+          v-model="form.companyId"
           placeholder="Company"
           style="width: 100%"
         >
           <el-option
-            v-for="(el, i) in companyStore.companies"
+            v-for="(el, i) in companies"
             :value="el.id"
             :label="`${el.code} - ${el.name}`"
             :key="i"
@@ -27,12 +22,9 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="Approval Type"
-        :error="approvalSettingStore.formErrors.approvalType"
-      >
+      <el-form-item label="Approval Type" :error="errors.approvalType">
         <el-select
-          v-model="approvalSettingStore.formModel.approvalType"
+          v-model="form.approvalType"
           placeholder="Approval Type"
           style="width: 100%"
         >
@@ -47,7 +39,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="approvalSettingStore.formModel.ApprovalSettingItem">
+    <el-table :data="form.ApprovalSettingItem">
       <el-table-column label="Level" width="180">
         <template #default="{ row }">
           <el-input-number
@@ -80,7 +72,7 @@
         <template #default="{ row }">
           <el-select v-model="row.userId" placeholder="User">
             <el-option
-              v-for="(user, i) in userStore.users"
+              v-for="(user, i) in users"
               :value="user.id"
               :label="user.name"
               :key="i"
@@ -96,7 +88,7 @@
             link
             :icon="Plus"
             type="success"
-            @click="approvalSettingStore.addItem"
+            @click="addItem"
           ></el-button>
         </template>
         <template #default="{ row, $index }">
@@ -104,24 +96,17 @@
             link
             :icon="Delete"
             type="danger"
-            @click="approvalSettingStore.removeItem($index, row.id)"
+            @click="removeItem($index, row.id)"
           ></el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <template #footer>
-      <el-button
-        :icon="CircleCloseFilled"
-        @click="approvalSettingStore.closeForm"
-      >
+      <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button
-        :icon="SuccessFilled"
-        type="success"
-        @click="approvalSettingStore.save()"
-      >
+      <el-button :icon="SuccessFilled" type="success" @click="save()">
         SAVE
       </el-button>
     </template>
@@ -131,6 +116,8 @@
 <script setup>
 import { approvalTypes } from "~/constants/approvalTypes";
 import { approvalActionTypes } from "~/constants/approvalActionTypes";
+const request = useRequest();
+
 import {
   SuccessFilled,
   CircleCloseFilled,
@@ -138,12 +125,30 @@ import {
   Plus,
 } from "@element-plus/icons-vue";
 
-const approvalSettingStore = useApprovalSettingStore();
-const companyStore = useCompanyStore();
-const userStore = useUserStore();
+const newRow = {
+  level: undefined,
+  approvalActionType: undefined,
+  userId: undefined,
+};
 
-onBeforeMount(async () => {
-  await companyStore.requestData();
-  await userStore.requestData();
+const { errors, form, show, closeForm, saveMutation } = useCrud({
+  url: "/api/approval-settings",
+  queryKey: "approval-settings",
 });
+
+const { mutate: save } = saveMutation();
+
+const { data: companies } = useQuery({
+  queryKey: ["companies"],
+  queryFn: () => request("/api/companies"),
+});
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
+});
+
+function addItem() {
+  form.value.ApprovalSettingItem.push({ ...newRow });
+}
 </script>
