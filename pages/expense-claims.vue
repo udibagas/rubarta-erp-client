@@ -37,11 +37,7 @@
 
   <br />
 
-  <el-table
-    stripe
-    v-loading="expenseClaimStore.loading"
-    :data="expenseClaimStore.tableData.data"
-  >
+  <el-table stripe v-loading="isPending" :data="data.data">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Date" width="150">
@@ -116,8 +112,7 @@
       fixed="right"
     >
       <template #header>
-        <el-button link @click="expenseClaimStore.refreshData" :icon="Refresh">
-        </el-button>
+        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -130,13 +125,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="expenseClaimStore.openForm(row)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="expenseClaimStore.remove(row.id)"
+                @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
               </el-dropdown-item>
@@ -149,8 +144,8 @@
 
   <br />
 
-  <el-pagination
-    v-if="expenseClaimStore.tableData.total"
+  <!-- <el-pagination
+    v-if="data.total"
     size="small"
     background
     layout="total, sizes, prev, pager, next"
@@ -159,7 +154,7 @@
     :total="expenseClaimStore.tableData.total"
     @current-change="expenseClaimStore.currentChange"
     @size-change="expenseClaimStore.sizeChange"
-  ></el-pagination>
+  ></el-pagination> -->
 
   <ExpenseClaimForm />
 </template>
@@ -174,24 +169,16 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const request = useRequest();
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/expense-claims",
+    queryKey: "expense-claims",
+  });
+
+const { isPending, data } = fetchData();
+const { mutate: remove } = removeMutation();
 const { user } = useSanctumAuth();
-const expenseClaimStore = useExpenseClaimStore();
-
-const { data: companies } = useQuery({
-  queryKey: ["companies"],
-  queryFn: () => request("/api/companies"),
-});
-
-onMounted(() => {
-  expenseClaimStore.requestData();
-});
-
 const companyId = computed(() => useCookie("companyId"));
-
-watch(companyId, () => {
-  expenseClaimStore.refreshData();
-});
 
 const goBack = () => {
   window.history.back();

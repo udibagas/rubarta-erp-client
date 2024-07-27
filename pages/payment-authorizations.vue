@@ -4,15 +4,15 @@
       <span class="text-large font-600"> PAYMENT AUTHORIZATION </span>
     </template>
     <template #extra>
-      <form @submit.prevent="paymentAuthorizationStore.searchData">
+      <form @submit.prevent="refreshData">
         <el-button
           size="small"
           @click="
-            paymentAuthorizationStore.openForm({
-              companyId: companyStore.companyId,
+            openForm({
+              companyId: companyId,
               deduction: 0,
               PaymentAuthorizationItem: [
-                { ...paymentAuthorizationStore.newRow },
+                { date: undefined, description: undefined, amount: 0 },
               ],
             })
           "
@@ -162,7 +162,7 @@
 
   <br />
 
-  <el-pagination
+  <!-- <el-pagination
     v-if="paymentAuthorizationStore.tableData.total"
     size="small"
     background
@@ -172,7 +172,7 @@
     :total="paymentAuthorizationStore.tableData.total"
     @current-change="paymentAuthorizationStore.currentChange"
     @size-change="paymentAuthorizationStore.sizeChange"
-  ></el-pagination>
+  ></el-pagination> -->
 
   <PaymentAuthorizationForm />
 </template>

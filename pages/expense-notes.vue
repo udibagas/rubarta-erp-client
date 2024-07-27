@@ -6,12 +6,7 @@
     <template #extra>
       <el-button size="small" type="danger" :icon="Checked"> CLAIM </el-button>
 
-      <el-button
-        size="small"
-        @click="expenseNoteStore.openForm()"
-        type="success"
-        :icon="Plus"
-      >
+      <el-button size="small" @click="openForm()" type="success" :icon="Plus">
         NEW EXPENSE NOTES
       </el-button>
     </template>
@@ -19,11 +14,7 @@
 
   <br />
 
-  <el-table
-    stripe
-    :data="expenseNoteStore.expenseNotes"
-    v-loading="expenseNoteStore.loading"
-  >
+  <el-table stripe :data="data" v-loading="isPending">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column width="120" label="Date">
@@ -62,8 +53,7 @@
       header-align="center"
     >
       <template #header>
-        <el-button link @click="expenseNoteStore.requestData" :icon="Refresh">
-        </el-button>
+        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -76,13 +66,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="expenseNoteStore.openForm(row)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="expenseNoteStore.remove(row.id)"
+                @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
               </el-dropdown-item>
@@ -110,7 +100,7 @@
           <strong>
             {{
               toRupiah(
-                expenseNoteStore.expenseNotes.reduce(
+                data.reduce(
                   (total, current) => total + Number(current.amount),
                   0
                 )
@@ -126,9 +116,6 @@
 </template>
 
 <script setup>
-const expenseNoteStore = useExpenseNoteStore();
-const expenseTypeStore = useExpenseTypeStore();
-
 import {
   Refresh,
   Plus,
@@ -138,8 +125,18 @@ import {
   Checked,
 } from "@element-plus/icons-vue";
 
-onMounted(() => {
-  expenseNoteStore.requestData();
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/expense-notes",
+    queryKey: "expense-notes",
+  });
+
+const { isPending, data } = fetchData();
+const { mutate: remove } = removeMutation();
+
+const { data: expenseTypes } = useQuery({
+  queryKey: ["expense-types"],
+  queryFn: () => request("/api/expense-types"),
 });
 
 const goBack = () => {
@@ -149,7 +146,7 @@ const goBack = () => {
 const summary = computed(() => {
   const summaryObj = {};
 
-  expenseNoteStore.expenseNotes.forEach((item) => {
+  data.forEach((item) => {
     if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
     summaryObj[item.expenseTypeId] += item.amount;
   });
@@ -157,8 +154,7 @@ const summary = computed(() => {
   // {1: 20000, 3: 20000, 4: 150000}
 
   const summaryArr = Object.keys(summaryObj).map((k) => {
-    const expenseType =
-      expenseTypeStore.expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
+    const expenseType = expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
 
     return {
       expenseType,
