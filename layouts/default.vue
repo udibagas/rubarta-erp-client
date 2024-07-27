@@ -90,12 +90,6 @@
 </template>
 
 <script setup>
-const { user, logout } = useSanctumAuth();
-const request = useRequest();
-const collapse = ref(false);
-const showProfile = ref(false);
-const companyId = ref(useCookie("companyId"));
-
 import {
   Fold,
   Expand,
@@ -161,6 +155,12 @@ const links = [
     icon: "Coin",
   },
 ];
+
+const { user, logout } = useSanctumAuth();
+const request = useRequest();
+const collapse = ref(false);
+const showProfile = ref(false);
+const companyId = ref(useCookie("companyId"));
 
 const goBack = () => {
   window.history.back();

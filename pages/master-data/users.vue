@@ -1,5 +1,5 @@
 <template>
-  <form class="flex justify-content-end" @submit.prevent="requestData">
+  <form class="flex justify-content-end" @submit.prevent="refreshData">
     <el-button
       size="small"
       @click="openForm({ roles: ['USER'], password: '' })"
@@ -126,11 +126,17 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/users",
-    queryKey: "users",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  keyword,
+} = useCrud({
+  url: "/api/users",
+  queryKey: "users",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();

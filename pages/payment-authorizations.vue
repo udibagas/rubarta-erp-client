@@ -25,7 +25,7 @@
 
         <el-input
           size="small"
-          v-model="paymentAuthorizationStore.keyword"
+          v-model="keyword"
           placeholder="Cari"
           style="width: 180px"
           :prefix-icon="Search"
@@ -38,11 +38,7 @@
 
   <br />
 
-  <el-table
-    stripe
-    v-loading="paymentAuthorizationStore.loading"
-    :data="paymentAuthorizationStore.tableData.data"
-  >
+  <el-table stripe v-loading="isPending" :data="data?.data">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Number" width="220">
@@ -112,9 +108,9 @@
       fixed="right"
     >
       <template #default="{ row }">
-        <el-tag type="primary" effect="dark" style="width: 100%">{{
-          row.status
-        }}</el-tag>
+        <el-tag type="primary" effect="dark" style="width: 100%">
+          {{ row.status }}
+        </el-tag>
       </template>
     </el-table-column>
 
@@ -125,12 +121,7 @@
       fixed="right"
     >
       <template #header>
-        <el-button
-          link
-          @click="paymentAuthorizationStore.refreshData"
-          :icon="Refresh"
-        >
-        </el-button>
+        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
@@ -143,13 +134,13 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="paymentAuthorizationStore.openForm(row)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="Delete"
-                @click.native.prevent="paymentAuthorizationStore.remove(row.id)"
+                @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
               </el-dropdown-item>
@@ -162,17 +153,17 @@
 
   <br />
 
-  <!-- <el-pagination
-    v-if="paymentAuthorizationStore.tableData.total"
+  <el-pagination
+    v-if="data?.total"
     size="small"
     background
     layout="total, sizes, prev, pager, next"
-    :page-size="paymentAuthorizationStore.pageSize"
+    :page-size="pageSize"
     :page-sizes="[10, 25, 50, 100]"
-    :total="paymentAuthorizationStore.tableData.total"
-    @current-change="paymentAuthorizationStore.currentChange"
-    @size-change="paymentAuthorizationStore.sizeChange"
-  ></el-pagination> -->
+    :total="data?.total"
+    @current-change="currentChange"
+    @size-change="sizeChange"
+  ></el-pagination>
 
   <PaymentAuthorizationForm />
 </template>
@@ -187,16 +178,33 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const paymentAuthorizationStore = usePaymentAuthorizationStore();
-
-onMounted(() => {
-  paymentAuthorizationStore.requestData();
+const companyId = ref(useCookie("companyId"));
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  sizeChange,
+  currentChange,
+  page,
+  pageSize,
+  keyword,
+} = useCrud({
+  url: "/api/payment-authorizations",
+  queryKey: ["payment-authorizations", companyId.value],
 });
 
-const companyId = computed(() => useCookie("companyId"));
+const { mutate: remove } = removeMutation();
+const { isPending, data } = fetchData({
+  companyId: companyId.value,
+  page: page.value,
+  pageSize: pageSize.value,
+  keyword: keyword.value,
+});
 
 watch(companyId, () => {
-  paymentAuthorizationStore.refreshData();
+  refreshData();
 });
 
 const goBack = () => {

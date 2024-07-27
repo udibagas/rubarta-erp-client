@@ -242,12 +242,10 @@ const amount = computed(() => {
 });
 
 const netAmount = computed(() => {
-  return amount - Number(form.value.deduction);
+  return amount.value - Number(form.value.deduction);
 });
 
 function saveWithStatus(status) {
-  const loadingInstance = ElLoading.service({ target: ".el-dialog" });
-
   form.value.grossAmount = amount;
   form.value.netAmount = netAmount;
   form.value.deduction = Number(form.value.deduction);

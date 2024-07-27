@@ -1,23 +1,31 @@
 import { form, errors, show, openForm, closeForm } from "~/stores/form";
 
 export default ({ url, queryKey }) => {
+  const page = ref(1);
+  const pageSize = ref(10);
+  const keyword = ref("");
+
   const queryClient = useQueryClient();
   const request = useRequest();
 
   function fetchData(params = {}) {
     return useQuery({
-      queryKey: [queryKey],
+      queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
       queryFn: () => request(url, { params }),
     });
   }
 
   function refreshData() {
-    queryClient.invalidateQueries({ queryKey: [queryKey] });
+    queryClient.invalidateQueries({
+      queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+    });
   }
 
   function saveMutation() {
+    let loadingInstance;
     return useMutation({
       mutationFn: (data) => {
+        loadingInstance = ElLoading.service({ target: ".el-dialog" });
         return data.id
           ? request(`${url}/${data.id}`, { method: "PATCH", body: data })
           : request(url, { method: "POST", body: data });
@@ -33,6 +41,9 @@ export default ({ url, queryKey }) => {
       },
       onError: (error) => {
         errors.value = parseError(error);
+      },
+      onSettled: () => {
+        loadingInstance.close();
       },
     });
   }
@@ -59,10 +70,23 @@ export default ({ url, queryKey }) => {
       .catch(() => console.log(e));
   }
 
+  function sizeChange(size) {
+    pageSize.value = size;
+    refreshData();
+  }
+
+  function currentChange(page) {
+    page.value = page;
+    refreshData();
+  }
+
   return {
     form,
     errors,
     show,
+    page,
+    pageSize,
+    keyword,
     fetchData,
     refreshData,
     openForm,
@@ -70,5 +94,7 @@ export default ({ url, queryKey }) => {
     saveMutation,
     removeMutation,
     handleRemove,
+    sizeChange,
+    currentChange,
   };
 };
