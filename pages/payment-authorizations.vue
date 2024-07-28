@@ -30,6 +30,7 @@
           style="width: 180px"
           :prefix-icon="Search"
           :clearable="true"
+          @clear="refreshData"
         >
         </el-input>
       </form>
@@ -195,7 +196,6 @@ const {
 } = useCrud({ url, queryKey: "payment-authorizations" });
 
 const { mutate: remove } = removeMutation();
-
 const { isPending, data } = useQuery({
   queryKey: ["payment-authorizations"],
   queryFn: () =>
@@ -212,8 +212,4 @@ const { isPending, data } = useQuery({
 watch(companyId, () => {
   refreshData("payment-authorizations");
 });
-
-const goBack = () => {
-  window.history.back();
-};
 </script>

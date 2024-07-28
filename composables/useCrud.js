@@ -15,9 +15,9 @@ export default ({ url, queryKey }) => {
     });
   }
 
-  function refreshData() {
+  function refreshData(key) {
     queryClient.invalidateQueries({
-      queryKey: [queryKey],
+      queryKey: [key ?? queryKey],
     });
   }
 

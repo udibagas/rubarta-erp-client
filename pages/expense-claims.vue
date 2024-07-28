@@ -4,7 +4,7 @@
       <span class="text-large font-600"> EXPENSE CLAIM </span>
     </template>
     <template #extra>
-      <form @submit.prevent="searchData">
+      <form @submit.prevent="refreshData">
         <el-button
           size="small"
           @click="
@@ -36,6 +36,7 @@
           style="width: 180px"
           :prefix-icon="Search"
           :clearable="true"
+          @clear="refreshData"
         >
         </el-input>
       </form>
@@ -44,7 +45,7 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data.data">
+  <el-table stripe v-loading="isPending" :data="data?.data">
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Date" width="150">
@@ -61,7 +62,8 @@
 
     <el-table-column label="Department" min-width="150">
       <template #default="{ row }">
-        {{ row.Department?.name }}
+        {{ row.Department?.name }} <br />
+        {{ row.Company?.name }}
       </template>
     </el-table-column>
 
@@ -152,13 +154,13 @@
   <br />
 
   <el-pagination
-    v-if="data.total"
+    v-if="data?.total"
     size="small"
     background
     layout="total, sizes, prev, pager, next"
     :page-size="pageSize"
     :page-sizes="[10, 25, 50, 100]"
-    :total="data.total"
+    :total="data?.total"
     @current-change="currentChange"
     @size-change="sizeChange"
   ></el-pagination>
@@ -176,18 +178,41 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/expense-claims",
-    queryKey: "expense-claims",
-  });
-
-const { isPending, data } = fetchData();
-const { mutate: remove } = removeMutation();
 const { user } = useSanctumAuth();
-const companyId = computed(() => useCookie("companyId"));
+const companyId = ref(useCookie("companyId"));
+const url = "/api/expense-claims";
 
-const goBack = () => {
-  window.history.back();
-};
+const {
+  openForm,
+  removeMutation,
+  refreshData,
+  handleRemove,
+  currentChange,
+  sizeChange,
+  request,
+  page,
+  pageSize,
+  keyword,
+} = useCrud({
+  url,
+  queryKey: "expense-claims",
+});
+
+const { mutate: remove } = removeMutation();
+const { isPending, data } = useQuery({
+  queryKey: ["expense-claims"],
+  queryFn: () =>
+    request(url, {
+      params: {
+        page: page.value,
+        pageSize: pageSize.value,
+        keyword: keyword.value,
+        companyId: companyId.value,
+      },
+    }),
+});
+
+watch(companyId, () => {
+  refreshData("expense-claims");
+});
 </script>

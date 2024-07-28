@@ -141,10 +141,6 @@ const { data: expenseTypes } = useQuery({
   queryFn: () => request("/api/expense-types"),
 });
 
-const goBack = () => {
-  window.history.back();
-};
-
 const summary = computed(() => {
   const summaryObj = {};
   data.value?.forEach((item) => {

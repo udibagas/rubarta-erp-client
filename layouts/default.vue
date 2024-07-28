@@ -82,7 +82,7 @@
       </el-header>
 
       <el-main style="height: calc(100vh - 60px); overflow: auto">
-        <slot @back="goBack" />
+        <slot />
         <Profile :show="showProfile" @close="showProfile = false" />
       </el-main>
     </el-container>
@@ -161,10 +161,6 @@ const request = useRequest();
 const collapse = ref(false);
 const showProfile = ref(false);
 const companyId = ref(useCookie("companyId"));
-
-const goBack = () => {
-  window.history.back();
-};
 
 const handleClickLogout = () => {
   ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
