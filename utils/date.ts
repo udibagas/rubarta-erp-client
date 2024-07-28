@@ -1,6 +1,8 @@
 export const formatDate = (value: string) => {
   return new Date(value).toLocaleString("id-ID", {
-    dateStyle: "medium",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
 
