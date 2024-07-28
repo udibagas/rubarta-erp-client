@@ -179,32 +179,38 @@ import {
 } from "@element-plus/icons-vue";
 
 const companyId = ref(useCookie("companyId"));
+const url = "/api/payment-authorizations";
+
 const {
   openForm,
   removeMutation,
-  fetchData,
   refreshData,
   handleRemove,
   sizeChange,
   currentChange,
+  request,
   page,
   pageSize,
   keyword,
-} = useCrud({
-  url: "/api/payment-authorizations",
-  queryKey: ["payment-authorizations", companyId.value],
-});
+} = useCrud({ url, queryKey: "payment-authorizations" });
 
 const { mutate: remove } = removeMutation();
-const { isPending, data } = fetchData({
-  companyId: companyId.value,
-  page: page.value,
-  pageSize: pageSize.value,
-  keyword: keyword.value,
+
+const { isPending, data } = useQuery({
+  queryKey: ["payment-authorizations"],
+  queryFn: () =>
+    request(url, {
+      params: {
+        page: page.value,
+        pageSize: pageSize.value,
+        keyword: keyword.value,
+        companyId: companyId.value,
+      },
+    }),
 });
 
 watch(companyId, () => {
-  refreshData();
+  refreshData("payment-authorizations");
 });
 
 const goBack = () => {

@@ -8,21 +8,17 @@ export default ({ url, queryKey }) => {
   const queryClient = useQueryClient();
   const request = useRequest();
 
-  const params = {
-    keyword: keyword.value,
-    page: page.value,
-    pageSize: pageSize.value,
-  };
-
   function fetchData() {
     return useQuery({
-      queryKey: [queryKey, params],
-      queryFn: () => request(url, { params }),
+      queryKey: [queryKey],
+      queryFn: () => request(url),
     });
   }
 
   function refreshData() {
-    queryClient.invalidateQueries({ queryKey: [queryKey, params] });
+    queryClient.invalidateQueries({
+      queryKey: [queryKey],
+    });
   }
 
   function saveMutation() {
@@ -79,8 +75,8 @@ export default ({ url, queryKey }) => {
     refreshData();
   }
 
-  function currentChange(page) {
-    page.value = page;
+  function currentChange(currentPage) {
+    page.value = currentPage;
     refreshData();
   }
 
@@ -91,6 +87,7 @@ export default ({ url, queryKey }) => {
     page,
     pageSize,
     keyword,
+    request,
     fetchData,
     refreshData,
     openForm,
