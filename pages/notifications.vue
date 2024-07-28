@@ -6,6 +6,7 @@
     <template #extra>
       <form @submit.prevent="refresh()">
         <el-button
+          v-if="data?.data?.length"
           size="small"
           type="danger"
           @click="handleRemoveAll(removeAll)"
