@@ -118,14 +118,9 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  Delete,
-  Plus,
-} from "@element-plus/icons-vue";
-import { colors } from "~/constants/colors";
+import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
+import { colors } from "~/constants/colors";
 import { openForm } from "~/stores/form";
 
 function edit(data) {
