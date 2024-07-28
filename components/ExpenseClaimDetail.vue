@@ -103,12 +103,7 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  Delete,
-  Plus,
-} from "@element-plus/icons-vue";
+import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { colors } from "~/constants/colors";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
