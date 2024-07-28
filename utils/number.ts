@@ -7,12 +7,6 @@ export const toRupiah = (value: string) => {
   });
 };
 
-export const formatDate = (value: string) => {
-  return new Date(value).toLocaleString("id-ID", {
-    dateStyle: "medium",
-  });
-};
-
 export const terbilang = (value: number) => {
   const strNumbers = value.toString().split(",");
   const numbers =
