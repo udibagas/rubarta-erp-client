@@ -39,16 +39,17 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data?.data">
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data?.data"
+    @row-click="(row) => openDetail(row)"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Number" width="220">
       <template #default="{ row }">
-        <strong>
-          <NuxtLink :to="`/payment-authorizations/${row.id}`">
-            {{ row.number }}</NuxtLink
-          >
-        </strong>
+        <strong>{{ row.number }}</strong>
         <br />
         {{ formatDate(row.date) }}
       </template>
@@ -109,7 +110,7 @@
       fixed="right"
     >
       <template #default="{ row }">
-        <el-tag type="primary" effect="dark" style="width: 100%">
+        <el-tag :type="colors[row.status]" effect="dark">
           {{ row.status }}
         </el-tag>
       </template>
@@ -167,9 +168,13 @@
   ></el-pagination>
 
   <PaymentAuthorizationForm />
+  <PaymentAuthorizationDetail />
 </template>
 
 <script setup>
+import { colors } from "~/constants/colors";
+import { paymentStatuses } from "~/constants/paymentStatuses";
+import { openDetail, detail } from "~/stores/detail";
 import {
   Refresh,
   Plus,
@@ -181,6 +186,16 @@ import {
 
 const companyId = ref(useCookie("companyId"));
 const url = "/api/payment-authorizations";
+const [
+  DRAFT,
+  SUBMITTED,
+  PARTIIALLY_APPROVED,
+  FULLY_APPROVED,
+  REJECTED,
+  VERIFIED,
+  AUTHORIZED,
+  PAID,
+] = paymentStatuses;
 
 const {
   openForm,

@@ -46,7 +46,10 @@
       >
         <el-menu-item v-for="(m, i) in links" :index="m.path" :key="i">
           <el-icon><component :is="icon[m.icon]" /></el-icon>
-          <span slot="title">{{ m.label }}</span>
+
+          <span slot="title">
+            {{ m.label }}
+          </span>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -69,7 +72,6 @@
             placeholder="Select Company"
             style="width: 270px"
             @change="(id) => changeCompany(id)"
-            size="large"
           >
             <el-option
               v-for="c in companies"
