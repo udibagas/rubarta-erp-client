@@ -6,14 +6,13 @@
     <template #extra>
       <form @submit.prevent="refresh()">
         <el-button
-          v-if="selected.id"
           size="small"
           type="danger"
-          @click="handleRemove(selected.id, remove)"
+          @click="handleRemoveAll(removeAll)"
           :icon="Delete"
           class="mr-2"
         >
-          Delete
+          Delete All
         </el-button>
 
         <el-input
@@ -47,10 +46,10 @@
         :data="data?.data"
         style="width: 300px; margin-right: 20px; height: calc(100vh - 200px)"
         @row-click="(row) => read(row)"
-        :show-header="false"
         :highlight-current-row="true"
+        ref="notificationTable"
       >
-        <el-table-column label="Messages" min-width="150">
+        <el-table-column :label="`${unread} Unread Messages`" min-width="150">
           <template #default="{ row }">
             <div :class="!row.readAt ? 'strong' : ''">
               <small>{{ formatDateTime(row.date) }}</small>
@@ -77,13 +76,27 @@
 
     <el-card class="flex-grow" shadow="hover" v-if="selected.id">
       <template #header>
-        <div class="card-header">
-          <h3 style="margin-bottom: 5px">{{ selected.title }}</h3>
-          <small>{{ formatDateTime(selected.date) }}</small>
+        <div class="card-header flex">
+          <div class="flex-grow">
+            <h3 style="margin-bottom: 5px">{{ selected.title }}</h3>
+            <small>{{ formatDateTime(selected.date) }}</small>
+          </div>
+
+          <el-button
+            type="danger"
+            @click="handleRemove(selected.id, remove)"
+            :icon="Delete"
+            circle
+          >
+          </el-button>
         </div>
       </template>
 
       <p>{{ selected.message }}</p>
+    </el-card>
+
+    <el-card class="flex-grow" shadow="hover" v-else>
+      <el-empty description="No message" />
     </el-card>
   </div>
 </template>
@@ -93,6 +106,7 @@ import { Refresh, Delete, MoreFilled, Search } from "@element-plus/icons-vue";
 
 const url = "/api/notifications";
 const selected = ref({});
+const notificationTable = ref("");
 
 const {
   removeMutation,
@@ -106,7 +120,6 @@ const {
   keyword,
 } = useCrud({ url, queryKey: "notifications" });
 
-const { mutate: remove } = removeMutation();
 const { isPending, data } = useQuery({
   queryKey: ["notifications"],
   queryFn: () =>
@@ -119,17 +132,60 @@ const { isPending, data } = useQuery({
     }),
 });
 
+const { data: unread } = useQuery({
+  queryKey: ["unread-notifications"],
+  queryFn: () => request(`${url}/unread`),
+});
+
+const { mutate: remove } = useMutation({
+  mutationFn: (id) => request(`${url}/${id}`, { method: "DELETE" }),
+  onSuccess: () => {
+    refresh();
+    ElMessage({
+      message: "Data berhasil dihapus",
+      type: "success",
+      showClose: true,
+    });
+  },
+});
+
+const { mutate: removeAll } = useMutation({
+  mutationFn: () => request(url, { method: "DELETE" }),
+  onSuccess: () => {
+    refresh();
+    ElMessage({
+      message: "Data berhasil dihapus",
+      type: "success",
+      showClose: true,
+    });
+  },
+});
+
+function handleRemoveAll(callback) {
+  ElMessageBox.confirm(
+    "Anda yakin akan menghapus semua notifikasi?",
+    "Warning",
+    {
+      type: "warning",
+    }
+  )
+    .then(() => callback())
+    .catch(() => console.log(e));
+}
+
 async function read(row) {
   selected.value = row;
-  row.reatAt = new Date();
 
   if (!row.readAt) {
     await request(`/api/notifications/${row.id}`, { method: "PATCH" });
+    refreshData();
+    refreshData("unread-notifications");
   }
 }
 
 function refresh() {
   selected.value = {};
   refreshData();
+  refreshData("unread-notifications");
 }
 </script>
