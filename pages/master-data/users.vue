@@ -1,5 +1,5 @@
 <template>
-  <form class="flex justify-content-end" @submit.prevent="refreshData">
+  <form class="flex justify-content-end" @submit.prevent="refreshData()">
     <el-button
       size="small"
       @click="openForm({ roles: ['USER'], password: '' })"
@@ -16,7 +16,7 @@
       style="width: 180px"
       :prefix-icon="Search"
       :clearable="true"
-      @clear="refreshData"
+      @clear="refreshData()"
     >
     </el-input>
   </form>
@@ -36,19 +36,7 @@
 
     <el-table-column label="Department" min-width="150">
       <template #default="{ row }">
-        {{ row.Department?.name }}
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Bank" min-width="150">
-      <template #default="{ row }">
-        {{ row.Bank?.name }} <br />
-        {{ row.bankAccount }}
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="roles" label="Role" min-width="150">
-      <template #default="{ row }">
+        {{ row.Department?.name }} <br />
         <el-tag
           v-for="role in row.roles"
           :key="role"
@@ -59,6 +47,13 @@
         >
           {{ role }}
         </el-tag>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Bank" min-width="150">
+      <template #default="{ row }">
+        {{ row.Bank?.name }} <br />
+        {{ row.bankAccount }}
       </template>
     </el-table-column>
 
@@ -81,9 +76,14 @@
       </template>
     </el-table-column>
 
-    <el-table-column width="60px" align="center" header-align="center">
+    <el-table-column
+      width="60px"
+      align="center"
+      header-align="center"
+      fixed="right"
+    >
       <template #header>
-        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
