@@ -8,17 +8,21 @@ export default ({ url, queryKey }) => {
   const queryClient = useQueryClient();
   const request = useRequest();
 
-  function fetchData(params = {}) {
+  const params = {
+    keyword: keyword.value,
+    page: page.value,
+    pageSize: pageSize.value,
+  };
+
+  function fetchData() {
     return useQuery({
-      queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+      queryKey: [queryKey, params],
       queryFn: () => request(url, { params }),
     });
   }
 
   function refreshData() {
-    queryClient.invalidateQueries({
-      queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
-    });
+    queryClient.invalidateQueries({ queryKey: [queryKey, params] });
   }
 
   function saveMutation() {
