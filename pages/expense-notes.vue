@@ -4,7 +4,21 @@
       <span class="text-large font-600"> EXPENSE NOTES </span>
     </template>
     <template #extra>
-      <el-button size="small" type="danger" :icon="Checked"> CLAIM </el-button>
+      <el-button
+        size="small"
+        type="danger"
+        :icon="Checked"
+        @click="
+          openForm({
+            cashAdvance: 0,
+            companyId: companyId,
+            departmentId: user.departmentId,
+            ExpenseClaimItem: { ...data },
+          })
+        "
+      >
+        CLAIM
+      </el-button>
 
       <el-button size="small" @click="openForm()" type="success" :icon="Plus">
         NEW EXPENSE NOTES
@@ -125,13 +139,20 @@ import {
   Checked,
 } from "@element-plus/icons-vue";
 
-const request = useRequest();
+const { user } = useSanctumAuth();
+const companyId = ref(useCookie("companyId"));
 
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/expense-notes",
-    queryKey: "expense-notes",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  request,
+} = useCrud({
+  url: "/api/expense-notes",
+  queryKey: "expense-notes",
+});
 
 const { isPending, data, isSuccess } = fetchData();
 const { mutate: remove } = removeMutation();

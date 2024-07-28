@@ -4,13 +4,13 @@
       <span class="text-large font-600"> EXPENSE CLAIM </span>
     </template>
     <template #extra>
-      <form @submit.prevent="refreshData">
+      <form @submit.prevent="refreshData()">
         <el-button
           size="small"
           @click="
             openForm({
               cashAdvance: 0,
-              companyId: companyStore.companyId,
+              companyId: companyId,
               departmentId: user.departmentId,
               ExpenseClaimItem: [
                 {
@@ -36,7 +36,7 @@
           style="width: 180px"
           :prefix-icon="Search"
           :clearable="true"
-          @clear="refreshData"
+          @clear="refreshData()"
         >
         </el-input>
       </form>
@@ -45,7 +45,12 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data?.data">
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data?.data"
+    @row-click="(row) => openDetail(row)"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Date" width="150">
@@ -108,7 +113,7 @@
       fixed="right"
     >
       <template #default="{ row }">
-        <el-tag type="primary" effect="dark" style="width: 100%">
+        <el-tag :type="colors[row.status]" effect="dark">
           {{ row.status }}
         </el-tag>
       </template>
@@ -121,10 +126,10 @@
       fixed="right"
     >
       <template #header>
-        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
-        <el-dropdown>
+        <el-dropdown v-if="row.status == 'DRAFT'">
           <span class="el-dropdown-link">
             <el-icon>
               <MoreFilled />
@@ -166,9 +171,13 @@
   ></el-pagination>
 
   <ExpenseClaimForm />
+  <ExpenseClaimDetail />
 </template>
 
 <script setup>
+import { colors } from "~/constants/colors";
+import { openDetail } from "~/stores/detail";
+
 import {
   Refresh,
   Plus,

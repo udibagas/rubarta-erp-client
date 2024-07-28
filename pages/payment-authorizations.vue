@@ -4,7 +4,7 @@
       <span class="text-large font-600"> PAYMENT AUTHORIZATION </span>
     </template>
     <template #extra>
-      <form @submit.prevent="refreshData">
+      <form @submit.prevent="refreshData()">
         <el-button
           size="small"
           @click="
@@ -30,7 +30,7 @@
           style="width: 180px"
           :prefix-icon="Search"
           :clearable="true"
-          @clear="refreshData"
+          @clear="refreshData()"
         >
         </el-input>
       </form>
@@ -123,7 +123,7 @@
       fixed="right"
     >
       <template #header>
-        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown v-if="row.status == 'DRAFT'">
@@ -174,7 +174,7 @@
 <script setup>
 import { colors } from "~/constants/colors";
 import { paymentStatuses } from "~/constants/paymentStatuses";
-import { openDetail, detail } from "~/stores/detail";
+import { openDetail } from "~/stores/detail";
 import {
   Refresh,
   Plus,

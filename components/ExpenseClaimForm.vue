@@ -186,13 +186,13 @@ import {
   Delete,
 } from "@element-plus/icons-vue";
 
-const request = useRequest();
-const { errors, form, show, closeForm, saveMutation } = useCrud({
-  url: "/api/expense-claims",
+const url = "/api/expense-claims";
+const { errors, form, show, closeForm, saveMutation, request } = useCrud({
+  url,
   queryKey: "expense-claims",
 });
-const { mutate: save } = saveMutation();
 
+const { mutate: save } = saveMutation();
 const { data: companies } = useQuery({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
@@ -247,7 +247,8 @@ const summary = computed(() => {
   });
   // {1: 20000, 3: 20000, 4: 150000}
   const summaryArr = Object.keys(summaryObj).map((k) => {
-    const expenseType = expenseTypes.find((e) => e.id == k)?.name ?? "OTHER";
+    const expenseType =
+      expenseTypes.value.find((e) => e.id == k)?.name ?? "OTHER";
     return {
       expenseType,
       amount: summaryObj[k],
