@@ -161,7 +161,7 @@
 
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeForm">
-        CANCEL
+        CLOSE
       </el-button>
       <el-button
         :icon="SuccessFilled"
