@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="showDetail" :close-on-click-modal="false">
+  <el-dialog v-model="showDetail">
     <template #header="{ close, titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">
@@ -50,7 +50,7 @@
     <el-table :data="detail.PaymentAuthorizationItem">
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="DATE" width="170">
+      <el-table-column label="DATE" width="100">
         <template #default="{ row }">
           {{ formatDate(row.date) }}
         </template>
