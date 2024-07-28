@@ -126,7 +126,7 @@
         <el-button link @click="refreshData" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
-        <el-dropdown>
+        <el-dropdown v-if="row.status == 'DRAFT'">
           <span class="el-dropdown-link">
             <el-icon>
               <MoreFilled />
