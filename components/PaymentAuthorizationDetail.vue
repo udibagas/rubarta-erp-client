@@ -91,18 +91,47 @@
 
         <tr>
           <td>TERBILANG</td>
-          <td>
-            <strong>Terbilang</strong>
+          <td class="text-right">
+            <strong>
+              {{ terbilang(detail.netAmount).toUpperCase() }} RUPIAH
+            </strong>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <template #footer>
+      <el-button :icon="CircleCloseFilled" @click="closeDetail">
+        CLOSE
+      </el-button>
+
+      <el-button
+        v-if="detail.status == 'DRAFT'"
+        :icon="SuccessFilled"
+        type="warning"
+        @click="edit(detail)"
+      >
+        EDIT
+      </el-button>
+    </template>
   </el-dialog>
 </template>
 
 <script setup>
+import {
+  SuccessFilled,
+  CircleCloseFilled,
+  Delete,
+  Plus,
+} from "@element-plus/icons-vue";
 import { colors } from "~/constants/colors";
-import { showDetail, detail } from "~/stores/detail";
+import { showDetail, detail, closeDetail } from "~/stores/detail";
+import { openForm } from "~/stores/form";
+
+function edit(data) {
+  closeDetail();
+  openForm(data);
+}
 </script>
 
 <style scoped>

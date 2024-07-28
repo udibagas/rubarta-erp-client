@@ -152,8 +152,8 @@
 
         <tr>
           <td>TERBILANG</td>
-          <td>
-            <strong>Terbilang</strong>
+          <td class="text-right">
+            <strong>{{ terbilang(netAmount).toUpperCase() }} RUPIAH</strong>
           </td>
         </tr>
       </tbody>
