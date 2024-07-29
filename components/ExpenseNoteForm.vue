@@ -45,9 +45,37 @@
             v-model="form.amount"
             placeholder="Amount"
             class="mr-2"
+            style="width: 215px"
           />
           <strong>{{ toRupiah(form.amount) }}</strong>
         </div>
+      </el-form-item>
+
+      <el-form-item label="Attachment" :error="errors.attachment">
+        <el-upload
+          drag
+          v-model:file-list="fileList"
+          :action="`${config.public.apiBase}/api/file`"
+          :with-credentials="true"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :multiple="false"
+          :limit="1"
+          list-type="picture"
+        >
+          <el-icon class="el-icon--upload">
+            <UploadFilled />
+          </el-icon>
+          <div class="el-upload__text">
+            Drop file here or <em>click to upload</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              jpg/png files with a size less than 2M
+            </div>
+          </template>
+        </el-upload>
       </el-form-item>
     </el-form>
 
@@ -60,22 +88,60 @@
       </el-button>
     </template>
   </el-dialog>
+
+  <el-dialog v-model="showPreview" center>
+    <img :src="previewUrl" alt="" style="width: 100%" />
+
+    <template #footer>
+      <el-button
+        :icon="CircleCloseFilled"
+        @click="showPreview = false"
+        type="success"
+      >
+        CLOSE
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
-const request = useRequest();
+import {
+  SuccessFilled,
+  CircleCloseFilled,
+  UploadFilled,
+} from "@element-plus/icons-vue";
 
-const disabledDate = (time) => {
-  return time.getTime() > Date.now();
-};
-
-const { errors, form, show, closeForm, saveMutation } = useCrud({
+const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/expense-notes",
   queryKey: "expense-notes",
 });
 
 const { mutate: save } = saveMutation();
+
+const config = useRuntimeConfig();
+const fileList = ref(form.value.attachment ? [form.value.attachment] : []);
+const showPreview = ref(false);
+const previewUrl = ref("");
+
+watch(
+  () => form.value.attachment,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    const { fileName: name, fileSize: size, filePath, fileType } = value;
+
+    fileList.value = [
+      {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      },
+    ];
+  }
+);
 
 const { data: expenseTypes } = useQuery({
   queryKey: ["expenseTypes"],
@@ -85,5 +151,34 @@ const { data: expenseTypes } = useQuery({
 function submit(data) {
   const { amount, ...payload } = data;
   save({ ...payload, amount: Number(amount) });
+}
+
+function disabledDate(time) {
+  return time.getTime() > Date.now();
+}
+
+function handleSuccess(file) {
+  form.value.attachment = file;
+}
+
+function handlePreview(file) {
+  previewUrl.value = file.url;
+  showPreview.value = true;
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  form.value.attachment = null;
+  console.log(form.value);
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
 }
 </script>
