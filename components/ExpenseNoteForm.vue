@@ -169,7 +169,6 @@ function handlePreview(file) {
 function handleRemove(file) {
   const path = file.response?.filePath ?? file.filePath;
   form.value.attachment = null;
-  console.log(form.value);
   request(`/api/file`, {
     method: "DELETE",
     params: { path },
