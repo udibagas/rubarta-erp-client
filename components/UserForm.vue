@@ -97,7 +97,6 @@
         :error="errors.signatureSpeciment"
       >
         <el-upload
-          drag
           v-model:file-list="fileList"
           :action="`${config.public.apiBase}/api/file`"
           :with-credentials="true"
@@ -106,19 +105,11 @@
           :on-success="handleSuccess"
           :multiple="false"
           :limit="1"
-          list-type="picture"
+          list-type="picture-card"
         >
-          <el-icon class="el-icon--upload">
+          <el-icon>
             <UploadFilled />
           </el-icon>
-          <div class="el-upload__text">
-            Drop file here or <em>click to upload</em>
-          </div>
-          <template #tip>
-            <div class="el-upload__tip">
-              jpg/png files with a size less than 2M
-            </div>
-          </template>
         </el-upload>
       </el-form-item>
     </el-form>
