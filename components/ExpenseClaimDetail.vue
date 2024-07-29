@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="showDetail">
+  <el-dialog v-model="showDetail" width="700">
     <template #header="{ close, titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
