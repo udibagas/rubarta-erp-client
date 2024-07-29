@@ -67,7 +67,7 @@
       header-align="center"
     >
       <template #header>
-        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
