@@ -91,6 +91,36 @@
           {{ !!form.active ? "Aktif" : "Nonaktif" }}
         </el-tag>
       </el-form-item>
+
+      <el-form-item
+        label="Signature Speciment"
+        :error="errors.signatureSpeciment"
+      >
+        <el-upload
+          drag
+          v-model:file-list="fileList"
+          :action="`${config.public.apiBase}/api/file`"
+          :with-credentials="true"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :multiple="false"
+          :limit="1"
+          list-type="picture"
+        >
+          <el-icon class="el-icon--upload">
+            <UploadFilled />
+          </el-icon>
+          <div class="el-upload__text">
+            Drop file here or <em>click to upload</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              jpg/png files with a size less than 2M
+            </div>
+          </template>
+        </el-upload>
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -102,14 +132,31 @@
       </el-button>
     </template>
   </el-dialog>
+
+  <el-dialog v-model="showPreview" center>
+    <img :src="previewUrl" alt="" style="width: 100%" />
+
+    <template #footer>
+      <el-button
+        :icon="CircleCloseFilled"
+        @click="showPreview = false"
+        type="success"
+      >
+        CLOSE
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+import {
+  SuccessFilled,
+  CircleCloseFilled,
+  UploadFilled,
+} from "@element-plus/icons-vue";
 import { roles } from "~/constants/roles";
-const request = useRequest();
 
-const { errors, form, show, closeForm, saveMutation } = useCrud({
+const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/users",
   queryKey: "users",
 });
@@ -124,4 +171,55 @@ const { data: banks } = useQuery({
   queryKey: ["banks"],
   queryFn: () => request("/api/banks"),
 });
+
+const config = useRuntimeConfig();
+const fileList = ref(
+  form.value.signatureSpeciment ? [form.value.signatureSpeciment] : []
+);
+const showPreview = ref(false);
+const previewUrl = ref("");
+
+watch(
+  () => form.value.signatureSpeciment,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    const { fileName: name, fileSize: size, filePath, fileType } = value;
+
+    fileList.value = [
+      {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      },
+    ];
+  }
+);
+
+function handleSuccess(file) {
+  form.value.signatureSpeciment = file;
+}
+
+function handlePreview(file) {
+  previewUrl.value = file.url;
+  showPreview.value = true;
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  form.value.signatureSpeciment = null;
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
+}
 </script>
