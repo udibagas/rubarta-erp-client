@@ -155,6 +155,21 @@
       </tbody>
     </table>
 
+    <br />
+
+    <el-upload
+      v-model:file-list="fileList"
+      :action="`${config.public.apiBase}/api/file`"
+      :with-credentials="true"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :on-success="handleSuccess"
+      :multiple="true"
+      list-type="picture-card"
+    >
+      <el-icon><Plus /></el-icon>
+    </el-upload>
+
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
@@ -176,6 +191,20 @@
       </el-button>
     </template>
   </el-dialog>
+
+  <el-dialog v-model="showPreview" center>
+    <img :src="previewUrl" alt="" style="width: 100%" />
+
+    <template #footer>
+      <el-button
+        :icon="CircleCloseFilled"
+        @click="showPreview = false"
+        type="success"
+      >
+        CLOSE
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -184,6 +213,7 @@ import {
   SuccessFilled,
   CircleCloseFilled,
   Delete,
+  UploadFilled,
 } from "@element-plus/icons-vue";
 
 const url = "/api/expense-claims";
@@ -273,5 +303,66 @@ async function removeItem(index, id) {
 
 function addItem() {
   form.value.ExpenseClaimItem.push({ ...newRow });
+}
+
+// UPLOAD RELATED
+
+const config = useRuntimeConfig();
+const fileList = ref([]);
+const showPreview = ref(false);
+const previewUrl = ref("");
+
+watch(
+  () => form.value.ExpenseClaimAttachment,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = form.value.ExpenseClaimAttachment.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  }
+);
+
+function handleSuccess(file) {
+  if (!form.value.ExpenseClaimAttachment) {
+    form.value.ExpenseClaimAttachment = [];
+  }
+
+  form.value.ExpenseClaimAttachment.push(file);
+}
+
+function handlePreview(file) {
+  previewUrl.value = file.url;
+  showPreview.value = true;
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = form.value.ExpenseClaimAttachment.findIndex(
+    (f) => f.path == path
+  );
+
+  if (index !== -1) {
+    form.value.ExpenseClaimAttachment.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
 }
 </script>
