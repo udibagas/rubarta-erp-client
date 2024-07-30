@@ -26,6 +26,15 @@ export default defineNuxtConfig({
     },
   },
 
+  render: {
+    csp: {
+      hashAlgorithm: "sha256",
+      policies: {
+        "script-src": ["'self'", "'unsafe-inline'"],
+      },
+    },
+  },
+
   css: ["@/assets/app.css"],
   plugins: ["@/plugins/mask.js"],
 
