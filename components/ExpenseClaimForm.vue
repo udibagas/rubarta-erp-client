@@ -347,7 +347,7 @@ function handlePreview(file) {
 function handleRemove(file) {
   const path = file.response?.filePath ?? file.filePath;
   const index = form.value.ExpenseClaimAttachment.findIndex(
-    (f) => f.path == path
+    (f) => f.filePath == path
   );
 
   if (index !== -1) {
