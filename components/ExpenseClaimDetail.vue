@@ -85,6 +85,22 @@
       </tbody>
     </table>
 
+    <h4>ATTACHMENTS</h4>
+
+    <div v-if="srcList.length > 0">
+      <el-image
+        v-for="(url, index) in srcList"
+        style="width: 100px; height: 100px; margin-right: 2px"
+        :src="srcList[index]"
+        :zoom-rate="1.2"
+        :max-scale="7"
+        :min-scale="0.2"
+        :preview-src-list="srcList"
+        fit="cover"
+        :initial-index="index"
+      />
+    </div>
+
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeDetail">
         CLOSE
@@ -109,6 +125,7 @@ import { colors } from "~/constants/colors";
 import { openForm } from "~/stores/form";
 
 const request = useRequest();
+const config = useRuntimeConfig();
 
 function edit(data) {
   closeDetail();
@@ -144,6 +161,14 @@ const summary = computed(() => {
   });
 
   return summaryArr;
+});
+
+const srcList = computed(() => {
+  return (
+    detail.value.ExpenseClaimAttachment?.map(
+      (el) => `${config.public.apiBase}/${el.filePath}`
+    ) ?? []
+  );
 });
 </script>
 
