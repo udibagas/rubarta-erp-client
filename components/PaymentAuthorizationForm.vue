@@ -245,7 +245,21 @@ const netAmount = computed(() => {
   return amount.value - Number(form.value.deduction);
 });
 
-function saveWithStatus(status) {
+async function saveWithStatus(status) {
+  if (status == "SUBMITTED") {
+    try {
+      await ElMessageBox.confirm(
+        "Pastikan Anda telah mengisi for dengan benar!",
+        "Warning",
+        {
+          type: "warning",
+        }
+      );
+    } catch (error) {
+      return;
+    }
+  }
+
   form.value.grossAmount = amount;
   form.value.netAmount = netAmount;
   form.value.deduction = Number(form.value.deduction);

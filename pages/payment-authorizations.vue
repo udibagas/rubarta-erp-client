@@ -106,7 +106,7 @@
       label="Status"
       align="center"
       header-align="center"
-      width="150"
+      min-width="170"
       fixed="right"
     >
       <template #default="{ row }">

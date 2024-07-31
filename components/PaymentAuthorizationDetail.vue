@@ -50,7 +50,7 @@
     <el-table :data="detail.PaymentAuthorizationItem">
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="DATE" width="100">
+      <el-table-column label="DATE" width="120">
         <template #default="{ row }">
           {{ formatDate(row.date) }}
         </template>
@@ -100,6 +100,74 @@
       </tbody>
     </table>
 
+    <br />
+
+    <table
+      class="table table-bordered"
+      v-if="detail.PaymentAuthorizationApproval?.length"
+    >
+      <thead>
+        <tr>
+          <th :colspan="detail.PaymentAuthorizationApproval.length">
+            APPROVALS
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            :style="`width: ${
+              100 / detail.PaymentAuthorizationApproval.length
+            }%;height:40px`"
+            class="text-center"
+            v-for="approval in detail.PaymentAuthorizationApproval"
+            :key="`status-${approval.id}`"
+          >
+            <el-button
+              type="danger"
+              :icon="Stamp"
+              @click="approve(approval.id)"
+              v-if="
+                user.id == approval.userId && approval.approvalStatus === null
+              "
+            >
+              APPROVE
+            </el-button>
+
+            <el-tag
+              v-else
+              :type="approval.approvalStatus === null ? 'info' : 'success'"
+              effect="dark"
+            >
+              {{ approval.approvalStatus === null ? "PENDING" : "APPROVED" }}
+            </el-tag>
+          </td>
+        </tr>
+
+        <tr>
+          <td
+            class="text-center"
+            v-for="approval in detail.PaymentAuthorizationApproval"
+            :key="approval.id"
+          >
+            <div v-if="approval.approvalStatus" class="mt-2">
+              {{ formatDateTime(approval.updatedAt) }}
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td
+            class="text-center strong"
+            v-for="approval in detail.PaymentAuthorizationApproval"
+            :key="approval.id"
+          >
+            {{ approval.User?.name }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeDetail">
         CLOSE
@@ -118,10 +186,42 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+import {
+  SuccessFilled,
+  CircleCloseFilled,
+  Stamp,
+} from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { colors } from "~/constants/colors";
 import { openForm } from "~/stores/form";
+
+const { user } = useSanctumAuth();
+const request = useRequest();
+const queryClient = useQueryClient();
+
+async function approve(id) {
+  try {
+    await ElMessageBox.confirm(
+      "Anda yakin akan melakukan persetujuan?",
+      "Warning",
+      {
+        type: "warning",
+      }
+    );
+
+    const response = await request(
+      `/api/payment-authorizations/approve/${detail.value.id}`,
+      { method: "POST" }
+    );
+
+    detail.value = response;
+    queryClient.invalidateQueries({
+      queryKey: ["payment-authorizations"],
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function edit(data) {
   closeDetail();
