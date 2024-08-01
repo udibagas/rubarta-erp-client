@@ -102,38 +102,39 @@
 
     <br />
 
-    <table
-      class="table table-bordered"
+    <div
       v-if="detail.PaymentAuthorizationApproval?.length"
+      style="
+        display: flex;
+        align-items: stretch;
+        justify-content: space-evenly;
+        text-align: center;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 5px;
+      "
     >
-      <thead>
-        <tr>
-          <th :colspan="detail.PaymentAuthorizationApproval.length">
-            APPROVALS
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td
-            :style="`width: ${
-              100 / detail.PaymentAuthorizationApproval.length
-            }%;height:40px`"
-            class="text-center"
-            v-for="approval in detail.PaymentAuthorizationApproval"
-            :key="`status-${approval.id}`"
+      <div v-for="approval in detail.PaymentAuthorizationApproval">
+        <strong>{{ actions[approval.approvalActionType] }}</strong>
+        <div style="height: 60px; line-height: 60px">
+          <el-button
+            type="danger"
+            :icon="Stamp"
+            @click="approve(approval.id)"
+            v-if="
+              user.id == approval.userId && approval.approvalStatus === null
+            "
           >
-            <el-button
-              type="danger"
-              :icon="Stamp"
-              @click="approve(approval.id)"
-              v-if="
-                user.id == approval.userId && approval.approvalStatus === null
-              "
-            >
-              APPROVE
-            </el-button>
+            APPROVE
+          </el-button>
 
+          <div v-else>
+            <img
+              v-if="approval.User.signatureSpeciment"
+              :src="`${config.public.apiBase}/${approval.User.signatureSpeciment.filePath}`"
+              alt=""
+              style="height: 60px"
+            />
             <el-tag
               v-else
               :type="approval.approvalStatus === null ? 'info' : 'success'"
@@ -141,32 +142,19 @@
             >
               {{ approval.approvalStatus === null ? "PENDING" : "APPROVED" }}
             </el-tag>
-          </td>
-        </tr>
+          </div>
+        </div>
 
-        <tr>
-          <td
-            class="text-center"
-            v-for="approval in detail.PaymentAuthorizationApproval"
-            :key="approval.id"
-          >
-            <div v-if="approval.approvalStatus" class="mt-2">
-              {{ formatDateTime(approval.updatedAt) }}
-            </div>
-          </td>
-        </tr>
-
-        <tr>
-          <td
-            class="text-center strong"
-            v-for="approval in detail.PaymentAuthorizationApproval"
-            :key="approval.id"
-          >
-            {{ approval.User?.name }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+        <div class="strong">
+          {{ approval.User?.name }}
+        </div>
+        <div>
+          {{
+            approval.approvalStatus ? formatDateTime(approval.updatedAt) : "-"
+          }}
+        </div>
+      </div>
+    </div>
 
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeDetail">
@@ -198,6 +186,13 @@ import { openForm } from "~/stores/form";
 const { user } = useSanctumAuth();
 const request = useRequest();
 const queryClient = useQueryClient();
+const config = useRuntimeConfig();
+
+const actions = {
+  APPROVAL: "APPROVED BY",
+  VERIFICATION: "VERIFIED BY",
+  AUTHORIZATION: "AUTHORIZED BY",
+};
 
 async function approve(id) {
   try {
