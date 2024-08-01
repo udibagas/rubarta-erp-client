@@ -106,7 +106,7 @@
       <el-button :icon="CircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save(form)">
+      <el-button :icon="SuccessFilled" type="success" @click="submit(form)">
         SAVE
       </el-button>
     </template>
@@ -161,5 +161,10 @@ async function removeItem(index, id) {
   }
 
   form.value.ApprovalSettingItem.splice(index, 1);
+}
+
+function submit(form) {
+  // TODO: cek nama sama ga
+  save(form);
 }
 </script>

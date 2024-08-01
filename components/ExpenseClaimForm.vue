@@ -302,7 +302,12 @@ async function removeItem(index, id) {
 }
 
 function addItem() {
-  form.value.ExpenseClaimItem.push({ ...newRow });
+  form.value.ExpenseClaimItem.push({
+    date: undefined,
+    expenseTypeId: undefined,
+    description: undefined,
+    amount: 0,
+  });
 }
 
 // UPLOAD RELATED

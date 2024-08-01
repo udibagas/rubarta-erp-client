@@ -130,7 +130,7 @@
 
           <div v-else>
             <img
-              v-if="approval.User.signatureSpeciment"
+              v-if="approval.approvalStatus && approval.User.signatureSpeciment"
               :src="`${config.public.apiBase}/${approval.User.signatureSpeciment.filePath}`"
               alt=""
               style="height: 60px"
