@@ -97,19 +97,20 @@
         :error="errors.signatureSpeciment"
       >
         <el-upload
-          v-model:file-list="fileList"
           :action="`${config.public.apiBase}/api/file`"
           :with-credentials="true"
-          :on-preview="handlePreview"
           :on-remove="handleRemove"
           :on-success="handleSuccess"
           :multiple="false"
-          :limit="1"
-          list-type="picture-card"
+          :show-file-list="false"
         >
-          <el-icon>
-            <UploadFilled />
-          </el-icon>
+          <img
+            v-if="form.signatureSpeciment"
+            :src="`${config.public.apiBase}/${form.signatureSpeciment.filePath}`"
+            alt=""
+            style="height: 100px"
+          />
+          <el-button v-else :icon="UploadFilled"> Upload </el-button>
         </el-upload>
       </el-form-item>
     </el-form>
@@ -120,20 +121,6 @@
       </el-button>
       <el-button :icon="SuccessFilled" type="success" @click="save(form)">
         SAVE
-      </el-button>
-    </template>
-  </el-dialog>
-
-  <el-dialog v-model="showPreview" center>
-    <img :src="previewUrl" alt="" style="width: 100%" />
-
-    <template #footer>
-      <el-button
-        :icon="CircleCloseFilled"
-        @click="showPreview = false"
-        type="success"
-      >
-        CLOSE
       </el-button>
     </template>
   </el-dialog>
@@ -164,39 +151,9 @@ const { data: banks } = useQuery({
 });
 
 const config = useRuntimeConfig();
-const fileList = ref(
-  form.value.signatureSpeciment ? [form.value.signatureSpeciment] : []
-);
-const showPreview = ref(false);
-const previewUrl = ref("");
-
-watch(
-  () => form.value.signatureSpeciment,
-  async (value, oldValue) => {
-    if (!value) {
-      return (fileList.value = []);
-    }
-
-    const { fileName: name, fileSize: size, filePath, fileType } = value;
-
-    fileList.value = [
-      {
-        name,
-        size,
-        url: `${config.public.apiBase}/${filePath}`,
-        filePath,
-      },
-    ];
-  }
-);
 
 function handleSuccess(file) {
   form.value.signatureSpeciment = file;
-}
-
-function handlePreview(file) {
-  previewUrl.value = file.url;
-  showPreview.value = true;
 }
 
 function handleRemove(file) {

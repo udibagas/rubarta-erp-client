@@ -73,6 +73,30 @@
           v-model="formModel.bankAccount"
         ></el-input>
       </el-form-item>
+
+      <el-form-item
+        label="Signature Speciment"
+        :error="formErrors.signatureSpeciment"
+      >
+        <el-upload
+          :action="`${config.public.apiBase}/api/file`"
+          :with-credentials="true"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :multiple="false"
+          :show-file-list="false"
+        >
+          <img
+            v-if="formModel.signatureSpeciment"
+            :src="`${config.public.apiBase}/${formModel.signatureSpeciment.filePath}`"
+            alt=""
+            style="height: 100px"
+          />
+          <el-button v-else :icon="UploadFilled"> Upload </el-button>
+        </el-upload>
+      </el-form-item>
+
+      <el-form-item> </el-form-item>
     </el-form>
 
     <template #footer>
@@ -87,12 +111,16 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
-const { user } = useSanctumAuth();
+import {
+  SuccessFilled,
+  CircleCloseFilled,
+  UploadFilled,
+} from "@element-plus/icons-vue";
+const { user, refreshIdentity } = useSanctumAuth();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
 const request = useRequest();
-
+const config = useRuntimeConfig();
 const formModel = ref({ ...user.value });
 const formErrors = ref({});
 
@@ -109,6 +137,7 @@ const save = () => {
         type: "success",
         showClose: true,
       });
+      refreshIdentity();
     })
     .catch((e) => (formErrors.value = parseError(e)))
     .finally(() => loadingInstance.close());
@@ -123,4 +152,23 @@ const { data: banks } = useQuery({
   queryKey: ["banks"],
   queryFn: () => request("/api/banks"),
 });
+
+function handleSuccess(file) {
+  formModel.value.signatureSpeciment = file;
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  formModel.value.signatureSpeciment = null;
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
+}
 </script>
