@@ -225,7 +225,7 @@ const disabledDate = (time) => {
 };
 
 const updateBank = (id) => {
-  const user = users.find((u) => u.id == id);
+  const user = users.value.find((u) => u.id == id);
   if (user) {
     form.value.bankId = user.bankId;
     form.value.bankAccount = user.bankAccount;
