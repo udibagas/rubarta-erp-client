@@ -32,7 +32,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="edit(row.id)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
@@ -61,7 +61,7 @@ import {
   MoreFilled,
 } from "@element-plus/icons-vue";
 
-const { openForm, removeMutation, fetchData, refreshData, handleRemove, edit } =
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
     url: "/api/companies",
     queryKey: "companies",
