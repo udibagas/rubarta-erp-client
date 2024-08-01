@@ -31,7 +31,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="openForm(row)"
+                @click.native.prevent="edit(row.id)"
               >
                 Edit
               </el-dropdown-item>
@@ -60,7 +60,7 @@ import {
   MoreFilled,
 } from "@element-plus/icons-vue";
 
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+const { openForm, removeMutation, fetchData, refreshData, handleRemove, edit } =
   useCrud({
     url: "/api/expense-types",
     queryKey: "expense-types",

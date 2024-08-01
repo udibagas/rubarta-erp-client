@@ -8,6 +8,12 @@ export default ({ url, queryKey }) => {
   const queryClient = useQueryClient();
   const request = useRequest();
 
+  function edit(id) {
+    request(`${url}/${id}`).then((result) => {
+      openForm(result);
+    });
+  }
+
   function fetchData() {
     return useQuery({
       queryKey: [queryKey],
@@ -88,6 +94,7 @@ export default ({ url, queryKey }) => {
     pageSize,
     keyword,
     request,
+    edit,
     fetchData,
     refreshData,
     openForm,

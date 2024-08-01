@@ -96,7 +96,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="openForm(row)"
+                @click.native.prevent="edit(row.id)"
               >
                 Edit
               </el-dropdown-item>
@@ -132,6 +132,7 @@ const {
   fetchData,
   refreshData,
   handleRemove,
+  edit,
   keyword,
 } = useCrud({
   url: "/api/users",
