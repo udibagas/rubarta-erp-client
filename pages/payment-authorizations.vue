@@ -43,7 +43,7 @@
     stripe
     v-loading="isPending"
     :data="data?.data"
-    @row-click="(row) => openDetail(row)"
+    @row-click="(row) => show(row.id)"
   >
     <el-table-column type="index" label="#"></el-table-column>
 
@@ -136,7 +136,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="openForm(row)"
+                @click.native.prevent="edit(row.id)"
               >
                 Edit
               </el-dropdown-item>
@@ -173,8 +173,7 @@
 
 <script setup>
 import { colors } from "~/constants/colors";
-import { paymentStatuses } from "~/constants/paymentStatuses";
-import { openDetail } from "~/stores/detail";
+import { openDetail, detail } from "~/stores/detail";
 import {
   Refresh,
   Plus,
@@ -186,16 +185,6 @@ import {
 
 const companyId = ref(useCookie("companyId"));
 const url = "/api/payment-authorizations";
-const [
-  DRAFT,
-  SUBMITTED,
-  PARTIIALLY_APPROVED,
-  FULLY_APPROVED,
-  REJECTED,
-  VERIFIED,
-  AUTHORIZED,
-  PAID,
-] = paymentStatuses;
 
 const {
   openForm,
@@ -227,4 +216,16 @@ const { isPending, data } = useQuery({
 watch(companyId, () => {
   refreshData("payment-authorizations");
 });
+
+function edit(id) {
+  request(`${url}/${id}`).then((result) => {
+    openForm(result);
+  });
+}
+
+function show(id) {
+  request(`${url}/${id}`).then((result) => {
+    openDetail(result);
+  });
+}
 </script>
