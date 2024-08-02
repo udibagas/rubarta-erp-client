@@ -53,7 +53,7 @@
   >
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Number" width="150">
+    <el-table-column label="Number" width="200">
       <template #default="{ row }">
         <strong>{{ row.number }}</strong> <br />
         {{ formatDate(row.date) }}
@@ -62,14 +62,8 @@
 
     <el-table-column label="Employee" min-width="150">
       <template #default="{ row }">
-        <strong>{{ row.User?.name }}</strong>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Department" min-width="150">
-      <template #default="{ row }">
-        {{ row.Department?.name }} <br />
-        {{ row.Company?.name }}
+        <strong>{{ row.User?.name }}</strong> <br />
+        {{ row.Department?.name }}
       </template>
     </el-table-column>
 
