@@ -251,7 +251,21 @@ const claim = computed(() => {
   return totalAmount.value - Number(form.value.cashAdvance);
 });
 
-function saveWithStatus(status) {
+async function saveWithStatus(status) {
+  if (status == "SUBMITTED") {
+    try {
+      await ElMessageBox.confirm(
+        "Pastikan Anda telah mengisi for dengan benar!",
+        "Warning",
+        {
+          type: "warning",
+        }
+      );
+    } catch (error) {
+      return;
+    }
+  }
+
   form.value.status = status;
   form.value.cashAdvance = Number(form.value.cashAdvance);
 
