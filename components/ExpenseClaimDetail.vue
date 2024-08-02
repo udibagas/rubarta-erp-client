@@ -32,7 +32,7 @@
     <el-table :data="detail.ExpenseClaimItem">
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="DATE" width="100">
+      <el-table-column label="DATE" width="120">
         <template #default="{ row }">
           {{ formatDate(row.date) }}
         </template>
@@ -95,7 +95,7 @@
 
     <br />
 
-    <div v-if="srcList.length > 0">
+    <div v-if="srcList.length > 0" class="mb-2">
       <el-image
         v-for="(url, index) in srcList"
         style="width: 100px; height: 100px; margin-right: 5px"
@@ -109,6 +109,15 @@
       />
     </div>
 
+    <ApprovalDetail
+      v-if="detail.ExpenseClaimApproval.length > 0"
+      approve-url="/api/expense-claims/approve"
+      query-key="expense-claims"
+      :approvals="detail.ExpenseClaimApproval"
+      :request-id="detail.id"
+      @reload="reload"
+    />
+
     <template #footer>
       <el-button :icon="CircleCloseFilled" @click="closeDetail">
         CLOSE
@@ -118,7 +127,7 @@
         v-if="detail.status == 'DRAFT'"
         :icon="SuccessFilled"
         type="warning"
-        @click="edit(detail)"
+        @click="openForm(detail.id)"
       >
         EDIT
       </el-button>
@@ -130,14 +139,16 @@
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { colors } from "~/constants/colors";
-import { openForm } from "~/stores/form";
-
-const request = useRequest();
 const config = useRuntimeConfig();
 
-function edit(data) {
+const { request, edit } = useCrud({
+  url: "/api/expense-claims",
+  queryKey: "expense-claims",
+});
+
+function openForm(id) {
   closeDetail();
-  openForm(data);
+  edit(id);
 }
 
 const totalAmount = computed(() => {
@@ -178,6 +189,12 @@ const srcList = computed(() => {
     ) ?? []
   );
 });
+
+function reload() {
+  request(`/api/expense-claims/${detail.value.id}`).then(
+    (res) => (detail.value = res)
+  );
+}
 </script>
 
 <style scoped>

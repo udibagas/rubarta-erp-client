@@ -60,7 +60,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Employee" min-width="150">
+    <el-table-column label="Employee" min-width="170">
       <template #default="{ row }">
         <strong>{{ row.User?.name }}</strong> <br />
         {{ row.Department?.name }}
@@ -104,7 +104,7 @@
       label="Status"
       align="center"
       header-align="center"
-      width="150"
+      width="160"
       fixed="right"
     >
       <template #default="{ row }">
@@ -115,7 +115,7 @@
     </el-table-column>
 
     <el-table-column
-      width="60px"
+      width="50px"
       align="center"
       header-align="center"
       fixed="right"
@@ -166,12 +166,12 @@
   ></el-pagination>
 
   <ExpenseClaimForm />
-  <ExpenseClaimDetail />
+  <ExpenseClaimDetail v-if="detail.id" />
 </template>
 
 <script setup>
 import { colors } from "~/constants/colors";
-import { openDetail } from "~/stores/detail";
+import { openDetail, detail } from "~/stores/detail";
 
 import {
   Refresh,
@@ -193,6 +193,7 @@ const {
   handleRemove,
   currentChange,
   sizeChange,
+  edit,
   request,
   page,
   pageSize,
@@ -219,12 +220,6 @@ const { isPending, data } = useQuery({
 watch(companyId, () => {
   refreshData("expense-claims");
 });
-
-function edit(id) {
-  request(`${url}/${id}`).then((result) => {
-    openForm(result);
-  });
-}
 
 function show(id) {
   request(`${url}/${id}`).then((result) => {

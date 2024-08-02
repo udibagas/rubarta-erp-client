@@ -80,6 +80,12 @@ export default ({ url, queryKey }) => {
     refreshData();
   }
 
+  function edit(id) {
+    request(`${url}/${id}`).then((result) => {
+      openForm(result);
+    });
+  }
+
   return {
     form,
     errors,
@@ -88,6 +94,7 @@ export default ({ url, queryKey }) => {
     pageSize,
     keyword,
     request,
+    edit,
     fetchData,
     refreshData,
     openForm,
