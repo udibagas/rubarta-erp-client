@@ -85,12 +85,12 @@
       </tbody>
     </table>
 
-    <h4>ATTACHMENTS</h4>
+    <br />
 
     <div v-if="srcList.length > 0">
       <el-image
         v-for="(url, index) in srcList"
-        style="width: 100px; height: 100px; margin-right: 2px"
+        style="width: 100px; height: 100px; margin-right: 5px"
         :src="srcList[index]"
         :zoom-rate="1.2"
         :max-scale="7"

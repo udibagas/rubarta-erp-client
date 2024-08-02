@@ -49,7 +49,7 @@
     stripe
     v-loading="isPending"
     :data="data?.data"
-    @row-click="(row) => openDetail(row)"
+    @row-click="(row) => show(row.id)"
   >
     <el-table-column type="index" label="#"></el-table-column>
 
@@ -139,7 +139,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="Edit"
-                @click.native.prevent="openForm(row)"
+                @click.native.prevent="edit(row.id)"
               >
                 Edit
               </el-dropdown-item>
@@ -224,4 +224,16 @@ const { isPending, data } = useQuery({
 watch(companyId, () => {
   refreshData("expense-claims");
 });
+
+function edit(id) {
+  request(`${url}/${id}`).then((result) => {
+    openForm(result);
+  });
+}
+
+function show(id) {
+  request(`${url}/${id}`).then((result) => {
+    openDetail(result);
+  });
+}
 </script>
