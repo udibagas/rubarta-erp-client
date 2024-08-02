@@ -53,8 +53,9 @@
   >
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Date" width="150">
+    <el-table-column label="Number" width="150">
       <template #default="{ row }">
+        <strong>{{ row.number }}</strong> <br />
         {{ formatDate(row.date) }}
       </template>
     </el-table-column>

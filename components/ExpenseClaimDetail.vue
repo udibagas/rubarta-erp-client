@@ -10,8 +10,16 @@
     </template>
 
     <el-descriptions :border="true" :column="1" direction="horizontal">
+      <el-descriptions-item label="Number">
+        <strong> {{ detail.number }}</strong>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Date">
+        {{ formatDate(detail.date) }}
+      </el-descriptions-item>
+
       <el-descriptions-item label="Company">
-        <strong> {{ detail.Company?.name }}</strong>
+        {{ detail.Company?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Department">
