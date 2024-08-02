@@ -28,7 +28,12 @@
 
   <br />
 
-  <el-table stripe :data="data" v-loading="isPending">
+  <el-table
+    stripe
+    :data="data"
+    v-loading="isPending"
+    @row-click="(row) => openDetail(row)"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column width="120" label="Date">
@@ -127,6 +132,7 @@
   </table>
 
   <ExpenseNoteForm />
+  <ExpenseNoteDetail />
 </template>
 
 <script setup>
@@ -138,6 +144,8 @@ import {
   MoreFilled,
   Checked,
 } from "@element-plus/icons-vue";
+
+import { openDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
 const companyId = ref(useCookie("companyId"));
