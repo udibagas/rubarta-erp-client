@@ -173,7 +173,7 @@
 
 <script setup>
 import { colors } from "~/constants/colors";
-import { openDetail, detail } from "~/stores/detail";
+import { openDetail } from "~/stores/detail";
 import {
   Refresh,
   Plus,
