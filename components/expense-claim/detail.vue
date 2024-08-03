@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="showDetail" width="700">
+  <el-dialog v-model="showDetail" width="700" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
@@ -123,10 +123,6 @@
     />
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeDetail">
-        CLOSE
-      </el-button>
-
       <el-button
         v-if="detail.status == 'DRAFT'"
         :icon="SuccessFilled"
@@ -134,6 +130,15 @@
         @click="openForm(detail.id)"
       >
         EDIT
+      </el-button>
+
+      <el-button
+        v-if="detail.status == 'DRAFT'"
+        :icon="Delete"
+        type="danger"
+        @click="handleRemove(detail.id, closeDetailAndRemove)"
+      >
+        DELETE
       </el-button>
 
       <el-button
@@ -149,21 +154,27 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { colors } from "~/constants/colors";
 
 const config = useRuntimeConfig();
-const queryClient = useQueryClient();
 
-const { request, edit } = useCrud({
+const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
   url: "/api/expense-claims",
   queryKey: "expense-claims",
 });
 
+const { mutate: remove } = removeMutation();
+
 function openForm(id) {
   closeDetail();
   edit(id);
+}
+
+function closeDetailAndRemove(id) {
+  closeDetail();
+  remove(id);
 }
 
 const totalAmount = computed(() => {
@@ -222,8 +233,8 @@ async function submit(id) {
     );
 
     await request(`/api/expense-claims/submit/${id}`, { method: "POST" });
-    queryClient.invalidateQueries({ queryKey: ["expense-claims"] });
-    reload();
+    refreshData(); // refresh data on table
+    reload(); // reload detail data
   } catch (error) {
     return;
   }
