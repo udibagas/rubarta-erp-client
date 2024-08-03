@@ -104,7 +104,7 @@
         :max-scale="7"
         :min-scale="0.2"
         :preview-src-list="srcList"
-        fit="cover"
+        fit="contain"
         :initial-index="index"
       />
     </div>
@@ -131,6 +131,15 @@
       >
         EDIT
       </el-button>
+
+      <el-button
+        v-if="detail.status == 'DRAFT'"
+        :icon="SuccessFilled"
+        type="success"
+        @click="submit(detail.id)"
+      >
+        SUBMIT
+      </el-button>
     </template>
   </el-dialog>
 </template>
@@ -139,7 +148,9 @@
 import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { colors } from "~/constants/colors";
+
 const config = useRuntimeConfig();
+const queryClient = useQueryClient();
 
 const { request, edit } = useCrud({
   url: "/api/expense-claims",
@@ -194,6 +205,24 @@ function reload() {
   request(`/api/expense-claims/${detail.value.id}`).then(
     (res) => (detail.value = res)
   );
+}
+
+async function submit(id) {
+  try {
+    await ElMessageBox.confirm(
+      "Anda yakin akan mengajukan klaim ini?",
+      "Warning",
+      {
+        type: "warning",
+      }
+    );
+
+    await request(`/api/expense-claims/submit/${id}`, { method: "POST" });
+    queryClient.invalidateQueries({ queryKey: ["expense-claims"] });
+    closeDetail();
+  } catch (error) {
+    return;
+  }
 }
 </script>
 
