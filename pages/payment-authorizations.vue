@@ -60,7 +60,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Number" width="200">
+    <el-table-column label="Number" width="220">
       <template #default="{ row }">
         <strong>{{ row.number }}</strong>
         <br />
@@ -116,42 +116,6 @@
         <strong>{{ toRupiah(row.netAmount) }}</strong>
       </template>
     </el-table-column>
-
-    <el-table-column
-      width="60px"
-      align="center"
-      header-align="center"
-      fixed="right"
-    >
-      <template #header>
-        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
-      </template>
-      <template #default="{ row }">
-        <el-dropdown v-if="row.status == 'DRAFT'">
-          <span class="el-dropdown-link">
-            <el-icon>
-              <MoreFilled />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                :icon="Edit"
-                @click.native.prevent="edit(row.id)"
-              >
-                Edit
-              </el-dropdown-item>
-              <el-dropdown-item
-                :icon="Delete"
-                @click.native.prevent="handleRemove(row.id, remove)"
-              >
-                Delete
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </template>
-    </el-table-column>
   </el-table>
 
   <br />
@@ -175,23 +139,14 @@
 <script setup>
 import { colors } from "~/constants/colors";
 import { openDetail } from "~/stores/detail";
-import {
-  Refresh,
-  Plus,
-  Edit,
-  Delete,
-  MoreFilled,
-  Search,
-} from "@element-plus/icons-vue";
+import { Plus, Search } from "@element-plus/icons-vue";
 
 const companyId = ref(useCookie("companyId"));
 const url = "/api/payment-authorizations";
 
 const {
   openForm,
-  removeMutation,
   refreshData,
-  handleRemove,
   sizeChange,
   currentChange,
   request,
@@ -200,7 +155,6 @@ const {
   keyword,
 } = useCrud({ url, queryKey: "payment-authorizations" });
 
-const { mutate: remove } = removeMutation();
 const { isPending, data } = useQuery({
   queryKey: ["payment-authorizations"],
   queryFn: () =>
@@ -217,12 +171,6 @@ const { isPending, data } = useQuery({
 watch(companyId, () => {
   refreshData("payment-authorizations");
 });
-
-function edit(id) {
-  request(`${url}/${id}`).then((result) => {
-    openForm(result);
-  });
-}
 
 function show(id) {
   request(`${url}/${id}`).then((result) => {

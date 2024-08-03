@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="showDetail" width="800">
-    <template #header="{ close, titleId, titleClass }">
+    <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">
           PAYMENT AUTHORIZATION DETAIL
@@ -112,17 +112,22 @@
     />
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeDetail">
-        CLOSE
-      </el-button>
-
       <el-button
         v-if="detail.status == 'DRAFT'"
         :icon="SuccessFilled"
         type="warning"
-        @click="edit(detail)"
+        @click="openForm(detail.id)"
       >
         EDIT
+      </el-button>
+
+      <el-button
+        v-if="detail.status == 'DRAFT'"
+        :icon="Delete"
+        type="danger"
+        @click="handleRemove(detail.id, closeDetailAndRemove)"
+      >
+        DELETE
       </el-button>
 
       <el-button
@@ -138,29 +143,37 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
+import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { colors } from "~/constants/colors";
-import { openForm } from "~/stores/form";
 
-const request = useRequest();
-const queryClient = useQueryClient();
+const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
+  url: "/api/payment-authorizations",
+  queryKey: "payment-authorizations",
+});
+
+const { mutate: remove } = removeMutation();
 
 function reload() {
-  request(`/api/expense-claims/${detail.value.id}`).then(
-    (res) => (detail.value = res)
-  );
+  request(`/api/payment-authorizations/${detail.value.id}`).then((res) => {
+    detail.value = res;
+  });
 }
 
-function edit(data) {
+function openForm(id) {
   closeDetail();
-  openForm(data);
+  edit(id);
+}
+
+function closeDetailAndRemove(id) {
+  closeDetail();
+  remove(id);
 }
 
 async function submit(id) {
   try {
     await ElMessageBox.confirm(
-      "Anda yakin akan mengajukan klaim ini?",
+      "Anda yakin akan mengajukan permintaan ini ini?",
       "Warning",
       {
         type: "warning",
@@ -170,8 +183,8 @@ async function submit(id) {
     await request(`/api/payment-authorizations/submit/${id}`, {
       method: "POST",
     });
-    queryClient.invalidateQueries({ queryKey: ["payment-authorizations"] });
-    closeDetail();
+    refreshData(); // refresh data on table
+    reload(); // reload detail data
   } catch (error) {
     return;
   }
