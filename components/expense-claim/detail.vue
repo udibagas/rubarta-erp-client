@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="showDetail" width="700">
-    <template #header="{ close, titleId, titleClass }">
+    <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
         <el-tag :type="colors[detail.status]" effect="dark">
@@ -223,7 +223,7 @@ async function submit(id) {
 
     await request(`/api/expense-claims/submit/${id}`, { method: "POST" });
     queryClient.invalidateQueries({ queryKey: ["expense-claims"] });
-    closeDetail();
+    reload();
   } catch (error) {
     return;
   }
