@@ -10,7 +10,7 @@
       border-radius: 5px;
     "
   >
-    <div v-for="approval in approvalList" :key="approval.id">
+    <div v-for="approval in approvals" :key="approval.id">
       <strong>{{ actions[approval.approvalActionType] }}</strong>
       <div style="height: 60px; line-height: 60px">
         <el-button
@@ -51,6 +51,7 @@
 
 <script setup>
 import { Stamp } from "@element-plus/icons-vue";
+
 const config = useRuntimeConfig();
 const queryClient = useQueryClient();
 const { user } = useSanctumAuth();
@@ -62,8 +63,6 @@ const { approvals, queryKey, approveUrl, requestId } = defineProps([
   "approveUrl",
   "requestId",
 ]);
-
-const approvalList = toRef(approvals);
 
 const actions = {
   APPROVAL: "APPROVED BY",
@@ -82,8 +81,8 @@ async function approve(id) {
     );
 
     await request(`${approveUrl}/${id}`, { method: "POST" });
-    emit("reload");
     queryClient.invalidateQueries({ queryKey: [queryKey] });
+    emit("reload");
   } catch (error) {
     console.log(error);
   }
