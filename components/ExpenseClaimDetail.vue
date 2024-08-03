@@ -4,7 +4,7 @@
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
         <el-tag :type="colors[detail.status]" effect="dark">
-          {{ detail.status }}
+          {{ detail.status.replace("_", " ") }}
         </el-tag>
       </div>
     </template>
@@ -16,6 +16,10 @@
 
       <el-descriptions-item label="Date">
         {{ formatDate(detail.date) }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Employee">
+        {{ detail.User?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Company">

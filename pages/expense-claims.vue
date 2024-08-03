@@ -53,17 +53,36 @@
   >
     <el-table-column type="index" label="#"></el-table-column>
 
+    <el-table-column
+      label="Status"
+      width="180"
+      align="center"
+      header-align="center"
+    >
+      <template #default="{ row }">
+        <el-tag :type="colors[row.status]" effect="dark" style="width: 100%">
+          {{ row.status.replace("_", " ") }}
+        </el-tag>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Number" width="200">
       <template #default="{ row }">
         <strong>{{ row.number }}</strong> <br />
-        {{ formatDate(row.date) }}
+        {{ formatDateLong(row.date) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Company" min-width="170">
+      <template #default="{ row }">
+        {{ row.Company?.name }} <br />
+        {{ row.Department?.name }}
       </template>
     </el-table-column>
 
     <el-table-column label="Employee" min-width="170">
       <template #default="{ row }">
         <strong>{{ row.User?.name }}</strong> <br />
-        {{ row.Department?.name }}
       </template>
     </el-table-column>
 
@@ -97,20 +116,6 @@
     >
       <template #default="{ row }">
         <strong>{{ toRupiah(row.claim) }}</strong>
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      label="Status"
-      align="center"
-      header-align="center"
-      width="160"
-      fixed="right"
-    >
-      <template #default="{ row }">
-        <el-tag :type="colors[row.status]" effect="dark">
-          {{ row.status }}
-        </el-tag>
       </template>
     </el-table-column>
 

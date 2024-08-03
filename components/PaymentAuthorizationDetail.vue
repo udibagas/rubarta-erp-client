@@ -150,7 +150,7 @@
         </div>
         <div>
           {{
-            approval.approvalStatus ? formatDateTime(approval.updatedAt) : "-"
+            approval.approvalStatus ? formatDateLong(approval.updatedAt) : "-"
           }}
         </div>
       </div>

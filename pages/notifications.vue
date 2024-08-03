@@ -53,7 +53,10 @@
         <el-table-column :label="`${unread} Unread Messages`" min-width="150">
           <template #default="{ row }">
             <div :class="!row.readAt ? 'strong' : ''">
-              <small>{{ formatDateTime(row.date) }}</small>
+              <small>
+                {{ formatDateLong(row.date) }}
+                {{ formatTime(row.date) }}
+              </small>
               <br />
               <div>{{ row.title }}</div>
             </div>
@@ -80,7 +83,10 @@
         <div class="card-header flex">
           <div class="flex-grow">
             <h3 style="margin-bottom: 5px">{{ selected.title }}</h3>
-            <small>{{ formatDateTime(selected.date) }}</small>
+            <small>
+              {{ formatDateLong(selected.date) }}
+              {{ formatTime(selected.date) }}
+            </small>
           </div>
 
           <el-button
