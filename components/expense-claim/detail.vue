@@ -147,13 +147,22 @@
       >
         SUBMIT
       </el-button>
+
+      <el-button
+        v-if="detail.status == 'FULLY_APPROVED'"
+        type="danger"
+        @click="convertToPa(detail.id)"
+        style="width: 100%"
+      >
+        CONVERT TO PAYMENT AUTHORIZATION
+      </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
-import { showDetail, detail, closeDetail } from "~/stores/detail";
+import { showDetail, detail, closeDetail } from "~/stores/detailExpenseClaim";
 
 const config = useRuntimeConfig();
 
@@ -235,6 +244,10 @@ async function submit(id) {
   } catch (error) {
     return;
   }
+}
+
+function convertToPa(id) {
+  // TODO: open form payment authorization
 }
 </script>
 

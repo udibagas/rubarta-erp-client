@@ -45,6 +45,8 @@
       <div>
         {{ approval.approvalStatus ? formatDateLong(approval.updatedAt) : "-" }}
       </div>
+
+      <div class="mt-2" v-if="approval.note">Note: {{ approval.note }}</div>
     </div>
   </div>
 </template>
@@ -72,15 +74,25 @@ const actions = {
 
 async function approve(id) {
   try {
-    await ElMessageBox.confirm(
+    const note = await ElMessageBox.prompt(
       "Anda yakin akan melakukan persetujuan?",
-      "Warning",
+      "PERHATIAN",
       {
-        type: "warning",
+        inputPlaceholder: "Masukkan catatan",
+        confirmButtonClass: "success",
+        confirmButtonText: "OK",
+        cancelButtonText: "CANCEL",
+        center: true,
+        draggable: true,
+        showClose: false,
       }
     );
 
-    await request(`${approveUrl}/${id}`, { method: "POST" });
+    await request(`${approveUrl}/${id}`, {
+      method: "POST",
+      body: { note: note.value },
+    });
+
     queryClient.invalidateQueries({ queryKey: [queryKey] });
     emit("reload");
   } catch (error) {

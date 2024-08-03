@@ -142,7 +142,11 @@
 
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
-import { showDetail, detail, closeDetail } from "~/stores/detail";
+import {
+  showDetail,
+  detail,
+  closeDetail,
+} from "~/stores/detailPaymentAuthorization";
 
 const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
   url: "/api/payment-authorizations",

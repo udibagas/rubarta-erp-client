@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { openDetail, detail } from "~/stores/detail";
+import { openDetail, detail } from "~/stores/detailExpenseClaim";
 import { Plus, Search } from "@element-plus/icons-vue";
 
 const { user } = useSanctumAuth();
