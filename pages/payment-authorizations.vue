@@ -131,7 +131,7 @@
   ></el-pagination>
 
   <PaymentAuthorizationForm />
-  <PaymentAuthorizationDetail />
+  <PaymentAuthorizationDetail v-if="detail.id" />
 </template>
 
 <script setup>
