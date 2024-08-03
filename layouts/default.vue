@@ -38,20 +38,7 @@
         </el-button>
       </div>
 
-      <el-menu
-        router
-        :collapse="collapse"
-        :default-active="$route.path"
-        class="sidebar"
-      >
-        <el-menu-item v-for="(m, i) in links" :index="m.path" :key="i">
-          <el-icon><component :is="icon[m.icon]" /></el-icon>
-
-          <span slot="title">
-            {{ m.label }}
-          </span>
-        </el-menu-item>
-      </el-menu>
+      <Menu :collapse="collapse" />
     </el-aside>
     <el-container>
       <el-header>
@@ -92,71 +79,7 @@
 </template>
 
 <script setup>
-import {
-  Fold,
-  Expand,
-  User,
-  HomeFilled,
-  Bell,
-  Operation,
-  DocumentCopy,
-  CreditCard,
-  DataAnalysis,
-  ArrowRight,
-  Setting,
-  Coin,
-  Memo,
-  DataLine,
-  Stamp,
-} from "@element-plus/icons-vue";
-
-const icon = {
-  User,
-  HomeFilled,
-  Bell,
-  Operation,
-  DocumentCopy,
-  CreditCard,
-  DataAnalysis,
-  Setting,
-  Coin,
-  Memo,
-  DataLine,
-  Stamp,
-};
-
-const links = [
-  {
-    label: "Dashboard",
-    path: "/",
-    icon: "DataLine",
-  },
-  {
-    label: "Notifications",
-    path: "/notifications",
-    icon: "Bell",
-  },
-  {
-    label: "Payment Authorization",
-    path: "/payment-authorizations",
-    icon: "Stamp",
-  },
-  {
-    label: "Expense Claims",
-    path: "/expense-claims",
-    icon: "DocumentCopy",
-  },
-  {
-    label: "Expense Notes",
-    path: "/expense-notes",
-    icon: "Memo",
-  },
-  {
-    label: "Master Data",
-    path: "/master-data/companies",
-    icon: "Coin",
-  },
-];
+import { Fold, Expand, User, ArrowRight } from "@element-plus/icons-vue";
 
 const { user, logout } = useSanctumAuth();
 const request = useRequest();
