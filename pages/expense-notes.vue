@@ -44,7 +44,7 @@
 
     <el-table-column width="150" label="Expense Type">
       <template #default="{ row }">
-        {{ row.expenseType?.name }}
+        {{ row.ExpenseType?.name }}
       </template>
     </el-table-column>
 
@@ -102,14 +102,7 @@
     </el-table-column>
   </el-table>
 
-  <el-table :data="summary">
-    <el-table-column prop="expenseType" label="Expense Type"></el-table-column>
-    <el-table-column label="Amount" align="right" header-align="right">
-      <template #default="{ row }">
-        <strong>{{ toRupiah(row.amount) }}</strong>
-      </template>
-    </el-table-column>
-  </el-table>
+  <ExpenseClaimSummary v-if="isSuccess" :items="data" />
 
   <table class="table">
     <tbody>
@@ -150,43 +143,12 @@ import { openDetail } from "~/stores/detail";
 const { user } = useSanctumAuth();
 const companyId = ref(useCookie("companyId"));
 
-const {
-  openForm,
-  removeMutation,
-  fetchData,
-  refreshData,
-  handleRemove,
-  request,
-} = useCrud({
-  url: "/api/expense-notes",
-  queryKey: "expense-notes",
-});
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/expense-notes",
+    queryKey: "expense-notes",
+  });
 
 const { isPending, data, isSuccess } = fetchData();
 const { mutate: remove } = removeMutation();
-
-const { data: expenseTypes } = useQuery({
-  queryKey: ["expenseTypes"],
-  queryFn: () => request("/api/expense-types"),
-});
-
-const summary = computed(() => {
-  const summaryObj = {};
-  data.value?.forEach((item) => {
-    if (!summaryObj[item.expenseTypeId]) summaryObj[item.expenseTypeId] = 0;
-    summaryObj[item.expenseTypeId] += item.amount;
-  });
-
-  // {1: 20000, 3: 20000, 4: 150000}
-
-  const summaryArr = Object.keys(summaryObj).map((k) => {
-    const expenseType =
-      expenseTypes.value?.find((e) => e.id == k)?.name ?? "OTHER";
-    return {
-      expenseType,
-      amount: summaryObj[k],
-    };
-  });
-  return summaryArr;
-});
 </script>
