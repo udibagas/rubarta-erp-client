@@ -1,8 +1,8 @@
 export const colors = {
   DRAFT: "info",
   SUBMITTED: "warning",
-  PARTIIALLY_APPROVED: "primary",
-  FULLY_APPROVED: "primary",
+  PARTIALLY_APPROVED: "primary",
+  FULLY_APPROVED: "success",
   REJECTED: "danger",
   VERIFIED: "success",
   AUTHORIZED: "success",
