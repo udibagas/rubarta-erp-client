@@ -206,9 +206,9 @@ const srcList = computed(() => {
 });
 
 function reload() {
-  request(`/api/expense-claims/${detail.value.id}`).then(
-    (res) => (detail.value = res)
-  );
+  request(`/api/expense-claims/${detail.value.id}`).then((res) => {
+    detail.value = res;
+  });
 }
 
 async function submit(id) {
