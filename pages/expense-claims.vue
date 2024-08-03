@@ -115,43 +115,9 @@
       header-align="right"
     >
       <template #default="{ row }">
-        <strong>{{ toRupiah(row.claim) }}</strong>
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      width="50px"
-      align="center"
-      header-align="center"
-      fixed="right"
-    >
-      <template #header>
-        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
-      </template>
-      <template #default="{ row }">
-        <el-dropdown v-if="row.status == 'DRAFT'">
-          <span class="el-dropdown-link">
-            <el-icon>
-              <MoreFilled />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                :icon="Edit"
-                @click.native.prevent="edit(row.id)"
-              >
-                Edit
-              </el-dropdown-item>
-              <el-dropdown-item
-                :icon="Delete"
-                @click.native.prevent="handleRemove(row.id, remove)"
-              >
-                Delete
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <strong :class="row.claim > 0 ? 'text-success' : 'text-danger'">
+          {{ toRupiah(row.claim) }}
+        </strong>
       </template>
     </el-table-column>
   </el-table>
@@ -177,15 +143,7 @@
 <script setup>
 import { colors } from "~/constants/colors";
 import { openDetail, detail } from "~/stores/detail";
-
-import {
-  Refresh,
-  Plus,
-  Edit,
-  Delete,
-  MoreFilled,
-  Search,
-} from "@element-plus/icons-vue";
+import { Plus, Search } from "@element-plus/icons-vue";
 
 const { user } = useSanctumAuth();
 const companyId = ref(useCookie("companyId"));
@@ -193,12 +151,9 @@ const url = "/api/expense-claims";
 
 const {
   openForm,
-  removeMutation,
   refreshData,
-  handleRemove,
   currentChange,
   sizeChange,
-  edit,
   request,
   page,
   pageSize,
@@ -208,7 +163,6 @@ const {
   queryKey: "expense-claims",
 });
 
-const { mutate: remove } = removeMutation();
 const { isPending, data } = useQuery({
   queryKey: ["expense-claims"],
   queryFn: () =>
