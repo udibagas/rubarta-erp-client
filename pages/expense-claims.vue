@@ -86,7 +86,7 @@
 
     <el-table-column
       label="Cash Advance"
-      min-width="150"
+      width="150"
       align="right"
       header-align="right"
     >
@@ -97,7 +97,7 @@
 
     <el-table-column
       label="Total Amount"
-      min-width="150"
+      width="150"
       align="right"
       header-align="right"
     >
@@ -108,7 +108,7 @@
 
     <el-table-column
       label="Claim Amount"
-      min-width="150"
+      width="150"
       align="right"
       header-align="right"
     >
