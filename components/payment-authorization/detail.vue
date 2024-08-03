@@ -2,40 +2,36 @@
   <el-dialog v-model="showDetail" width="800" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
-        <div :id="titleId" :class="titleClass">
-          PAYMENT AUTHORIZATION DETAIL
+        <div :id="titleId" :class="titleClass" style="font-weight: bold">
+          PAYMENT AUTHORIZATION #{{ detail.number }}
         </div>
         <StatusTag :status="detail.status" />
       </div>
     </template>
 
     <el-descriptions :border="true" :column="2" direction="horizontal">
-      <el-descriptions-item label="Number">
-        <strong> {{ detail.number }}</strong>
+      <el-descriptions-item label="Date">
+        {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Employee">
         {{ detail.Employee?.name }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Date">
-        {{ formatDateLong(detail.date) }}
+      <el-descriptions-item label="Company">
+        {{ detail.Company?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank">
         {{ detail.Bank?.name }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Company">
-        {{ detail.Company?.name }}
+      <el-descriptions-item label="Requester">
+        {{ detail.Requester?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank Account">
         {{ detail.bankAccount }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Requester">
-        {{ detail.Requester?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Description">
