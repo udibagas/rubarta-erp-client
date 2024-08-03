@@ -6,7 +6,7 @@
           PAYMENT AUTHORIZATION DETAIL
         </div>
         <el-tag :type="colors[detail.status]" effect="dark">
-          {{ detail.status }}
+          {{ detail.status.replace("_", " ") }}
         </el-tag>
       </div>
     </template>
@@ -21,7 +21,7 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Date">
-        {{ formatDate(detail.date) }}
+        {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank">
