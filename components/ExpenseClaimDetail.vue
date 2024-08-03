@@ -15,7 +15,7 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Date">
-        {{ formatDate(detail.date) }}
+        {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Employee">
