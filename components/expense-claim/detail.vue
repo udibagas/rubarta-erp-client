@@ -2,14 +2,16 @@
   <el-dialog v-model="showDetail" width="800" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
-        <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
+        <div :id="titleId" :class="titleClass" style="font-weight: bold">
+          EXPENSE CLAIM #{{ detail.number }}
+        </div>
         <StatusTag :status="detail.status" />
       </div>
     </template>
 
     <el-descriptions :border="true" :column="2" direction="horizontal">
-      <el-descriptions-item label="Number">
-        <strong> {{ detail.number }}</strong>
+      <el-descriptions-item label="Employee">
+        <strong> {{ detail.User?.name }}</strong>
       </el-descriptions-item>
 
       <el-descriptions-item label="Company">
@@ -22,10 +24,6 @@
 
       <el-descriptions-item label="Department">
         {{ detail.Department?.name }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Employee">
-        <strong> {{ detail.User?.name }}</strong>
       </el-descriptions-item>
     </el-descriptions>
 
