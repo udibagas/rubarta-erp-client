@@ -154,7 +154,6 @@
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
-import { colors } from "~/constants/colors";
 
 const config = useRuntimeConfig();
 
