@@ -54,9 +54,7 @@
       width="180"
     >
       <template #default="{ row }">
-        <el-tag :type="colors[row.status]" effect="dark" style="width: 100%">
-          {{ row.status.replace("_", " ") }}
-        </el-tag>
+        <StatusTag :status="row.status" style="width: 100%" />
       </template>
     </el-table-column>
 
@@ -137,7 +135,6 @@
 </template>
 
 <script setup>
-import { colors } from "~/constants/colors";
 import { openDetail } from "~/stores/detail";
 import { Plus, Search } from "@element-plus/icons-vue";
 

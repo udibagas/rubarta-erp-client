@@ -5,9 +5,7 @@
         <div :id="titleId" :class="titleClass">
           PAYMENT AUTHORIZATION DETAIL
         </div>
-        <el-tag :type="colors[detail.status]" effect="dark">
-          {{ detail.status.replace("_", " ") }}
-        </el-tag>
+        <StatusTag :status="detail.status" />
       </div>
     </template>
 
@@ -145,7 +143,6 @@
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
-import { colors } from "~/constants/colors";
 
 const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
   url: "/api/payment-authorizations",

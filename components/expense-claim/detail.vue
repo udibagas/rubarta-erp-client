@@ -3,9 +3,7 @@
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
-        <el-tag :type="colors[detail.status]" effect="dark">
-          {{ detail.status.replace("_", " ") }}
-        </el-tag>
+        <StatusTag :status="detail.status" />
       </div>
     </template>
 
