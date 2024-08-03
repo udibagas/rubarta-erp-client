@@ -120,7 +120,7 @@
 
     <template #footer>
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="SuccessFilled"
         type="warning"
         @click="openForm(detail.id)"
@@ -129,7 +129,7 @@
       </el-button>
 
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="Delete"
         type="danger"
         @click="handleRemove(detail.id, closeDetailAndRemove)"
@@ -138,7 +138,7 @@
       </el-button>
 
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="SuccessFilled"
         type="success"
         @click="submit(detail.id)"
@@ -162,7 +162,12 @@
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detailExpenseClaim";
 
+const { user } = useSanctumAuth();
 const config = useRuntimeConfig();
+
+const allowAction = computed(() => {
+  return detail.value.status == "DRAFT" && user.value.id == detail.value.userId;
+});
 
 const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
   url: "/api/expense-claims",
