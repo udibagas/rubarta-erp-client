@@ -71,16 +71,16 @@
       </template>
     </el-table-column>
 
+    <el-table-column label="Employee" min-width="170">
+      <template #default="{ row }">
+        <strong>{{ row.User?.name }}</strong> <br />
+      </template>
+    </el-table-column>
+
     <el-table-column label="Company" min-width="170">
       <template #default="{ row }">
         {{ row.Company?.name }} <br />
         {{ row.Department?.name }}
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Employee" min-width="170">
-      <template #default="{ row }">
-        <strong>{{ row.User?.name }}</strong> <br />
       </template>
     </el-table-column>
 
