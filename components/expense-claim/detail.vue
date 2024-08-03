@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="showDetail" width="700" draggable>
+  <el-dialog v-model="showDetail" width="800" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass">EXPENSE CLAIM DETAIL</div>
@@ -7,25 +7,25 @@
       </div>
     </template>
 
-    <el-descriptions :border="true" :column="1" direction="horizontal">
+    <el-descriptions :border="true" :column="2" direction="horizontal">
       <el-descriptions-item label="Number">
         <strong> {{ detail.number }}</strong>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Company">
+        <strong>{{ detail.Company?.name }}</strong>
       </el-descriptions-item>
 
       <el-descriptions-item label="Date">
         {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Employee">
-        {{ detail.User?.name }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Company">
-        {{ detail.Company?.name }}
-      </el-descriptions-item>
-
       <el-descriptions-item label="Department">
         {{ detail.Department?.name }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Employee">
+        <strong> {{ detail.User?.name }}</strong>
       </el-descriptions-item>
     </el-descriptions>
 
