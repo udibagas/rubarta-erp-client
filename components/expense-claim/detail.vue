@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="showDetail" width="800" draggable>
+  <el-dialog v-if="detail.id" v-model="showDetail" width="800" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass" style="font-weight: bold">

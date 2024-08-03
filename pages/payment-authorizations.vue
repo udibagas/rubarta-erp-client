@@ -131,11 +131,11 @@
   ></el-pagination>
 
   <PaymentAuthorizationForm />
-  <PaymentAuthorizationDetail v-if="detail.id" />
+  <PaymentAuthorizationDetail />
 </template>
 
 <script setup>
-import { openDetail, detail } from "~/stores/detailPaymentAuthorization";
+import { openDetail } from "~/stores/detailPaymentAuthorization";
 import { Plus, Search } from "@element-plus/icons-vue";
 
 const companyId = ref(useCookie("companyId"));

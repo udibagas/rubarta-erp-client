@@ -135,11 +135,11 @@
   ></el-pagination>
 
   <ExpenseClaimForm />
-  <ExpenseClaimDetail v-if="detail.id" />
+  <ExpenseClaimDetail />
 </template>
 
 <script setup>
-import { openDetail, detail } from "~/stores/detailExpenseClaim";
+import { openDetail } from "~/stores/detailExpenseClaim";
 import { Plus, Search } from "@element-plus/icons-vue";
 
 const { user } = useSanctumAuth();
