@@ -107,7 +107,7 @@
 
     <template #footer>
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="SuccessFilled"
         type="warning"
         @click="openForm(detail.id)"
@@ -116,7 +116,7 @@
       </el-button>
 
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="Delete"
         type="danger"
         @click="handleRemove(detail.id, closeDetailAndRemove)"
@@ -125,7 +125,7 @@
       </el-button>
 
       <el-button
-        v-if="detail.status == 'DRAFT'"
+        v-if="allowAction"
         :icon="SuccessFilled"
         type="success"
         @click="submit(detail.id)"
@@ -143,6 +143,14 @@ import {
   detail,
   closeDetail,
 } from "~/stores/detailPaymentAuthorization";
+
+const { user } = useSanctumAuth();
+
+const allowAction = computed(() => {
+  return (
+    detail.value.status == "DRAFT" && user.value.id == detail.value.requesterId
+  );
+});
 
 const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
   url: "/api/payment-authorizations",
