@@ -42,32 +42,7 @@
     </el-aside>
     <el-container>
       <el-header>
-        <div class="flex align-items-center">
-          <el-icon
-            :size="24"
-            @click.prevent="collapse = !collapse"
-            style="cursor: pointer"
-          >
-            <Expand v-if="collapse" />
-            <Fold v-else />
-          </el-icon>
-
-          <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
-
-          <el-select
-            v-model="companyId"
-            placeholder="Select Company"
-            style="width: 270px"
-            @change="(id) => changeCompany(id)"
-          >
-            <el-option
-              v-for="c in companies"
-              :key="c.id"
-              :label="`${c.code} - ${c.name}`"
-              :value="c.id"
-            />
-          </el-select>
-        </div>
+        <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
       </el-header>
 
       <el-main style="height: calc(100vh - 60px); overflow: auto">
@@ -79,13 +54,11 @@
 </template>
 
 <script setup>
-import { Fold, Expand, User, ArrowRight } from "@element-plus/icons-vue";
+import { User, ArrowRight } from "@element-plus/icons-vue";
 
 const { user, logout } = useSanctumAuth();
-const request = useRequest();
 const collapse = ref(false);
 const showProfile = ref(false);
-const companyId = ref(useCookie("companyId"));
 
 const handleClickLogout = () => {
   ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
@@ -96,14 +69,4 @@ const handleClickLogout = () => {
     .then(() => logout())
     .catch(() => console.log("Action cancelled"));
 };
-
-const { data: companies } = useQuery({
-  queryKey: ["companies"],
-  queryFn: () => request("/api/companies"),
-});
-
-const { mutate: changeCompany } = useMutation({
-  mutationFn: (id) => request(`/api/companies/set/${id}`, { method: "POST" }),
-  queryKey: ["companyId"],
-});
 </script>
