@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { openDetail } from "~/stores/detailPaymentAuthorization";
+import { openDetail } from "~/stores/detail";
 import { Plus, Search } from "@element-plus/icons-vue";
 
 const companyId = ref(useCookie("companyId"));

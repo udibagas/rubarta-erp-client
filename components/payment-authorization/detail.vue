@@ -138,11 +138,7 @@
 
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
-import {
-  showDetail,
-  detail,
-  closeDetail,
-} from "~/stores/detailPaymentAuthorization";
+import { showDetail, detail, closeDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
 

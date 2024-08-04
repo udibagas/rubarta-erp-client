@@ -150,7 +150,7 @@
 
 <script setup>
 import { SuccessFilled, Delete } from "@element-plus/icons-vue";
-import { showDetail, detail, closeDetail } from "~/stores/detailExpenseClaim";
+import { showDetail, detail, closeDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
 const config = useRuntimeConfig();
