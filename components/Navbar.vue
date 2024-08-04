@@ -21,7 +21,7 @@
       />
     </el-select>
 
-    <el-badge :value="unread">
+    <el-badge :value="unread == 0 ? undefined : unread" :max="10">
       <NuxtLink to="/notifications">
         <el-icon :size="24">
           <Bell />
@@ -67,7 +67,7 @@ const { data: companies } = useQuery({
 
 const { data: unread } = useQuery({
   queryKey: ["unread-notifications"],
-  queryFn: () => request(`${url}/unread`),
+  queryFn: () => request("/api/notifications/unread"),
 });
 
 const { mutate: changeCompany } = useMutation({
