@@ -99,7 +99,24 @@
         </div>
       </template>
 
+      <strong>Dear {{ selected.User?.name }},</strong>
+
+      <br />
+
       <p>{{ selected.message }}</p>
+
+      <p v-if="selected.redirectUrl">
+        Silakan klik link di bawah ini untuk melihat detail:
+        <br />
+        <br />
+        <a :href="selected.redirectUrl">LIHAT DETAIL</a>
+      </p>
+
+      <p>
+        Regards,
+        <br /><br />
+        Rubarta ERP System
+      </p>
     </el-card>
 
     <el-card class="flex-grow" shadow="hover" v-else>
