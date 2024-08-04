@@ -9,11 +9,14 @@
         type="danger"
         :icon="Checked"
         @click="
-          openForm({
+          claim({
             cashAdvance: 0,
+            totalAmount: totalAmount,
             companyId: companyId,
+            userId: user.id,
             departmentId: user.departmentId,
-            ExpenseClaimItem: { ...data },
+            ExpenseClaimItem: data,
+            status: 'SUBMITTED',
           })
         "
       >
@@ -109,16 +112,7 @@
       <tr>
         <td>TOTAL</td>
         <td class="text-right">
-          <strong>
-            {{
-              toRupiah(
-                data?.reduce(
-                  (total, current) => total + Number(current.amount),
-                  0
-                )
-              )
-            }}
-          </strong>
+          <strong>{{ toRupiah(totalAmount) }}</strong>
         </td>
       </tr>
     </tbody>
@@ -135,6 +129,7 @@
 
   <ExpenseNoteForm />
   <ExpenseNoteDetail />
+  <ExpenseNoteClaim :data="claimForm" :show="showClaimForm" />
 </template>
 
 <script setup>
@@ -152,6 +147,8 @@ import { openDetail } from "~/stores/detail";
 const { user } = useSanctumAuth();
 const config = useRuntimeConfig();
 const companyId = ref(useCookie("companyId"));
+const claimForm = ref({});
+const showClaimForm = ref(false);
 
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
@@ -161,4 +158,16 @@ const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
 
 const { isPending, data, isSuccess } = fetchData();
 const { mutate: remove } = removeMutation();
+
+const totalAmount = computed(() => {
+  return (
+    data.value?.reduce((total, current) => total + Number(current.amount), 0) ??
+    0
+  );
+});
+
+function claim(data) {
+  claimForm.value = data;
+  showClaimForm.value = true;
+}
 </script>
