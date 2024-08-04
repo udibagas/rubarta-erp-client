@@ -23,7 +23,6 @@ const { collapse } = defineProps(["collapse"]);
 import {
   User,
   HomeFilled,
-  Bell,
   Operation,
   DocumentCopy,
   CreditCard,
@@ -38,7 +37,6 @@ import {
 const icon = {
   User,
   HomeFilled,
-  Bell,
   Operation,
   DocumentCopy,
   CreditCard,
@@ -55,12 +53,6 @@ const links = [
     label: "Dashboard",
     path: "/",
     icon: "DataLine",
-    visible: true,
-  },
-  {
-    label: "Notifications",
-    path: "/notifications",
-    icon: "Bell",
     visible: true,
   },
   {
