@@ -19,25 +19,6 @@
         </div>
       </div>
 
-      <div v-show="!collapse" style="text-align: center; margin-bottom: 20px">
-        <el-button
-          :icon="User"
-          type="success"
-          size="small"
-          @click="showProfile = true"
-        >
-          Profile
-        </el-button>
-        <el-button
-          :icon="ArrowRight"
-          type="danger"
-          size="small"
-          @click="handleClickLogout"
-        >
-          Sign Out
-        </el-button>
-      </div>
-
       <Menu :collapse="collapse" />
     </el-aside>
     <el-container>
@@ -47,7 +28,6 @@
 
       <el-main style="height: calc(100vh - 60px); overflow: auto">
         <slot />
-        <Profile :show="showProfile" @close="showProfile = false" />
       </el-main>
     </el-container>
   </el-container>
@@ -55,18 +35,6 @@
 
 <script setup>
 import { User, ArrowRight } from "@element-plus/icons-vue";
-
-const { user, logout } = useSanctumAuth();
+const { user } = useSanctumAuth();
 const collapse = ref(false);
-const showProfile = ref(false);
-
-const handleClickLogout = () => {
-  ElMessageBox.confirm("Anda yakin ingin keluar?", "Konfirmasi", {
-    confirmButtonText: "Ya",
-    cancelButtonText: "Tidak",
-    type: "warning",
-  })
-    .then(() => logout())
-    .catch(() => console.log("Action cancelled"));
-};
 </script>
