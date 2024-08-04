@@ -124,6 +124,15 @@
     </tbody>
   </table>
 
+  <ImageList
+    v-if="isSuccess"
+    :src-list="
+      data
+        .filter((d) => d.attachment)
+        .map((el) => `${config.public.apiBase}/${el.attachment.filePath}`)
+    "
+  />
+
   <ExpenseNoteForm />
   <ExpenseNoteDetail />
 </template>
@@ -141,6 +150,7 @@ import {
 import { openDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
+const config = useRuntimeConfig();
 const companyId = ref(useCookie("companyId"));
 
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =

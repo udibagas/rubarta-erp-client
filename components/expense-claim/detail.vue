@@ -85,19 +85,7 @@
 
     <br />
 
-    <div v-if="srcList.length > 0" class="mb-2">
-      <el-image
-        v-for="(url, index) in srcList"
-        style="width: 100px; height: 100px; margin-right: 5px"
-        :src="srcList[index]"
-        :zoom-rate="1.2"
-        :max-scale="7"
-        :min-scale="0.2"
-        :preview-src-list="srcList"
-        fit="contain"
-        :initial-index="index"
-      />
-    </div>
+    <ImageList v-if="srcList.length > 0" :src-list="srcList" />
 
     <ApprovalDetail
       v-if="detail.ExpenseClaimApproval.length > 0"
