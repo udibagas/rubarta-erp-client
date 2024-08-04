@@ -213,7 +213,6 @@ import {
   SuccessFilled,
   CircleCloseFilled,
   Delete,
-  UploadFilled,
 } from "@element-plus/icons-vue";
 
 const url = "/api/expense-claims";
