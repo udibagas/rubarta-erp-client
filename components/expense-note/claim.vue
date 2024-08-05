@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :model-value="show" width="800" draggable title="CLAIM EXPENSE">
+  <el-dialog
+    draggable
+    title="CLAIM EXPENSE"
+    :model-value="show"
+    :before-close="() => emit('close')"
+    width="800"
+  >
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Company">
         <el-select v-model="data.companyId" placeholder="Company" disabled>
@@ -76,10 +82,18 @@
         </tr>
 
         <tr>
-          <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
+          <td class="strong">
+            {{ data.totalAmount - data.cashAdvance > 0 ? "CLAIM" : "REFUND" }}
+          </td>
           <td class="text-right">
-            <strong :class="claim > 0 ? 'text-success' : 'text-danger'">
-              {{ toRupiah(claim) }}
+            <strong>
+              <el-text
+                :type="
+                  data.totalAmount - data.cashAdvance > 0 ? 'success' : 'danger'
+                "
+              >
+                {{ toRupiah(data.totalAmount - data.cashAdvance) }}
+              </el-text>
             </strong>
           </td>
         </tr>
@@ -87,6 +101,9 @@
     </table>
 
     <template #footer>
+      <el-button :icon="CircleCloseFilled" @click="emit('close')">
+        CANCEL
+      </el-button>
       <el-button :icon="SuccessFilled" type="success" @click="submit(data)">
         SUBMIT
       </el-button>
@@ -95,27 +112,51 @@
 </template>
 
 <script setup>
-import { SuccessFilled, Delete } from "@element-plus/icons-vue";
+import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { show, data } = defineProps(["show", "data"]);
 const emit = defineEmits(["close"]);
-const { user } = useSanctumAuth();
-const config = useRuntimeConfig();
 const request = useRequest();
+const queryClient = useQueryClient();
 
 async function submit(data) {
   try {
     await ElMessageBox.confirm(
-      "Anda yakin akan mengajukan klaim ini?",
-      "Warning",
+      "Anda yakin akan mengajukan klaim ini?. Pastikan data yang Anda input sudah benar!.",
+      "Perhatian",
       {
         type: "warning",
       }
     );
 
-    await request(`/api/expense-claims/`, { method: "POST", body: data.value });
+    // clone object
+    const body = JSON.parse(JSON.stringify(data));
+    body.cashAdvance = Number(body.cashAdvance);
+    body.claim = body.totalAmount - body.cashAdvance;
+    body.ExpenseClaimAttachment = body.ExpenseClaimItem.map((item) => {
+      const { id, ...attachment } = item.attachment;
+      return attachment;
+    });
+
+    body.ExpenseClaimItem.forEach((el) => {
+      delete el.id;
+      delete el.attachment;
+      delete el.ExpenseType;
+    });
+
+    await request(`/api/expense-claims/`, { method: "POST", body });
     await request(`/api/expense-notes`, { method: "DELETE" });
+    queryClient.invalidateQueries({ queryKey: ["expense-notes"] });
     emit("close");
+
+    ElMessageBox.alert(
+      "Klaim anda telah diajukan dan menunggu persetujuan. Silakan ke menu 'Expense Claim' untuk melihat status pengajuan.",
+      "SUCCESS",
+      {
+        confirmButtonText: "OK",
+      }
+    );
   } catch (error) {
+    console.log(error);
     return;
   }
 }
@@ -129,20 +170,4 @@ const { data: companies } = useQuery({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
 });
-
-const { data: users } = useQuery({
-  queryKey: ["users"],
-  queryFn: () => request("/api/users"),
-});
-
-const claim = computed(() => {
-  return data.value?.totalAmount - data.value?.cashAdvance;
-});
-
-// watch(
-//   () => data.value?.cashAdvance,
-//   (value) => {
-//     data.value.claim = data.value?.totalAmount - value;
-//   }
-// );
 </script>

@@ -5,6 +5,7 @@
     </template>
     <template #extra>
       <el-button
+        v-if="isSuccess && data.length"
         size="small"
         type="danger"
         :icon="Checked"
@@ -105,9 +106,9 @@
     </el-table-column>
   </el-table>
 
-  <ExpenseClaimSummary v-if="isSuccess" :items="data" />
+  <ExpenseClaimSummary v-if="isSuccess && data.length" :items="data" />
 
-  <table class="table">
+  <table class="table" v-if="isSuccess && data.length">
     <tbody>
       <tr>
         <td>TOTAL</td>
@@ -129,7 +130,11 @@
 
   <ExpenseNoteForm />
   <ExpenseNoteDetail />
-  <ExpenseNoteClaim :data="claimForm" :show="showClaimForm" />
+  <ExpenseNoteClaim
+    :data="claimForm"
+    :show="showClaimForm"
+    @close="showClaimForm = false"
+  />
 </template>
 
 <script setup>
