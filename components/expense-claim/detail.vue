@@ -127,13 +127,19 @@
       <el-button
         v-if="detail.status == 'FULLY_APPROVED'"
         type="danger"
-        @click="convertToPa(detail.id)"
+        @click="convertToPa()"
         style="width: 100%"
       >
         CONVERT TO PAYMENT AUTHORIZATION
       </el-button>
     </template>
   </el-dialog>
+
+  <ExpenseClaimConvert
+    :show="showClaimForm"
+    :data="claimData"
+    @close="showClaimForm = false"
+  />
 </template>
 
 <script setup>
@@ -142,6 +148,13 @@ import { showDetail, detail, closeDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
 const config = useRuntimeConfig();
+const showClaimForm = ref(false);
+const claimData = ref({ ...detail });
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
+});
 
 const allowAction = computed(() => {
   return detail.value.status == "DRAFT" && user.value.id == detail.value.userId;
@@ -209,8 +222,41 @@ async function submit(id) {
   }
 }
 
-function convertToPa(id) {
-  // TODO: open form payment authorization
+function convertToPa() {
+  const {
+    userId: employeeId,
+    totalAmount: grossAmount,
+    totalAmount: netAmount,
+    totalAmount: amount,
+    cashAdvance,
+    id: expenseClaimId,
+    companyId,
+    ExpenseClaimItem: PaymentAuthorizationItem,
+  } = detail.value;
+
+  const user = users.value.find((u) => u.id == employeeId);
+
+  claimData.value = {
+    employeeId,
+    bankId: user.bankId,
+    bankAccount: user.bankAccount,
+    grossAmount,
+    netAmount,
+    amount,
+    cashAdvance,
+    expenseClaimId,
+    companyId,
+    PaymentAuthorizationItem: PaymentAuthorizationItem.map((item) => {
+      return {
+        date: item.date,
+        description: item.description,
+        amount: item.amount,
+      };
+    }),
+  };
+
+  closeDetail();
+  showClaimForm.value = true;
 }
 </script>
 
