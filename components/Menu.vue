@@ -39,7 +39,7 @@ const links = [
   {
     label: "NKP",
     path: "/nkp",
-    icon: ElIconStamp,
+    icon: ElIconTickets,
     visible: !(user.value.roles.length == 1 && user.value.roles[0] == "USER"),
   },
   {
