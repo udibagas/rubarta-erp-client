@@ -18,11 +18,26 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Employee" :error="errors.employeeId">
+      <el-form-item label="Type" :error="errors.type">
+        <el-radio-group v-model="form.type" @change="resetBank">
+          <el-radio value="EMPLOYEE">EMPLOYEE</el-radio>
+          <el-radio value="VENDOR">VENDOR</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item
+        v-if="form.type == 'EMPLOYEE'"
+        label="Employee"
+        :error="errors.employeeId"
+      >
         <el-select
           v-model="form.employeeId"
           placeholder="Employee"
           @change="updateBank"
+          @clear="resetBank"
+          default-first-option
+          filterable
+          clearable
         >
           <el-option
             v-for="(el, i) in users"
@@ -34,8 +49,37 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item
+        v-if="form.type == 'VENDOR'"
+        label="Vendor"
+        :error="errors.supplierId"
+      >
+        <el-select
+          v-model="form.supplierId"
+          placeholder="Vendor"
+          @change="updateBank"
+          @clear="resetBank"
+          default-first-option
+          filterable
+          clearable
+        >
+          <el-option
+            v-for="(el, i) in suppliers"
+            :value="el.id"
+            :label="el.name"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="Bank" :error="errors.bankId">
-        <el-select v-model="form.bankId" placeholder="Bank" style="width: 100%">
+        <el-select
+          v-model="form.bankId"
+          placeholder="Bank"
+          default-first-option
+          filterable
+        >
           <el-option
             v-for="(el, i) in banks"
             :value="el.id"
@@ -48,6 +92,23 @@
 
       <el-form-item label="Bank Account" :error="errors.bankAccount">
         <el-input v-model="form.bankAccount" placeholder="Bank Account" />
+      </el-form-item>
+
+      <el-form-item label="Currency" :error="errors.currency">
+        <el-select
+          v-model="form.currency"
+          placeholder="Currency"
+          default-first-option
+          filterable
+        >
+          <el-option
+            v-for="(currency, i) in currencies"
+            :value="currency"
+            :label="currency"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
       </el-form-item>
 
       <el-form-item label="Description" :error="errors.description">
@@ -183,6 +244,8 @@
 </template>
 
 <script setup>
+import { currencies } from "~/constants/currencies";
+
 const newRow = {
   date: undefined,
   description: undefined,
@@ -203,6 +266,11 @@ const { data: companies } = useQuery({
   queryFn: () => request("/api/companies"),
 });
 
+const { data: suppliers } = useQuery({
+  queryKey: ["suppliers"],
+  queryFn: () => request("/api/suppliers"),
+});
+
 const { data: banks } = useQuery({
   queryKey: ["banks"],
   queryFn: () => request("/api/banks"),
@@ -217,13 +285,31 @@ const disabledDate = (time) => {
   return time.getTime() > Date.now();
 };
 
-const updateBank = (id) => {
-  const user = users.value.find((u) => u.id == id);
-  if (user) {
-    form.value.bankId = user.bankId;
-    form.value.bankAccount = user.bankAccount;
+function updateBank(id) {
+  let data = {};
+
+  if (form.value.type == "EMPLOYEE") {
+    data = users.value.find((u) => u.id == id);
   }
-};
+
+  if (form.value.type == "VENDOR") {
+    data = suppliers.value.find((u) => u.id == id);
+  }
+
+  if (data) {
+    form.value.bankId = data.bankId;
+    form.value.bankAccount = data.bankAccount;
+    form.value.currency = data.currency;
+  }
+}
+
+function resetBank() {
+  form.value.employeeId = null;
+  form.value.supplierId = null;
+  form.value.bankId = null;
+  form.value.bankAccount = null;
+  form.value.currency = null;
+}
 
 const amount = computed(() => {
   return (
