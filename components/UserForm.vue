@@ -74,6 +74,22 @@
         ></el-input>
       </el-form-item>
 
+      <el-form-item label="Currency" :error="errors.cusrrency">
+        <el-select
+          v-model="form.cusrrency"
+          placeholder="Currency"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(c, i) in currencies"
+            :value="c"
+            :label="c"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="Status" :error="errors.active">
         <el-switch
           :active-value="true"
@@ -110,16 +126,16 @@
             alt=""
             style="height: 100px"
           />
-          <el-button v-else :icon="UploadFilled"> Upload </el-button>
+          <el-button v-else :icon="ElIconUploadFilled"> Upload </el-button>
         </el-upload>
       </el-form-item>
     </el-form>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="save(form)">
+      <el-button :icon="ElIconSuccessFilled" type="success" @click="save(form)">
         SAVE
       </el-button>
     </template>
@@ -127,12 +143,8 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  UploadFilled,
-} from "@element-plus/icons-vue";
 import { roles } from "~/constants/roles";
+import { currencies } from "~/constants/currencies";
 
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/users",

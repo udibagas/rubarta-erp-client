@@ -101,10 +101,14 @@
     </table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="emit('close')">
+      <el-button :icon="ElIconCircleCloseFilled" @click="emit('close')">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="submit(data)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="submit(data)"
+      >
         SUBMIT
       </el-button>
     </template>
@@ -112,7 +116,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { show, data } = defineProps(["show", "data"]);
 const emit = defineEmits(["close"]);
 const request = useRequest();

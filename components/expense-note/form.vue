@@ -64,17 +64,21 @@
           list-type="picture-card"
         >
           <el-icon class="el-icon--upload">
-            <UploadFilled />
+            <ElIconUploadFilled />
           </el-icon>
         </el-upload>
       </el-form-item>
     </el-form>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="submit(form)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="submit(form)"
+      >
         SAVE
       </el-button>
     </template>
@@ -85,7 +89,7 @@
 
     <template #footer>
       <el-button
-        :icon="CircleCloseFilled"
+        :icon="ElIconCircleCloseFilled"
         @click="showPreview = false"
         type="success"
       >
@@ -96,12 +100,6 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  UploadFilled,
-} from "@element-plus/icons-vue";
-
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/expense-notes",
   queryKey: "expense-notes",

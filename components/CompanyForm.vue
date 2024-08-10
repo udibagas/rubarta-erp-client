@@ -17,10 +17,10 @@
     </el-form>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button type="success" :icon="SuccessFilled" @click="save(form)">
+      <el-button type="success" :icon="ElIconSuccessFilled" @click="save(form)">
         SAVE
       </el-button>
     </template>
@@ -28,7 +28,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const { errors, form, show, closeForm, saveMutation } = useCrud({
   url: "/api/companies",
   queryKey: "companies",

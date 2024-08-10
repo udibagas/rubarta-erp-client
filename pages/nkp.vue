@@ -1,7 +1,7 @@
 <template>
   <el-page-header @back="goBack">
     <template #content>
-      <span class="text-large font-600"> EXPENSE CLAIM </span>
+      <span class="text-large font-600"> NKP </span>
     </template>
     <template #extra>
       <form @submit.prevent="refreshData()">
@@ -9,24 +9,18 @@
           size="small"
           @click="
             openForm({
-              cashAdvance: 0,
               companyId: companyId,
-              departmentId: user.departmentId,
-              ExpenseClaimItem: [
-                {
-                  date: undefined,
-                  expenseTypeId: undefined,
-                  description: undefined,
-                  amount: 0,
-                },
+              deduction: 0,
+              PaymentAuthorizationItem: [
+                { date: undefined, description: undefined, amount: 0 },
               ],
             })
           "
           type="success"
-          :icon="Plus"
+          :icon="ElIconPlus"
           class="mr-2"
         >
-          NEW EXPENSE CLAIM
+          NEW NKP
         </el-button>
 
         <el-input
@@ -34,7 +28,7 @@
           v-model="keyword"
           placeholder="Cari"
           style="width: 180px"
-          :prefix-icon="Search"
+          :prefix-icon="ElIconSearch"
           :clearable="true"
           @clear="refreshData()"
         >
@@ -55,67 +49,69 @@
 
     <el-table-column
       label="Status"
-      width="180"
       align="center"
       header-align="center"
+      width="180"
     >
       <template #default="{ row }">
         <StatusTag :status="row.status" style="width: 100%" />
       </template>
     </el-table-column>
 
-    <el-table-column label="Number" width="200">
+    <el-table-column label="Number" width="220">
       <template #default="{ row }">
-        <strong>{{ row.number }}</strong> <br />
+        <strong>{{ row.number }}</strong>
+        <br />
         {{ formatDateLong(row.date) }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Employee" min-width="170">
+    <el-table-column label="Requester" min-width="150">
       <template #default="{ row }">
-        <strong>{{ row.User?.name }}</strong> <br />
+        <strong>{{ row.Requester?.name }}</strong
+        ><br />
+        {{ row.Company?.name }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Company" min-width="170">
+    <el-table-column label="Employee" min-width="150">
       <template #default="{ row }">
-        {{ row.Company?.name }} <br />
-        {{ row.Department?.name }}
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      label="Cash Advance"
-      width="150"
-      align="right"
-      header-align="right"
-    >
-      <template #default="{ row }">
-        {{ toRupiah(row.cashAdvance) }}
+        <strong>{{ row.Employee?.name }}</strong
+        ><br />
+        {{ row.Bank?.code }} - {{ row.bankAccount }}
       </template>
     </el-table-column>
 
     <el-table-column
-      label="Total Amount"
+      label="Gross Amount"
       width="150"
       align="right"
-      header-align="right"
+      hader-align="right"
     >
       <template #default="{ row }">
-        {{ toRupiah(row.totalAmount) }}
+        {{ toRupiah(row.grossAmount) }}
       </template>
     </el-table-column>
 
     <el-table-column
-      label="Claim Amount"
+      label="Deduction"
       width="150"
       align="right"
-      header-align="right"
+      hader-align="right"
     >
       <template #default="{ row }">
-        <strong :class="row.claim > 0 ? 'text-success' : 'text-danger'">
-          {{ toRupiah(row.claim) }}
-        </strong>
+        {{ toRupiah(row.deduction) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column
+      label="Net Amount"
+      width="150"
+      align="right"
+      hader-align="right"
+    >
+      <template #default="{ row }">
+        <strong>{{ toRupiah(row.netAmount) }}</strong>
       </template>
     </el-table-column>
   </el-table>
@@ -134,34 +130,28 @@
     @size-change="sizeChange"
   ></el-pagination>
 
-  <ExpenseClaimForm />
-  <ExpenseClaimDetail />
+  <NkpForm />
+  <NkpDetail />
 </template>
 
 <script setup>
 import { openDetail } from "~/stores/detail";
-import { Plus, Search } from "@element-plus/icons-vue";
-
-const { user } = useSanctumAuth();
 const companyId = ref(useCookie("companyId"));
-const url = "/api/expense-claims";
+const url = "/api/payment-authorizations";
 
 const {
   openForm,
   refreshData,
-  currentChange,
   sizeChange,
+  currentChange,
   request,
   page,
   pageSize,
   keyword,
-} = useCrud({
-  url,
-  queryKey: "expense-claims",
-});
+} = useCrud({ url, queryKey: "payment-authorizations" });
 
 const { isPending, data } = useQuery({
-  queryKey: ["expense-claims"],
+  queryKey: ["payment-authorizations"],
   queryFn: () =>
     request(url, {
       params: {
@@ -174,7 +164,7 @@ const { isPending, data } = useQuery({
 });
 
 watch(companyId, () => {
-  refreshData("expense-claims");
+  refreshData("payment-authorizations");
 });
 
 function show(id) {

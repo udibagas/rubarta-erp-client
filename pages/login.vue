@@ -11,7 +11,7 @@
       <el-input
         v-model="email"
         placeholder="Email"
-        :prefix-icon="User"
+        :prefix-icon="ElIconUser"
       ></el-input>
     </el-form-item>
     <el-form-item>
@@ -19,7 +19,7 @@
         type="password"
         v-model="password"
         placeholder="Password"
-        :prefix-icon="Lock"
+        :prefix-icon="ElIconLock"
       ></el-input>
     </el-form-item>
     <el-form-item>
@@ -33,8 +33,6 @@
 </template>
 
 <script setup>
-import { Lock, User } from "@element-plus/icons-vue";
-
 const { login } = useSanctumAuth();
 
 definePageMeta({ layout: "login" });

@@ -15,7 +15,7 @@
       <div style="height: 60px; line-height: 60px">
         <el-button
           type="danger"
-          :icon="Stamp"
+          :icon="ElIconStamp"
           @click="approve(requestId)"
           v-if="user.id == approval.userId && approval.approvalStatus === null"
         >
@@ -52,8 +52,6 @@
 </template>
 
 <script setup>
-import { Stamp } from "@element-plus/icons-vue";
-
 const config = useRuntimeConfig();
 const queryClient = useQueryClient();
 const { user } = useSanctumAuth();

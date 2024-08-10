@@ -7,7 +7,7 @@
       :icon="ElIconPlus"
       class="mr-2"
     >
-      ADD NEW USER
+      ADD NEW VENDOR
     </el-button>
     <el-input
       size="small"
@@ -26,53 +26,26 @@
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Name" min-width="150">
+    <el-table-column label="Code" min-width="150">
       <template #default="{ row }">
-        <strong>{{ row.name }}</strong>
-        <br />
-        {{ row.email }}
+        <strong>{{ row.code }}</strong>
       </template>
     </el-table-column>
 
-    <el-table-column label="Department" min-width="150">
+    <el-table-column label="Name" min-width="150">
       <template #default="{ row }">
-        {{ row.Department?.name }} <br />
-        <el-tag
-          v-for="role in row.roles"
-          :key="role"
-          type="info"
-          size="small"
-          effect="dark"
-          class="mr-1"
-        >
-          {{ role }}
-        </el-tag>
+        <strong>{{ row.name }}</strong>
       </template>
     </el-table-column>
+
+    <el-table-column label="Address" prop="address" min-width="150" />
+    <el-table-column label="Phone" prop="phone" min-width="150" />
+    <el-table-column label="Email" prop="email" min-width="150" />
 
     <el-table-column label="Bank" min-width="150">
       <template #default="{ row }">
         {{ row.Bank?.name }} <br />
         {{ row.bankAccount }} ({{ row.currency }})
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      prop="status"
-      label="Status"
-      align="center"
-      header-align="center"
-      width="100"
-    >
-      <template #default="{ row }">
-        <el-tag
-          :type="row.active ? 'success' : 'danger'"
-          size="small"
-          style="width: 100%"
-          effect="dark"
-        >
-          {{ row.active ? "Aktif" : "Nonaktif" }}
-        </el-tag>
       </template>
     </el-table-column>
 
@@ -114,7 +87,7 @@
     </el-table-column>
   </el-table>
 
-  <UserForm />
+  <SupplierForm />
 </template>
 
 <script setup>
@@ -126,8 +99,8 @@ const {
   handleRemove,
   keyword,
 } = useCrud({
-  url: "/api/users",
-  queryKey: "users",
+  url: "/api/suppliers",
+  queryKey: "suppliers",
 });
 
 const { isPending, data } = fetchData();

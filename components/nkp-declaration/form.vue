@@ -2,7 +2,7 @@
   <el-dialog
     v-model="show"
     width="1000"
-    title="EXPENSE CLAIM"
+    title="NKP DECLARATION"
     :close-on-click-modal="false"
   >
     <el-form label-width="150px" label-position="left">
@@ -94,7 +94,7 @@
         <template #header>
           <el-button
             link
-            :icon="Plus"
+            :icon="ElIconPlus"
             type="success"
             @click="addItem"
           ></el-button>
@@ -102,7 +102,7 @@
         <template #default="{ row, $index }">
           <el-button
             link
-            :icon="Delete"
+            :icon="ElIconDelete"
             type="danger"
             @click="removeItem($index, row.id)"
           ></el-button>
@@ -167,15 +167,15 @@
       :multiple="true"
       list-type="picture-card"
     >
-      <el-icon><Plus /></el-icon>
+      <el-icon><ElIconPlus /></el-icon>
     </el-upload>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
       <el-button
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="info"
         @click="saveWithStatus('DRAFT')"
       >
@@ -183,7 +183,7 @@
       </el-button>
 
       <el-button
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="success"
         @click="saveWithStatus('SUBMITTED')"
       >
@@ -197,7 +197,7 @@
 
     <template #footer>
       <el-button
-        :icon="CircleCloseFilled"
+        :icon="ElIconCircleCloseFilled"
         @click="showPreview = false"
         type="success"
       >
@@ -208,13 +208,6 @@
 </template>
 
 <script setup>
-import {
-  Plus,
-  SuccessFilled,
-  CircleCloseFilled,
-  Delete,
-} from "@element-plus/icons-vue";
-
 const url = "/api/expense-claims";
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url,

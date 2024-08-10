@@ -39,7 +39,6 @@
 </template>
 
 <script setup>
-import { Warning } from "@element-plus/icons-vue";
 const request = useRequest();
 
 const { data: summary, isSuccess } = useQuery({

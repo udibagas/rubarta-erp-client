@@ -2,7 +2,7 @@
   <div class="text-right">
     <el-button
       size="small"
-      :icon="Plus"
+      :icon="ElIconPlus"
       type="success"
       @click="
         openForm({
@@ -44,25 +44,25 @@
 
     <el-table-column width="60px" align="center" header-align="center">
       <template #header>
-        <el-button link @click="refreshData" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData" :icon="ElIconRefresh"> </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
           <span class="el-dropdown-link">
             <el-icon>
-              <MoreFilled />
+              <ElIconMoreFilled />
             </el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item
-                :icon="Edit"
+                :icon="ElIconEdit"
                 @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
-                :icon="Delete"
+                :icon="ElIconDelete"
                 @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
@@ -78,14 +78,6 @@
 </template>
 
 <script setup>
-import {
-  Refresh,
-  Plus,
-  Edit,
-  Delete,
-  MoreFilled,
-} from "@element-plus/icons-vue";
-
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
     url: "/api/approval-settings",

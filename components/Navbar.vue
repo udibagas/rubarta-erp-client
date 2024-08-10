@@ -1,8 +1,8 @@
 <template>
   <div class="navbar">
     <el-icon :size="24" @click.prevent="emit('toggle')" style="cursor: pointer">
-      <Expand v-if="collapse" />
-      <Fold v-else />
+      <ElIconExpand v-if="collapse" />
+      <ElIconFold v-else />
     </el-icon>
 
     <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
@@ -24,7 +24,7 @@
     <el-badge :value="unread == 0 ? undefined : unread" :max="10">
       <NuxtLink to="/notifications">
         <el-icon :size="24">
-          <Bell />
+          <ElIconBell />
         </el-icon>
       </NuxtLink>
     </el-badge>
@@ -34,12 +34,12 @@
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item
-            :icon="User"
+            :icon="ElIconUser"
             @click.native.prevent="showProfile = true"
             >My Profile</el-dropdown-item
           >
           <el-dropdown-item
-            :icon="ArrowRight"
+            :icon="ElIconArrowRight"
             @click.native.prevent="handleClickLogout"
             >Sign Out</el-dropdown-item
           >
@@ -52,7 +52,6 @@
 </template>
 
 <script setup>
-import { Fold, Expand, Bell, User, ArrowRight } from "@element-plus/icons-vue";
 const { collapse } = defineProps(["collapse"]);
 const emit = defineEmits(["toggle"]);
 const companyId = ref(useCookie("companyId"));

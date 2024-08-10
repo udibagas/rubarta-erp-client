@@ -105,7 +105,7 @@
         <template #header>
           <el-button
             link
-            :icon="Plus"
+            :icon="ElIconPlus"
             type="success"
             @click="addItem"
           ></el-button>
@@ -113,7 +113,7 @@
         <template #default="{ row, $index }">
           <el-button
             link
-            :icon="Delete"
+            :icon="ElIconDelete"
             type="danger"
             @click="removeItem($index, row.id)"
           ></el-button>
@@ -160,11 +160,11 @@
     </table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CLOSE
       </el-button>
       <el-button
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="info"
         @click="saveWithStatus('DRAFT')"
       >
@@ -172,7 +172,7 @@
       </el-button>
 
       <el-button
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="success"
         @click="saveWithStatus('SUBMITTED')"
       >
@@ -183,13 +183,6 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  Delete,
-  Plus,
-} from "@element-plus/icons-vue";
-
 const newRow = {
   date: undefined,
   description: undefined,

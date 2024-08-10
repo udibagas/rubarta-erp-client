@@ -86,7 +86,7 @@
         <template #header>
           <el-button
             link
-            :icon="Plus"
+            :icon="ElIconPlus"
             type="success"
             @click="addItem"
           ></el-button>
@@ -94,7 +94,7 @@
         <template #default="{ row, $index }">
           <el-button
             link
-            :icon="Delete"
+            :icon="ElIconDelete"
             type="danger"
             @click="removeItem($index, row.id)"
           ></el-button>
@@ -103,10 +103,14 @@
     </el-table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="SuccessFilled" type="success" @click="submit(form)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="submit(form)"
+      >
         SAVE
       </el-button>
     </template>
@@ -117,13 +121,6 @@
 import { approvalTypes } from "~/constants/approvalTypes";
 import { approvalActionTypes } from "~/constants/approvalActionTypes";
 const request = useRequest();
-
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  Delete,
-  Plus,
-} from "@element-plus/icons-vue";
 
 const url = "/api/approval-settings";
 const newRow = {

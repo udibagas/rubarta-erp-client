@@ -10,7 +10,7 @@
           size="small"
           type="danger"
           @click="handleRemoveAll(removeAll)"
-          :icon="Delete"
+          :icon="ElIconDelete"
           class="mr-2"
         >
           Delete All
@@ -21,7 +21,7 @@
           v-model="keyword"
           placeholder="Cari"
           style="width: 180px; margin-right: 5px"
-          :prefix-icon="Search"
+          :prefix-icon="ElIconSearch"
           :clearable="true"
           @clear="refresh()"
         >
@@ -31,7 +31,7 @@
           size="small"
           type="success"
           @click="refresh()"
-          :icon="Refresh"
+          :icon="ElIconRefresh"
         >
         </el-button>
       </form>
@@ -92,7 +92,7 @@
           <el-button
             type="danger"
             @click="handleRemove(selected.id, remove)"
-            :icon="Delete"
+            :icon="ElIconDelete"
             circle
           >
           </el-button>
@@ -126,8 +126,6 @@
 </template>
 
 <script setup>
-import { Refresh, Delete, MoreFilled, Search } from "@element-plus/icons-vue";
-
 const url = "/api/notifications";
 const selected = ref({});
 const notificationTable = ref("");

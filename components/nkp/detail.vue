@@ -108,7 +108,7 @@
     <template #footer>
       <el-button
         v-if="allowAction"
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="warning"
         @click="openForm(detail.id)"
       >
@@ -117,7 +117,7 @@
 
       <el-button
         v-if="allowAction"
-        :icon="Delete"
+        :icon="ElIconDelete"
         type="danger"
         @click="handleRemove(detail.id, closeDetailAndRemove)"
       >
@@ -126,7 +126,7 @@
 
       <el-button
         v-if="allowAction"
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="success"
         @click="submit(detail.id)"
       >
@@ -137,7 +137,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();

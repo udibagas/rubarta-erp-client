@@ -3,7 +3,7 @@
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass" style="font-weight: bold">
-          EXPENSE CLAIM #{{ detail.number }}
+          NKP DECLARATION #{{ detail.number }}
         </div>
         <StatusTag :status="detail.status" />
       </div>
@@ -99,7 +99,7 @@
     <template #footer>
       <el-button
         v-if="allowAction"
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="warning"
         @click="openForm(detail.id)"
       >
@@ -108,7 +108,7 @@
 
       <el-button
         v-if="allowAction"
-        :icon="Delete"
+        :icon="ElIconDelete"
         type="danger"
         @click="handleRemove(detail.id, closeDetailAndRemove)"
       >
@@ -117,7 +117,7 @@
 
       <el-button
         v-if="allowAction"
-        :icon="SuccessFilled"
+        :icon="ElIconSuccessFilled"
         type="success"
         @click="submit(detail.id)"
       >
@@ -127,10 +127,10 @@
       <el-button
         v-if="detail.status == 'FULLY_APPROVED'"
         type="danger"
-        @click="convertToPa()"
+        @click="convertToNkp()"
         style="width: 100%"
       >
-        CONVERT TO PAYMENT AUTHORIZATION
+        CONVERT TO NKP
       </el-button>
     </template>
   </el-dialog>
@@ -143,7 +143,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, Delete } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();
@@ -222,7 +221,7 @@ async function submit(id) {
   }
 }
 
-function convertToPa() {
+function convertToNkp() {
   const {
     userId: employeeId,
     totalAmount: grossAmount,

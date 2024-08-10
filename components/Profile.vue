@@ -74,6 +74,22 @@
         ></el-input>
       </el-form-item>
 
+      <el-form-item label="Currency" :error="errors.cusrrency">
+        <el-select
+          v-model="form.cusrrency"
+          placeholder="Currency"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(c, i) in currencies"
+            :value="c"
+            :label="c"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item
         label="Signature Speciment"
         :error="formErrors.signatureSpeciment"
@@ -92,7 +108,7 @@
             alt=""
             style="height: 100px"
           />
-          <el-button v-else :icon="UploadFilled"> Upload </el-button>
+          <el-button v-else :icon="ElIconUploadFilled"> Upload </el-button>
         </el-upload>
       </el-form-item>
 
@@ -100,10 +116,10 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="emit('close')" :icon="CircleCloseFilled">
+      <el-button @click="emit('close')" :icon="ElIconCircleCloseFilled">
         CLOSE
       </el-button>
-      <el-button type="success" @click="save" :icon="SuccessFilled">
+      <el-button type="success" @click="save" :icon="ElIconSuccessFilled">
         SAVE
       </el-button>
     </template>
@@ -111,11 +127,8 @@
 </template>
 
 <script setup>
-import {
-  SuccessFilled,
-  CircleCloseFilled,
-  UploadFilled,
-} from "@element-plus/icons-vue";
+import { currencies } from "~/constants/currencies";
+
 const { user, refreshIdentity } = useSanctumAuth();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);

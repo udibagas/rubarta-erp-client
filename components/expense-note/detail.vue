@@ -38,11 +38,15 @@
     </div>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="closeDetail">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeDetail">
         CLOSE
       </el-button>
 
-      <el-button :icon="SuccessFilled" type="warning" @click="edit(detail)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="warning"
+        @click="edit(detail)"
+      >
         EDIT
       </el-button>
     </template>
@@ -50,7 +54,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
 

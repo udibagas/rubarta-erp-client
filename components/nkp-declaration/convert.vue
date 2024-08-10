@@ -122,11 +122,15 @@
     </table>
 
     <template #footer>
-      <el-button :icon="CircleCloseFilled" @click="emit('close')">
+      <el-button :icon="ElIconCircleCloseFilled" @click="emit('close')">
         CLOSE
       </el-button>
 
-      <el-button :icon="SuccessFilled" type="success" @click="submit(data)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="submit(data)"
+      >
         SUBMIT
       </el-button>
     </template>
@@ -134,7 +138,6 @@
 </template>
 
 <script setup>
-import { SuccessFilled, CircleCloseFilled } from "@element-plus/icons-vue";
 const request = useRequest();
 const queryClient = useQueryClient();
 const { show, data: sourceData } = defineProps(["show", "data"]);

@@ -34,7 +34,6 @@
 </template>
 
 <script setup>
-import { User, ArrowRight } from "@element-plus/icons-vue";
 const { user } = useSanctumAuth();
 const collapse = ref(false);
 </script>

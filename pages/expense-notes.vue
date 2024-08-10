@@ -8,7 +8,7 @@
         v-if="isSuccess && data.length"
         size="small"
         type="danger"
-        :icon="Checked"
+        :icon="ElIconChecked"
         @click="
           claim({
             cashAdvance: 0,
@@ -24,7 +24,12 @@
         CLAIM
       </el-button>
 
-      <el-button size="small" @click="openForm()" type="success" :icon="Plus">
+      <el-button
+        size="small"
+        @click="openForm()"
+        type="success"
+        :icon="ElIconPlus"
+      >
         NEW EXPENSE NOTES
       </el-button>
     </template>
@@ -76,25 +81,26 @@
       header-align="center"
     >
       <template #header>
-        <el-button link @click="refreshData()" :icon="Refresh"> </el-button>
+        <el-button link @click="refreshData()" :icon="ElIconRefresh">
+        </el-button>
       </template>
       <template #default="{ row }">
         <el-dropdown>
           <span class="el-dropdown-link">
             <el-icon>
-              <MoreFilled />
+              <ElIconMoreFilled />
             </el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item
-                :icon="Edit"
+                :icon="ElIconEdit"
                 @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
-                :icon="Delete"
+                :icon="ElIconDelete"
                 @click.native.prevent="handleRemove(row.id, remove)"
               >
                 Delete
@@ -138,15 +144,6 @@
 </template>
 
 <script setup>
-import {
-  Refresh,
-  Plus,
-  Edit,
-  Delete,
-  MoreFilled,
-  Checked,
-} from "@element-plus/icons-vue";
-
 import { openDetail } from "~/stores/detail";
 
 const { user } = useSanctumAuth();

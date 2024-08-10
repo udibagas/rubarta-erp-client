@@ -38,6 +38,10 @@ const links = [
     path: "banks",
   },
   {
+    label: "Vendors",
+    path: "suppliers",
+  },
+  {
     label: "Expense Types",
     path: "expense-types",
   },
