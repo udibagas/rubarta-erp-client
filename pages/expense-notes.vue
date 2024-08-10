@@ -70,7 +70,7 @@
       header-align="right"
     >
       <template #default="{ row }">
-        <strong>{{ toRupiah(row.amount) }}</strong>
+        <strong>{{ toCurrency(row.amount) }}</strong>
       </template>
     </el-table-column>
 
@@ -119,7 +119,7 @@
       <tr>
         <td>TOTAL</td>
         <td class="text-right">
-          <strong>{{ toRupiah(totalAmount) }}</strong>
+          <strong>{{ toCurrency(totalAmount) }}</strong>
         </td>
       </tr>
     </tbody>

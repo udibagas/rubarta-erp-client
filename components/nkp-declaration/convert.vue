@@ -74,7 +74,7 @@
 
       <el-table-column label="AMOUNT" width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -84,7 +84,7 @@
         <tr>
           <td>GRAND TOTAL/GROSS AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(data.amount) }}</strong>
+            <strong>{{ toCurrency(data.amount) }}</strong>
           </td>
         </tr>
 
@@ -97,7 +97,7 @@
               placeholder="Deduction"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{ toRupiah(deduction) }}</strong>
+            <strong>{{ toCurrency(deduction) }}</strong>
           </td>
         </tr>
 
@@ -105,7 +105,7 @@
           <td>NET AMOUNT</td>
           <td class="text-right">
             <strong>
-              {{ toRupiah(data.amount - deduction) }}
+              {{ toCurrency(data.amount - deduction, data.currency) }}
             </strong>
           </td>
         </tr>
@@ -114,7 +114,9 @@
           <td>TERBILANG</td>
           <td class="text-right">
             <strong>
-              {{ terbilang(data.amount - deduction).toUpperCase() }} RUPIAH
+              {{
+                terbilang(data.amount - deduction, data.currency).toUpperCase()
+              }}
             </strong>
           </td>
         </tr>

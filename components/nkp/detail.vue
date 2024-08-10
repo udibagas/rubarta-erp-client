@@ -3,7 +3,7 @@
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass" style="font-weight: bold">
-          PAYMENT AUTHORIZATION #{{ detail.number }}
+          NKP #{{ detail.number }}
         </div>
         <StatusTag :status="detail.status" />
       </div>
@@ -14,8 +14,18 @@
         {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Employee">
+      <el-descriptions-item
+        v-if="detail.paymentType == 'EMPLOYEE'"
+        label="Employee"
+      >
         {{ detail.Employee?.name }}
+      </el-descriptions-item>
+
+      <el-descriptions-item
+        v-if="detail.paymentType == 'VENDOR'"
+        label="Vendor"
+      >
+        {{ detail.Vendor?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Company">
@@ -32,6 +42,14 @@
 
       <el-descriptions-item label="Bank Account">
         {{ detail.bankAccount }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Type">
+        {{ detail.paymentType }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Currency">
+        {{ detail.currency }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Description">
@@ -55,7 +73,7 @@
 
       <el-table-column label="AMOUNT" width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -65,21 +83,21 @@
         <tr>
           <td>GRAND TOTAL/GROSS AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(detail.amount) }}</strong>
+            <strong>{{ toCurrency(detail.amount) }}</strong>
           </td>
         </tr>
 
         <tr>
           <td>DEDUCTION</td>
           <td class="text-right">
-            <strong>{{ toRupiah(detail.deduction) }}</strong>
+            <strong>{{ toCurrency(detail.deduction) }}</strong>
           </td>
         </tr>
 
         <tr>
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(detail.netAmount) }}</strong>
+            <strong>{{ toCurrency(detail.netAmount, detail.currency) }}</strong>
           </td>
         </tr>
 
@@ -87,7 +105,7 @@
           <td>TERBILANG</td>
           <td class="text-right">
             <strong>
-              {{ terbilang(detail.netAmount).toUpperCase() }} RUPIAH
+              {{ terbilang(detail.netAmount, detail.currency).toUpperCase() }}
             </strong>
           </td>
         </tr>

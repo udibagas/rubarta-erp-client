@@ -47,7 +47,7 @@
             class="mr-2"
             style="width: 215px"
           />
-          <strong>{{ toRupiah(form.amount) }}</strong>
+          <strong>{{ toCurrency(form.amount) }}</strong>
         </div>
       </el-form-item>
 

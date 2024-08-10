@@ -2,9 +2,11 @@
   <el-dialog
     v-model="show"
     width="900"
-    title="PAYMENT AUTHORIZATION"
+    title="NOTA KUASA PEMBAYARAN"
     :close-on-click-modal="false"
+    center
   >
+    <br />
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Company" :error="errors.companyId">
         <el-select v-model="form.companyId" placeholder="Company" disabled>
@@ -19,14 +21,14 @@
       </el-form-item>
 
       <el-form-item label="Type" :error="errors.type">
-        <el-radio-group v-model="form.type" @change="resetBank">
+        <el-radio-group v-model="form.paymentType" @change="resetBank">
           <el-radio value="EMPLOYEE">EMPLOYEE</el-radio>
           <el-radio value="VENDOR">VENDOR</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <el-form-item
-        v-if="form.type == 'EMPLOYEE'"
+        v-if="form.paymentType == 'EMPLOYEE'"
         label="Employee"
         :error="errors.employeeId"
       >
@@ -42,7 +44,7 @@
           <el-option
             v-for="(el, i) in users"
             :value="el.id"
-            :label="el.name"
+            :label="`${el.code} - ${el.name}`"
             :key="i"
           >
           </el-option>
@@ -50,7 +52,7 @@
       </el-form-item>
 
       <el-form-item
-        v-if="form.type == 'VENDOR'"
+        v-if="form.paymentType == 'VENDOR'"
         label="Vendor"
         :error="errors.supplierId"
       >
@@ -66,7 +68,7 @@
           <el-option
             v-for="(el, i) in suppliers"
             :value="el.id"
-            :label="el.name"
+            :label="`${el.code} - ${el.name}`"
             :key="i"
           >
           </el-option>
@@ -95,20 +97,15 @@
       </el-form-item>
 
       <el-form-item label="Currency" :error="errors.currency">
-        <el-select
-          v-model="form.currency"
-          placeholder="Currency"
-          default-first-option
-          filterable
-        >
-          <el-option
+        <el-radio-group v-model="form.currency">
+          <el-radio
             v-for="(currency, i) in currencies"
             :value="currency"
-            :label="currency"
             :key="i"
           >
-          </el-option>
-        </el-select>
+            {{ currency }}
+          </el-radio>
+        </el-radio-group>
       </el-form-item>
 
       <el-form-item label="Description" :error="errors.description">
@@ -158,7 +155,7 @@
 
       <el-table-column width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
 
@@ -187,7 +184,7 @@
         <tr>
           <td>GRAND TOTAL/GROSS AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(amount) }}</strong>
+            <strong>{{ toCurrency(amount) }}</strong>
           </td>
         </tr>
 
@@ -200,21 +197,23 @@
               placeholder="Deduction"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{ toRupiah(form.deduction) }}</strong>
+            <strong>{{ toCurrency(form.deduction) }}</strong>
           </td>
         </tr>
 
         <tr>
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toRupiah(netAmount) }}</strong>
+            <strong>{{ toCurrency(netAmount, form.currency) }}</strong>
           </td>
         </tr>
 
         <tr>
           <td>TERBILANG</td>
           <td class="text-right">
-            <strong>{{ terbilang(netAmount).toUpperCase() }} RUPIAH</strong>
+            <strong>
+              {{ terbilang(netAmount, form.currency).toUpperCase() }}
+            </strong>
           </td>
         </tr>
       </tbody>
@@ -288,11 +287,11 @@ const disabledDate = (time) => {
 function updateBank(id) {
   let data = {};
 
-  if (form.value.type == "EMPLOYEE") {
+  if (form.value.paymentType == "EMPLOYEE") {
     data = users.value.find((u) => u.id == id);
   }
 
-  if (form.value.type == "VENDOR") {
+  if (form.value.paymentType == "VENDOR") {
     data = suppliers.value.find((u) => u.id == id);
   }
 

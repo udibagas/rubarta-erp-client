@@ -20,7 +20,7 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Amount">
-        {{ toRupiah(detail.amount) }}
+        {{ toCurrency(detail.amount) }}
       </el-descriptions-item>
     </el-descriptions>
 

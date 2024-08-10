@@ -7,14 +7,16 @@ export const toRupiah = (value: string) => {
   });
 };
 
-// export const terbilang = (value: number) => {
-//   const strNumbers = value.toString().split(",");
-//   const numbers =
-//     "nol,satu,dua,tiga,empat,lima,enam,tujuh,delapan,sembilan".split(",");
-//   const units = ",ribu,juta,milyar".split(",");
-// };
+export const toCurrency = (value: string, currency: string = "IDR") => {
+  if (!value) return "0";
+  return Number(value).toLocaleString("id-ID", {
+    style: "currency",
+    currency: currency,
+    maximumFractionDigits: 0,
+  });
+};
 
-export function terbilang(a: number): string {
+export function terbilang(a: number, currency: string = "IDR"): string {
   const bilangan = [
     "",
     "Satu",
@@ -140,5 +142,8 @@ export function terbilang(a: number): string {
     }
   }
 
-  return full.join(" ");
+  let word = full.join(" ");
+  if (currency == "IDR") word += " RUPIAH";
+  if (currency == "USD") word += " DOLAR";
+  return word;
 }

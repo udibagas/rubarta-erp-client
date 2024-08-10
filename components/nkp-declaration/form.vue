@@ -86,7 +86,7 @@
 
       <el-table-column width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
 
@@ -117,7 +117,7 @@
       ></el-table-column>
       <el-table-column label="Amount" align="right" header-align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -127,7 +127,7 @@
         <tr>
           <td class="strong">TOTAL EXPENSE</td>
           <td class="text-right">
-            <strong>{{ toRupiah(totalAmount) }}</strong>
+            <strong>{{ toCurrency(totalAmount) }}</strong>
           </td>
         </tr>
 
@@ -140,7 +140,7 @@
               placeholder="Cash Advance"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{ toRupiah(form.cashAdvance) }}</strong>
+            <strong>{{ toCurrency(form.cashAdvance) }}</strong>
           </td>
         </tr>
 
@@ -148,7 +148,7 @@
           <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
           <td class="text-right">
             <strong :class="claim > 0 ? 'text-success' : 'text-danger'">
-              {{ toRupiah(claim) }}
+              {{ toCurrency(claim) }}
             </strong>
           </td>
         </tr>

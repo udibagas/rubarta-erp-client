@@ -52,7 +52,7 @@
 
       <el-table-column label="AMOUNT" width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toRupiah(row.amount) }}</strong>
+          <strong>{{ toCurrency(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -64,7 +64,7 @@
         <tr>
           <td class="strong">TOTAL EXPENSE</td>
           <td class="text-right">
-            <strong>{{ toRupiah(data.totalAmount) }}</strong>
+            <strong>{{ toCurrency(data.totalAmount) }}</strong>
           </td>
         </tr>
 
@@ -77,7 +77,7 @@
               placeholder="Cash Advance"
               style="width: 150px; margin-right: 10px"
             />
-            <strong>{{ toRupiah(data.cashAdvance) }}</strong>
+            <strong>{{ toCurrency(data.cashAdvance) }}</strong>
           </td>
         </tr>
 
@@ -92,7 +92,7 @@
                   data.totalAmount - data.cashAdvance > 0 ? 'success' : 'danger'
                 "
               >
-                {{ toRupiah(data.totalAmount - data.cashAdvance) }}
+                {{ toCurrency(data.totalAmount - data.cashAdvance) }}
               </el-text>
             </strong>
           </td>

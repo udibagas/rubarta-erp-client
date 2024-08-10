@@ -3,7 +3,7 @@
     <el-table-column prop="expenseType" label="Expense Type"></el-table-column>
     <el-table-column label="Amount" align="right" header-align="right">
       <template #default="{ row }">
-        <strong>{{ toRupiah(row.amount) }}</strong>
+        <strong>{{ toCurrency(row.amount) }}</strong>
       </template>
     </el-table-column>
   </el-table>

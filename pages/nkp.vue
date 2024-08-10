@@ -89,7 +89,7 @@
       hader-align="right"
     >
       <template #default="{ row }">
-        {{ toRupiah(row.grossAmount) }}
+        {{ toCurrency(row.grossAmount) }}
       </template>
     </el-table-column>
 
@@ -100,7 +100,7 @@
       hader-align="right"
     >
       <template #default="{ row }">
-        {{ toRupiah(row.deduction) }}
+        {{ toCurrency(row.deduction) }}
       </template>
     </el-table-column>
 
@@ -111,7 +111,7 @@
       hader-align="right"
     >
       <template #default="{ row }">
-        <strong>{{ toRupiah(row.netAmount) }}</strong>
+        <strong>{{ toCurrency(row.netAmount) }}</strong>
       </template>
     </el-table-column>
   </el-table>

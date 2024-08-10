@@ -91,7 +91,7 @@
       header-align="right"
     >
       <template #default="{ row }">
-        {{ toRupiah(row.cashAdvance) }}
+        {{ toCurrency(row.cashAdvance) }}
       </template>
     </el-table-column>
 
@@ -102,7 +102,7 @@
       header-align="right"
     >
       <template #default="{ row }">
-        {{ toRupiah(row.totalAmount) }}
+        {{ toCurrency(row.totalAmount) }}
       </template>
     </el-table-column>
 
@@ -114,7 +114,7 @@
     >
       <template #default="{ row }">
         <strong :class="row.claim > 0 ? 'text-success' : 'text-danger'">
-          {{ toRupiah(row.claim) }}
+          {{ toCurrency(row.claim) }}
         </strong>
       </template>
     </el-table-column>
