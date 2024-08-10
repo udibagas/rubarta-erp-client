@@ -63,7 +63,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Requester" min-width="150">
+    <el-table-column label="Requester">
       <template #default="{ row }">
         <strong>{{ row.Requester?.name }}</strong
         ><br />
@@ -73,7 +73,7 @@
 
     <el-table-column label="Type" prop="paymentType" width="110" />
 
-    <el-table-column label="Peyment To" min-width="150">
+    <el-table-column label="Peyment To">
       <template #default="{ row }">
         <strong>
           {{
@@ -86,6 +86,8 @@
         {{ row.Bank?.code }} - {{ row.bankAccount }}
       </template>
     </el-table-column>
+
+    <el-table-column label="Description" prop="description" />
 
     <el-table-column
       label="Final Payment"
