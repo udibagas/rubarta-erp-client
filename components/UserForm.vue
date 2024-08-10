@@ -74,9 +74,9 @@
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="Currency" :error="errors.cusrrency">
+      <el-form-item label="Currency" :error="errors.currency">
         <el-select
-          v-model="form.cusrrency"
+          v-model="form.currency"
           placeholder="Currency"
           style="width: 100%"
         >
