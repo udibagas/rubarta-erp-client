@@ -1,14 +1,16 @@
 <template>
-  <div class="text-right">
-    <el-button
-      size="small"
-      :icon="ElIconPlus"
-      @click="openForm()"
-      type="success"
-    >
-      ADD NEW BANK
-    </el-button>
-  </div>
+  <el-page-header @back="goBack" content="Banks">
+    <template #extra>
+      <el-button
+        size="small"
+        :icon="ElIconPlus"
+        @click="openForm()"
+        type="success"
+      >
+        ADD NEW BANK
+      </el-button>
+    </template>
+  </el-page-header>
 
   <br />
 

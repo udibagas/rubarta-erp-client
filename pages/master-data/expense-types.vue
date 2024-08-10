@@ -1,14 +1,16 @@
 <template>
-  <div class="text-right">
-    <el-button
-      size="small"
-      :icon="ElIconPlus"
-      @click="openForm()"
-      type="success"
-    >
-      ADD NEW EXPENSE TYPE
-    </el-button>
-  </div>
+  <el-page-header @back="goBack" content="Expense Types">
+    <template #extra>
+      <el-button
+        size="small"
+        :icon="ElIconPlus"
+        type="success"
+        @click="openForm()"
+      >
+        ADD NEW EXPENSE TYPE
+      </el-button>
+    </template>
+  </el-page-header>
 
   <br />
 

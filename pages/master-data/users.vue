@@ -1,25 +1,29 @@
 <template>
-  <form class="flex justify-content-end" @submit.prevent="refreshData()">
-    <el-button
-      size="small"
-      @click="openForm({ roles: ['USER'], password: '' })"
-      type="success"
-      :icon="ElIconPlus"
-      class="mr-2"
-    >
-      ADD NEW USER
-    </el-button>
-    <el-input
-      size="small"
-      v-model="keyword"
-      placeholder="Cari"
-      style="width: 180px"
-      :prefix-icon="ElIconSearch"
-      :clearable="true"
-      @clear="refreshData()"
-    >
-    </el-input>
-  </form>
+  <el-page-header @back="goBack" content="Users">
+    <template #extra>
+      <form @submit.prevent="refreshData()">
+        <el-button
+          size="small"
+          @click="openForm({ roles: ['USER'], password: '' })"
+          type="success"
+          :icon="ElIconPlus"
+          class="mr-2"
+        >
+          ADD NEW USER
+        </el-button>
+        <el-input
+          size="small"
+          v-model="keyword"
+          placeholder="Cari"
+          style="width: 180px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          @clear="refreshData()"
+        >
+        </el-input>
+      </form>
+    </template>
+  </el-page-header>
 
   <br />
 

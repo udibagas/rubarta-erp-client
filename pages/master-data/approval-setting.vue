@@ -1,24 +1,26 @@
 <template>
-  <div class="text-right">
-    <el-button
-      size="small"
-      :icon="ElIconPlus"
-      type="success"
-      @click="
-        openForm({
-          ApprovalSettingItem: [
-            {
-              level: undefined,
-              approvalActionType: undefined,
-              userId: undefined,
-            },
-          ],
-        })
-      "
-    >
-      ADD APPROVAL SETTING
-    </el-button>
-  </div>
+  <el-page-header @back="goBack" content="Approval Setting">
+    <template #extra>
+      <el-button
+        size="small"
+        :icon="ElIconPlus"
+        type="success"
+        @click="
+          openForm({
+            ApprovalSettingItem: [
+              {
+                level: undefined,
+                approvalActionType: undefined,
+                userId: undefined,
+              },
+            ],
+          })
+        "
+      >
+        ADD APPROVAL SETTING
+      </el-button>
+    </template>
+  </el-page-header>
 
   <br />
 
