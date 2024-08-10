@@ -10,20 +10,20 @@
         <el-input placeholder="Name" v-model="form.name"></el-input>
       </el-form-item>
 
-      <el-form-item label="Email" :error="errors.email">
-        <el-input placeholder="Email" v-model="form.email"></el-input>
-      </el-form-item>
-
-      <el-form-item label="Phone" :error="errors.phone">
-        <el-input placeholder="Phone" v-model="form.phone"></el-input>
-      </el-form-item>
-
       <el-form-item label="Address" :error="errors.address">
         <el-input
           type="textarea"
           placeholder="Address"
           v-model="form.address"
         ></el-input>
+      </el-form-item>
+
+      <el-form-item label="Email" :error="errors.email">
+        <el-input placeholder="Email" v-model="form.email"></el-input>
+      </el-form-item>
+
+      <el-form-item label="Phone" :error="errors.phone">
+        <el-input placeholder="Phone" v-model="form.phone"></el-input>
       </el-form-item>
 
       <el-form-item label="Bank" :error="errors.bankId">
@@ -45,9 +45,9 @@
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="Currency" :error="errors.cusrrency">
+      <el-form-item label="Currency" :error="errors.currency">
         <el-select
-          v-model="form.cusrrency"
+          v-model="form.currency"
           placeholder="Currency"
           style="width: 100%"
         >

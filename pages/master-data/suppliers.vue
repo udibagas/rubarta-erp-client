@@ -26,23 +26,22 @@
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Code" min-width="150">
+    <el-table-column label="Name">
       <template #default="{ row }">
-        <strong>{{ row.code }}</strong>
+        <strong>{{ row.name }}</strong> <br />
+        {{ row.code }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Name" min-width="150">
+    <el-table-column label="Address">
       <template #default="{ row }">
-        <strong>{{ row.name }}</strong>
+        {{ row.address }} <br />
+        Phone: {{ row.phone || "-" }} <br />
+        Email: {{ row.email || "-" }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Address" prop="address" min-width="150" />
-    <el-table-column label="Phone" prop="phone" min-width="150" />
-    <el-table-column label="Email" prop="email" min-width="150" />
-
-    <el-table-column label="Bank" min-width="150">
+    <el-table-column label="Bank">
       <template #default="{ row }">
         {{ row.Bank?.name }} <br />
         {{ row.bankAccount }} ({{ row.currency }})
