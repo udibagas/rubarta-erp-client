@@ -60,7 +60,7 @@
     <br />
 
     <el-table :data="detail.PaymentAuthorizationItem">
-      <el-table-column type="index" label="#"></el-table-column>
+      <el-table-column type="index" label="#" />
 
       <el-table-column label="DATE" width="120">
         <template #default="{ row }">
@@ -68,46 +68,67 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="DESCRIPTION" prop="description">
-      </el-table-column>
+      <el-table-column label="DESCRIPTION" prop="description" />
 
       <el-table-column label="AMOUNT" width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toCurrency(row.amount) }}</strong>
+          <strong>{{ toDecimal(row.amount) }}</strong>
         </template>
       </el-table-column>
+
+      <el-table-column
+        label="CURR"
+        prop="currency"
+        width="80"
+        align="center"
+        header-align="center"
+      />
     </el-table>
 
     <table class="table">
       <tbody>
         <tr>
-          <td>GRAND TOTAL/GROSS AMOUNT</td>
+          <td>GRAND TOTAL</td>
           <td class="text-right">
-            <strong>{{ toCurrency(detail.amount) }}</strong>
+            <strong>{{ toDecimal(detail.amount) }}</strong>
           </td>
+          <td class="text-center" style="width: 60px">
+            {{ detail.currency }}
+          </td>
+        </tr>
+
+        <tr>
+          <td>TAX</td>
+          <td class="text-right">
+            <strong>{{ toDecimal(detail.tax) }}</strong>
+          </td>
+          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr>
           <td>DEDUCTION</td>
           <td class="text-right">
-            <strong>{{ toCurrency(detail.deduction) }}</strong>
+            <strong>{{ toDecimal(detail.deduction) }}</strong>
           </td>
+          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr>
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toCurrency(detail.netAmount, detail.currency) }}</strong>
+            <strong>{{ toDecimal(detail.netAmount, detail.currency) }}</strong>
           </td>
+          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr>
           <td>TERBILANG</td>
-          <td class="text-right">
+          <td>
             <strong>
               {{ terbilang(detail.netAmount, detail.currency).toUpperCase() }}
             </strong>
           </td>
+          <td class="text-center">{{ detail.currency }}</td>
         </tr>
       </tbody>
     </table>
@@ -131,6 +152,14 @@
         @click="openForm(detail.id)"
       >
         EDIT
+      </el-button>
+
+      <el-button
+        :icon="ElIconPrinter"
+        type="warning"
+        @click="handlePrint(detail.id)"
+      >
+        PRINT
       </el-button>
 
       <el-button
@@ -206,6 +235,10 @@ async function submit(id) {
   } catch (error) {
     return;
   }
+}
+
+function handlePrint(id) {
+  //! TODO
 }
 </script>
 

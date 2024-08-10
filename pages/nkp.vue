@@ -1,8 +1,5 @@
 <template>
-  <el-page-header @back="goBack">
-    <template #content>
-      <span class="text-large font-600"> NKP </span>
-    </template>
+  <el-page-header @back="goBack" content="NKP">
     <template #extra>
       <form @submit.prevent="refreshData()">
         <el-button
@@ -74,46 +71,40 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Employee" min-width="150">
+    <el-table-column label="Type" prop="paymentType" width="110" />
+
+    <el-table-column label="Peyment To" min-width="150">
       <template #default="{ row }">
-        <strong>{{ row.Employee?.name }}</strong
-        ><br />
+        <strong>
+          {{
+            row.paymentType == "EMPLOYEE"
+              ? row.Employee?.name
+              : row.Supplier?.name
+          }}
+        </strong>
+        <br />
         {{ row.Bank?.code }} - {{ row.bankAccount }}
       </template>
     </el-table-column>
 
     <el-table-column
-      label="Gross Amount"
+      label="Final Payment"
       width="150"
       align="right"
       hader-align="right"
     >
       <template #default="{ row }">
-        {{ toCurrency(row.grossAmount) }}
+        <strong>{{ toDecimal(row.finalPayment) }}</strong>
       </template>
     </el-table-column>
 
     <el-table-column
-      label="Deduction"
-      width="150"
-      align="right"
-      hader-align="right"
-    >
-      <template #default="{ row }">
-        {{ toCurrency(row.deduction) }}
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      label="Net Amount"
-      width="150"
-      align="right"
-      hader-align="right"
-    >
-      <template #default="{ row }">
-        <strong>{{ toCurrency(row.netAmount) }}</strong>
-      </template>
-    </el-table-column>
+      label="Curr"
+      prop="currency"
+      width="70"
+      align="center"
+      header-align="center"
+    />
   </el-table>
 
   <br />

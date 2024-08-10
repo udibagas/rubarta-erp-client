@@ -1,7 +1,7 @@
 <template>
   <el-page-header @back="goBack">
     <template #content>
-      <span class="text-large font-600"> EXPENSE NOTES </span>
+      <span class="text-large font-600"> Expense Notes </span>
     </template>
     <template #extra>
       <el-button

@@ -153,9 +153,20 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="120" align="right">
+      <el-table-column width="115" align="right">
         <template #default="{ row }">
-          <strong>{{ toCurrency(row.amount) }}</strong>
+          <strong>{{ toDecimal(row.amount) }}</strong>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="CURR"
+        width="70"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          {{ form.currency }}
         </template>
       </el-table-column>
 
@@ -182,14 +193,27 @@
     <table class="table">
       <tbody>
         <tr>
-          <td>GRAND TOTAL/GROSS AMOUNT</td>
+          <td>Grand Total</td>
           <td class="text-right">
             <strong>{{ toCurrency(amount) }}</strong>
           </td>
         </tr>
 
         <tr>
-          <td>DEDUCTION</td>
+          <td>Tax</td>
+          <td class="text-right">
+            <el-input
+              type="number"
+              v-model="form.tax"
+              placeholder="Tax"
+              style="width: 120px; margin-right: 10px"
+            />
+            <strong>{{ toDecimal(form.tax) }}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Deduction</td>
           <td class="text-right">
             <el-input
               type="number"
@@ -202,17 +226,30 @@
         </tr>
 
         <tr>
-          <td>NET AMOUNT</td>
+          <td>Net Amount</td>
           <td class="text-right">
-            <strong>{{ toCurrency(netAmount, form.currency) }}</strong>
+            <strong>{{ toDecimal(netAmount, form.currency) }}</strong>
           </td>
         </tr>
 
         <tr>
-          <td>TERBILANG</td>
+          <td>Down Payment</td>
+          <td class="text-right">
+            <el-input
+              type="number"
+              v-model="form.downPayment"
+              placeholder="Down Payment"
+              style="width: 120px; margin-right: 10px"
+            />
+            <strong>{{ toDecimal(form.downPayment) }}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Terbilang</td>
           <td class="text-right">
             <strong>
-              {{ terbilang(netAmount, form.currency).toUpperCase() }}
+              {{ terbilang(netAmount).toUpperCase() }}
             </strong>
           </td>
         </tr>
@@ -344,6 +381,7 @@ async function saveWithStatus(status) {
 
   form.value.PaymentAuthorizationItem.forEach((e) => {
     e.amount = Number(e.amount);
+    e.currency = form.value.currency;
   });
 
   form.value.amount = amount;

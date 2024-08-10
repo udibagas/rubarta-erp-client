@@ -1,8 +1,5 @@
 <template>
-  <el-page-header @back="goBack">
-    <template #content>
-      <span class="text-large font-600"> NKP DECLRARATION </span>
-    </template>
+  <el-page-header @back="goBack" content=" NKP Declaration">
     <template #extra>
       <form @submit.prevent="refreshData()">
         <el-button

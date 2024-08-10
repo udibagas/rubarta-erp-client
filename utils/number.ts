@@ -16,7 +16,14 @@ export const toCurrency = (value: string, currency: string = "IDR") => {
   });
 };
 
-export function terbilang(a: number, currency: string = "IDR"): string {
+export const toDecimal = (value: number) => {
+  if (!value) return "0";
+  return Number(value).toLocaleString("id-ID", {
+    style: "decimal",
+  });
+};
+
+export function terbilang(a: number): string {
   const bilangan = [
     "",
     "Satu",
@@ -142,8 +149,5 @@ export function terbilang(a: number, currency: string = "IDR"): string {
     }
   }
 
-  let word = full.join(" ");
-  if (currency == "IDR") word += " RUPIAH";
-  if (currency == "USD") word += " DOLAR";
-  return word;
+  return full.join(" ");
 }
