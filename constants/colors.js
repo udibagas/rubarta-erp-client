@@ -8,4 +8,5 @@ export const colors = {
   VERIFIED: "success",
   AUTHORIZED: "success",
   PAID: "success",
+  CLOSED: "info",
 };

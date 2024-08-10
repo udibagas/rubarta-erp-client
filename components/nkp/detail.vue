@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-if="detail.id" v-model="showDetail" width="800" draggable>
+  <el-dialog v-if="detail.id" v-model="showDetail" width="700" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass" style="font-weight: bold">
@@ -163,6 +163,15 @@
       </el-button>
 
       <el-button
+        v-if="allowClose"
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="close(detail.id)"
+      >
+        CLOSE
+      </el-button>
+
+      <el-button
         v-if="allowAction"
         :icon="ElIconDelete"
         type="danger"
@@ -185,8 +194,12 @@
 
 <script setup>
 import { showDetail, detail, closeDetail } from "~/stores/detail";
-
 const { user } = useSanctumAuth();
+
+const allowClose = computed(() => {
+  // TODO: baca role user untuk otorisasi
+  return detail.value.status == "FULLY_APPROVED";
+});
 
 const allowAction = computed(() => {
   return (
@@ -220,7 +233,7 @@ function closeDetailAndRemove(id) {
 async function submit(id) {
   try {
     await ElMessageBox.confirm(
-      "Anda yakin akan mengajukan permintaan ini ini?",
+      "Anda yakin akan mengajukan permintaan ini?",
       "Warning",
       {
         type: "warning",
@@ -234,6 +247,40 @@ async function submit(id) {
     reload(); // reload detail data
   } catch (error) {
     return;
+  }
+}
+
+async function close(id) {
+  try {
+    const bankRefNo = await ElMessageBox.prompt(
+      "Anda yakin akan menutup NKP ini?",
+      "PERHATIAN",
+      {
+        inputPlaceholder: "Masukkan nomor referensi bank",
+        confirmButtonClass: "success",
+        confirmButtonText: "OK",
+        cancelButtonText: "CANCEL",
+        center: true,
+        draggable: true,
+        showClose: false,
+        type: "warning",
+        inputValidator: (value) => {
+          if (value?.length < 5) return "Nomor referensi bank wajib diisi";
+        },
+      }
+    );
+
+    await request(`/api/payment-authorizations/close/${id}`, {
+      method: "POST",
+      body: { bankRefNo: bankRefNo.value },
+    });
+    refreshData(); // refresh data on table
+    reload(); // reload detail data
+  } catch (error) {
+    ElMessage({
+      type: "info",
+      message: error.message || "Action cancelled",
+    });
   }
 }
 

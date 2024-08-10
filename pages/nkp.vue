@@ -63,7 +63,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Requester">
+    <el-table-column label="Requester" min-width="150">
       <template #default="{ row }">
         <strong>{{ row.Requester?.name }}</strong
         ><br />
@@ -73,7 +73,7 @@
 
     <el-table-column label="Type" prop="paymentType" width="110" />
 
-    <el-table-column label="Peyment To">
+    <el-table-column label="Payment To" min-width="150">
       <template #default="{ row }">
         <strong>
           {{
@@ -87,13 +87,14 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Description" prop="description" />
+    <el-table-column label="Description" prop="description" min-width="150" />
 
     <el-table-column
       label="Final Payment"
       width="150"
       align="right"
       hader-align="right"
+      fixed="right"
     >
       <template #default="{ row }">
         <strong>{{ toDecimal(row.finalPayment) }}</strong>
@@ -106,6 +107,7 @@
       width="70"
       align="center"
       header-align="center"
+      fixed="right"
     />
   </el-table>
 
