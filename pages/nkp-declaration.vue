@@ -137,8 +137,8 @@
 
 <script setup>
 import { openDetail } from "~/stores/detail";
-
 const { user } = useSanctumAuth();
+const route = useRoute();
 const companyId = ref(useCookie("companyId"));
 const url = "/api/expense-claims";
 
@@ -178,4 +178,14 @@ function show(id) {
     openDetail(result);
   });
 }
+
+onMounted(() => {
+  const { number } = route.query;
+
+  if (number) {
+    request(`${url}/get-by-number`, { params: { number } }).then((result) => {
+      openDetail(result);
+    });
+  }
+});
 </script>

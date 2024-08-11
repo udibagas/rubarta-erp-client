@@ -134,6 +134,7 @@
 
 <script setup>
 import { openDetail } from "~/stores/detail";
+const route = useRoute();
 const companyId = ref(useCookie("companyId"));
 const url = "/api/payment-authorizations";
 
@@ -170,4 +171,14 @@ function show(id) {
     openDetail(result);
   });
 }
+
+onMounted(() => {
+  const { number } = route.query;
+
+  if (number) {
+    request(`${url}/get-by-number`, { params: { number } }).then((result) => {
+      openDetail(result);
+    });
+  }
+});
 </script>
