@@ -7,7 +7,10 @@
           @click="
             openForm({
               companyId: companyId,
+              cashAdvance: 0,
               deduction: 0,
+              tax: 0,
+              downPayment: 0,
               PaymentAuthorizationItem: [
                 { date: undefined, description: undefined, amount: 0 },
               ],
