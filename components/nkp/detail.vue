@@ -90,14 +90,14 @@
         <tr>
           <td>GRAND TOTAL</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.amount) }}</strong>
+            <strong>{{ toDecimal(detail.grandTotal) }}</strong>
           </td>
           <td class="text-center" style="width: 60px">
             {{ detail.currency }}
           </td>
         </tr>
 
-        <tr>
+        <tr v-if="detail.paymentType == 'VENDOR'">
           <td>TAX</td>
           <td class="text-right">
             <strong>{{ toDecimal(detail.tax) }}</strong>
@@ -105,7 +105,7 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="detail.paymentType == 'VENDOR'">
           <td>DEDUCTION</td>
           <td class="text-right">
             <strong>{{ toDecimal(detail.deduction) }}</strong>
@@ -113,10 +113,34 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="detail.paymentType == 'VENDOR'">
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.netAmount, detail.currency) }}</strong>
+            <strong>{{ toDecimal(detail.netAmount) }}</strong>
+          </td>
+          <td class="text-center">{{ detail.currency }}</td>
+        </tr>
+
+        <tr v-if="detail.paymentType == 'VENDOR'">
+          <td>DOWN PAYMENT</td>
+          <td class="text-right">
+            <strong>{{ toDecimal(detail.downPayment) }}</strong>
+          </td>
+          <td class="text-center">{{ detail.currency }}</td>
+        </tr>
+
+        <tr v-if="detail.paymentType == 'EMPLOYEE'">
+          <td>CASH ADVANCE</td>
+          <td class="text-right">
+            <strong>{{ toDecimal(detail.netAmount) }}</strong>
+          </td>
+          <td class="text-center">{{ detail.currency }}</td>
+        </tr>
+
+        <tr>
+          <td>FINAL PAYMENT</td>
+          <td class="text-right">
+            <strong>{{ toDecimal(detail.finalPayment) }}</strong>
           </td>
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
@@ -125,7 +149,7 @@
           <td>TERBILANG</td>
           <td>
             <strong>
-              {{ terbilang(detail.netAmount, detail.currency).toUpperCase() }}
+              {{ terbilang(detail.finalPayment).toUpperCase() }}
             </strong>
           </td>
           <td class="text-center">{{ detail.currency }}</td>
