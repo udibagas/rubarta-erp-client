@@ -293,7 +293,7 @@
 
         <tr>
           <td>Terbilang</td>
-          <td class="text-right" colspan="2">
+          <td class="text-right" colspan="2" style="padding-right: 25px">
             <strong>
               {{ terbilang(finalPayment).toUpperCase() }}
             </strong>
