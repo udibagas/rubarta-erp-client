@@ -6,7 +6,7 @@
     class="sidebar"
   >
     <template v-for="(m, i) in links.filter((l) => l.visible)" :key="i">
-      <el-sub-menu v-if="m.children">
+      <el-sub-menu v-if="m.children" :index="m.path">
         <template #title>
           <el-icon><component :is="m.icon"></component> </el-icon>
           <span slot="title"> {{ m.label }} </span>
@@ -64,6 +64,7 @@ const links = [
   {
     label: "Master Data",
     icon: ElIconCoin,
+    path: "/master-data",
     visible: user.value.roles.includes("ADMIN"),
     children: [
       {
