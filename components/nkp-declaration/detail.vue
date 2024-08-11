@@ -54,7 +54,7 @@
       </el-table-column>
     </el-table>
 
-    <ExpenseClaimSummary :items="detail.ExpenseClaimItem" />
+    <NkpDeclarationSummary :items="detail.ExpenseClaimItem" />
 
     <table class="table">
       <tbody>
@@ -135,7 +135,7 @@
     </template>
   </el-dialog>
 
-  <ExpenseClaimConvert
+  <NkpDeclarationConvert
     :show="showClaimForm"
     :data="claimData"
     @close="showClaimForm = false"

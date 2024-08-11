@@ -112,7 +112,7 @@
     </el-table-column>
   </el-table>
 
-  <ExpenseClaimSummary v-if="isSuccess && data.length" :items="data" />
+  <NkpDeclarationSummary v-if="isSuccess && data.length" :items="data" />
 
   <table class="table" v-if="isSuccess && data.length">
     <tbody>

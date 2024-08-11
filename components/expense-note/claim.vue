@@ -57,7 +57,7 @@
       </el-table-column>
     </el-table>
 
-    <ExpenseClaimSummary :items="data.ExpenseClaimItem" />
+    <NkpDeclarationSummary :items="data.ExpenseClaimItem" />
 
     <table class="table">
       <tbody>
