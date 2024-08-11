@@ -72,29 +72,26 @@ const actions = {
 
 async function approve(id) {
   try {
-    const note = await ElMessageBox.prompt(
+    await ElMessageBox.confirm(
       "Anda yakin akan melakukan persetujuan?",
       "PERHATIAN",
       {
-        inputPlaceholder: "Masukkan catatan",
-        confirmButtonClass: "success",
-        confirmButtonText: "OK",
-        cancelButtonText: "CANCEL",
+        confirmButtonText: "YA",
+        cancelButtonText: "TIDAK",
         center: true,
         draggable: true,
         showClose: false,
       }
     );
 
-    await request(`${approveUrl}/${id}`, {
-      method: "POST",
-      body: { note: note.value },
-    });
-
+    await request(`${approveUrl}/${id}`, { method: "POST" });
     queryClient.invalidateQueries({ queryKey: [queryKey] });
     emit("reload");
   } catch (error) {
-    console.log(error);
+    ElMessage.info({
+      type: "info",
+      message: "Action cancelled",
+    });
   }
 }
 </script>
