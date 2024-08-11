@@ -20,7 +20,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Type" :error="errors.type">
+      <el-form-item label="Type" :error="errors.paymentType">
         <el-radio-group v-model="form.paymentType" @change="resetBank">
           <el-radio value="EMPLOYEE">EMPLOYEE</el-radio>
           <el-radio value="VENDOR">VENDOR</el-radio>
@@ -75,7 +75,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Bank" :error="errors.bankId">
+      <el-form-item v-if="form.paymentType" label="Bank" :error="errors.bankId">
         <el-select
           v-model="form.bankId"
           placeholder="Bank"
@@ -92,11 +92,19 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Bank Account" :error="errors.bankAccount">
+      <el-form-item
+        v-if="form.paymentType"
+        label="Bank Account"
+        :error="errors.bankAccount"
+      >
         <el-input v-model="form.bankAccount" placeholder="Bank Account" />
       </el-form-item>
 
-      <el-form-item label="Currency" :error="errors.currency">
+      <el-form-item
+        v-if="form.paymentType"
+        label="Currency"
+        :error="errors.currency"
+      >
         <el-radio-group v-model="form.currency">
           <el-radio
             v-for="(currency, i) in currencies"
@@ -193,65 +201,104 @@
     <table class="table">
       <tbody>
         <tr>
-          <td>Grand Total</td>
-          <td class="text-right">
-            <strong>{{ toCurrency(amount) }}</strong>
+          <td style="width: 100px">Grand Total</td>
+          <td></td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(grandTotal) }}</strong>
           </td>
+          <td style="width: 86px">{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.paymentType == 'VENDOR'">
           <td>Tax</td>
-          <td class="text-right">
+          <td>
             <el-input
               type="number"
               v-model="form.tax"
               placeholder="Tax"
-              style="width: 120px; margin-right: 10px"
+              style="width: 150px"
             />
+          </td>
+          <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(form.tax) }}</strong>
           </td>
+          <td>{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.paymentType == 'VENDOR'">
           <td>Deduction</td>
-          <td class="text-right">
+          <td>
             <el-input
               type="number"
               v-model="form.deduction"
               placeholder="Deduction"
-              style="width: 120px; margin-right: 10px"
+              style="width: 150px"
             />
-            <strong>{{ toCurrency(form.deduction) }}</strong>
           </td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(form.deduction) }}</strong>
+          </td>
+          <td>{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.paymentType == 'VENDOR'">
           <td>Net Amount</td>
-          <td class="text-right">
-            <strong>{{ toDecimal(netAmount, form.currency) }}</strong>
+          <td></td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(netAmount) }}</strong>
           </td>
+          <td>{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.paymentType == 'EMPLOYEE'">
+          <td>Cash Advance</td>
+          <td>
+            <el-input
+              type="number"
+              v-model="form.cashAdvance"
+              placeholder="Cash Advance"
+              style="width: 150px"
+            />
+          </td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(form.cashAdvance) }}</strong>
+          </td>
+          <td>{{ form.currency }}</td>
+        </tr>
+
+        <tr v-if="form.paymentType == 'VENDOR'">
           <td>Down Payment</td>
-          <td class="text-right">
+          <td>
             <el-input
               type="number"
               v-model="form.downPayment"
               placeholder="Down Payment"
-              style="width: 120px; margin-right: 10px"
+              style="width: 150px"
             />
+          </td>
+          <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(form.downPayment) }}</strong>
           </td>
+          <td>{{ form.currency }}</td>
+        </tr>
+
+        <tr>
+          <td>Final Payment</td>
+          <td></td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(finalPayment) }}</strong>
+          </td>
+          <td>{{ form.currency }}</td>
         </tr>
 
         <tr>
           <td>Terbilang</td>
-          <td class="text-right">
+          <td class="text-right" colspan="2">
             <strong>
-              {{ terbilang(netAmount).toUpperCase() }}
+              {{ terbilang(finalPayment).toUpperCase() }}
             </strong>
           </td>
+          <td>{{ form.currency }}</td>
         </tr>
       </tbody>
     </table>
@@ -347,7 +394,7 @@ function resetBank() {
   form.value.currency = null;
 }
 
-const amount = computed(() => {
+const grandTotal = computed(() => {
   return (
     form.value.PaymentAuthorizationItem?.reduce(
       (total, current) => total + Number(current.amount),
@@ -357,7 +404,27 @@ const amount = computed(() => {
 });
 
 const netAmount = computed(() => {
-  return amount.value - Number(form.value.deduction);
+  if (form.value.paymentType == "EMPLOYEE") {
+    return grandTotal.value;
+  }
+
+  if (form.value.paymentType == "VENDOR") {
+    return grandTotal.value - form.value.tax - form.value.deduction;
+  }
+
+  return 0;
+});
+
+const finalPayment = computed(() => {
+  if (form.value.paymentType == "EMPLOYEE") {
+    return grandTotal.value - form.value.cashAdvance;
+  }
+
+  if (form.value.paymentType == "VENDOR") {
+    return netAmount.value - form.value.downPayment;
+  }
+
+  return 0;
 });
 
 async function saveWithStatus(status) {
@@ -375,17 +442,19 @@ async function saveWithStatus(status) {
     }
   }
 
-  form.value.grossAmount = amount;
-  form.value.netAmount = netAmount;
+  form.value.grandTotal = grandTotal.value;
+  form.value.netAmount = netAmount.value;
+  form.value.finalPayment = finalPayment.value;
   form.value.deduction = Number(form.value.deduction);
+  form.value.tax = Number(form.value.tax);
+  form.value.cashAdvance = Number(form.value.cashAdvance);
+  form.value.downPayment = Number(form.value.downPayment);
+  form.value.status = status;
 
   form.value.PaymentAuthorizationItem.forEach((e) => {
     e.amount = Number(e.amount);
     e.currency = form.value.currency;
   });
-
-  form.value.amount = amount;
-  form.value.status = status;
 
   save(form.value);
 }
