@@ -54,7 +54,10 @@
       width="180"
     >
       <template #default="{ row }">
-        <StatusTag :status="row.status" style="width: 100%" />
+        <StatusTag :status="row.status" style="width: 100%" /> <br />
+        <el-text type="success" v-if="row.status == 'CLOSED'">
+          Ref no. {{ row.bankRefNo }}
+        </el-text>
       </template>
     </el-table-column>
 

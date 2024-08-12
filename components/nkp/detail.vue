@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-if="detail.id" v-model="showDetail" width="700" draggable>
+  <el-dialog v-if="detail.id" v-model="showDetail" width="750" draggable>
     <template #header="{ titleId, titleClass }">
       <div class="my-header">
         <div :id="titleId" :class="titleClass" style="font-weight: bold">
@@ -25,7 +25,7 @@
         v-if="detail.paymentType == 'VENDOR'"
         label="Vendor"
       >
-        {{ detail.Vendor?.name }}
+        {{ detail.Supplier?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Company">
@@ -54,6 +54,10 @@
 
       <el-descriptions-item label="Description">
         {{ detail.description }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Bank Ref No">
+        <el-text type="success">{{ detail.bankRefNo }}</el-text>
       </el-descriptions-item>
     </el-descriptions>
 

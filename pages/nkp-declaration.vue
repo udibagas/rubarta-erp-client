@@ -1,5 +1,5 @@
 <template>
-  <el-page-header @back="goBack" content=" NKP Declaration">
+  <el-page-header @back="goBack" content="NKP Declaration">
     <template #extra>
       <form @submit.prevent="refreshData()">
         <el-button
@@ -23,7 +23,7 @@
           :icon="ElIconPlus"
           class="mr-2"
         >
-          NEW EXPENSE CLAIM
+          NEW NKP DECLARATION
         </el-button>
 
         <el-input

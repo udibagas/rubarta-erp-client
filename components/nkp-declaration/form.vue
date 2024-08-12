@@ -33,6 +33,68 @@
           </el-option>
         </el-select>
       </el-form-item>
+
+      <el-form-item label="Employee" :error="errors.employeeId">
+        <el-select
+          v-model="form.employeeId"
+          placeholder="Employee"
+          @change="updateBank"
+          @clear="resetBank"
+          default-first-option
+          filterable
+          clearable
+        >
+          <el-option
+            v-for="(el, i) in users"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item v-if="form.paymentType" label="Bank" :error="errors.bankId">
+        <el-select
+          v-model="form.bankId"
+          placeholder="Bank"
+          default-first-option
+          filterable
+        >
+          <el-option
+            v-for="(el, i) in banks"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Bank Account" :error="errors.bankAccount">
+        <el-input v-model="form.bankAccount" placeholder="Bank Account" />
+      </el-form-item>
+
+      <el-form-item label="Currency" :error="errors.currency">
+        <el-radio-group v-model="form.currency">
+          <el-radio
+            v-for="(currency, i) in currencies"
+            :value="currency"
+            :key="i"
+          >
+            {{ currency }}
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item label="Description" :error="errors.description">
+        <el-input
+          type="textarea"
+          :rows="3"
+          v-model="form.description"
+          placeholder="Description"
+        />
+      </el-form-item>
     </el-form>
 
     <el-table :data="form.ExpenseClaimItem">
@@ -86,7 +148,7 @@
 
       <el-table-column width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toCurrency(row.amount) }}</strong>
+          <strong>{{ toDecimal(row.amount) }}</strong>
         </template>
       </el-table-column>
 
@@ -117,7 +179,7 @@
       ></el-table-column>
       <el-table-column label="Amount" align="right" header-align="right">
         <template #default="{ row }">
-          <strong>{{ toCurrency(row.amount) }}</strong>
+          <strong>{{ toDecimal(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -127,7 +189,7 @@
         <tr>
           <td class="strong">TOTAL EXPENSE</td>
           <td class="text-right">
-            <strong>{{ toCurrency(totalAmount) }}</strong>
+            <strong>{{ toDecimal(totalAmount) }}</strong>
           </td>
         </tr>
 
@@ -140,16 +202,16 @@
               placeholder="Cash Advance"
               style="width: 120px; margin-right: 10px"
             />
-            <strong>{{ toCurrency(form.cashAdvance) }}</strong>
+            <strong>{{ toDecimal(form.cashAdvance) }}</strong>
           </td>
         </tr>
 
         <tr>
           <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
           <td class="text-right">
-            <strong :class="claim > 0 ? 'text-success' : 'text-danger'">
-              {{ toCurrency(claim) }}
-            </strong>
+            <el-text :type="claim > 0 ? 'success' : 'danger'" class="strong">
+              {{ toDecimal(claim) }}
+            </el-text>
           </td>
         </tr>
       </tbody>
@@ -208,6 +270,7 @@
 </template>
 
 <script setup>
+import { currencies } from "~/constants/currencies";
 const url = "/api/expense-claims";
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url,
@@ -228,6 +291,16 @@ const { data: departments } = useQuery({
 const { data: expenseTypes } = useQuery({
   queryKey: ["expense-types"],
   queryFn: () => request("/api/expense-types"),
+});
+
+const { data: banks } = useQuery({
+  queryKey: ["banks"],
+  queryFn: () => request("/api/banks"),
+});
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
 });
 
 const totalAmount = computed(() => {
@@ -314,6 +387,22 @@ function addItem() {
     description: undefined,
     amount: 0,
   });
+}
+
+function updateBank(id) {
+  let data = users.value.find((u) => u.id == id);
+
+  if (data) {
+    form.value.bankId = data.bankId;
+    form.value.bankAccount = data.bankAccount;
+    form.value.currency = data.currency;
+  }
+}
+
+function resetBank() {
+  form.value.bankId = null;
+  form.value.bankAccount = null;
+  form.value.currency = null;
 }
 
 // UPLOAD RELATED
