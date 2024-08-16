@@ -46,7 +46,7 @@
         {{ approval.approvalStatus ? formatDateLong(approval.updatedAt) : "-" }}
       </div>
 
-      <div class="mt-2" v-if="approval.note">Note: {{ approval.note }}</div>
+      <!-- <div class="mt-2" v-if="approval.note">Note: {{ approval.note }}</div> -->
     </div>
   </div>
 </template>
