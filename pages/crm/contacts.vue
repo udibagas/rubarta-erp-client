@@ -1,5 +1,5 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Customers">
+  <el-page-header @back="goBack" content="CRM / Contacts">
     <template #extra>
       <el-button
         size="small"
@@ -7,7 +7,7 @@
         type="success"
         @click="openForm()"
       >
-        ADD NEW CUSTOMER
+        ADD NEW CONTACTS
       </el-button>
     </template>
   </el-page-header>
@@ -16,21 +16,11 @@
 
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
-
-    <el-table-column label="Name">
-      <template #default="{ row }">
-        <strong>{{ row.name }}</strong> <br />
-        {{ row.code }}
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Address">
-      <template #default="{ row }">
-        {{ row.address }} <br />
-        Phone: {{ row.phone || "-" }} <br />
-        Email: {{ row.email || "-" }}
-      </template>
-    </el-table-column>
+    <el-table-column label="Name" prop="name" />
+    <el-table-column label="Customer" prop="Customer.name" />
+    <el-table-column label="Phone" prop="phone" />
+    <el-table-column label="Email" prop="email" />
+    <el-table-column label="Position" prop="position" />
 
     <el-table-column
       width="60px"
@@ -70,14 +60,14 @@
     </el-table-column>
   </el-table>
 
-  <CustomerForm />
+  <ContactForm />
 </template>
 
 <script setup>
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
-    url: "/api/customers",
-    queryKey: "customers",
+    url: "/api/contacts",
+    queryKey: "contacts",
   });
 
 const { isPending, data } = fetchData();

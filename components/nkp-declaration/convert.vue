@@ -1,8 +1,8 @@
 <template>
   <el-dialog
     :model-value="show"
-    width="650"
-    title="PAYMENT AUTHORIZATION"
+    width="700"
+    title="NOTA KUASA PEMBAYARAN"
     :before-close="() => emit('close')"
   >
     <el-form label-width="150px" label-position="left">
@@ -69,12 +69,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="DESCRIPTION" prop="description">
-      </el-table-column>
+      <el-table-column label="DESCRIPTION" prop="description" />
 
       <el-table-column label="AMOUNT" width="120" align="right">
         <template #default="{ row }">
-          <strong>{{ toCurrency(row.amount) }}</strong>
+          <strong>{{ toRupiah(row.amount) }}</strong>
         </template>
       </el-table-column>
     </el-table>
@@ -82,30 +81,26 @@
     <table class="table">
       <tbody>
         <tr>
-          <td>GRAND TOTAL/GROSS AMOUNT</td>
+          <td>GRAND TOTAL</td>
           <td class="text-right">
-            <strong>{{ toCurrency(data.amount) }}</strong>
+            <strong>{{ toRupiah(data.grandTotal) }}</strong>
           </td>
         </tr>
 
         <tr>
-          <td>DEDUCTION</td>
+          <td>CASH ADVANCE</td>
           <td class="text-right">
-            <el-input
-              type="number"
-              v-model="deduction"
-              placeholder="Deduction"
-              style="width: 120px; margin-right: 10px"
-            />
-            <strong>{{ toCurrency(deduction) }}</strong>
+            <strong>{{ toRupiah(data.cashAdvance) }}</strong>
           </td>
         </tr>
 
         <tr>
-          <td>NET AMOUNT</td>
+          <td>{{ data.finalPayment > 0 ? "CLAIM" : "REFUND" }}</td>
           <td class="text-right">
             <strong>
-              {{ toCurrency(data.amount - deduction, data.currency) }}
+              <el-text :type="data.finalPayment > 0 ? 'success' : 'danger'">
+                {{ toRupiah(data.finalPayment) }}
+              </el-text>
             </strong>
           </td>
         </tr>
@@ -114,9 +109,7 @@
           <td>TERBILANG</td>
           <td class="text-right">
             <strong>
-              {{
-                terbilang(data.amount - deduction, data.currency).toUpperCase()
-              }}
+              {{ terbilang(data.finalPayment).toUpperCase() }}
             </strong>
           </td>
         </tr>

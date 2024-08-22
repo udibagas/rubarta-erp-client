@@ -11,7 +11,7 @@
 
     <el-descriptions :border="true" :column="2" direction="horizontal">
       <el-descriptions-item label="Employee">
-        <strong> {{ detail.User?.name }}</strong>
+        <strong> {{ detail.Employee?.name }}</strong>
       </el-descriptions-item>
 
       <el-descriptions-item label="Company">
@@ -38,7 +38,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="TYPE" width="100">
+      <el-table-column label="TYPE">
         <template #default="{ row }">
           {{ row.ExpenseType?.name }}
         </template>
@@ -73,10 +73,12 @@
         </tr>
 
         <tr>
-          <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
+          <td class="strong">BALANCE</td>
           <td class="text-right">
-            <strong :class="claim > 0 ? 'text-success' : 'text-danger'">
-              {{ toCurrency(claim) }}
+            <strong>
+              <el-text :type="balance > 0 ? 'success' : 'danger'">
+                {{ toCurrency(balance) }}
+              </el-text>
             </strong>
           </td>
         </tr>
@@ -107,6 +109,14 @@
       </el-button>
 
       <el-button
+        :icon="ElIconPrinter"
+        type="warning"
+        @click="handlePrint(detail.id)"
+      >
+        PRINT
+      </el-button>
+
+      <el-button
         v-if="allowAction"
         :icon="ElIconDelete"
         type="danger"
@@ -126,9 +136,9 @@
 
       <el-button
         v-if="detail.status == 'FULLY_APPROVED'"
+        :icon="ElIconChecked"
         type="danger"
         @click="convertToNkp()"
-        style="width: 100%"
       >
         CONVERT TO NKP
       </el-button>
@@ -156,7 +166,7 @@ const { data: users } = useQuery({
 });
 
 const allowAction = computed(() => {
-  return detail.value.status == "DRAFT" && user.value.id == detail.value.userId;
+  return detail.value.status == "DRAFT";
 });
 
 const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
@@ -185,8 +195,8 @@ const totalAmount = computed(() => {
   );
 });
 
-const claim = computed(() => {
-  return totalAmount.value - Number(detail.value.cashAdvance);
+const balance = computed(() => {
+  return Number(detail.value.cashAdvance) - totalAmount.value;
 });
 
 const srcList = computed(() => {
@@ -223,26 +233,26 @@ async function submit(id) {
 
 function convertToNkp() {
   const {
-    userId: employeeId,
-    totalAmount: grossAmount,
-    totalAmount: netAmount,
-    totalAmount: amount,
+    employeeId: employeeId,
+    totalAmount: grandTotal,
     cashAdvance,
     id: expenseClaimId,
     companyId,
     ExpenseClaimItem: PaymentAuthorizationItem,
+    balance,
   } = detail.value;
 
   const user = users.value.find((u) => u.id == employeeId);
 
   claimData.value = {
     employeeId,
+    paymentType: "EMPLOYEE",
     bankId: user.bankId,
     bankAccount: user.bankAccount,
-    grossAmount,
-    netAmount,
-    amount,
+    currency: user.currency,
+    grandTotal,
     cashAdvance,
+    finalPayment: -balance,
     expenseClaimId,
     companyId,
     PaymentAuthorizationItem: PaymentAuthorizationItem.map((item) => {
@@ -250,12 +260,18 @@ function convertToNkp() {
         date: item.date,
         description: item.description,
         amount: item.amount,
+        currency: user.currency,
       };
     }),
   };
 
   closeDetail();
   showClaimForm.value = true;
+}
+
+function handlePrint(id) {
+  const url = `${config.public.apiBase}/api/expense-claims/print/${id}`;
+  window.open(url, "_blank");
 }
 </script>
 

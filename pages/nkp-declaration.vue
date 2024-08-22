@@ -70,7 +70,7 @@
 
     <el-table-column label="Employee" min-width="170">
       <template #default="{ row }">
-        <strong>{{ row.User?.name }}</strong> <br />
+        <strong>{{ row.Employee?.name }}</strong>
       </template>
     </el-table-column>
 

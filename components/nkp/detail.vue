@@ -223,6 +223,7 @@
 <script setup>
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 const { user } = useSanctumAuth();
+const config = useRuntimeConfig();
 
 const allowClose = computed(() => {
   // TODO: baca role user untuk otorisasi
@@ -313,7 +314,8 @@ async function close(id) {
 }
 
 function handlePrint(id) {
-  //! TODO
+  const url = `${config.public.apiBase}/api/payment-authorizations/print/${id}`;
+  window.open(url, "_blank");
 }
 </script>
 

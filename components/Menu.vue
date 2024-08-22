@@ -163,7 +163,7 @@ const links = [
         icon: ElIconPriceTag,
       },
       {
-        label: "Users",
+        label: "Employees",
         path: "/master-data/users",
         icon: ElIconUser,
       },

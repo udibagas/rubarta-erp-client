@@ -4,6 +4,7 @@
     width="1000"
     title="NKP DECLARATION"
     :close-on-click-modal="false"
+    center
   >
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Company" :error="errors.companyId">
@@ -54,7 +55,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="form.paymentType" label="Bank" :error="errors.bankId">
+      <!-- <el-form-item label="Bank" :error="errors.bankId">
         <el-select
           v-model="form.bankId"
           placeholder="Bank"
@@ -85,16 +86,16 @@
             {{ currency }}
           </el-radio>
         </el-radio-group>
-      </el-form-item>
+      </el-form-item> -->
 
-      <el-form-item label="Description" :error="errors.description">
+      <!-- <el-form-item label="Description" :error="errors.description">
         <el-input
           type="textarea"
           :rows="3"
           v-model="form.description"
           placeholder="Description"
         />
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
 
     <el-table :data="form.ExpenseClaimItem">
@@ -115,7 +116,12 @@
 
       <el-table-column label="EXPENSE TYPE" width="170">
         <template #default="{ row }">
-          <el-select v-model="row.expenseTypeId" placeholder="Expense Type">
+          <el-select
+            v-model="row.expenseTypeId"
+            placeholder="Expense Type"
+            filterable
+            default-first-option
+          >
             <el-option
               v-for="(el, i) in expenseTypes"
               :value="el.id"
@@ -207,10 +213,10 @@
         </tr>
 
         <tr>
-          <td class="strong">{{ claim > 0 ? "CLAIM" : "REFUND" }}</td>
+          <td class="strong">BALANCE</td>
           <td class="text-right">
-            <el-text :type="claim > 0 ? 'success' : 'danger'" class="strong">
-              {{ toDecimal(claim) }}
+            <el-text :type="balance > 0 ? 'success' : 'danger'" class="strong">
+              {{ toDecimal(balance) }}
             </el-text>
           </td>
         </tr>
@@ -312,7 +318,7 @@ const totalAmount = computed(() => {
   );
 });
 
-const claim = computed(() => {
+const balance = computed(() => {
   return totalAmount.value - Number(form.value.cashAdvance);
 });
 
@@ -344,7 +350,7 @@ async function saveWithStatus(status) {
       0
     ) ?? 0;
 
-  form.value.claim = form.value.totalAmount - form.value.cashAdvance;
+  form.value.balance = form.value.cashAdvance - form.value.totalAmount;
   save(form.value);
 }
 
