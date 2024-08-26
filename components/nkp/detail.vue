@@ -136,7 +136,7 @@
         <tr v-if="detail.paymentType == 'EMPLOYEE'">
           <td>CASH ADVANCE</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.netAmount) }}</strong>
+            <strong>{{ toDecimal(detail.cashAdvance) }}</strong>
           </td>
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
