@@ -14,6 +14,7 @@
               PaymentAuthorizationItem: [
                 { date: undefined, description: undefined, amount: 0 },
               ],
+              PaymentAuthorizationAttachment: [],
             })
           "
           type="success"

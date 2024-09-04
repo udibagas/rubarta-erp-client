@@ -1,1 +1,1 @@
-export const approvalTypes = ["PAYMENT_AUTHORIZATION", "EXPENSE_CLAIM"];
+export const approvalTypes = ["NKP"];

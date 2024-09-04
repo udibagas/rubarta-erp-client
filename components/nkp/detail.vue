@@ -161,6 +161,25 @@
       </tbody>
     </table>
 
+    <h1 v-if="detail.PaymentAuthorizationAttachment.length">Attachment</h1>
+    <ul style="list-style: none; padding-left: 0">
+      <li
+        v-for="(attachment, i) in detail.PaymentAuthorizationAttachment"
+        :key="i"
+        style="margin-bottom: 5px"
+      >
+        <a
+          :href="`${config.public.apiBase}/${attachment.filePath}`"
+          target="_blank"
+        >
+          <el-icon>
+            <ElIconDocument />
+          </el-icon>
+          {{ attachment.fileName }}
+        </a>
+      </li>
+    </ul>
+
     <br />
 
     <ApprovalDetail
@@ -177,9 +196,28 @@
         v-if="allowAction"
         :icon="ElIconSuccessFilled"
         type="warning"
-        @click="openForm(detail.id)"
+        @click="
+          () => {
+            const { id } = detail;
+            closeDetail();
+            edit(id);
+          }
+        "
       >
         EDIT
+      </el-button>
+
+      <el-button
+        v-if="
+          detail.paymentType == 'EMPLOYEE' &&
+          detail.status == 'CLOSED' &&
+          !detail.Child
+        "
+        :icon="ElIconDocument"
+        type="warning"
+        @click="declare"
+      >
+        DECLARE
       </el-button>
 
       <el-button
@@ -194,7 +232,7 @@
         v-if="allowClose"
         :icon="ElIconSuccessFilled"
         type="success"
-        @click="close(detail.id)"
+        @click="showCloseForm = true"
       >
         CLOSE
       </el-button>
@@ -218,12 +256,25 @@
       </el-button>
     </template>
   </el-dialog>
+
+  <NkpCloseForm
+    :show="showCloseForm"
+    :id="detail.id"
+    @close="showCloseForm = false"
+    @refresh="
+      () => {
+        refreshData();
+        reload();
+      }
+    "
+  />
 </template>
 
 <script setup>
 import { showDetail, detail, closeDetail } from "~/stores/detail";
 const { user } = useSanctumAuth();
 const config = useRuntimeConfig();
+const showCloseForm = ref(false);
 
 const allowClose = computed(() => {
   // TODO: baca role user untuk otorisasi
@@ -236,10 +287,11 @@ const allowAction = computed(() => {
   );
 });
 
-const { request, edit, handleRemove, removeMutation, refreshData } = useCrud({
-  url: "/api/payment-authorizations",
-  queryKey: "payment-authorizations",
-});
+const { request, edit, handleRemove, removeMutation, refreshData, openForm } =
+  useCrud({
+    url: "/api/payment-authorizations",
+    queryKey: "payment-authorizations",
+  });
 
 const { mutate: remove } = removeMutation();
 
@@ -247,11 +299,6 @@ function reload() {
   request(`/api/payment-authorizations/${detail.value.id}`).then((res) => {
     detail.value = res;
   });
-}
-
-function openForm(id) {
-  closeDetail();
-  edit(id);
 }
 
 function closeDetailAndRemove(id) {
@@ -279,38 +326,26 @@ async function submit(id) {
   }
 }
 
-async function close(id) {
-  try {
-    const bankRefNo = await ElMessageBox.prompt(
-      "Anda yakin akan menutup NKP ini?",
-      "PERHATIAN",
-      {
-        inputPlaceholder: "Masukkan nomor referensi bank",
-        confirmButtonClass: "success",
-        confirmButtonText: "OK",
-        cancelButtonText: "CANCEL",
-        center: true,
-        draggable: true,
-        showClose: false,
-        type: "warning",
-        inputValidator: (value) => {
-          if (value?.length < 5) return "Nomor referensi bank wajib diisi";
-        },
-      }
-    );
-
-    await request(`/api/payment-authorizations/close/${id}`, {
-      method: "POST",
-      body: { bankRefNo: bankRefNo.value },
-    });
-    refreshData(); // refresh data on table
-    reload(); // reload detail data
-  } catch (error) {
-    ElMessage({
-      type: "info",
-      message: error.message || "Action cancelled",
-    });
-  }
+function declare() {
+  const data = { ...detail.value };
+  closeDetail();
+  openForm({
+    parentId: data.id,
+    Parent: data,
+    companyId: data.companyId,
+    paymentType: "EMPLOYEE",
+    employeeId: data.employeeId,
+    bankId: data.bankId,
+    bankAccount: data.bankAccount,
+    currency: data.currency,
+    description: `DEKLARASI NKP NO. ${data.number}`,
+    cashAdvance: data.finalPayment,
+    PaymentAuthorizationItem: [{ date: "", description: "", amount: 0 }],
+    PaymentAuthorizationAttachment: [],
+    deduction: 0,
+    tax: 0,
+    downPayment: 0,
+  });
 }
 
 function handlePrint(id) {

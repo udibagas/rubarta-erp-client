@@ -49,12 +49,6 @@ const links = [
         icon: ElIconDocumentCopy,
         visible: true,
       },
-      {
-        label: "Declaration",
-        path: "/nkp-declaration",
-        icon: ElIconDocumentCopy,
-        visible: true,
-      },
       // {
       //   label: "Expense Notes",
       //   path: "/expense-notes",
@@ -156,11 +150,6 @@ const links = [
         label: "Vendors",
         path: "/master-data/suppliers",
         icon: ElIconConnection,
-      },
-      {
-        label: "Expense Types",
-        path: "/master-data/expense-types",
-        icon: ElIconPriceTag,
       },
       {
         label: "Employees",

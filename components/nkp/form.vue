@@ -8,6 +8,10 @@
   >
     <br />
     <el-form label-width="150px" label-position="left">
+      <el-form-item label="Parent" v-if="form.parentId">
+        <strong>{{ form.Parent.number }}</strong>
+      </el-form-item>
+
       <el-form-item label="Company" :error="errors.companyId">
         <el-select v-model="form.companyId" placeholder="Company" disabled>
           <el-option
@@ -22,8 +26,10 @@
 
       <el-form-item label="Type" :error="errors.paymentType">
         <el-radio-group v-model="form.paymentType" @change="resetBank">
-          <el-radio value="EMPLOYEE">EMPLOYEE</el-radio>
-          <el-radio value="VENDOR">VENDOR</el-radio>
+          <el-radio value="EMPLOYEE" :disabled="form.parentId"
+            >EMPLOYEE</el-radio
+          >
+          <el-radio value="VENDOR" :disabled="form.parentId">VENDOR</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -40,6 +46,7 @@
           default-first-option
           filterable
           clearable
+          :disabled="form.parentId"
         >
           <el-option
             v-for="(el, i) in users"
@@ -81,6 +88,7 @@
           placeholder="Bank"
           default-first-option
           filterable
+          :disabled="form.parentId"
         >
           <el-option
             v-for="(el, i) in banks"
@@ -97,7 +105,11 @@
         label="Bank Account"
         :error="errors.bankAccount"
       >
-        <el-input v-model="form.bankAccount" placeholder="Bank Account" />
+        <el-input
+          v-model="form.bankAccount"
+          placeholder="Bank Account"
+          :disabled="form.parentId"
+        />
       </el-form-item>
 
       <el-form-item
@@ -110,6 +122,7 @@
             v-for="(currency, i) in currencies"
             :value="currency"
             :key="i"
+            :disabled="form.parentId"
           >
             {{ currency }}
           </el-radio>
@@ -254,6 +267,7 @@
           <td>Cash Advance</td>
           <td>
             <el-input
+              v-if="!form.parentId"
               type="number"
               v-model="form.cashAdvance"
               placeholder="Cash Advance"
@@ -302,6 +316,22 @@
         </tr>
       </tbody>
     </table>
+
+    <br />
+
+    <h1>Attachment</h1>
+
+    <el-upload
+      v-model:file-list="fileList"
+      :action="`${config.public.apiBase}/api/file`"
+      :with-credentials="true"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :on-success="handleSuccess"
+      :multiple="true"
+    >
+      <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+    </el-upload>
 
     <template #footer>
       <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
@@ -471,5 +501,63 @@ async function removeItem(index, id) {
 
 function addItem() {
   form.value.PaymentAuthorizationItem.push({ ...newRow });
+}
+
+// UPLOAD RELATED
+
+const config = useRuntimeConfig();
+const fileList = ref([]);
+
+watch(
+  () => form.value.PaymentAuthorizationAttachment,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = form.value.PaymentAuthorizationAttachment.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  }
+);
+
+function handleSuccess(file) {
+  if (!form.value.PaymentAuthorizationAttachment) {
+    form.value.PaymentAuthorizationAttachment = [];
+  }
+
+  form.value.PaymentAuthorizationAttachment.push(file);
+}
+
+function handlePreview(file) {
+  window.open(`${config.public.apiBase}/${file.filePath}`, "_blank");
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = form.value.PaymentAuthorizationAttachment.findIndex(
+    (f) => f.filePath == path
+  );
+
+  if (index !== -1) {
+    form.value.PaymentAuthorizationAttachment.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
 }
 </script>
