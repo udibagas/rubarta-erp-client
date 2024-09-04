@@ -4,7 +4,6 @@
     width="900"
     title="NOTA KUASA PEMBAYARAN"
     :close-on-click-modal="false"
-    center
   >
     <br />
     <el-form label-width="150px" label-position="left">
