@@ -1,39 +1,65 @@
 <template>
-  <el-page-header @back="goBack" content="NKP">
+  <el-page-header @back="goBack" content="NKP REPORT">
     <template #extra>
-      <form @submit.prevent="refreshData()">
-        <el-radio-group v-model="filter.paymentType" @change="getData">
-          <el-radio value="EMPLOYEE">EMPLOYEE</el-radio>
-          <el-radio value="VENDOR">VENDOR</el-radio>
+      <div class="flex">
+        <el-radio-group
+          v-model="paymentType"
+          @change="refreshData"
+          size="small"
+          class="mr-2"
+        >
+          <el-radio-button value="ALL">ALL</el-radio-button>
+          <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
+          <el-radio-button value="VENDOR">VENDOR</el-radio-button>
         </el-radio-group>
-      </form>
+
+        <el-date-picker
+          v-model="dateRange"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="Start"
+          end-placeholder="End"
+          @change="refreshData"
+          size="small"
+          style="width: 200px"
+          value-format="YYYY-MM-DD"
+          format="DD/MM/YYYY"
+          class="mr-2"
+        />
+
+        <el-dropdown
+          split-button
+          type="success"
+          size="small"
+          @command="download"
+        >
+          <el-icon class="mr-2">
+            <ElIconDownload />
+          </el-icon>
+          Download
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="pdf" :icon="ElIconDocument">
+                PDF
+              </el-dropdown-item>
+              <el-dropdown-item command="excel" :icon="ElIconMemo">
+                Excel
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </template>
   </el-page-header>
 
   <br />
 
-  <el-table
-    stripe
-    v-loading="isPending"
-    :data="data?.data"
-    @row-click="(row) => show(row.id)"
-  >
+  <el-table stripe v-loading="isPending" :data="data?.data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column
-      label="Status"
-      align="center"
-      header-align="center"
-      width="180"
-    >
+    <el-table-column label="Date" prop="number" width="110">
       <template #default="{ row }">
-        <StatusTag :status="row.status" style="width: 100%" /> <br />
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Date" prop="number" width="150">
-      <template #default="{ row }">
-        {{ formatDateLong(row.date) }}
+        {{ formatDate(row.date) }}
       </template>
     </el-table-column>
 
@@ -82,24 +108,65 @@
 const companyId = ref(useCookie("companyId"));
 const url = "/api/payment-authorizations";
 const request = useRequest();
+const queryClient = useQueryClient();
+const paymentType = ref("ALL");
+const page = ref(1);
+const pageSize = ref(10);
+const dateRange = ref(null);
 
-const { refreshData, sizeChange, currentChange, page, pageSize, keyword } =
-  useCrud({ url, queryKey: "payment-authorizations" });
+watch(companyId, refreshData);
 
 const { isPending, data } = useQuery({
-  queryKey: ["payment-authorizations"],
+  queryKey: ["payment-authorizations-report"],
   queryFn: () =>
     request(url, {
       params: {
         page: page.value,
         pageSize: pageSize.value,
-        keyword: keyword.value,
         companyId: companyId.value,
+        dateRange: dateRange.value,
+        paymentType: paymentType.value,
       },
     }),
 });
 
-watch(companyId, () => {
-  refreshData("payment-authorizations");
-});
+function sizeChange(size) {
+  pageSize.value = size;
+  refreshData();
+}
+
+function currentChange(currentPage) {
+  page.value = currentPage;
+  refreshData();
+}
+
+function refreshData() {
+  queryClient.invalidateQueries({
+    queryKey: ["payment-authorizations-report"],
+  });
+}
+
+async function download(format) {
+  try {
+    const data = await request(url, {
+      params: {
+        companyId: companyId.value,
+        dateRange: dateRange.value,
+        paymentType: paymentType.value,
+        action: "download",
+        format,
+      },
+    });
+
+    console.log(data);
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
+
+<style scoped>
+.mb-0 {
+  margin-bottom: 0;
+}
+</style>
