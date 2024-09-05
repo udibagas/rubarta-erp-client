@@ -105,10 +105,12 @@
 </template>
 
 <script setup>
-const companyId = ref(useCookie("companyId"));
-const url = "/api/payment-authorizations";
+import exportFromJSON from "export-from-json";
 const request = useRequest();
 const queryClient = useQueryClient();
+const config = useRuntimeConfig();
+const url = "/api/payment-authorizations";
+const companyId = ref(useCookie("companyId"));
 const paymentType = ref("ALL");
 const page = ref(1);
 const pageSize = ref(10);
@@ -147,20 +149,42 @@ function refreshData() {
 }
 
 async function download(format) {
-  try {
-    const data = await request(url, {
-      params: {
-        companyId: companyId.value,
-        dateRange: dateRange.value,
-        paymentType: paymentType.value,
-        action: "download",
-        format,
-      },
-    });
+  const params = {
+    companyId: companyId.value,
+    dateRange: dateRange.value,
+    paymentType: paymentType.value,
+    action: "download",
+    format,
+  };
 
-    console.log(data);
-  } catch (error) {
-    console.log(error);
+  if (format == "pdf") {
+    const query = new URLSearchParams(params).toString();
+    return window.open(
+      new URL(`${config.public.apiBase}/api/payment-authorizations?${query}`),
+      "_blank"
+    );
+  }
+
+  if (format == "excel") {
+    try {
+      const data = await request(url, { params });
+      exportFromJSON({
+        fileName: "report-nkp",
+        exportType: "xls",
+        data: data.map((el, index) => {
+          return {
+            No: ++index,
+            Date: formatDate(el.date),
+            Number: el.number,
+            Description: el.description,
+            Amount: el.finalPayment,
+            Curr: el.currency,
+          };
+        }),
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 </script>
