@@ -1,18 +1,13 @@
 <template>
   <el-container>
-    <el-aside width="auto" style="padding-right: 20px">
+    <el-aside width="auto">
       <div v-show="!collapse" class="brand-box">
         <img
           src="/images/logo.png"
-          style="
-            height: 60px;
-            width: 60px;
-            margin: 25px 0 10px 0;
-            border-radius: 5px;
-          "
+          style="height: 60px; width: 60px; margin: 25px 0 10px 0"
         />
 
-        <div>
+        <div style="padding: 20px">
           <strong>{{ user.name }}</strong>
           <br />
           <small>{{ user.email }}</small>
