@@ -3,7 +3,7 @@
     title="CLOSE NKP"
     width="550"
     :model-value="prop.show"
-    :before-close="() => emit('close')"
+    :before-close="() => close()"
   >
     <el-form label-width="150px" label-position="left">
       <el-form-item label="Bank Ref No." :error="errors.bankRefNo">
@@ -31,7 +31,7 @@
     </el-form>
 
     <template #footer>
-      <el-button :icon="ElIconCircleCloseFilled" @click="emit('close')">
+      <el-button :icon="ElIconCircleCloseFilled" @click="close()">
         CLOSE
       </el-button>
 
@@ -96,5 +96,13 @@ function handleRemove(file) {
       showClose: true,
     });
   });
+}
+
+function close() {
+  form.value = {};
+  errors.value = {};
+  fileList.value = {};
+  attachments.value = {};
+  emit("close");
 }
 </script>
