@@ -1,5 +1,5 @@
 <template>
-  <el-page-header @back="goBack" content="Users">
+  <el-page-header @back="goBack" content="Employees">
     <template #extra>
       <form @submit.prevent="refreshData()">
         <el-button
@@ -9,7 +9,7 @@
           :icon="ElIconPlus"
           class="mr-2"
         >
-          ADD NEW USER
+          ADD NEW EMPLOYEE
         </el-button>
         <el-input
           size="small"

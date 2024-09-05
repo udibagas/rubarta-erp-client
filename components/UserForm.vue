@@ -2,7 +2,7 @@
   <el-dialog
     v-model="show"
     width="500px"
-    :title="!!form.id ? 'EDIT USER' : 'ADD USER'"
+    :title="!!form.id ? 'EDIT EMPLOYEE' : 'ADD EMPLOYEE'"
     :close-on-click-modal="false"
   >
     <el-form label-width="160px" label-position="left">
