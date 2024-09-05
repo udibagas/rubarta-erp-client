@@ -211,6 +211,7 @@
         v-if="
           detail.paymentType == 'EMPLOYEE' &&
           detail.status == 'CLOSED' &&
+          detail.Parent == null &&
           !detail.Child
         "
         :icon="ElIconDocument"
