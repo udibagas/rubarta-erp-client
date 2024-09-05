@@ -1,36 +1,67 @@
 <template>
   <el-row v-if="isSuccess" :gutter="10">
-    <el-col :span="8">
+    <el-col :span="6">
       <el-card>
-        <el-statistic :value="summary.expenseClaimCount">
+        <el-statistic :value="summary.nkpDraft">
           <template #title>
-            <div style="display: inline-flex; align-items: center">
-              Expense Claim
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div class="title">NKP</div>
+              <StatusTag status="DRAFT" />
             </div>
           </template>
         </el-statistic>
       </el-card>
     </el-col>
 
-    <el-col :span="8">
+    <el-col :span="6">
       <el-card>
-        <el-statistic :value="summary.paymentAuthorizationCount">
+        <el-statistic :value="summary.nkpOpen">
           <template #title>
-            <div style="display: inline-flex; align-items: center">
-              Payment Authorization
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div class="title">NKP</div>
+              <StatusTag status="OPEN" />
             </div>
           </template>
         </el-statistic>
       </el-card>
     </el-col>
 
-    <el-col :span="8">
+    <el-col :span="6">
+      <el-card>
+        <el-statistic :value="summary.nkpClosed">
+          <template #title>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div class="title">NKP</div>
+              <StatusTag status="CLOSED" />
+            </div>
+          </template>
+        </el-statistic>
+      </el-card>
+    </el-col>
+
+    <el-col :span="6">
       <el-card>
         <el-statistic :value="summary.pendingApprovalCount">
           <template #title>
-            <div style="display: inline-flex; align-items: center">
-              Pending Approval
-            </div>
+            <div class="title">Pending Approval</div>
           </template>
         </el-statistic>
       </el-card>
@@ -46,3 +77,9 @@ const { data: summary, isSuccess } = useQuery({
   queryFn: () => request("/api/report/summary"),
 });
 </script>
+
+<style scoped>
+.title {
+  font-size: 1rem;
+}
+</style>

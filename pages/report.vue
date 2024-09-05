@@ -128,6 +128,7 @@ const { isPending, data } = useQuery({
         companyId: companyId.value,
         dateRange: dateRange.value,
         paymentType: paymentType.value,
+        action: "report",
       },
     }),
 });

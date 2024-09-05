@@ -40,7 +40,6 @@ const links = [
     label: "NKP",
     path: "/nkp",
     icon: ElIconTickets,
-    // visible: !(user.value.roles.length == 1 && user.value.roles[0] == "USER"),
     visible: true,
     children: [
       {
@@ -49,17 +48,11 @@ const links = [
         icon: ElIconDocumentCopy,
         visible: true,
       },
-      // {
-      //   label: "Expense Notes",
-      //   path: "/expense-notes",
-      //   icon: ElIconMemo,
-      //   visible: true,
-      // },
       {
         label: "Report",
         path: "/report",
         icon: ElIconPieChart,
-        visible: true,
+        visible: user.value.roles.includes("ADMIN"),
       },
     ],
   },
@@ -67,7 +60,7 @@ const links = [
     label: "CRM",
     path: "/crm",
     icon: ElIconCopyDocument,
-    visible: true,
+    visible: user.value.roles.includes("ADMIN"),
     children: [
       {
         label: "Dashboard",
@@ -146,11 +139,11 @@ const links = [
         path: "/master-data/banks",
         icon: ElIconMoney,
       },
-      {
-        label: "Vendors",
-        path: "/master-data/suppliers",
-        icon: ElIconConnection,
-      },
+      // {
+      //   label: "Vendors",
+      //   path: "/master-data/suppliers",
+      //   icon: ElIconConnection,
+      // },
       {
         label: "Employees",
         path: "/master-data/users",
