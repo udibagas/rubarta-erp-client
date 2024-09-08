@@ -2,7 +2,7 @@ import { form, errors, show, openForm, closeForm } from "~/stores/form";
 
 export default ({ url, queryKey }) => {
   const page = ref(1);
-  const pageSize = ref(10);
+  const pageSize = ref(3);
   const keyword = ref("");
 
   const queryClient = useQueryClient();
@@ -70,14 +70,15 @@ export default ({ url, queryKey }) => {
       .catch(() => console.log(e));
   }
 
-  function sizeChange(size) {
+  function sizeChange(size, params = {}) {
+    page.value = 1;
     pageSize.value = size;
-    refreshData();
+    refreshData(queryKey, params);
   }
 
-  function currentChange(currentPage) {
+  function currentChange(currentPage, params = {}) {
     page.value = currentPage;
-    refreshData();
+    refreshData(queryKey, params);
   }
 
   function edit(id) {

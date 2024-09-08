@@ -156,13 +156,18 @@
 import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
 const url = "/api/payment-authorizations";
-const route = useRoute();
-const queryClient = useQueryClient();
-const request = useRequest();
+const queryKey = "payment-authorizations";
 const companyId = ref(useCookie("companyId"));
-const page = ref(1);
-const pageSize = ref(10);
-const keyword = ref("");
+const route = useRoute();
+const {
+  request,
+  page,
+  pageSize,
+  keyword,
+  sizeChange,
+  currentChange,
+  refreshData,
+} = useCrud({ url, queryKey });
 
 onMounted(() => {
   const { number } = route.query;
@@ -180,34 +185,18 @@ watch(companyId, () => {
 });
 
 const { isPending, data } = useQuery({
-  queryKey: ["payment-authorizations"],
-  queryFn: () =>
-    request(url, {
-      params: {
-        page: page.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-        companyId: companyId.value,
-      },
-    }),
+  queryKey: [queryKey],
+  queryFn: () => {
+    const params = {
+      page: page.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value,
+      companyId: companyId.value,
+    };
+
+    return request(url, { params });
+  },
 });
-
-function sizeChange(size) {
-  page.value = 1;
-  pageSize.value = size;
-  refreshData();
-}
-
-function currentChange(currentPage) {
-  page.value = currentPage;
-  refreshData();
-}
-
-function refreshData() {
-  queryClient.invalidateQueries({
-    queryKey: ["payment-authorizations"],
-  });
-}
 
 function show(id) {
   request(`${url}/${id}`).then((result) => {

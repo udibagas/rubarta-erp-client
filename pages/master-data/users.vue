@@ -1,27 +1,14 @@
 <template>
   <el-page-header @back="goBack" content="Employees">
     <template #extra>
-      <form @submit.prevent="refreshData()">
-        <el-button
-          size="small"
-          @click="openForm({ roles: ['USER'], password: '' })"
-          type="success"
-          :icon="ElIconPlus"
-          class="mr-2"
-        >
-          ADD NEW EMPLOYEE
-        </el-button>
-        <el-input
-          size="small"
-          v-model="keyword"
-          placeholder="Cari"
-          style="width: 180px"
-          :prefix-icon="ElIconSearch"
-          :clearable="true"
-          @clear="refreshData()"
-        >
-        </el-input>
-      </form>
+      <el-button
+        size="small"
+        @click="openForm({ roles: ['USER'], password: '' })"
+        type="success"
+        :icon="ElIconPlus"
+      >
+        ADD NEW EMPLOYEE
+      </el-button>
     </template>
   </el-page-header>
 
