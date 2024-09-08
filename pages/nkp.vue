@@ -1,7 +1,14 @@
 <template>
   <el-page-header @back="goBack" content="NKP">
     <template #extra>
-      <form @submit.prevent="refreshData()">
+      <form
+        @submit.prevent="
+          () => {
+            page = 1;
+            refreshData();
+          }
+        "
+      >
         <el-button
           size="small"
           @click="
@@ -31,7 +38,12 @@
           style="width: 180px"
           :prefix-icon="ElIconSearch"
           :clearable="true"
-          @clear="refreshData()"
+          @clear="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
         >
         </el-input>
       </form>
@@ -142,20 +154,30 @@
 
 <script setup>
 import { openDetail } from "~/stores/detail";
-const route = useRoute();
-const companyId = ref(useCookie("companyId"));
+import { openForm } from "~/stores/form";
 const url = "/api/payment-authorizations";
+const route = useRoute();
+const queryClient = useQueryClient();
+const request = useRequest();
+const companyId = ref(useCookie("companyId"));
+const page = ref(1);
+const pageSize = ref(10);
+const keyword = ref("");
 
-const {
-  openForm,
-  refreshData,
-  sizeChange,
-  currentChange,
-  request,
-  page,
-  pageSize,
-  keyword,
-} = useCrud({ url, queryKey: "payment-authorizations" });
+onMounted(() => {
+  const { number } = route.query;
+
+  if (number) {
+    request(`${url}/get-by-number`, { params: { number } }).then((result) => {
+      openDetail(result);
+    });
+  }
+});
+
+watch(companyId, () => {
+  page.value = 1;
+  refreshData();
+});
 
 const { isPending, data } = useQuery({
   queryKey: ["payment-authorizations"],
@@ -170,23 +192,26 @@ const { isPending, data } = useQuery({
     }),
 });
 
-watch(companyId, () => {
-  refreshData("payment-authorizations");
-});
+function sizeChange(size) {
+  page.value = 1;
+  pageSize.value = size;
+  refreshData();
+}
+
+function currentChange(currentPage) {
+  page.value = currentPage;
+  refreshData();
+}
+
+function refreshData() {
+  queryClient.invalidateQueries({
+    queryKey: ["payment-authorizations"],
+  });
+}
 
 function show(id) {
   request(`${url}/${id}`).then((result) => {
     openDetail(result);
   });
 }
-
-onMounted(() => {
-  const { number } = route.query;
-
-  if (number) {
-    request(`${url}/get-by-number`, { params: { number } }).then((result) => {
-      openDetail(result);
-    });
-  }
-});
 </script>
