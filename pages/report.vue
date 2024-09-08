@@ -2,24 +2,18 @@
   <el-page-header @back="goBack" content="NKP REPORT">
     <template #extra>
       <div class="flex">
-        <el-radio-group
-          v-model="paymentType"
-          @change="refreshData"
-          size="small"
-          class="mr-2"
-        >
+        <el-radio-group v-model="filters.paymentType" size="small" class="mr-2">
           <el-radio-button value="ALL">ALL</el-radio-button>
           <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
           <el-radio-button value="VENDOR">VENDOR</el-radio-button>
         </el-radio-group>
 
         <el-date-picker
-          v-model="dateRange"
+          v-model="filters.dateRange"
           type="daterange"
           range-separator="-"
           start-placeholder="Start"
           end-placeholder="End"
-          @change="refreshData"
           size="small"
           style="width: 200px"
           value-format="YYYY-MM-DD"
@@ -112,56 +106,56 @@
 
 <script setup>
 import exportFromJSON from "export-from-json";
-const request = useRequest();
-const queryClient = useQueryClient();
 const config = useRuntimeConfig();
 const url = "/api/payment-authorizations";
-const companyId = ref(useCookie("companyId"));
-const paymentType = ref("ALL");
-const page = ref(1);
-const pageSize = ref(10);
-const dateRange = ref(null);
+const queryKey = "payment-authorizations-report";
 
-watch(companyId, refreshData);
-
-const { isPending, data } = useQuery({
-  queryKey: ["payment-authorizations-report"],
-  queryFn: () =>
-    request(url, {
-      params: {
-        page: page.value,
-        pageSize: pageSize.value,
-        companyId: companyId.value,
-        dateRange: dateRange.value,
-        paymentType: paymentType.value,
-        action: "report",
-      },
-    }),
+const {
+  request,
+  page,
+  pageSize,
+  companyId,
+  filters,
+  sizeChange,
+  currentChange,
+  refreshData,
+  fetchData,
+} = useCrud({
+  url,
+  queryKey,
 });
 
-function sizeChange(size) {
-  pageSize.value = size;
+watch(companyId, () => {
+  page.value = 1;
   refreshData();
-}
+});
 
-function currentChange(currentPage) {
-  page.value = currentPage;
-  refreshData();
-}
+watch(
+  () => filters.value.paymentType,
+  () => {
+    refreshData();
+  }
+);
 
-function refreshData() {
-  queryClient.invalidateQueries({
-    queryKey: ["payment-authorizations-report"],
-  });
-}
+watch(
+  () => filters.value.dateRange,
+  () => {
+    refreshData();
+  }
+);
+
+// Default filters
+filters.value.paymentType = "ALL";
+filters.value.action = "report";
+filters.value.dateRange = null;
+const { isPending, data } = fetchData();
 
 async function download(format) {
   const params = {
-    companyId: companyId.value,
-    dateRange: dateRange.value,
-    paymentType: paymentType.value,
-    action: "download",
     format,
+    companyId: companyId.value,
+    action: "download",
+    ...filters.value,
   };
 
   if (format == "pdf") {

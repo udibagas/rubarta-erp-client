@@ -157,7 +157,6 @@ import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
 const url = "/api/payment-authorizations";
 const queryKey = "payment-authorizations";
-const companyId = ref(useCookie("companyId"));
 const route = useRoute();
 const {
   request,
@@ -167,6 +166,8 @@ const {
   sizeChange,
   currentChange,
   refreshData,
+  fetchData,
+  companyId,
 } = useCrud({ url, queryKey });
 
 onMounted(() => {
@@ -184,19 +185,7 @@ watch(companyId, () => {
   refreshData();
 });
 
-const { isPending, data } = useQuery({
-  queryKey: [queryKey],
-  queryFn: () => {
-    const params = {
-      page: page.value,
-      pageSize: pageSize.value,
-      keyword: keyword.value,
-      companyId: companyId.value,
-    };
-
-    return request(url, { params });
-  },
-});
+const { isPending, data } = fetchData();
 
 function show(id) {
   request(`${url}/${id}`).then((result) => {

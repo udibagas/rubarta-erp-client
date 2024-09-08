@@ -4,6 +4,8 @@ export default ({ url, queryKey }) => {
   const page = ref(1);
   const pageSize = ref(3);
   const keyword = ref("");
+  const companyId = ref(useCookie("companyId"));
+  const filters = ref({});
 
   const queryClient = useQueryClient();
   const request = useRequest();
@@ -11,7 +13,16 @@ export default ({ url, queryKey }) => {
   function fetchData() {
     return useQuery({
       queryKey: [queryKey],
-      queryFn: () => request(url),
+      queryFn: () =>
+        request(url, {
+          params: {
+            page: page.value,
+            pageSize: pageSize.value,
+            keyword: keyword.value,
+            companyId: companyId.value,
+            ...filters.value,
+          },
+        }),
     });
   }
 
@@ -95,6 +106,8 @@ export default ({ url, queryKey }) => {
     pageSize,
     keyword,
     request,
+    filters,
+    companyId,
     edit,
     fetchData,
     refreshData,
