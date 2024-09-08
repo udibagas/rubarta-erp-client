@@ -17,20 +17,10 @@
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Name">
-      <template #default="{ row }">
-        <strong>{{ row.name }}</strong> <br />
-        {{ row.code }}
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Address">
-      <template #default="{ row }">
-        {{ row.address }} <br />
-        Phone: {{ row.phone || "-" }} <br />
-        Email: {{ row.email || "-" }}
-      </template>
-    </el-table-column>
+    <el-table-column label="Name" prop="name" />
+    <el-table-column label="Email" prop="email" />
+    <el-table-column label="Phone" prop="phone" />
+    <el-table-column label="Address" prop="address" />
 
     <el-table-column
       width="60px"

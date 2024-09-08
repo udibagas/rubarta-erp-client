@@ -308,7 +308,9 @@
           <td>Kembali Ke {{ finalPayment > 0 ? "Karyawan" : "Perusahaan" }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(Math.abs(finalPayment)) }}</strong>
+            <el-text :type="finalPayment > 0 ? 'success' : 'danger'">
+              <strong>{{ toDecimal(Math.abs(finalPayment)) }}</strong>
+            </el-text>
           </td>
           <td>{{ form.currency }}</td>
         </tr>

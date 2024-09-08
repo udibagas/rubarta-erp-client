@@ -147,7 +147,9 @@
             KEMBALI KE {{ detail.finalPayment > 0 ? "KARYAWAN" : "PERUSAHAAN" }}
           </td>
           <td class="text-right">
-            <strong>{{ toDecimal(Math.abs(detail.finalPayment)) }}</strong>
+            <el-text :type="detail.finalPayment > 0 ? 'success' : 'danger'">
+              <strong>{{ toDecimal(Math.abs(detail.finalPayment)) }}</strong>
+            </el-text>
           </td>
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
