@@ -1,10 +1,10 @@
 <template>
-  <el-tag :type="colors[status]" effect="dark" round>
+  <el-tag :type="colors[status]" :effect="effect" round>
     {{ status.replace("_", " ") }}
   </el-tag>
 </template>
 
 <script setup>
 import { colors } from "~/constants/colors";
-const { status } = defineProps(["status"]);
+const { status, effect = "dark" } = defineProps(["status", "effect"]);
 </script>

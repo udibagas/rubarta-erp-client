@@ -43,15 +43,26 @@
   <el-table stripe v-loading="isPending" :data="data?.data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Date">
+    <el-table-column
+      label="Status"
+      prop="status"
+      width="150"
+      align="center"
+      header-align="center"
+    >
+      <template #default="{ row }">
+        <StatusTag :status="row.status" style="width: 100%" effect="dark" />
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Date" width="120">
       <template #default="{ row }">
         {{ formatDate(row.createdAt) }}
       </template>
     </el-table-column>
     <el-table-column label="Customer" prop="Customer.name" />
     <el-table-column label="User" prop="User.name" />
-    <el-table-column label="Source" prop="source" />
-    <el-table-column label="Status" prop="status" />
+    <el-table-column label="Source" prop="source" width="150" />
     <el-table-column label="Notes" prop="notes" />
 
     <el-table-column

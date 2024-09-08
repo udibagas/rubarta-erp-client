@@ -1,14 +1,26 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Customers">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm()"
-      >
-        ADD NEW CUSTOMER
-      </el-button>
+      <div class="flex">
+        <el-button
+          size="small"
+          :icon="ElIconPlus"
+          type="success"
+          @click="openForm()"
+          class="mr-2"
+        >
+          ADD NEW CUSTOMER
+        </el-button>
+
+        <el-input
+          v-model="keyword"
+          placeholder="Search"
+          size="small"
+          @change="refreshData()"
+          clearable
+        >
+        </el-input>
+      </div>
     </template>
   </el-page-header>
 
@@ -18,8 +30,8 @@
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column label="Name" prop="name" />
-    <el-table-column label="Email" prop="email" />
-    <el-table-column label="Phone" prop="phone" />
+    <el-table-column label="Email" prop="email" width="150" />
+    <el-table-column label="Phone" prop="phone" width="150" />
     <el-table-column label="Address" prop="address" />
 
     <el-table-column
@@ -64,11 +76,17 @@
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/customers",
-    queryKey: "customers",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  keyword,
+} = useCrud({
+  url: "/api/customers",
+  queryKey: "customers",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
