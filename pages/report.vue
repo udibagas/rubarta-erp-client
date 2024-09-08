@@ -185,7 +185,7 @@ async function download(format) {
             Number: el.number,
             "Bank Ref No.": el.bankRefNo,
             Description: el.description,
-            Amount: el.finalPayment,
+            Amount: el.finalPayment > 0 ? el.finalPayment : el.grandTotal,
             Curr: el.currency,
           };
         }),
