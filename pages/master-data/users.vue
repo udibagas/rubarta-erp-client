@@ -109,17 +109,11 @@
 </template>
 
 <script setup>
-const {
-  openForm,
-  removeMutation,
-  fetchData,
-  refreshData,
-  handleRemove,
-  keyword,
-} = useCrud({
-  url: "/api/users",
-  queryKey: "users",
-});
+const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
+  useCrud({
+    url: "/api/users",
+    queryKey: "users",
+  });
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
