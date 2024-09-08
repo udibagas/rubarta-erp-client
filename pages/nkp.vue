@@ -97,14 +97,18 @@
     <el-table-column label="Description" prop="description" min-width="150" />
 
     <el-table-column
-      label="Final Payment"
+      label="Amount"
       width="150"
       align="right"
       hader-align="right"
       fixed="right"
     >
       <template #default="{ row }">
-        <strong>{{ toDecimal(row.finalPayment) }}</strong>
+        <strong>{{
+          toDecimal(
+            row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment
+          )
+        }}</strong>
       </template>
     </el-table-column>
 

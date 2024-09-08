@@ -64,7 +64,7 @@
     </el-table-column>
 
     <el-table-column label="Number" prop="number" width="220" />
-
+    <el-table-column label="Bank Ref No" prop="bankRefNo" width="200" />
     <el-table-column label="Description" prop="description" min-width="150" />
 
     <el-table-column
@@ -75,7 +75,13 @@
       fixed="right"
     >
       <template #default="{ row }">
-        <strong>{{ toDecimal(row.finalPayment) }}</strong>
+        <strong>
+          {{
+            toDecimal(
+              row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment
+            )
+          }}
+        </strong>
       </template>
     </el-table-column>
 
@@ -177,6 +183,7 @@ async function download(format) {
             No: ++index,
             Date: formatDate(el.date),
             Number: el.number,
+            "Bank Ref No.": el.bankRefNo,
             Description: el.description,
             Amount: el.finalPayment,
             Curr: el.currency,

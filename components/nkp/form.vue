@@ -213,7 +213,7 @@
     <table class="table">
       <tbody>
         <tr>
-          <td style="width: 100px">Grand Total</td>
+          <td style="width: 200px">Grand Total</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(grandTotal) }}</strong>
@@ -262,7 +262,7 @@
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr v-if="form.paymentType == 'EMPLOYEE'">
+        <tr v-if="form.paymentType == 'EMPLOYEE' && form.parentId">
           <td>Cash Advance</td>
           <td>
             <el-input
@@ -295,11 +295,20 @@
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.paymentType == 'VENDOR'">
           <td>Final Payment</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(finalPayment) }}</strong>
+          </td>
+          <td>{{ form.currency }}</td>
+        </tr>
+
+        <tr v-if="form.paymentType == 'EMPLOYEE' && form.parentId">
+          <td>Kembali Ke {{ finalPayment > 0 ? "Karyawan" : "Perusahaan" }}</td>
+          <td></td>
+          <td class="text-right" style="padding-right: 25px">
+            <strong>{{ toDecimal(Math.abs(finalPayment)) }}</strong>
           </td>
           <td>{{ form.currency }}</td>
         </tr>
