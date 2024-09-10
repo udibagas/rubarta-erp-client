@@ -139,11 +139,11 @@ const links = [
         path: "/master-data/banks",
         icon: ElIconMoney,
       },
-      // {
-      //   label: "Vendors",
-      //   path: "/master-data/suppliers",
-      //   icon: ElIconConnection,
-      // },
+      {
+        label: "Vendors",
+        path: "/master-data/suppliers",
+        icon: ElIconConnection,
+      },
       {
         label: "Employees",
         path: "/master-data/users",
