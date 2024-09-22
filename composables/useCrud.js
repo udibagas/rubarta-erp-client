@@ -2,7 +2,7 @@ import { form, errors, show, openForm, closeForm } from "~/stores/form";
 
 export default ({ url, queryKey }) => {
   const page = ref(1);
-  const pageSize = ref(3);
+  const pageSize = ref(10);
   const keyword = ref("");
   const companyId = ref(useCookie("companyId"));
   const filters = ref({});
