@@ -167,8 +167,13 @@
       </el-table-column>
 
       <el-table-column label="AMOUNT" width="150">
-        <template #default="{ row }">
-          <el-input type="number" v-model="row.amount" placeholder="Amount">
+        <template #default="{ row, $index }">
+          <el-input
+            type="number"
+            v-model="row.amount"
+            placeholder="Amount"
+            @keydown.tab="(e) => handleTab(e, $index)"
+          >
           </el-input>
         </template>
       </el-table-column>
@@ -201,6 +206,7 @@
         </template>
         <template #default="{ row, $index }">
           <el-button
+            tabindex="-1"
             link
             :icon="ElIconDelete"
             type="danger"
@@ -569,5 +575,11 @@ function handleRemove(file) {
       showClose: true,
     });
   });
+}
+
+function handleTab(e, index) {
+  if (index == form.value.PaymentAuthorizationItem.length - 1) {
+    addItem();
+  }
 }
 </script>
