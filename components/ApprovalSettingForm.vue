@@ -37,6 +37,38 @@
           </el-option>
         </el-select>
       </el-form-item>
+
+      <el-form-item label="Payment Type" :error="errors.paymentType">
+        <el-select
+          v-model="form.paymentType"
+          placeholder="Payment Type"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(type, i) in ['EMPLOYEE', 'VENDOR']"
+            :value="type"
+            :label="type"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="NKP Type" :error="errors.nkpType">
+        <el-select
+          v-model="form.nkpType"
+          placeholder="NKP Type"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="(type, i) in nkpTypes"
+            :value="type"
+            :label="type.replace('_', ' ')"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
     </el-form>
 
     <el-table :data="form.ApprovalSettingItem">
@@ -119,6 +151,7 @@
 
 <script setup>
 import { approvalTypes } from "~/constants/approvalTypes";
+import { nkpTypes } from "~/constants/nkpTypes";
 import { approvalActionTypes } from "~/constants/approvalActionTypes";
 const request = useRequest();
 
