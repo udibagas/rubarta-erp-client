@@ -50,11 +50,6 @@
               :title="item.User.name"
               :status="'wait'"
             ></el-step>
-            <el-step
-              v-for="item in d.ApprovalSettingItem"
-              :key="item.id"
-              :title="item.User.name"
-            ></el-step>
           </el-steps>
         </div>
       </el-card>
