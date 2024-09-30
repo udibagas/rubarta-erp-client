@@ -58,7 +58,7 @@ async function submit() {
     //   center: true,
     // });
 
-    await request(`/api/payment-authorizations/close/${prop.id}`, {
+    await request(`/api/nkp/close/${prop.id}`, {
       method: "POST",
       body: { bankRefNo: form.value.bankRefNo, attachments: attachments.value },
     });
