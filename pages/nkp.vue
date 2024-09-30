@@ -18,10 +18,8 @@
               deduction: 0,
               tax: 0,
               downPayment: 0,
-              PaymentAuthorizationItem: [
-                { date: undefined, description: undefined, amount: 0 },
-              ],
-              PaymentAuthorizationAttachment: [],
+              NkpItem: [{ date: undefined, description: undefined, amount: 0 }],
+              NkpAttachment: [],
             })
           "
           type="success"
@@ -74,7 +72,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Number" width="220">
+    <el-table-column label="Number" width="240">
       <template #default="{ row }">
         <strong>{{ row.number }}</strong>
         <br />
@@ -90,7 +88,12 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Type" prop="paymentType" width="110" />
+    <el-table-column label="Type" width="150">
+      <template #default="{ row }">
+        {{ row.paymentType }} <br />
+        {{ row.nkpType?.replace("_", " ") }}
+      </template>
+    </el-table-column>
 
     <el-table-column label="Payment To" min-width="150">
       <template #default="{ row }">
@@ -110,7 +113,7 @@
 
     <el-table-column
       label="Amount"
-      width="150"
+      width="130"
       align="right"
       hader-align="right"
       fixed="right"
@@ -155,8 +158,8 @@
 <script setup>
 import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
-const url = "/api/payment-authorizations";
-const queryKey = "payment-authorizations";
+const url = "/api/nkp";
+const queryKey = "nkp";
 const route = useRoute();
 const {
   request,
@@ -188,8 +191,17 @@ watch(companyId, () => {
 const { isPending, data } = fetchData();
 
 function show(id) {
-  request(`${url}/${id}`).then((result) => {
-    openDetail(result);
+  const loading = ElLoading.service({
+    lock: true,
+    text: "Loading...",
   });
+
+  request(`${url}/${id}`)
+    .then((result) => {
+      openDetail(result);
+    })
+    .finally(() => {
+      loading.close();
+    });
 }
 </script>
