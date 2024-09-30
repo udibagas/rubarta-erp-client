@@ -10,8 +10,8 @@
     </template>
 
     <el-descriptions :border="true" :column="2" direction="horizontal">
-      <el-descriptions-item label="Date">
-        {{ formatDateLong(detail.date) }}
+      <el-descriptions-item label="Parent">
+        {{ detail.Parent?.number ?? "- " }}
       </el-descriptions-item>
 
       <el-descriptions-item
@@ -28,32 +28,32 @@
         {{ detail.Supplier?.name }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Company">
-        {{ detail.Company?.name }}
+      <el-descriptions-item label="Date">
+        {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank">
         {{ detail.Bank?.name }}
       </el-descriptions-item>
 
+      <el-descriptions-item label="Company">
+        {{ detail.Company?.name }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Bank Account">
+        {{ detail.bankAccount }} ({{ detail.currency }})
+      </el-descriptions-item>
+
       <el-descriptions-item label="Requester">
         {{ detail.Requester?.name }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Bank Account">
-        {{ detail.bankAccount }}
+      <el-descriptions-item label="Description">
+        {{ detail.description }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Type">
-        {{ detail.paymentType }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Currency">
-        {{ detail.currency }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Description">
-        {{ detail.description }}
+        {{ detail.paymentType }} / {{ detail.nkpType?.replace("_", " ") }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank Ref No">
@@ -63,7 +63,7 @@
 
     <br />
 
-    <el-table :data="detail.PaymentAuthorizationItem">
+    <el-table :data="detail.NkpItem">
       <el-table-column type="index" label="#" />
 
       <el-table-column label="DATE" width="120">
@@ -174,10 +174,10 @@
       </tbody>
     </table>
 
-    <h1 v-if="detail.PaymentAuthorizationAttachment.length">Attachment</h1>
+    <h1 v-if="detail.NkpAttachment.length">Attachment</h1>
     <ul style="list-style: none; padding-left: 0">
       <li
-        v-for="(attachment, i) in detail.PaymentAuthorizationAttachment"
+        v-for="(attachment, i) in detail.NkpAttachment"
         :key="i"
         style="margin-bottom: 5px"
       >
@@ -196,10 +196,10 @@
     <br />
 
     <ApprovalDetail
-      v-if="detail.PaymentAuthorizationApproval.length > 0"
-      approve-url="/api/payment-authorizations/approve"
-      query-key="payment-authorizations"
-      :approvals="detail.PaymentAuthorizationApproval"
+      v-if="detail.NkpApproval.length > 0"
+      approve-url="/api/nkp/approve"
+      query-key="nkp"
+      :approvals="detail.NkpApproval"
       :request-id="detail.id"
       @reload="reload"
     />
@@ -302,15 +302,12 @@ const allowAction = computed(() => {
 });
 
 const { request, edit, handleRemove, removeMutation, refreshData, openForm } =
-  useCrud({
-    url: "/api/payment-authorizations",
-    queryKey: "payment-authorizations",
-  });
+  useCrud({ url: "/api/nkp", queryKey: "nkp" });
 
 const { mutate: remove } = removeMutation();
 
 function reload() {
-  request(`/api/payment-authorizations/${detail.value.id}`).then((res) => {
+  request(`/api/nkp/${detail.value.id}`).then((res) => {
     detail.value = res;
   });
 }
@@ -325,14 +322,10 @@ async function submit(id) {
     await ElMessageBox.confirm(
       "Anda yakin akan mengajukan permintaan ini?",
       "Warning",
-      {
-        type: "warning",
-      }
+      { type: "warning" }
     );
 
-    await request(`/api/payment-authorizations/submit/${id}`, {
-      method: "POST",
-    });
+    await request(`/api/nkp/submit/${id}`, { method: "POST" });
     refreshData(); // refresh data on table
     reload(); // reload detail data
   } catch (error) {
@@ -354,8 +347,8 @@ function declare() {
     currency: data.currency,
     description: `DEKLARASI NKP NO. ${data.number}`,
     cashAdvance: data.finalPayment,
-    PaymentAuthorizationItem: [{ date: "", description: "", amount: 0 }],
-    PaymentAuthorizationAttachment: [],
+    NkpItem: [{ date: "", description: "", amount: 0 }],
+    NkpAttachment: [],
     deduction: 0,
     tax: 0,
     downPayment: 0,
@@ -363,7 +356,7 @@ function declare() {
 }
 
 function handlePrint(id) {
-  const url = `${config.public.apiBase}/api/payment-authorizations/print/${id}`;
+  const url = `${config.public.apiBase}/api/nkp/print/${id}`;
   window.open(url, "_blank");
 }
 </script>
