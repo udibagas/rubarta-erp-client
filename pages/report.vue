@@ -57,7 +57,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Number" prop="number" width="220" />
+    <el-table-column label="Number" prop="number" width="250" />
     <el-table-column label="Bank Ref No" prop="bankRefNo" width="200" />
     <el-table-column label="Description" prop="description" min-width="150" />
 
@@ -107,8 +107,8 @@
 <script setup>
 import exportFromJSON from "export-from-json";
 const config = useRuntimeConfig();
-const url = "/api/payment-authorizations";
-const queryKey = "payment-authorizations-report";
+const url = "/api/nkp";
+const queryKey = "nkp-report";
 
 const {
   request,
@@ -161,7 +161,7 @@ async function download(format) {
   if (format == "pdf") {
     const query = new URLSearchParams(params).toString();
     return window.open(
-      new URL(`${config.public.apiBase}/api/payment-authorizations?${query}`),
+      new URL(`${config.public.apiBase}/api/nkp?${query}`),
       "_blank"
     );
   }

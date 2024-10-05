@@ -38,10 +38,10 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Payment Type" :error="errors.paymentType">
+      <el-form-item label="Payment Target" :error="errors.paymentType">
         <el-select
           v-model="form.paymentType"
-          placeholder="Payment Type"
+          placeholder="Payment Target"
           style="width: 100%"
         >
           <el-option

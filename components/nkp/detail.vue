@@ -125,7 +125,11 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <tr v-if="detail.paymentType == 'VENDOR'">
+        <tr
+          v-if="
+            detail.paymentType == 'VENDOR' && detail.nkpType == 'SETTLEMENT'
+          "
+        >
           <td>DOWN PAYMENT</td>
           <td class="text-right">
             <strong>{{ toDecimal(detail.downPayment) }}</strong>
@@ -222,16 +226,13 @@
 
       <el-button
         v-if="
-          detail.paymentType == 'EMPLOYEE' &&
-          detail.status == 'CLOSED' &&
-          detail.Parent == null &&
-          !detail.Child
+          detail.status == 'CLOSED' && detail.Parent == null && !detail.Child
         "
         :icon="ElIconDocument"
         type="warning"
         @click="declare"
       >
-        DECLARE
+        {{ detail.paymentType == "EMPLOYEE" ? "DECLARE" : "SETTLEMENT" }}
       </el-button>
 
       <el-button
@@ -337,21 +338,20 @@ function declare() {
   const data = { ...detail.value };
   closeDetail();
   openForm({
+    ...data,
+    id: undefined, // biar ga jadi edit
     parentId: data.id,
     Parent: data,
-    companyId: data.companyId,
-    paymentType: "EMPLOYEE",
-    employeeId: data.employeeId,
-    bankId: data.bankId,
-    bankAccount: data.bankAccount,
-    currency: data.currency,
-    description: `DEKLARASI NKP NO. ${data.number}`,
-    cashAdvance: data.finalPayment,
-    NkpItem: [{ date: "", description: "", amount: 0 }],
+    nkpType: data.paymentType == "EMPLOYEE" ? "DECLARATION" : "SETTLEMENT",
+    description: `${
+      data.paymentType == "EMPLOYEE" ? "DEKLARASI" : "PELUNASAN"
+    } NKP NO. ${data.number}`,
     NkpAttachment: [],
+    cashAdvance: data.paymentType == "EMPLOYEE" ? data.finalPayment : 0, // diisi kalau dia adalah
+    downPayment: data.paymentType == "VENDOR" ? data.finalPayment : 0,
+    NkpItem: [{ date: "", description: "", amount: 0 }],
     deduction: 0,
     tax: 0,
-    downPayment: 0,
   });
 }
 

@@ -33,7 +33,7 @@
           size="small"
           v-model="keyword"
           placeholder="Cari"
-          style="width: 180px"
+          style="width: 180px; margin-right: 5px"
           :prefix-icon="ElIconSearch"
           :clearable="true"
           @clear="
@@ -44,6 +44,18 @@
           "
         >
         </el-input>
+
+        <el-button
+          :icon="ElIconRefresh"
+          size="small"
+          @click="
+            () => {
+              page = 1;
+              keyword = '';
+              refreshData();
+            }
+          "
+        ></el-button>
       </form>
     </template>
   </el-page-header>

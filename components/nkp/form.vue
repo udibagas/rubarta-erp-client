@@ -23,12 +23,50 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Type" :error="errors.paymentType">
+      <el-form-item label="Payment Target" :error="errors.paymentType">
         <el-radio-group v-model="form.paymentType" @change="resetBank">
-          <el-radio value="EMPLOYEE" :disabled="form.parentId"
-            >EMPLOYEE</el-radio
+          <el-radio value="EMPLOYEE" :disabled="!!form.parentId">
+            EMPLOYEE
+          </el-radio>
+          <el-radio value="VENDOR" :disabled="!!form.parentId">VENDOR</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item
+        v-if="form.paymentType"
+        label="NKP Type"
+        :error="errors.nkpType"
+      >
+        <el-radio-group v-model="form.nkpType" @change="resetBank">
+          <el-radio
+            v-if="form.paymentType == 'EMPLOYEE'"
+            value="CASH_ADVANCE"
+            :disabled="!!form.parentId"
           >
-          <el-radio value="VENDOR" :disabled="form.parentId">VENDOR</el-radio>
+            CASH ADVANCE
+          </el-radio>
+          <el-radio
+            v-if="form.paymentType == 'EMPLOYEE'"
+            value="DECLARATION"
+            :disabled="!!form.parentId"
+          >
+            DECLARATION
+          </el-radio>
+
+          <el-radio
+            v-if="form.paymentType == 'VENDOR'"
+            value="DOWN_PAYMENT"
+            :disabled="!!form.parentId"
+          >
+            DOWN PAYMENT
+          </el-radio>
+          <el-radio
+            v-if="form.paymentType == 'VENDOR'"
+            value="SETTLEMENT"
+            :disabled="!!form.parentId"
+          >
+            SETTLEMENT
+          </el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -45,7 +83,7 @@
           default-first-option
           filterable
           clearable
-          :disabled="form.parentId"
+          :disabled="!!form.parentId"
         >
           <el-option
             v-for="(el, i) in users"
@@ -87,7 +125,7 @@
           placeholder="Bank"
           default-first-option
           filterable
-          :disabled="form.parentId"
+          :disabled="!!form.parentId"
         >
           <el-option
             v-for="(el, i) in banks"
@@ -107,7 +145,7 @@
         <el-input
           v-model="form.bankAccount"
           placeholder="Bank Account"
-          :disabled="form.parentId"
+          :disabled="!!form.parentId"
         />
       </el-form-item>
 
@@ -121,7 +159,7 @@
             v-for="(currency, i) in currencies"
             :value="currency"
             :key="i"
-            :disabled="form.parentId"
+            :disabled="!!form.parentId"
           >
             {{ currency }}
           </el-radio>
@@ -138,7 +176,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="form.PaymentAuthorizationItem">
+    <el-table :data="form.NkpItem">
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="DATE" width="170">
@@ -285,15 +323,15 @@
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr v-if="form.paymentType == 'VENDOR'">
+        <tr v-if="form.paymentType == 'VENDOR' && form.nkpType == 'SETTLEMENT'">
           <td>Down Payment</td>
           <td>
-            <el-input
+            <!-- <el-input
               type="number"
               v-model="form.downPayment"
               placeholder="Down Payment"
               style="width: 150px"
-            />
+            /> -->
           </td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(form.downPayment) }}</strong>
@@ -381,12 +419,12 @@ const newRow = {
   amount: undefined,
 };
 
-const url = "/api/payment-authorizations";
+const url = "/api/nkp";
 const request = useRequest();
 
 const { errors, form, show, closeForm, saveMutation } = useCrud({
   url,
-  queryKey: "payment-authorizations",
+  queryKey: "nkp",
 });
 const { mutate: save } = saveMutation();
 
@@ -442,7 +480,7 @@ function resetBank() {
 
 const grandTotal = computed(() => {
   return (
-    form.value.PaymentAuthorizationItem?.reduce(
+    form.value.NkpItem?.reduce(
       (total, current) => total + Number(current.amount),
       0
     ) ?? 0
@@ -497,7 +535,7 @@ async function saveWithStatus(status) {
   form.value.downPayment = Number(form.value.downPayment);
   form.value.status = status;
 
-  form.value.PaymentAuthorizationItem.forEach((e) => {
+  form.value.NkpItem.forEach((e) => {
     e.amount = Number(e.amount);
     e.currency = form.value.currency;
   });
@@ -512,11 +550,11 @@ async function removeItem(index, id) {
     });
   }
 
-  form.value.PaymentAuthorizationItem.splice(index, 1);
+  form.value.NkpItem.splice(index, 1);
 }
 
 function addItem() {
-  form.value.PaymentAuthorizationItem.push({ ...newRow });
+  form.value.NkpItem.push({ ...newRow });
 }
 
 // UPLOAD RELATED
@@ -578,7 +616,7 @@ function handleRemove(file) {
 }
 
 function handleTab(e, index) {
-  if (index == form.value.PaymentAuthorizationItem.length - 1) {
+  if (index == form.value.NkpItem.length - 1) {
     addItem();
   }
 }

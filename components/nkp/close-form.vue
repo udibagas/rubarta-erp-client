@@ -54,15 +54,15 @@ const attachments = ref([]);
 
 async function submit() {
   try {
-    // await ElMessageBox.confirm("Ada yakin akan menutup NKP ini?", "Perhatian", {
-    //   center: true,
-    // });
+    await ElMessageBox.confirm("Ada yakin akan menutup NKP ini?", "Perhatian", {
+      center: true,
+    });
 
     await request(`/api/nkp/close/${prop.id}`, {
       method: "POST",
       body: { bankRefNo: form.value.bankRefNo, attachments: attachments.value },
     });
-    emit("close");
+    close();
     emit("refresh");
   } catch (error) {
     if (error.response?.status == 400) {
