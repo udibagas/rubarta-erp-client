@@ -12,6 +12,8 @@
       <template #default="{ row }"> {{ toRupiah(row.balance) }} </template>
     </el-table-column>
 
+    <el-table-column label="Description" prop="description"></el-table-column>
+
     <el-table-column label="Last Update">
       <template #default="{ row }"> {{ formatDate(row.updatedAt) }} </template>
     </el-table-column>
