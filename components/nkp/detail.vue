@@ -159,7 +159,7 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="detail.nkpType !== 'DECLARATION'">
           <td>TRANSFER TO {{ detail.paymentType }}</td>
           <td class="text-right">
             <strong>{{ toDecimal(detail.finalPayment) }}</strong>
@@ -348,7 +348,7 @@ function declare() {
       data.paymentType == "EMPLOYEE" ? "DEKLARASI" : "PELUNASAN"
     } NKP NO. ${data.number}`,
     NkpAttachment: [],
-    cashAdvance: data.paymentType == "EMPLOYEE" ? data.finalPayment : 0, // diisi kalau dia adalah
+    cashAdvanceBalance: data.paymentType == "EMPLOYEE" ? data.grandTotal : 0,
     downPayment: data.paymentType == "VENDOR" ? data.finalPayment : 0,
     NkpItem: [{ date: "", description: "", amount: 0 }],
     deduction: 0,

@@ -14,7 +14,7 @@
           @click="
             openForm({
               companyId: companyId,
-              cashAdvance: 0,
+              cashAdvanceBalance: 0,
               deduction: 0,
               tax: 0,
               downPayment: 0,

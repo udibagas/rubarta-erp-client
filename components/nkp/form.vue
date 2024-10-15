@@ -324,7 +324,7 @@
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr>
+        <tr v-if="form.nkpType !== 'DECLARATION'">
           <td>Transfer to {{ form.paymentType?.toLowerCase() }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
