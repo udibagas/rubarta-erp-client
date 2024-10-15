@@ -54,10 +54,10 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="NKP Type" :error="errors.nkpType">
+      <el-form-item label="Payment Type" :error="errors.nkpType">
         <el-select
           v-model="form.nkpType"
-          placeholder="NKP Type"
+          placeholder="Payment Type"
           style="width: 100%"
         >
           <el-option
