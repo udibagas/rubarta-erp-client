@@ -101,8 +101,8 @@ function handleRemove(file) {
 function close() {
   form.value = {};
   errors.value = {};
-  fileList.value = {};
-  attachments.value = {};
+  fileList.value = [];
+  attachments.value = [];
   emit("close");
 }
 </script>
