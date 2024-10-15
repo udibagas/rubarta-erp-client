@@ -166,6 +166,26 @@
         </el-radio-group>
       </el-form-item>
 
+      <el-form-item
+        v-if="form.paymentType == 'VENDOR'"
+        label="Invoice Number"
+        :error="errors.invoiceNumber"
+      >
+        <el-input v-model="form.invoiceNumber" placeholder="Invoice Number" />
+      </el-form-item>
+
+      <el-form-item
+        v-if="form.paymentType == 'VENDOR'"
+        label="Total Amount"
+        :error="errors.totalAmount"
+      >
+        <el-input
+          type="number"
+          v-model="form.totalAmount"
+          placeholder="Total Amount"
+        />
+      </el-form-item>
+
       <el-form-item label="Description" :error="errors.description">
         <el-input
           type="textarea"
@@ -325,7 +345,7 @@
         </tr>
 
         <tr v-if="form.nkpType !== 'DECLARATION'">
-          <td>Transfer to {{ form.paymentType?.toLowerCase() }}</td>
+          <td>TRANSFER TO {{ form.paymentType }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(finalPayment) }}</strong>
@@ -517,6 +537,7 @@ async function saveWithStatus(status) {
 
   form.value.grandTotal = grandTotal.value;
   form.value.netAmount = netAmount.value;
+  form.value.totalAmount = Number(form.value.totalAmount);
   form.value.finalPayment = finalPayment.value;
   form.value.deduction = Number(form.value.deduction);
   form.value.tax = Number(form.value.tax);
