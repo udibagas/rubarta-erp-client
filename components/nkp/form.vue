@@ -306,41 +306,26 @@
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr v-if="form.paymentType == 'EMPLOYEE' && form.parentId">
-          <td>Cash Advance</td>
-          <td>
-            <el-input
-              v-if="!form.parentId"
-              type="number"
-              v-model="form.cashAdvance"
-              placeholder="Cash Advance"
-              style="width: 150px"
-            />
-          </td>
+        <tr v-if="form.paymentType == 'EMPLOYEE' && form.cashAdvanceBalance">
+          <td>Cash Advance Balance</td>
+          <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(form.cashAdvance) }}</strong>
+            <strong>{{ toDecimal(form.cashAdvanceBalance) }}</strong>
           </td>
           <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR' && form.nkpType == 'SETTLEMENT'">
           <td>Down Payment</td>
-          <td>
-            <!-- <el-input
-              type="number"
-              v-model="form.downPayment"
-              placeholder="Down Payment"
-              style="width: 150px"
-            /> -->
-          </td>
+          <td></td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(form.downPayment) }}</strong>
           </td>
           <td>{{ form.currency }}</td>
         </tr>
 
-        <tr v-if="form.paymentType == 'VENDOR'">
-          <td>Final Payment</td>
+        <tr>
+          <td>Transfer to {{ form.paymentType?.toLowerCase() }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
             <strong>{{ toDecimal(finalPayment) }}</strong>
@@ -420,9 +405,8 @@ const newRow = {
 };
 
 const url = "/api/nkp";
-const request = useRequest();
 
-const { errors, form, show, closeForm, saveMutation } = useCrud({
+const { errors, form, show, request, closeForm, saveMutation } = useCrud({
   url,
   queryKey: "nkp",
 });
@@ -446,6 +430,11 @@ const { data: banks } = useQuery({
 const { data: users } = useQuery({
   queryKey: ["users"],
   queryFn: () => request("/api/users"),
+});
+
+const { data: balances } = useQuery({
+  queryKey: ["user-balance"],
+  queryFn: () => request("/api/users/balance"),
 });
 
 const disabledDate = (time) => {
@@ -501,7 +490,7 @@ const netAmount = computed(() => {
 
 const finalPayment = computed(() => {
   if (form.value.paymentType == "EMPLOYEE") {
-    return grandTotal.value - form.value.cashAdvance;
+    return grandTotal.value - form.value.cashAdvanceBalance;
   }
 
   if (form.value.paymentType == "VENDOR") {
@@ -531,7 +520,7 @@ async function saveWithStatus(status) {
   form.value.finalPayment = finalPayment.value;
   form.value.deduction = Number(form.value.deduction);
   form.value.tax = Number(form.value.tax);
-  form.value.cashAdvance = Number(form.value.cashAdvance);
+  form.value.cashAdvanceBalance = Number(form.value.cashAdvanceBalance);
   form.value.downPayment = Number(form.value.downPayment);
   form.value.status = status;
 
@@ -578,6 +567,17 @@ watch(
         filePath,
       };
     });
+  }
+);
+
+// kalau dia cash advance, ambil data balance employee
+watch(
+  () => form.value.employeeId,
+  (value) => {
+    if (form.value.nkpType == "CASH_ADVANCE") {
+      const employeeBalance = balances.value.find((el) => el.userId == value);
+      form.value.cashAdvanceBalance = employeeBalance?.balance ?? 0;
+    }
   }
 );
 

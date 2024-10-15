@@ -137,11 +137,12 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <!-- Kasih advance payment kalau dia bukan parent -->
-        <tr v-if="detail.paymentType == 'EMPLOYEE' && detail.parentId">
-          <td>CASH ADVANCE</td>
+        <tr
+          v-if="detail.paymentType == 'EMPLOYEE' && detail.cashAdvanceBalance"
+        >
+          <td>CASH ADVANCE BALANCE</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.cashAdvance) }}</strong>
+            <strong>{{ toDecimal(detail.cashAdvanceBalance) }}</strong>
           </td>
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
@@ -158,8 +159,8 @@
           <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
-        <tr v-if="detail.paymentType == 'VENDOR'">
-          <td>FINAL PAYMENT</td>
+        <tr>
+          <td>TRANSFER TO {{ detail.paymentType }}</td>
           <td class="text-right">
             <strong>{{ toDecimal(detail.finalPayment) }}</strong>
           </td>
