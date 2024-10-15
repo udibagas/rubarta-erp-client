@@ -9,51 +9,61 @@
       </div>
     </template>
 
-    <el-descriptions :border="true" :column="2" direction="horizontal">
-      <el-descriptions-item label="Parent">
+    <el-descriptions :border="true" :column="1" direction="horizontal">
+      <el-descriptions-item label="Company">
+        {{ detail.Company?.name }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Parent" v-if="detail.Parent">
         {{ detail.Parent?.number ?? "- " }}
-      </el-descriptions-item>
-
-      <el-descriptions-item
-        v-if="detail.paymentType == 'EMPLOYEE'"
-        label="Employee"
-      >
-        {{ detail.Employee?.name }}
-      </el-descriptions-item>
-
-      <el-descriptions-item
-        v-if="detail.paymentType == 'VENDOR'"
-        label="Vendor"
-      >
-        {{ detail.Supplier?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Date">
         {{ formatDateLong(detail.date) }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Bank">
-        {{ detail.Bank?.name }}
+      <el-descriptions-item label="Requester">
+        {{ detail.Requester?.name }}
       </el-descriptions-item>
 
-      <el-descriptions-item label="Company">
-        {{ detail.Company?.name }}
+      <el-descriptions-item label="Type">
+        {{ detail.paymentType }} / {{ detail.nkpType?.replace("_", " ") }}
+      </el-descriptions-item>
+
+      <el-descriptions-item
+        :label="detail.paymentType == 'VENDOR' ? 'Vendor' : 'Employee'"
+      >
+        {{
+          detail.paymentType == "VENDOR"
+            ? detail.Supplier.name
+            : detail.Employee.name
+        }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Bank">
+        {{ detail.Bank?.name }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank Account">
         {{ detail.bankAccount }} ({{ detail.currency }})
       </el-descriptions-item>
 
-      <el-descriptions-item label="Requester">
-        {{ detail.Requester?.name }}
+      <el-descriptions-item
+        label="Invoice Number"
+        v-if="detail.paymentType == 'VENDOR'"
+      >
+        {{ detail.invoiceNumber }}
+      </el-descriptions-item>
+
+      <el-descriptions-item
+        label="Total Amount"
+        v-if="detail.paymentType == 'VENDOR'"
+      >
+        {{ detail.totalAmount }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Description">
         {{ detail.description }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Type">
-        {{ detail.paymentType }} / {{ detail.nkpType?.replace("_", " ") }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Bank Ref No">
@@ -338,19 +348,33 @@ async function submit(id) {
 function declare() {
   const data = { ...detail.value };
   closeDetail();
+
+  const nkpType = data.paymentType == "EMPLOYEE" ? "DECLARATION" : "SETTLEMENT";
+  const description = `${
+    data.paymentType == "EMPLOYEE" ? "DEKLARASI" : "PELUNASAN"
+  } NKP NO. ${data.number}`;
+  const items =
+    nkpType == "SETTLEMENT"
+      ? [
+          {
+            date: new Date(),
+            description: "Pelunasan",
+            amount: data.totalAmount,
+          },
+        ]
+      : [{ date: "", description: "", amount: 0 }];
+
   openForm({
     ...data,
     id: undefined, // biar ga jadi edit
     parentId: data.id,
     Parent: data,
-    nkpType: data.paymentType == "EMPLOYEE" ? "DECLARATION" : "SETTLEMENT",
-    description: `${
-      data.paymentType == "EMPLOYEE" ? "DEKLARASI" : "PELUNASAN"
-    } NKP NO. ${data.number}`,
+    nkpType,
+    description,
     NkpAttachment: [],
     cashAdvanceBalance: data.paymentType == "EMPLOYEE" ? data.grandTotal : 0,
     downPayment: data.paymentType == "VENDOR" ? data.finalPayment : 0,
-    NkpItem: [{ date: "", description: "", amount: 0 }],
+    NkpItem: items,
     deduction: 0,
     tax: 0,
   });
