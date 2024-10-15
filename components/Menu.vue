@@ -49,6 +49,12 @@ const links = [
         visible: true,
       },
       {
+        label: "Employee Balance",
+        path: "/employee-balance",
+        icon: ElIconMoney,
+        visible: true,
+      },
+      {
         label: "Report",
         path: "/report",
         icon: ElIconPieChart,
