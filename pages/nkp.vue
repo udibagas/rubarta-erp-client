@@ -117,7 +117,10 @@
           }}
         </strong>
         <br />
-        {{ row.Bank?.code }} - {{ row.bankAccount }}
+        {{ row.Bank?.code }} - {{ row.bankAccount }} <br />
+        <span v-if="row.invoiceNumber"
+          >Invoice No. {{ row.invoiceNumber }}</span
+        >
       </template>
     </el-table-column>
 
