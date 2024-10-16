@@ -85,11 +85,21 @@
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/approval-settings",
-    queryKey: "approval-settings",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  companyId,
+} = useCrud({
+  url: "/api/approval-settings",
+  queryKey: "approval-settings",
+});
+
+watch(companyId, () => {
+  refreshData();
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
