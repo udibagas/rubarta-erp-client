@@ -94,7 +94,14 @@
 
     <el-table-column label="Number" prop="number" width="250" />
     <el-table-column label="Bank Ref No" prop="bankRefNo" width="200" />
-    <el-table-column label="Invoice Number" prop="invoiceNumber" width="200" />
+
+    <el-table-column
+      v-if="filters.paymentType == 'VENDOR'"
+      label="Invoice Number"
+      prop="invoiceNumber"
+      width="200"
+    />
+
     <el-table-column label="Description" prop="description" min-width="150" />
 
     <el-table-column
@@ -189,10 +196,10 @@ const { isPending, data } = fetchData();
 
 async function download(format) {
   const params = {
+    ...filters.value,
     format,
     companyId: companyId.value,
     action: "download",
-    ...filters.value,
   };
 
   if (format == "pdf") {
@@ -212,9 +219,11 @@ async function download(format) {
         data: data.map((el, index) => {
           return {
             No: ++index,
-            Date: formatDate(el.date),
+            Date: el.date.slice(0, 9),
             Number: el.number,
+            Type: `${el.paymentType} / ${el.nkpType}`,
             "Bank Ref No.": el.bankRefNo,
+            "Invoice No.": el.invoiceNumber ?? "",
             Description: el.description,
             Amount: el.finalPayment > 0 ? el.finalPayment : el.grandTotal,
             Curr: el.currency,
