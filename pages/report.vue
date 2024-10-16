@@ -26,6 +26,7 @@
           type="success"
           size="small"
           @command="download"
+          class="mr-2"
         >
           <el-icon class="mr-2">
             <ElIconDownload />
@@ -42,6 +43,40 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
+
+        <el-input
+          size="small"
+          v-model="keyword"
+          placeholder="Cari"
+          style="width: 150px; margin-right: 5px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          @keydown.enter="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
+          @clear="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
+        >
+        </el-input>
+
+        <el-button
+          :icon="ElIconRefresh"
+          size="small"
+          @click="
+            () => {
+              page = 1;
+              keyword = '';
+              refreshData();
+            }
+          "
+        ></el-button>
       </div>
     </template>
   </el-page-header>
@@ -59,6 +94,7 @@
 
     <el-table-column label="Number" prop="number" width="250" />
     <el-table-column label="Bank Ref No" prop="bankRefNo" width="200" />
+    <el-table-column label="Invoice Number" prop="invoiceNumber" width="200" />
     <el-table-column label="Description" prop="description" min-width="150" />
 
     <el-table-column
@@ -116,6 +152,7 @@ const {
   pageSize,
   companyId,
   filters,
+  keyword,
   sizeChange,
   currentChange,
   refreshData,
