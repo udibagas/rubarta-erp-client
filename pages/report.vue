@@ -177,6 +177,7 @@ watch(companyId, () => {
 watch(
   () => filters.value.paymentType,
   () => {
+    page.value = 1;
     refreshData();
   }
 );
@@ -184,6 +185,7 @@ watch(
 watch(
   () => filters.value.dateRange,
   () => {
+    page.value = 1;
     refreshData();
   }
 );
