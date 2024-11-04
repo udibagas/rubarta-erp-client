@@ -29,6 +29,7 @@
             EMPLOYEE
           </el-radio>
           <el-radio value="VENDOR" :disabled="!!form.parentId">VENDOR</el-radio>
+          <!-- <el-radio value="COMPANY">COMPANY</el-radio> -->
         </el-radio-group>
       </el-form-item>
 
@@ -67,6 +68,14 @@
           >
             SETTLEMENT
           </el-radio>
+
+          <!-- <el-radio
+            v-if="form.paymentType == 'COMPANY'"
+            value="MUTATION"
+            :disabled="!!form.parentId"
+          >
+            MUTATION
+          </el-radio> -->
         </el-radio-group>
       </el-form-item>
 
@@ -118,6 +127,28 @@
           </el-option>
         </el-select>
       </el-form-item>
+
+      <!-- <el-form-item
+        v-if="form.paymentType"
+        label="Source Bank"
+        :error="errors.sourceBank"
+      >
+        <el-select
+          v-model="form.sourceBank"
+          placeholder="Source Bank"
+          default-first-option
+          filterable
+          :disabled="!!form.parentId"
+        >
+          <el-option
+            v-for="(el, i) in banks"
+            :value="el.id"
+            :label="`${el.code} - ${el.name}`"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item> -->
 
       <el-form-item v-if="form.paymentType" label="Bank" :error="errors.bankId">
         <el-select
@@ -205,7 +236,6 @@
             v-model="row.date"
             type="date"
             placeholder="Date"
-            :disabled-date="disabledDate"
             format="DD-MMM-YYYY"
             style="width: 140px"
           />
@@ -457,10 +487,6 @@ const { data: balances } = useQuery({
   queryFn: () => request("/api/users/balance"),
 });
 
-const disabledDate = (time) => {
-  return time.getTime() > Date.now();
-};
-
 function updateBank(id) {
   let data = {};
 
@@ -639,6 +665,13 @@ function handleRemove(file) {
 function handleTab(e, index) {
   if (index == form.value.NkpItem.length - 1) {
     addItem();
+  }
+}
+
+async function handleChangeBank(value) {
+  if (form.value.paymentType == "COMPANY") {
+    // TODO: cari detail bank milik company
+    // form.value.bankAccount =
   }
 }
 </script>
