@@ -12,7 +12,7 @@
           placeholder="Bank Ref No."
         ></el-input>
       </el-form-item>
-      <el-form-item label="Attachment">
+      <el-form-item label="Attachment" :error="errors.attachments">
         <el-upload
           v-model:file-list="fileList"
           :action="`${config.public.apiBase}/api/file`"
