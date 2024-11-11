@@ -59,7 +59,7 @@
         label="Total Amount"
         v-if="detail.paymentType == 'VENDOR'"
       >
-        {{ detail.totalAmount }}
+        {{ toRupiah(detail.totalAmount) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Description">
