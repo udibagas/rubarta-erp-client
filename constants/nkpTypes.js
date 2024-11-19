@@ -3,4 +3,8 @@ export const nkpTypes = [
   "DECLARATION",
   "DOWN_PAYMENT",
   "SETTLEMENT",
+  "MUTATION",
+  "TAX",
+  "BPJS",
+  "UTILITY",
 ];
