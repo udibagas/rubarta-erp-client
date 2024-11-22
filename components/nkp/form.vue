@@ -54,6 +54,14 @@
           </el-radio>
 
           <el-radio
+            v-if="form.paymentType == 'EMPLOYEE'"
+            value="SALARY"
+            :disabled="!!form.parentId"
+          >
+            SALARY
+          </el-radio>
+
+          <el-radio
             v-if="form.paymentType == 'VENDOR'"
             value="DOWN_PAYMENT"
             :disabled="!!form.parentId"
