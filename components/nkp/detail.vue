@@ -237,13 +237,42 @@
 
       <el-button
         v-if="
-          detail.status == 'CLOSED' && detail.Parent == null && !detail.Child
+          detail.status == 'CLOSED' &&
+          detail.nkpType == 'DOWN_PAYMENT' &&
+          detail.Parent == null
+        "
+        :icon="ElIconPlus"
+        type="warning"
+        @click="addDownPayment"
+      >
+        ADD DOWN PAYMENT
+      </el-button>
+
+      <el-button
+        v-if="
+          detail.paymentType == 'EMPLOYEE' &&
+          detail.status == 'CLOSED' &&
+          detail.Parent == null &&
+          !detail.Child
         "
         :icon="ElIconDocument"
         type="warning"
         @click="declare"
       >
-        {{ detail.paymentType == "EMPLOYEE" ? "DECLARE" : "SETTLEMENT" }}
+        DECLARE
+      </el-button>
+
+      <el-button
+        v-if="
+          detail.paymentType == 'VENDOR' &&
+          detail.status == 'CLOSED' &&
+          detail.Parent == null
+        "
+        :icon="ElIconDocument"
+        type="warning"
+        @click="declare"
+      >
+        SETTLEMENT
       </el-button>
 
       <el-button
@@ -345,7 +374,7 @@ async function submit(id) {
   }
 }
 
-function declare() {
+async function declare() {
   const data = { ...detail.value };
   closeDetail();
 
@@ -358,11 +387,47 @@ function declare() {
       ? [
           {
             date: new Date(),
-            description: "Pelunasan",
+            description: "PELUNASAN",
             amount: data.totalAmount,
           },
         ]
       : [{ date: "", description: "", amount: 0 }];
+
+  let downPayment = 0;
+
+  if (data.paymentType == "VENDOR") {
+    downPayment = await request(`/api/nkp/getDownPayment/${data.id}`);
+  }
+
+  openForm({
+    ...data,
+    id: undefined, // biar ga jadi edit
+    parentId: data.id,
+    Parent: data,
+    nkpType,
+    description,
+    downPayment,
+    NkpAttachment: [],
+    cashAdvanceBalance: data.paymentType == "EMPLOYEE" ? data.grandTotal : 0,
+    NkpItem: items,
+    deduction: 0,
+    tax: 0,
+  });
+}
+
+function addDownPayment() {
+  const data = { ...detail.value };
+  closeDetail();
+
+  const nkpType = "DOWN_PAYMENT";
+  const description = `DP TAMBAHAN`;
+  const items = [
+    {
+      date: new Date(),
+      description: "DP TAMBAHAN",
+      amount: 0,
+    },
+  ];
 
   openForm({
     ...data,
@@ -372,8 +437,8 @@ function declare() {
     nkpType,
     description,
     NkpAttachment: [],
-    cashAdvanceBalance: data.paymentType == "EMPLOYEE" ? data.grandTotal : 0,
-    downPayment: data.paymentType == "VENDOR" ? data.finalPayment : 0,
+    cashAdvanceBalance: 0,
+    downPayment: 0,
     NkpItem: items,
     deduction: 0,
     tax: 0,
