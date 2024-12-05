@@ -220,6 +220,7 @@
             type="date"
             placeholder="Date"
             format="DD-MMM-YYYY"
+            value-format="YYYY-MM-DD"
             style="width: 140px"
           />
         </template>

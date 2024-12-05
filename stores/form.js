@@ -8,6 +8,7 @@ export function openForm(data = {}) {
 }
 
 export function closeForm() {
+  // todo: reset nested object if available
   form.value = {};
   errors.value = {};
   show.value = false;
