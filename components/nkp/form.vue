@@ -621,7 +621,8 @@ function handleSuccess(file) {
 }
 
 function handlePreview(file) {
-  window.open(`${config.public.apiBase}/${file.filePath}`, "_blank");
+  const path = file.response?.filePath ?? file.filePath;
+  window.open(`${config.public.apiBase}/${path}`, "_blank");
 }
 
 function handleRemove(file) {
