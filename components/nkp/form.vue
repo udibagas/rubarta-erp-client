@@ -583,13 +583,13 @@ const config = useRuntimeConfig();
 const fileList = ref([]);
 
 watch(
-  () => form.value.PaymentAuthorizationAttachment,
+  () => form.value.NkpAttachment,
   async (value, oldValue) => {
     if (!value) {
       return (fileList.value = []);
     }
 
-    fileList.value = form.value.PaymentAuthorizationAttachment.map((el) => {
+    fileList.value = form.value.NkpAttachment.map((el) => {
       const { fileName: name, fileSize: size, filePath, fileType } = el;
       return {
         name,
@@ -613,11 +613,11 @@ watch(
 );
 
 function handleSuccess(file) {
-  if (!form.value.PaymentAuthorizationAttachment) {
-    form.value.PaymentAuthorizationAttachment = [];
+  if (!form.value.NkpAttachment) {
+    form.value.NkpAttachment = [];
   }
 
-  form.value.PaymentAuthorizationAttachment.push(file);
+  form.value.NkpAttachment.push(file);
 }
 
 function handlePreview(file) {
@@ -627,12 +627,10 @@ function handlePreview(file) {
 
 function handleRemove(file) {
   const path = file.response?.filePath ?? file.filePath;
-  const index = form.value.PaymentAuthorizationAttachment.findIndex(
-    (f) => f.filePath == path
-  );
+  const index = form.value.NkpAttachment.findIndex((f) => f.filePath == path);
 
   if (index !== -1) {
-    form.value.PaymentAuthorizationAttachment.splice(index, 1);
+    form.value.NkpAttachment.splice(index, 1);
   }
 
   request(`/api/file`, {
