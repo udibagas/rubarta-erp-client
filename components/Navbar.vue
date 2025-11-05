@@ -1,54 +1,52 @@
 <template>
-  <div class="navbar">
-    <el-icon :size="24" @click.prevent="emit('toggle')" style="cursor: pointer">
-      <ElIconExpand v-if="collapse" />
-      <ElIconFold v-else />
-    </el-icon>
+  <div class="flex items-center justify-between gap-4 w-full">
+    <!-- Remove the duplicate toggle button since it's now in the layout -->
+    <div class="text-green-600 font-bold text-xl">RUBARTA ERP SYSTEM</div>
 
-    <div class="brand" style="flex-grow: 1">RUBARTA ERP SYSTEM</div>
+    <div class="flex items-center gap-4">
+      <el-select
+        v-model="companyId"
+        placeholder="Select Company"
+        style="width: 270px"
+        @change="(id) => changeCompany(id)"
+      >
+        <el-option
+          v-for="c in companies"
+          :key="c.id"
+          :label="`${c.code} - ${c.name}`"
+          :value="c.id"
+        />
+      </el-select>
 
-    <el-select
-      v-model="companyId"
-      placeholder="Select Company"
-      style="width: 270px"
-      @change="(id) => changeCompany(id)"
-    >
-      <el-option
-        v-for="c in companies"
-        :key="c.id"
-        :label="`${c.code} - ${c.name}`"
-        :value="c.id"
-      />
-    </el-select>
+      <el-badge :value="unread == 0 ? undefined : unread" :max="10">
+        <NuxtLink to="/notifications">
+          <el-icon :size="24">
+            <ElIconBell />
+          </el-icon>
+        </NuxtLink>
+      </el-badge>
 
-    <el-badge :value="unread == 0 ? undefined : unread" :max="10">
-      <NuxtLink to="/notifications">
-        <el-icon :size="24">
-          <ElIconBell />
-        </el-icon>
-      </NuxtLink>
-    </el-badge>
+      <el-dropdown>
+        <el-avatar :size="30"> {{ user.name[0] }} </el-avatar>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item
+              :icon="ElIconUser"
+              @click.native.prevent="showProfile = true"
+              >My Profile</el-dropdown-item
+            >
+            <el-dropdown-item
+              :icon="ElIconArrowRight"
+              @click.native.prevent="handleClickLogout"
+              >Sign Out</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
 
-    <el-dropdown>
-      <el-avatar :size="30"> {{ user.name[0] }} </el-avatar>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item
-            :icon="ElIconUser"
-            @click.native.prevent="showProfile = true"
-            >My Profile</el-dropdown-item
-          >
-          <el-dropdown-item
-            :icon="ElIconArrowRight"
-            @click.native.prevent="handleClickLogout"
-            >Sign Out</el-dropdown-item
-          >
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
+      <Profile :show="showProfile" @close="showProfile = false" />
+    </div>
   </div>
-
-  <Profile :show="showProfile" @close="showProfile = false" />
 </template>
 
 <script setup>
@@ -85,13 +83,3 @@ const handleClickLogout = () => {
     .catch(() => console.log("Action cancelled"));
 };
 </script>
-
-<style scoped>
-.navbar {
-  display: flex;
-  align-items: center;
-  align-content: stretch;
-  gap: 25px;
-  height: 60px;
-}
-</style>
