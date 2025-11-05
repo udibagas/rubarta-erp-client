@@ -5,7 +5,7 @@
         <!-- User Profile Section -->
         <div v-show="!collapse" class="user-profile">
           <div class="user-avatar">
-            <el-avatar :size="48" class="user-avatar-img">
+            <el-avatar :size="48" class="bg-green-500!">
               {{ user?.name?.[0]?.toUpperCase() || "U" }}
             </el-avatar>
           </div>
@@ -103,7 +103,7 @@ const collapse = ref(false);
 .user-profile {
   padding: 1.5rem;
   border-bottom: 1px solid var(--sidebar-border);
-  background: #fafafa;
+  /* background: #fafafa; */
 }
 
 .user-profile .user-avatar {

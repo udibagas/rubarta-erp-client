@@ -201,6 +201,7 @@ const menus = [
   height: 100%;
   overflow-y: auto;
   padding: 0.5rem;
+  background-color: #019932;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -212,17 +213,17 @@ const menus = [
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #059669;
   border-radius: 2px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #047857;
 }
 
 .menu {
-  --menu-active-fg: #ffffff;
-  --menu-active-bg: #019932;
+  --menu-active-fg: #019932;
+  --menu-active-bg: #ffffff;
   border-radius: 0.5rem;
 }
 
@@ -239,18 +240,18 @@ const menus = [
 }
 
 :deep(.menu li > a) {
-  color: #374151;
+  color: #ffffff;
   padding: 0.75rem 1rem;
 }
 
 :deep(.menu li > a:hover) {
-  background-color: #f3f4f6;
-  color: #019932;
+  background-color: #027a2a;
+  color: #ffffff;
 }
 
 :deep(.menu li > a.menu-active) {
-  background-color: #019932;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #019932;
   font-weight: 600;
 }
 
@@ -260,7 +261,7 @@ const menus = [
 }
 
 :deep(.menu details > summary) {
-  color: #374151;
+  color: #ffffff;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   font-weight: 500;
@@ -268,20 +269,20 @@ const menus = [
 }
 
 :deep(.menu details > summary:hover) {
-  background-color: #f3f4f6;
-  color: #019932;
+  background-color: #027a2a;
+  color: #ffffff;
 }
 
 :deep(.menu details[open] > summary) {
-  background-color: #f9fafb;
-  color: #019932;
+  background-color: #027a2a;
+  color: #ffffff;
   font-weight: 600;
 }
 
 :deep(.menu details ul) {
   padding: 0.25rem 0;
   margin-top: 0.25rem;
-  background-color: #f9fafb;
+  background-color: #027a2a;
   border-radius: 0.5rem;
 }
 
@@ -290,19 +291,19 @@ const menus = [
 }
 
 :deep(.menu details ul li > a) {
-  color: #6b7280;
+  color: #e5e7eb;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
 }
 
 :deep(.menu details ul li > a:hover) {
-  background-color: #f3f4f6;
-  color: #019932;
+  background-color: #015a20;
+  color: #ffffff;
 }
 
 :deep(.menu details ul li > a.menu-active) {
-  background-color: #019932;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #019932;
   font-weight: 600;
 }
 
