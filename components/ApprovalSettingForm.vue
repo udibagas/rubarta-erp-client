@@ -153,6 +153,7 @@
 import { approvalTypes } from "~/constants/approvalTypes";
 import { nkpTypes } from "~/constants/nkpTypes";
 import { approvalActionTypes } from "~/constants/approvalActionTypes";
+import { useQuery } from "@tanstack/vue-query";
 const request = useRequest();
 
 const url = "/api/approval-settings";

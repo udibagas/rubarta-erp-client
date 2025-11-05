@@ -21,7 +21,9 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 const request = useRequest();
+
 const { isPending, data } = useQuery({
   queryKey: ["user-balance"],
   queryFn: () => request("/api/users/balance"),

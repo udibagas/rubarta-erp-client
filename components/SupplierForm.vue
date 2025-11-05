@@ -74,6 +74,7 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/suppliers",

@@ -126,6 +126,7 @@
 </template>
 
 <script setup>
+import { useQuery, useMutation } from "@tanstack/vue-query";
 const url = "/api/notifications";
 const selected = ref({});
 const notificationTable = ref("");

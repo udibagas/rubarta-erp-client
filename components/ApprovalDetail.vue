@@ -52,9 +52,11 @@
 </template>
 
 <script setup>
+import { useQueryClient } from "@tanstack/vue-query";
+
 const config = useRuntimeConfig();
 const queryClient = useQueryClient();
-const { user } = useSanctumAuth();
+const { user } = useAuth();
 const request = useRequest();
 const emit = defineEmits(["reload"]);
 const { approvals, queryKey, approveUrl, requestId } = defineProps([

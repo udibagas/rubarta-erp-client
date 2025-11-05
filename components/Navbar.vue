@@ -52,11 +52,12 @@
 </template>
 
 <script setup>
+import { useQuery, useMutation } from "@tanstack/vue-query";
 const { collapse } = defineProps(["collapse"]);
 const emit = defineEmits(["toggle"]);
 const companyId = ref(useCookie("companyId"));
 const request = useRequest();
-const { user, logout } = useSanctumAuth();
+const { user, logout } = useAuth();
 const showProfile = ref(false);
 
 const { data: companies } = useQuery({

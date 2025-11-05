@@ -70,6 +70,7 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 const request = useRequest();
 
 const { data: summary, isSuccess } = useQuery({

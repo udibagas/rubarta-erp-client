@@ -1,35 +1,50 @@
 <template>
-  <el-menu
-    router
-    :collapse="collapse"
-    :default-active="$route.path"
-    class="sidebar"
-  >
-    <template v-for="(m, i) in links.filter((l) => l.visible)" :key="i">
-      <el-sub-menu v-if="m.children" :index="m.path">
-        <template #title>
-          <el-icon><component :is="m.icon"></component> </el-icon>
-          <span slot="title"> {{ m.label }} </span>
-        </template>
-        <el-menu-item v-for="(sm, j) in m.children" :index="sm.path">
-          <el-icon><component :is="sm.icon"></component> </el-icon>
-          <span slot="title"> {{ sm.label }} </span>
-        </el-menu-item>
-      </el-sub-menu>
-
-      <el-menu-item :index="m.path" v-else>
-        <el-icon><component :is="m.icon"></component> </el-icon>
-        <span slot="title"> {{ m.label }} </span>
-      </el-menu-item>
-    </template>
-  </el-menu>
+  <div class="sidebar">
+    <ul class="menu w-full">
+      <li v-for="(menu, index) in menus" :key="menu.name">
+        <nuxt-link
+          v-if="!menu.children"
+          :to="menu.path"
+          active-class="menu-active"
+          class="flex items-center gap-2"
+        >
+          <component :is="menu.icon" class="w-4 h-4" />
+          {{ menu.label }}
+        </nuxt-link>
+        <details v-else :open="index === 0">
+          <summary class="flex items-center gap-2">
+            <component :is="menu.icon" class="w-4 h-4" />
+            {{ menu.label }}
+          </summary>
+          <ul>
+            <li v-for="child in menu.children" :key="child.label">
+              <nuxt-link
+                :to="child.path"
+                exact-active-class="menu-active"
+                class="flex items-center gap-2 pl-6"
+              >
+                <component :is="child.icon" class="w-3 h-3" />
+                {{ child.label }}
+              </nuxt-link>
+            </li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script setup>
-const { user } = useSanctumAuth();
+const { user } = useAuth();
 const { collapse } = defineProps(["collapse"]);
+const route = useRoute();
 
-const links = [
+// Function to check if a submenu should be open based on current route
+const isSubMenuOpen = (menuPath) => {
+  return route.path.startsWith(menuPath) && menuPath !== "/";
+};
+
+const menus = [
   {
     label: "Dashboard",
     path: "/",
@@ -134,33 +149,52 @@ const links = [
         label: "Companies",
         path: "/master-data/companies",
         icon: ElIconOfficeBuilding,
+        visible: true,
       },
       {
         label: "Departments",
         path: "/master-data/departments",
         icon: ElIconMenu,
+        visible: true,
       },
       {
         label: "Banks",
         path: "/master-data/banks",
         icon: ElIconMoney,
+        visible: true,
       },
       {
         label: "Vendors",
         path: "/master-data/suppliers",
         icon: ElIconConnection,
+        visible: true,
       },
       {
         label: "Employees",
         path: "/master-data/users",
         icon: ElIconUser,
+        visible: true,
       },
       {
         label: "Approval Setting",
         path: "/master-data/approval-setting",
         icon: ElIconOperation,
+        visible: true,
       },
     ],
   },
 ];
 </script>
+
+<style scoped>
+.sidebar {
+  height: calc(100vh - 150px);
+  overflow: auto;
+  /* background-color: white; */
+}
+
+.menu {
+  --menu-active-fg: var(--color-white);
+  --menu-active-bg: var(--color-green-500);
+}
+</style>

@@ -327,7 +327,7 @@
 
 <script setup>
 import { showDetail, detail, closeDetail } from "~/stores/detail";
-const { user } = useSanctumAuth();
+const { user } = useAuth();
 const config = useRuntimeConfig();
 const showCloseForm = ref(false);
 

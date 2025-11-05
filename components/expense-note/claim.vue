@@ -116,6 +116,7 @@
 </template>
 
 <script setup>
+import { useQueryClient, useQuery } from "@tanstack/vue-query";
 const { show, data } = defineProps(["show", "data"]);
 const emit = defineEmits(["close"]);
 const request = useRequest();

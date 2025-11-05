@@ -80,6 +80,7 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 import { leadSources } from "~/constants/leadSources";
 import { leadStatuses } from "~/constants/leadStatuses";
 

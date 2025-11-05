@@ -146,7 +146,7 @@
 <script setup>
 import { openDetail } from "~/stores/detail";
 
-const { user } = useSanctumAuth();
+const { user } = useAuth();
 const config = useRuntimeConfig();
 const companyId = ref(useCookie("companyId"));
 const claimForm = ref({});

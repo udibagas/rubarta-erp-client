@@ -88,6 +88,7 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 import { opportunityStages } from "~/constants/opportunityStages";
 
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({

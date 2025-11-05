@@ -127,9 +127,10 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
 
-const { user, refreshIdentity } = useSanctumAuth();
+const { user, refreshIdentity } = useAuth();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
 const request = useRequest();

@@ -1,8 +1,6 @@
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default;
 }
 
 .el-table {
@@ -95,7 +93,7 @@ table {
 }
 
 .flex-grow {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 .ml-3 {
@@ -190,14 +188,14 @@ table {
   align-items: center;
 }
 
-a {
+/* a {
   text-decoration: none;
   color: #05b740;
 }
 
 a:hover {
   color: #078f35;
-}
+} */
 
 .strong {
   font-weight: bold;
