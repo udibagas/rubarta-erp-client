@@ -194,8 +194,8 @@
             placeholder="Total Amount"
             class="mr-3"
           />
-          <span class="strong">
-            {{ toDecimal(form.totalAmount) }}
+          <span class="font-mono font-bold">
+            {{ toCurrency(form.totalAmount, form.currency) }}
           </span>
         </div>
       </el-form-item>
@@ -210,7 +210,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="form.NkpItem">
+    <el-table :data="form.NkpItem" table-layout="auto">
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="DATE" width="170">
@@ -238,10 +238,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="AMOUNT" width="150">
+      <el-table-column label="AMOUNT" width="200">
         <template #default="{ row, $index }">
           <el-input
-            type="number"
+            type="numeric"
             v-model="row.amount"
             placeholder="Amount"
             @keydown.tab="(e) => handleTab(e, $index)"
@@ -250,13 +250,15 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="115" align="right">
+      <el-table-column align="right">
         <template #default="{ row }">
-          <strong>{{ toDecimal(row.amount) }}</strong>
+          <span class="font-mono font-semibold">
+            {{ toCurrency(row.amount, form.currency) }}
+          </span>
         </template>
       </el-table-column>
 
-      <el-table-column
+      <!-- <el-table-column
         label="CURR"
         width="70"
         align="center"
@@ -265,7 +267,7 @@
         <template #default="{ row }">
           {{ form.currency }}
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <el-table-column width="50" header-align="center" align="center">
         <template #header>
@@ -283,7 +285,7 @@
             :icon="ElIconDelete"
             type="danger"
             @click="removeItem($index, row.id)"
-          ></el-button>
+          />
         </template>
       </el-table-column>
     </el-table>
@@ -291,12 +293,13 @@
     <table class="table">
       <tbody>
         <tr>
-          <td style="width: 200px">Grand Total</td>
+          <td style="width: 300px">Grand Total</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(grandTotal) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(grandTotal, form.currency) }}
+            </span>
           </td>
-          <td style="width: 86px">{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
@@ -310,9 +313,10 @@
             />
           </td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(form.tax) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(form.tax, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
@@ -326,56 +330,63 @@
             />
           </td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(form.deduction) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(form.deduction, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
           <td>Net Amount</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(netAmount) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(netAmount, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'EMPLOYEE' && form.cashAdvanceBalance">
           <td>Cash Advance Balance</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(form.cashAdvanceBalance) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(form.cashAdvanceBalance, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR' && form.nkpType == 'SETTLEMENT'">
           <td>Down Payment</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(form.downPayment) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(form.downPayment, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.nkpType !== 'DECLARATION'">
           <td>TRANSFER TO {{ form.paymentType }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <strong>{{ toDecimal(finalPayment) }}</strong>
+            <span class="font-mono font-semibold text-green-500">
+              {{ toCurrency(finalPayment, form.currency) }}
+            </span>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr v-if="form.paymentType == 'EMPLOYEE' && form.parentId">
           <td>Kembali Ke {{ finalPayment > 0 ? "Karyawan" : "Perusahaan" }}</td>
           <td></td>
           <td class="text-right" style="padding-right: 25px">
-            <el-text :type="finalPayment > 0 ? 'success' : 'danger'">
-              <strong>{{ toDecimal(Math.abs(finalPayment)) }}</strong>
+            <el-text
+              :type="finalPayment > 0 ? 'success' : 'danger'"
+              class="font-mono font-semibold"
+            >
+              {{ toCurrency(Math.abs(finalPayment), form.currency) }}
             </el-text>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
 
         <tr>
@@ -385,7 +396,6 @@
               {{ terbilang(finalPayment).toUpperCase() }}
             </strong>
           </td>
-          <td>{{ form.currency }}</td>
         </tr>
       </tbody>
     </table>

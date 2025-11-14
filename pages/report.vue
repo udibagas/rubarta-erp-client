@@ -83,17 +83,23 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data?.data">
+  <el-table stripe v-loading="isPending" :data="data?.data" table-layout="auto">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Date" prop="number" width="110">
+    <el-table-column label="Date" prop="number" width="120px">
       <template #default="{ row }">
         {{ formatDate(row.date) }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Number" prop="number" width="250" />
-    <el-table-column label="Bank Ref No" prop="bankRefNo" width="200" />
+    <el-table-column label="Number" prop="number">
+      <template #default="{ row }">
+        <el-tag class="font-mono">
+          {{ row.number }}
+        </el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column label="Bank Ref No" prop="bankRefNo" width="200px" />
 
     <el-table-column
       v-if="filters.paymentType == 'VENDOR'"
@@ -112,24 +118,16 @@
       fixed="right"
     >
       <template #default="{ row }">
-        <strong>
+        <el-tag type="success" class="font-mono">
           {{
-            toDecimal(
-              row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment
+            toCurrency(
+              row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment,
+              row.currency
             )
           }}
-        </strong>
+        </el-tag>
       </template>
     </el-table-column>
-
-    <el-table-column
-      label="Curr"
-      prop="currency"
-      width="70"
-      align="center"
-      header-align="center"
-      fixed="right"
-    />
   </el-table>
 
   <br />

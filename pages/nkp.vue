@@ -61,15 +61,9 @@
       v-loading="isPending"
       :data="data?.data"
       @row-click="(row) => show(row.id)"
+      table-layout="auto"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-
-      <el-table-column
-        label="Status"
-        align="center"
-        header-align="center"
-        width="180"
-      >
+      <el-table-column label="Status" align="center" header-align="center">
         <template #default="{ row }">
           <StatusTag :status="row.status" style="width: 100%" /> <br />
           <el-text type="success" v-if="row.status == 'CLOSED'">
@@ -78,72 +72,68 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Number" width="240">
+      <el-table-column label="Number">
         <template #default="{ row }">
-          <strong>{{ row.number }}</strong>
+          <el-tag class="font-mono hover:cursor-pointer font-semibold">
+            {{ row.number }}
+          </el-tag>
           <br />
-          {{ formatDateLong(row.date) }}
+          <span class="text-gray-400 text-sm">
+            {{ formatDateLong(row.date) }}
+          </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Requester" min-width="150">
+      <el-table-column label="Requester">
         <template #default="{ row }">
-          <strong>{{ row.Requester?.name }}</strong
-          ><br />
-          {{ row.Company?.name }}
+          <span class="font-semibold">{{ row.Requester?.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Type" width="150">
+      <el-table-column label="Type">
         <template #default="{ row }">
           {{ row.paymentType }} <br />
-          {{ row.nkpType?.replace("_", " ") }}
+          <el-tag type="warning" size="small" round effect="plain">
+            {{ row.nkpType?.replace("_", " ") }}
+          </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column label="Payment To" min-width="150">
+      <el-table-column label="Payment To">
         <template #default="{ row }">
-          <strong>
+          <span class="font-semibold">
             {{
               row.paymentType == "EMPLOYEE"
                 ? row.Employee?.name
                 : row.Supplier?.name
             }}
-          </strong>
+          </span>
           <br />
-          {{ row.Bank?.code }} - {{ row.bankAccount }} <br />
-          <span v-if="row.invoiceNumber"
-            >Invoice No. {{ row.invoiceNumber }}</span
-          >
+          <span class="text-gray-400">
+            {{ row.Bank?.code }} - {{ row.bankAccount }} <br />
+          </span>
+          <el-tag v-if="row.invoiceNumber" type="warning" class="font-mono">
+            Invoice No. {{ row.invoiceNumber }}
+          </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column label="Description" prop="description" min-width="150" />
 
-      <el-table-column
-        label="Amount"
-        width="130"
-        align="right"
-        hader-align="right"
-        fixed="right"
-      >
+      <el-table-column label="Amount" align="right" fixed="right">
         <template #default="{ row }">
-          <strong>{{
-            toDecimal(
-              row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment
-            )
-          }}</strong>
+          <el-tag type="success" class="font-mono">
+            {{
+              toCurrency(
+                row.paymentType == "EMPLOYEE"
+                  ? row.grandTotal
+                  : row.finalPayment,
+                row.currency
+              )
+            }}
+          </el-tag>
         </template>
       </el-table-column>
-
-      <el-table-column
-        label="Curr"
-        prop="currency"
-        width="70"
-        align="center"
-        header-align="center"
-        fixed="right"
-      />
     </el-table>
 
     <br />

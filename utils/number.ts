@@ -7,11 +7,14 @@ export const toRupiah = (value: string) => {
   });
 };
 
+// assume currency is either IDR or USD
 export const toCurrency = (value: string, currency: string = "IDR") => {
+  console.log("toCurrency called with:", value, currency);
   if (!value) return "0";
-  return Number(value).toLocaleString("id-ID", {
+  return Number(value).toLocaleString(currency === "IDR" ? "id-ID" : "en-US", {
     style: "currency",
     currency: currency,
+    minimumFractionDigits: currency === "IDR" ? 0 : 2,
     maximumFractionDigits: currency === "IDR" ? 0 : 2,
   });
 };
@@ -35,9 +38,7 @@ export const toDecimal = (value: number) => {
   }
 };
 
-export function terbilang(a: number): string {
-  a = Math.abs(a);
-
+function terbilangInteger(a: number): string {
   const bilangan = [
     "",
     "Satu",
@@ -72,86 +73,90 @@ export function terbilang(a: number): string {
   }
   // 100 - 199
   else if (a < 200) {
-    kalimat = "Seratus " + terbilang(a - 100);
+    kalimat = "Seratus " + terbilangInteger(a - 100);
   }
   // 200 - 999
   else if (a < 1000) {
     let utama = a / 100;
     let depan = parseInt(String(utama).substr(0, 1));
     let belakang = a % 100;
-    kalimat = bilangan[depan] + " Ratus " + terbilang(belakang);
+    kalimat = bilangan[depan] + " Ratus " + terbilangInteger(belakang);
   }
   // 1,000 - 1,999
   else if (a < 2000) {
-    kalimat = "Seribu " + terbilang(a - 1000);
+    kalimat = "Seribu " + terbilangInteger(a - 1000);
   }
   // 2,000 - 9,999
   else if (a < 10000) {
     let utama = a / 1000;
     let depan = parseInt(String(utama).substr(0, 1));
     let belakang = a % 1000;
-    kalimat = bilangan[depan] + " Ribu " + terbilang(belakang);
+    kalimat = bilangan[depan] + " Ribu " + terbilangInteger(belakang);
   }
   // 10,000 - 99,999
   else if (a < 100000) {
     let utama = a / 100;
     let depan = parseInt(String(utama).substr(0, 2));
     let belakang = a % 1000;
-    kalimat = terbilang(depan) + " Ribu " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Ribu " + terbilangInteger(belakang);
   }
   // 100,000 - 999,999
   else if (a < 1000000) {
     let utama = a / 1000;
     let depan = parseInt(String(utama).substr(0, 3));
     let belakang = a % 1000;
-    kalimat = terbilang(depan) + " Ribu " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Ribu " + terbilangInteger(belakang);
   }
   // 1,000,000 - 	99,999,999
   else if (a < 100000000) {
     let utama = a / 1000000;
     let depan = parseInt(String(utama).substr(0, 4));
     let belakang = a % 1000000;
-    kalimat = terbilang(depan) + " Juta " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Juta " + terbilangInteger(belakang);
   } else if (a < 1000000000) {
     let utama = a / 1000000;
     let depan = parseInt(String(utama).substr(0, 4));
     let belakang = a % 1000000;
-    kalimat = terbilang(depan) + " Juta " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Juta " + terbilangInteger(belakang);
   } else if (a < 10000000000) {
     let utama = a / 1000000000;
     let depan = parseInt(String(utama).substr(0, 1));
     let belakang = a % 1000000000;
-    kalimat = terbilang(depan) + " Milyar " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Milyar " + terbilangInteger(belakang);
   } else if (a < 100000000000) {
     let utama = a / 1000000000;
     let depan = parseInt(String(utama).substr(0, 2));
     let belakang = a % 1000000000;
-    kalimat = terbilang(depan) + " Milyar " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Milyar " + terbilangInteger(belakang);
   } else if (a < 1000000000000) {
     let utama = a / 1000000000;
     let depan = parseInt(String(utama).substr(0, 3));
     let belakang = a % 1000000000;
-    kalimat = terbilang(depan) + " Milyar " + terbilang(belakang);
+    kalimat = terbilangInteger(depan) + " Milyar " + terbilangInteger(belakang);
   } else if (a < 10000000000000) {
     let utama = a / 10000000000;
     let depan = parseInt(String(utama).substr(0, 1));
     let belakang = a % 10000000000;
-    kalimat = terbilang(depan) + " Triliun " + terbilang(belakang);
+    kalimat =
+      terbilangInteger(depan) + " Triliun " + terbilangInteger(belakang);
   } else if (a < 100000000000000) {
     let utama = a / 1000000000000;
     let depan = parseInt(String(utama).substr(0, 2));
     let belakang = a % 1000000000000;
-    kalimat = terbilang(depan) + " Triliun " + terbilang(belakang);
+    kalimat =
+      terbilangInteger(depan) + " Triliun " + terbilangInteger(belakang);
   } else if (a < 1000000000000000) {
     let utama = a / 1000000000000;
     let depan = parseInt(String(utama).substr(0, 3));
     let belakang = a % 1000000000000;
-    kalimat = terbilang(depan) + " Triliun " + terbilang(belakang);
+    kalimat =
+      terbilangInteger(depan) + " Triliun " + terbilangInteger(belakang);
   } else if (a < 10000000000000000) {
     let utama = a / 1000000000000000;
     let depan = parseInt(String(utama).substr(0, 1));
     let belakang = a % 1000000000000000;
-    kalimat = terbilang(depan) + " Kuadriliun " + terbilang(belakang);
+    kalimat =
+      terbilangInteger(depan) + " Kuadriliun " + terbilangInteger(belakang);
   }
 
   let pisah = kalimat.split(" ");
@@ -164,4 +169,50 @@ export function terbilang(a: number): string {
   }
 
   return full.join(" ");
+}
+
+export function terbilang(a: number): string {
+  a = Math.abs(a);
+
+  // Split into integer and decimal parts
+  const integerPart = Math.floor(a);
+  const decimalPart = Math.round((a - integerPart) * 100); // Get 2 decimal places
+
+  let result = "";
+
+  // Handle integer part
+  if (integerPart === 0) {
+    result = "Nol";
+  } else {
+    result = terbilangInteger(integerPart);
+  }
+
+  // Handle decimal part if it exists - read digit by digit
+  if (decimalPart > 0) {
+    const bilangan = [
+      "Nol",
+      "Satu",
+      "Dua",
+      "Tiga",
+      "Empat",
+      "Lima",
+      "Enam",
+      "Tujuh",
+      "Delapan",
+      "Sembilan",
+    ];
+
+    result += " Koma";
+
+    // Convert to string and pad with zero if needed (e.g., 5 becomes "05")
+    const decimalString = decimalPart.toString().padStart(2, "0");
+
+    // Read each digit separately
+    for (let i = 0; i < decimalString.length; i++) {
+      const digit = parseInt(decimalString[i]!);
+      result += " " + bilangan[digit];
+    }
+  }
+
+  return result;
 }
