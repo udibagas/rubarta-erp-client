@@ -6,17 +6,13 @@
           v-if="!menu.children"
           :to="menu.path"
           active-class="menu-active"
-          class="flex items-center gap-2"
           :class="{ 'justify-center': collapse }"
         >
           <component :is="menu.icon" class="w-4 h-4" />
           <span v-show="!collapse">{{ menu.label }}</span>
         </nuxt-link>
         <details v-else :open="!collapse && index === 0">
-          <summary
-            class="flex items-center gap-2"
-            :class="{ 'justify-center': collapse }"
-          >
+          <summary :class="{ 'justify-center': collapse }">
             <component :is="menu.icon" class="w-4 h-4" />
             <span v-show="!collapse">{{ menu.label }}</span>
           </summary>
@@ -26,7 +22,6 @@
                 v-if="child.visible"
                 :to="child.path"
                 exact-active-class="menu-active"
-                class="flex items-center gap-2 pl-6"
               >
                 <component :is="child.icon" class="w-3 h-3" />
                 {{ child.label }}
@@ -201,122 +196,10 @@ const menus = [
   height: 100%;
   overflow-y: auto;
   padding: 0.5rem;
-  background-color: #019932;
-}
-
-.sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background: #059669;
-  border-radius: 2px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background: #047857;
 }
 
 .menu {
-  --menu-active-fg: #019932;
-  --menu-active-bg: #ffffff;
-  border-radius: 0.5rem;
-}
-
-/* Menu item styling */
-:deep(.menu li) {
-  margin-bottom: 0.25rem;
-}
-
-:deep(.menu li > *) {
-  border-radius: 0.5rem;
-  margin: 0;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-:deep(.menu li > a) {
-  color: #ffffff;
-  padding: 0.75rem 1rem;
-}
-
-:deep(.menu li > a:hover) {
-  background-color: #027a2a;
-  color: #ffffff;
-}
-
-:deep(.menu li > a.menu-active) {
-  background-color: #ffffff;
-  color: #019932;
-  font-weight: 600;
-}
-
-/* Submenu styling */
-:deep(.menu details) {
-  margin-bottom: 0.25rem;
-}
-
-:deep(.menu details > summary) {
-  color: #ffffff;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-:deep(.menu details > summary:hover) {
-  background-color: #027a2a;
-  color: #ffffff;
-}
-
-:deep(.menu details[open] > summary) {
-  background-color: #027a2a;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-:deep(.menu details ul) {
-  padding: 0.25rem 0;
-  margin-top: 0.25rem;
-  background-color: #027a2a;
-  border-radius: 0.5rem;
-}
-
-:deep(.menu details ul li) {
-  margin-bottom: 0.125rem;
-}
-
-:deep(.menu details ul li > a) {
-  color: #e5e7eb;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-}
-
-:deep(.menu details ul li > a:hover) {
-  background-color: #015a20;
-  color: #ffffff;
-}
-
-:deep(.menu details ul li > a.menu-active) {
-  background-color: #ffffff;
-  color: #019932;
-  font-weight: 600;
-}
-
-/* Icon styling */
-:deep(.menu .w-4) {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-}
-
-:deep(.menu .w-3) {
-  width: 0.875rem;
-  height: 0.875rem;
-  flex-shrink: 0;
+  --menu-active-fg: var(--color-green-800);
+  --menu-active-bg: var(--color-green-100);
 }
 </style>

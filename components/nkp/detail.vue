@@ -189,7 +189,9 @@
       </tbody>
     </table>
 
-    <h1 v-if="detail.NkpAttachment.length">Attachment</h1>
+    <div class="font-bold mt-6 mb-4" v-if="detail.NkpAttachment.length">
+      Attachment
+    </div>
     <ul style="list-style: none; padding-left: 0">
       <li
         v-for="(attachment, i) in detail.NkpAttachment"

@@ -392,7 +392,7 @@
 
     <br />
 
-    <h1>Attachment</h1>
+    <div class="font-bold mt-6 mb-4">Attachment</div>
 
     <el-upload
       v-model:file-list="fileList"

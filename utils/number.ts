@@ -12,15 +12,27 @@ export const toCurrency = (value: string, currency: string = "IDR") => {
   return Number(value).toLocaleString("id-ID", {
     style: "currency",
     currency: currency,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: currency === "IDR" ? 0 : 2,
   });
 };
 
 export const toDecimal = (value: number) => {
   if (!value) return "0";
-  return Number(value).toLocaleString("id-ID", {
-    style: "decimal",
-  });
+  try {
+    const result = Number(value).toLocaleString("id-ID", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      style: "decimal",
+    });
+
+    if (result === "NaN") {
+      return "0";
+    }
+
+    return result;
+  } catch (error) {
+    return "0";
+  }
 };
 
 export function terbilang(a: number): string {
@@ -45,7 +57,7 @@ export function terbilang(a: number): string {
 
   // 1 - 11
   if (a < 12) {
-    kalimat = bilangan[a];
+    kalimat = bilangan[a]!;
   }
   // 12 - 19
   else if (a < 20) {

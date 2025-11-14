@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default;
+}
 
 .el-table {
   border-top: 1px solid #eee;
@@ -14,3 +17,8 @@
 .el-dialog__body {
   word-break: normal;
 }
+/* 
+a {
+  color: var(--color-green-400);
+  text-decoration: none;
+} */
