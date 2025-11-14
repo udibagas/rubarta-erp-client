@@ -17,6 +17,6 @@ npm install
 npm run generate
 
 # Restart the service
-pm2 restart erp
+# pm2 restart erp
 
 ENDSSH

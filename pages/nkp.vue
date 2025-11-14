@@ -93,8 +93,13 @@
       <el-table-column label="Type">
         <template #default="{ row }">
           {{ row.paymentType }} <br />
-          <el-tag type="warning" size="small" round effect="plain">
-            {{ row.nkpType?.replace("_", " ") }}
+          <el-tag
+            :type="getNkpTypeStyle(row.nkpType)"
+            size="small"
+            round
+            effect="plain"
+          >
+            {{ formatNkpType(row.nkpType) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -128,7 +133,7 @@
 
       <el-table-column label="Amount" align="right" fixed="right">
         <template #default="{ row }">
-          <el-tag type="success" class="font-mono">
+          <el-tag type="success" class="font-mono" size="large">
             {{
               toCurrency(
                 row.paymentType == "EMPLOYEE"
@@ -164,6 +169,8 @@
 <script setup>
 import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
+import { nkpTypes } from "~/constants/nkpTypes";
+
 const url = "/api/nkp";
 const queryKey = "nkp";
 const route = useRoute();
@@ -178,6 +185,25 @@ const {
   fetchData,
   companyId,
 } = useCrud({ url, queryKey });
+
+// Helper function to format NKP type display
+function formatNkpType(type) {
+  if (!type) return "";
+  return type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+// Helper function to get NKP type styling
+function getNkpTypeStyle(type) {
+  const styleMap = {
+    CASH_ADVANCE: "primary",
+    DECLARATION: "success",
+    SALARY: "primary",
+    DOWN_PAYMENT: "warning",
+    SETTLEMENT: "danger",
+  };
+
+  return styleMap[type] || "warning";
+}
 
 onMounted(() => {
   const { number } = route.query;
