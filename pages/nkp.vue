@@ -118,7 +118,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Description" prop="description" min-width="150" />
+      <el-table-column label="Description" prop="description">
+        <template #default="{ row }">
+          <span class="whitespace-pre-line line-clamp-3">
+            {{ row.description }}
+          </span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="Amount" align="right" fixed="right">
         <template #default="{ row }">
