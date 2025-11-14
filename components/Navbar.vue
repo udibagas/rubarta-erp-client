@@ -27,7 +27,7 @@
       </el-badge>
 
       <el-dropdown>
-        <el-avatar :size="30"> {{ user.name[0] }} </el-avatar>
+        <el-avatar :size="30"> {{ user?.name[0] }} </el-avatar>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
@@ -49,28 +49,32 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useQuery, useMutation } from "@tanstack/vue-query";
-const { collapse } = defineProps(["collapse"]);
 const emit = defineEmits(["toggle"]);
 const companyId = ref(useCookie("companyId"));
 const request = useRequest();
 const { user, logout } = useAuth();
 const showProfile = ref(false);
 
-const { data: companies } = useQuery({
+interface Company {
+  id: number;
+  code: string;
+  name: string;
+}
+
+const { data: companies } = useQuery<Company[]>({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
 });
 
-const { data: unread } = useQuery({
+const { data: unread } = useQuery<number>({
   queryKey: ["unread-notifications"],
   queryFn: () => request("/api/notifications/unread"),
 });
 
 const { mutate: changeCompany } = useMutation({
   mutationFn: (id) => request(`/api/companies/set/${id}`, { method: "POST" }),
-  queryKey: ["companyId"],
 });
 
 const handleClickLogout = () => {

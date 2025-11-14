@@ -1,14 +1,26 @@
 import { useAuthStore } from "~/stores/auth";
 
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+
 export const useAuth = () => {
   const authStore = useAuthStore();
   const request = useRequest();
   const router = useRouter();
 
-  const login = async (credentials) => {
+  const login = async (credentials: LoginCredentials) => {
     try {
       console.log("Login attempt with:", credentials);
-      const response = await request("/auth/login", {
+      const response = await request<{ user: User }>("/auth/login", {
         method: "POST",
         body: credentials,
       });
@@ -67,7 +79,7 @@ export const useAuth = () => {
   const fetchUser = async () => {
     try {
       // With cookie auth, we don't need to send any token - cookies are automatic
-      const user = await request("/auth/me", {
+      const user = await request<User>("/auth/me", {
         method: "GET",
       });
 
