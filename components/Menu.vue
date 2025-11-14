@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <ul class="menu w-full">
-      <li v-for="(menu, index) in visibleMenus" :key="menu.name">
+      <li v-for="(menu, index) in visibleMenus" :key="menu.label">
         <nuxt-link
           v-if="!menu.children"
           :to="menu.path"
@@ -34,19 +34,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { user } = useAuth();
 const { collapse } = defineProps(["collapse"]);
-const route = useRoute();
-
-// Function to check if a submenu should be open based on current route
-const isSubMenuOpen = (menuPath) => {
-  return route.path.startsWith(menuPath) && menuPath !== "/";
-};
 
 // Filter visible menus based on user roles
 const visibleMenus = computed(() => {
-  return menus.filter((menu) => menu.visible);
+  return menus.value.filter((menu) => menu.visible);
 });
 
 const menus = computed(() => [
@@ -78,7 +72,7 @@ const menus = computed(() => [
         label: "Report",
         path: "/report",
         icon: ElIconPieChart,
-        visible: user.value.roles.includes("ADMIN"),
+        visible: user.value?.roles?.includes("ADMIN") ?? false,
       },
     ],
   },
@@ -86,7 +80,7 @@ const menus = computed(() => [
     label: "CRM",
     path: "/crm",
     icon: ElIconCopyDocument,
-    visible: user.value.roles.includes("ADMIN"),
+    visible: user.value?.roles?.includes("ADMIN") ?? false,
     children: [
       {
         label: "Dashboard",
@@ -148,7 +142,7 @@ const menus = computed(() => [
     label: "Master Data",
     icon: ElIconCoin,
     path: "/master-data",
-    visible: user.value.roles.includes("ADMIN"),
+    visible: user.value?.roles?.includes("ADMIN") ?? false,
     children: [
       {
         label: "Companies",
