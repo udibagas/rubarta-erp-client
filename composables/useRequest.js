@@ -16,7 +16,7 @@ export default () => {
       });
 
       // Handle 401 unauthorized - redirect to login
-      if (error.response?.status === 401 && process.client) {
+      if (error.response?.status === 401 && import.meta.client) {
         // Clear auth store and redirect to login
         const { clearAuth } = useAuth();
         clearAuth();

@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   // Only run on client side after hydration
-  if (process.server) return;
+  if (import.meta.server) return;
 
   const { isAuthenticated, user } = useAuth();
 
