@@ -201,6 +201,7 @@
         <a
           :href="`${config.public.apiBase}/${attachment.filePath}`"
           target="_blank"
+          class="text-green-500 hover:text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1 rounded inline-flex items-center gap-2"
         >
           <el-icon>
             <ElIconDocument />

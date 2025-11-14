@@ -4,10 +4,8 @@
       <el-aside :width="collapse ? '80px' : '280px'" class="sidebar-container">
         <!-- User Profile Section -->
         <div v-show="!collapse" class="user-profile">
-          <div class="user-avatar">
-            <el-avatar :size="48" class="bg-green-500!">
-              {{ user?.name?.[0]?.toUpperCase() || "U" }}
-            </el-avatar>
+          <div class="flex items-center justify-center mb-4">
+            <img src="/images/logo.png" :size="48" class="h-20" />
           </div>
           <div class="user-info">
             <p class="user-name">{{ user?.name || "User" }}</p>
@@ -104,19 +102,6 @@ const collapse = ref(false);
   padding: 1.5rem;
   border-bottom: 1px solid var(--sidebar-border);
   /* background: #fafafa; */
-}
-
-.user-profile .user-avatar {
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: center;
-}
-
-.user-avatar-img {
-  background: var(--primary-color);
-  color: white;
-  font-weight: 600;
-  box-shadow: var(--shadow-md);
 }
 
 .user-info {
