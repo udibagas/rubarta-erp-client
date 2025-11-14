@@ -20,7 +20,7 @@ export const useAuth = () => {
   const login = async (credentials: LoginCredentials) => {
     try {
       console.log("Login attempt with:", credentials);
-      const response = await request<{ user: User }>("/auth/login", {
+      const response = await request<{ user: User }>("/api/auth/login", {
         method: "POST",
         body: credentials,
       });
@@ -56,7 +56,7 @@ export const useAuth = () => {
   const logout = async () => {
     try {
       // Call logout endpoint to clear server-side session/cookie
-      await request("/auth/logout", {
+      await request("/api/auth/logout", {
         method: "POST",
       }).catch(() => {
         // Ignore logout endpoint errors - still clear local auth
@@ -79,7 +79,7 @@ export const useAuth = () => {
   const fetchUser = async () => {
     try {
       // With cookie auth, we don't need to send any token - cookies are automatic
-      const user = await request<User>("/auth/me", {
+      const user = await request<User>("/api/auth/me", {
         method: "GET",
       });
 
@@ -127,6 +127,3 @@ export const useAuth = () => {
     clearAuth,
   };
 };
-
-// For backward compatibility
-export const useSanctumAuth = useAuth;
