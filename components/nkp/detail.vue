@@ -51,6 +51,7 @@
       <el-descriptions-item
         label="Invoice Number"
         v-if="detail.paymentType == 'VENDOR'"
+        class-name="font-mono"
       >
         {{ detail.invoiceNumber }}
       </el-descriptions-item>
@@ -58,6 +59,7 @@
       <el-descriptions-item
         label="Total Amount"
         v-if="detail.paymentType == 'VENDOR'"
+        class-name="font-mono font-bold"
       >
         {{ toCurrency(detail.totalAmount, detail.currency) }}
       </el-descriptions-item>
@@ -73,7 +75,7 @@
 
     <br />
 
-    <el-table :data="detail.NkpItem">
+    <el-table :data="detail.NkpItem" table-layout="auto">
       <el-table-column type="index" label="#" />
 
       <el-table-column label="DATE" width="120">
@@ -84,19 +86,21 @@
 
       <el-table-column label="DESCRIPTION" prop="description" />
 
-      <el-table-column label="AMOUNT" width="120" align="right">
+      <el-table-column label="AMOUNT" align="right">
         <template #default="{ row }">
-          <strong>{{ toDecimal(row.amount) }}</strong>
+          <span class="font-mono">
+            {{ toCurrency(row.amount, row.currency) }}
+          </span>
         </template>
       </el-table-column>
-
+      <!-- 
       <el-table-column
         label="CURR"
         prop="currency"
         width="80"
         align="center"
         header-align="center"
-      />
+      /> -->
     </el-table>
 
     <table class="table">
@@ -104,35 +108,37 @@
         <tr>
           <td>GRAND TOTAL</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.grandTotal) }}</strong>
-          </td>
-          <td class="text-center" style="width: 60px">
-            {{ detail.currency }}
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.grandTotal, detail.currency) }}
+            </span>
           </td>
         </tr>
 
         <tr v-if="detail.paymentType == 'VENDOR'">
           <td>TAX</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.tax) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.tax, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr v-if="detail.paymentType == 'VENDOR'">
           <td>DEDUCTION</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.deduction) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.deduction, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr v-if="detail.paymentType == 'VENDOR'">
           <td>NET AMOUNT</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.netAmount) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.netAmount, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr
@@ -142,9 +148,10 @@
         >
           <td>DOWN PAYMENT</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.downPayment) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.downPayment, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr
@@ -152,9 +159,10 @@
         >
           <td>CASH ADVANCE BALANCE</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.cashAdvanceBalance) }}</strong>
+            <span class="font-mono font-semibold">
+              {{ toCurrency(detail.cashAdvanceBalance, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr v-if="detail.paymentType == 'EMPLOYEE' && detail.parentId">
@@ -163,18 +171,20 @@
           </td>
           <td class="text-right">
             <el-text :type="detail.finalPayment > 0 ? 'success' : 'danger'">
-              <strong>{{ toDecimal(Math.abs(detail.finalPayment)) }}</strong>
+              <span class="font-mono font-semibold">
+                {{ toCurrency(Math.abs(detail.finalPayment), detail.currency) }}
+              </span>
             </el-text>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr v-if="detail.nkpType !== 'DECLARATION'">
           <td>TRANSFER TO {{ detail.paymentType }}</td>
           <td class="text-right">
-            <strong>{{ toDecimal(detail.finalPayment) }}</strong>
+            <span class="font-mono font-semibold text-green-500">
+              {{ toCurrency(detail.finalPayment, detail.currency) }}
+            </span>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
 
         <tr>
@@ -184,7 +194,6 @@
               {{ terbilang(detail.finalPayment).toUpperCase() }}
             </strong>
           </td>
-          <td class="text-center">{{ detail.currency }}</td>
         </tr>
       </tbody>
     </table>
