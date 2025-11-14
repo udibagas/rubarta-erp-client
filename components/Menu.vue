@@ -49,7 +49,7 @@ const visibleMenus = computed(() => {
   return menus.filter((menu) => menu.visible);
 });
 
-const menus = [
+const menus = computed(() => [
   {
     label: "Dashboard",
     path: "/",
@@ -188,7 +188,7 @@ const menus = [
       },
     ],
   },
-];
+]);
 </script>
 
 <style scoped>
