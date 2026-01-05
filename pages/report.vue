@@ -220,7 +220,7 @@ async function download(format) {
         data: data.map((el, index) => {
           return {
             No: ++index,
-            Date: el.date.slice(0, 9),
+            Date: el.date.slice(0, 10),
             Number: el.number,
             Type: `${el.paymentType} / ${el.nkpType}`,
             "Bank Ref No.": el.bankRefNo,
