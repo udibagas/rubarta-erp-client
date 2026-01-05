@@ -2,7 +2,7 @@
   <el-page-header @back="goBack" content="NKP REPORT">
     <template #extra>
       <div class="flex">
-        <el-radio-group v-model="filters.paymentType" size="small" class="mr-2">
+        <el-radio-group v-model="filters.paymentType" class="mr-2">
           <el-radio-button value="ALL">ALL</el-radio-button>
           <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
           <el-radio-button value="VENDOR">VENDOR</el-radio-button>
@@ -14,7 +14,6 @@
           range-separator="-"
           start-placeholder="Start"
           end-placeholder="End"
-          size="small"
           style="width: 200px"
           value-format="YYYY-MM-DD"
           format="DD/MM/YYYY"
@@ -24,7 +23,6 @@
         <el-dropdown
           split-button
           type="success"
-          size="small"
           @command="download"
           class="mr-2"
         >
@@ -68,7 +66,6 @@
 
         <el-button
           :icon="ElIconRefresh"
-          size="small"
           @click="
             () => {
               page = 1;
@@ -165,6 +162,10 @@ const {
 } = useCrud({
   url,
   queryKey,
+  defaultQuery: {
+    orderBy: "createdAt",
+    orderDirection: "asc",
+  },
 });
 
 watch(companyId, () => {

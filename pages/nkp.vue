@@ -169,7 +169,6 @@
 <script setup>
 import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
-import { nkpTypes } from "~/constants/nkpTypes";
 
 const url = "/api/nkp";
 const queryKey = "nkp";
@@ -184,7 +183,14 @@ const {
   refreshData,
   fetchData,
   companyId,
-} = useCrud({ url, queryKey });
+} = useCrud({
+  url,
+  queryKey,
+  defaultQuery: {
+    orderBy: "updatedAt",
+    orderDirection: "desc",
+  },
+});
 
 // Helper function to format NKP type display
 function formatNkpType(type) {

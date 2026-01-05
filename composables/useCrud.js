@@ -1,7 +1,7 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/vue-query";
 import { form, errors, show, openForm, closeForm } from "~/stores/form";
 
-export default ({ url, queryKey }) => {
+export default ({ url, queryKey, defaultQuery }) => {
   const page = ref(1);
   const pageSize = ref(10);
   const keyword = ref("");
@@ -22,6 +22,7 @@ export default ({ url, queryKey }) => {
             keyword: keyword.value,
             companyId: companyId.value,
             ...filters.value,
+            ...defaultQuery,
           },
         }),
     });
