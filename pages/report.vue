@@ -143,13 +143,11 @@
 </template>
 
 <script setup>
-import exportFromJSON from "export-from-json";
 const config = useRuntimeConfig();
 const url = "/api/nkp";
 const queryKey = "nkp-report";
 
 const {
-  request,
   page,
   pageSize,
   companyId,
@@ -203,38 +201,11 @@ async function download(format) {
     action: "download",
   };
 
-  if (format == "pdf") {
-    const query = new URLSearchParams(params).toString();
-    return window.open(
-      new URL(`${config.public.apiBase}/api/nkp?${query}`),
-      "_blank"
-    );
-  }
-
-  if (format == "excel") {
-    try {
-      const data = await request(url, { params });
-      exportFromJSON({
-        fileName: "report-nkp",
-        exportType: "xls",
-        data: data.map((el, index) => {
-          return {
-            No: ++index,
-            Date: el.date.slice(0, 10),
-            Number: el.number,
-            Type: `${el.paymentType} / ${el.nkpType}`,
-            "Bank Ref No.": el.bankRefNo,
-            "Invoice No.": el.invoiceNumber ?? "",
-            Description: el.description,
-            Amount: el.finalPayment > 0 ? el.finalPayment : el.grandTotal,
-            Curr: el.currency,
-          };
-        }),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const query = new URLSearchParams(params).toString();
+  return window.open(
+    new URL(`${config.public.apiBase}/api/nkp?${query}`),
+    "_blank"
+  );
 }
 </script>
 
