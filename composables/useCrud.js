@@ -10,20 +10,21 @@ export default ({ url, queryKey, defaultQuery }) => {
 
   const queryClient = useQueryClient();
   const request = useRequest();
+  const params = computed(() => ({
+    page: page.value,
+    pageSize: pageSize.value,
+    keyword: keyword.value,
+    companyId: companyId.value,
+    ...filters.value,
+    ...defaultQuery,
+  }));
 
   function fetchData() {
     return useQuery({
       queryKey: [queryKey],
       queryFn: () =>
         request(url, {
-          params: {
-            page: page.value,
-            pageSize: pageSize.value,
-            keyword: keyword.value,
-            companyId: companyId.value,
-            ...filters.value,
-            ...defaultQuery,
-          },
+          params: params.value,
         }),
     });
   }

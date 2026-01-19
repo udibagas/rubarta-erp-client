@@ -1,14 +1,25 @@
 <template>
   <el-page-header @back="goBack" content="Employees">
     <template #extra>
-      <el-button
-        size="small"
-        @click="openForm({ roles: ['USER'], password: '' })"
-        type="success"
-        :icon="ElIconPlus"
-      >
-        ADD NEW EMPLOYEE
-      </el-button>
+      <div class="flex gap-2">
+        <el-button
+          @click="openForm({ roles: ['USER'], password: '' })"
+          type="success"
+          :icon="ElIconPlus"
+        >
+          ADD NEW EMPLOYEE
+        </el-button>
+
+        <el-input
+          placeholder="Seach Employee"
+          v-model="keyword"
+          clearable
+          class="w-48!"
+          :prefix-icon="ElIconSearch"
+          @change="() => refreshData()"
+          @clear="() => refreshData()"
+        />
+      </div>
     </template>
   </el-page-header>
 
@@ -109,11 +120,17 @@
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/users",
-    queryKey: "users",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  keyword,
+} = useCrud({
+  url: "/api/users",
+  queryKey: "users",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
