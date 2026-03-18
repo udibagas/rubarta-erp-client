@@ -305,7 +305,7 @@
       </el-button>
 
       <el-button
-        v-if="allowAction"
+        v-if="allowdDelete"
         :icon="ElIconDelete"
         type="danger"
         @click="handleRemove(detail.id, closeDetailAndRemove)"
@@ -354,6 +354,13 @@ const allowAction = computed(() => {
   );
 });
 
+const allowdDelete = computed(() => {
+  return (
+    ["DRAFT", "SUBMITTED"].includes(detail.value.status) &&
+    user.value.id == detail.value.requesterId
+  );
+});
+
 const { request, edit, handleRemove, removeMutation, refreshData, openForm } =
   useCrud({ url: "/api/nkp", queryKey: "nkp" });
 
@@ -375,7 +382,7 @@ async function submit(id) {
     await ElMessageBox.confirm(
       "Anda yakin akan mengajukan permintaan ini?",
       "Warning",
-      { type: "warning" }
+      { type: "warning" },
     );
 
     await request(`/api/nkp/submit/${id}`, { method: "POST" });
