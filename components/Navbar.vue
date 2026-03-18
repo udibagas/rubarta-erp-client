@@ -52,7 +52,9 @@
 <script setup lang="ts">
 import { useQuery, useMutation } from "@tanstack/vue-query";
 const emit = defineEmits(["toggle"]);
-const companyId = ref(useCookie("companyId"));
+const companyId = ref<number | string | null>(
+  (useCookie("companyId").value as number | string) || null,
+);
 const request = useRequest();
 const { user, logout } = useAuth();
 const showProfile = ref(false);
@@ -67,6 +69,17 @@ const { data: companies } = useQuery<Company[]>({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
 });
+
+// Set default company when companies data loads
+watch(
+  companies,
+  (newCompanies) => {
+    if (newCompanies && newCompanies.length > 0 && !companyId.value) {
+      companyId.value = newCompanies?.[0]?.id || null;
+    }
+  },
+  { immediate: true },
+);
 
 const { data: unread } = useQuery<number>({
   queryKey: ["unread-notifications"],
