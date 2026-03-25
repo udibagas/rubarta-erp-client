@@ -78,10 +78,10 @@
       ></el-pagination>
     </div>
 
-    <el-card class="flex-grow" shadow="hover" v-if="selected.id">
+    <el-card class="grow" shadow="hover" v-if="selected.id">
       <template #header>
         <div class="card-header flex">
-          <div class="flex-grow">
+          <div class="grow">
             <h3 style="margin-bottom: 5px">{{ selected.title }}</h3>
             <small>
               {{ formatDateLong(selected.date) }}
@@ -119,7 +119,7 @@
       </p>
     </el-card>
 
-    <el-card class="flex-grow" shadow="hover" v-else>
+    <el-card class="grow" shadow="hover" v-else>
       <el-empty description="No message" />
     </el-card>
   </div>
@@ -190,7 +190,7 @@ function handleRemoveAll(callback) {
     "Warning",
     {
       type: "warning",
-    }
+    },
   )
     .then(() => callback())
     .catch(() => console.log(e));
