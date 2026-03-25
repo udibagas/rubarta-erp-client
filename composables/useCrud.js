@@ -5,7 +5,8 @@ export default ({ url, queryKey, defaultQuery }) => {
   const page = ref(1);
   const pageSize = ref(10);
   const keyword = ref("");
-  const companyId = ref(useCookie("companyId"));
+  const shared = useSharedStore();
+  const { companyId } = storeToRefs(shared);
   const filters = ref({});
 
   const queryClient = useQueryClient();

@@ -52,9 +52,8 @@
 <script setup lang="ts">
 import { useQuery, useMutation } from "@tanstack/vue-query";
 const emit = defineEmits(["toggle"]);
-const companyId = ref<number | string | null>(
-  (useCookie("companyId").value as number | string) || null,
-);
+const shared = useSharedStore();
+const { companyId } = storeToRefs(shared);
 const request = useRequest();
 const { user, logout } = useAuth();
 const showProfile = ref(false);
@@ -87,7 +86,10 @@ const { data: unread } = useQuery<number>({
 });
 
 const { mutate: changeCompany } = useMutation({
-  mutationFn: (id) => request(`/api/companies/set/${id}`, { method: "POST" }),
+  mutationFn: (id: number | string) => {
+    companyId.value = id;
+    return request(`/api/companies/set/${id}`, { method: "POST" });
+  },
 });
 
 const handleClickLogout = () => {
