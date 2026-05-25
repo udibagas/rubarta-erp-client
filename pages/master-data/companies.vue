@@ -18,6 +18,18 @@
     <el-table-column type="index" label="#"></el-table-column>
     <el-table-column min-width="100" label="Code" prop="code"></el-table-column>
     <el-table-column min-width="100" label="Name" prop="name"></el-table-column>
+    <el-table-column
+      min-width="100"
+      label="Is Default"
+      prop="isDefault"
+      align="center"
+    >
+      <template #default="{ row }">
+        <el-tag :type="row.isDefault ? 'success' : 'info'">
+          {{ row.isDefault ? "Yes" : "No" }}
+        </el-tag>
+      </template>
+    </el-table-column>
 
     <el-table-column
       fixed="right"

@@ -14,6 +14,10 @@
       <el-form-item label="Name" :error="errors.name">
         <el-input placeholder="Name" v-model="form.name"></el-input>
       </el-form-item>
+
+      <el-form-item label="Is Default" :error="errors.isDefault">
+        <el-switch v-model="form.isDefault"></el-switch>
+      </el-form-item>
     </el-form>
 
     <template #footer>
