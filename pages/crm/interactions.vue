@@ -1,7 +1,30 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Interactions">
     <template #extra>
-      <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+      <form
+        class="flex gap-2"
+        @submit.prevent="
+          () => {
+            page = 1;
+            refreshData();
+          }
+        "
+      >
+        <el-input
+          v-model="keyword"
+          placeholder="Cari"
+          style="width: 180px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          @clear="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
+        />
+        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+      </form>
     </template>
   </el-page-header>
 
@@ -29,9 +52,9 @@
       </template>
     </el-table-column>
     <el-table-column label="Notes" prop="notes" />
-    <el-table-column label="Last Update" prop="updatedAt" width="120">
+    <el-table-column label="Last Update" prop="updatedAt" width="150">
       <template #default="{ row }">
-        {{ formatDate(row.updatedAt) }}
+        {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
       </template>
     </el-table-column>
 
@@ -77,11 +100,18 @@
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/interactions",
-    queryKey: "interactions",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  keyword,
+  page,
+} = useCrud({
+  url: "/api/interactions",
+  queryKey: "interactions",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();

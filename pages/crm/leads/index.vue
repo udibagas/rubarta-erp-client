@@ -34,7 +34,13 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data?.data">
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data?.data"
+    @row-click="handleRowClick"
+    style="cursor: pointer"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column
@@ -57,7 +63,7 @@
     <el-table-column label="Customer" prop="Customer.name" min-width="200px" />
     <el-table-column label="User" prop="User.name" min-width="150px" />
     <el-table-column label="Source" prop="source" min-width="100px" />
-    <el-table-column label="Notes" prop="notes" min-width="200px" />
+    <el-table-column label="Title" prop="title" min-width="200px" />
 
     <el-table-column
       width="60px"
@@ -70,7 +76,7 @@
         </el-button>
       </template>
       <template #default="{ row }">
-        <el-dropdown>
+        <el-dropdown @click.stop>
           <span class="el-dropdown-link">
             <el-icon>
               <ElIconMoreFilled />
@@ -78,6 +84,12 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item
+                :icon="ElIconView"
+                @click.native.prevent="navigateTo(`/crm/leads/${row.id}`)"
+              >
+                View Details
+              </el-dropdown-item>
               <el-dropdown-item
                 :icon="ElIconEdit"
                 @click.native.prevent="openForm(row)"
@@ -139,4 +151,8 @@ watch(companyId, () => {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+const handleRowClick = (row) => {
+  navigateTo(`/crm/leads/${row.id}`);
+};
 </script>

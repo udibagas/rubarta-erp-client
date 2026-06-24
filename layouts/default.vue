@@ -29,10 +29,7 @@
           <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
         </el-header>
 
-        <el-main
-          class="main-container"
-          style="overflow-y: auto; background-color: #efefef"
-        >
+        <el-main class="main-container bg-slate-50!">
           <el-card>
             <slot />
           </el-card>
