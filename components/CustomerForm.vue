@@ -28,7 +28,7 @@
     </el-form>
 
     <template #footer>
-      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
+      <el-button :icon="ElIconCircleCloseFilled" @click="closeForm" type="info">
         CANCEL
       </el-button>
       <el-button :icon="ElIconSuccessFilled" type="success" @click="save(form)">
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-const { errors, form, show, closeForm, saveMutation, request } = useCrud({
+const { errors, form, show, closeForm, saveMutation } = useCrud({
   url: "/api/customers",
   queryKey: "customers",
 });
