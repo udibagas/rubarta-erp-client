@@ -113,6 +113,12 @@ const menus = computed(() => [
         visible: true,
       },
       {
+        label: "Quotations",
+        path: "/crm/quotations",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
         label: "Tasks",
         path: "/crm/tasks",
         icon: ElIconMemo,

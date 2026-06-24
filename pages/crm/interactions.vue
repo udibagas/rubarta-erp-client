@@ -7,7 +7,7 @@
         type="success"
         @click="openForm()"
       >
-        ADD NEW TASK
+        ADD NEW INTERACTION
       </el-button>
     </template>
   </el-page-header>
@@ -70,14 +70,14 @@
     </el-table-column>
   </el-table>
 
-  <CustomerForm />
+  <InteractionForm />
 </template>
 
 <script setup>
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
-    url: "/api/tasks",
-    queryKey: "tasks",
+    url: "/api/interactions",
+    queryKey: "interactions",
   });
 
 const { isPending, data } = fetchData();

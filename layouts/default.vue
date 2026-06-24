@@ -29,8 +29,13 @@
           <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
         </el-header>
 
-        <el-main class="main-container">
-          <slot />
+        <el-main
+          class="main-container"
+          style="overflow-y: auto; background-color: #efefef"
+        >
+          <el-card>
+            <slot />
+          </el-card>
         </el-main>
       </el-container>
     </el-container>
@@ -54,10 +59,10 @@ const collapse = ref(false);
   --header-bg: #ffffff;
   --content-bg: #f8fafc;
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Main Layout Container */

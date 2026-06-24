@@ -1,14 +1,25 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Orders">
+  <el-page-header @back="goBack" content="CRM / Quotations">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm()"
-      >
-        CREATE NEW ORDER
-      </el-button>
+      <div class="flex gap-2">
+        <el-button
+          size="small"
+          :icon="ElIconPlus"
+          type="success"
+          @click="openForm()"
+        >
+          CREATE QUOTATION
+        </el-button>
+
+        <el-input
+          v-model="keyword"
+          placeholder="Search"
+          size="small"
+          @change="refreshData()"
+          clearable
+        >
+        </el-input>
+      </div>
     </template>
   </el-page-header>
 
@@ -17,7 +28,9 @@
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#" width="60"></el-table-column>
 
-    <el-table-column label="Order #" prop="number" width="150" />
+    <el-table-column label="Quotation #" prop="number" width="150" />
+
+    <el-table-column label="Title" prop="title" min-width="200" />
 
     <el-table-column
       label="Status"
@@ -37,7 +50,13 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Customer" prop="Customer.name" min-width="200" />
+    <el-table-column label="Valid Until" width="120">
+      <template #default="{ row }">
+        {{ formatDate(row.validUntil) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Customer" prop="Customer.name" min-width="180" />
 
     <el-table-column label="User" prop="User.name" width="150" />
 
@@ -70,17 +89,6 @@
     </el-table-column>
 
     <el-table-column
-      label="Delivery Date"
-      width="130"
-      align="center"
-      header-align="center"
-    >
-      <template #default="{ row }">
-        {{ row.deliveryDate ? formatDate(row.deliveryDate) : "-" }}
-      </template>
-    </el-table-column>
-
-    <el-table-column
       width="60px"
       align="center"
       header-align="center"
@@ -100,10 +108,28 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item
+                :icon="ElIconView"
+                @click.native.prevent="viewQuotation(row)"
+              >
+                View
+              </el-dropdown-item>
+              <el-dropdown-item
                 :icon="ElIconEdit"
                 @click.native.prevent="edit(row.id)"
               >
                 Edit
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="row.status === 'Draft'"
+                @click.native.prevent="markAsSent(row.id)"
+              >
+                Mark as Sent
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="row.status === 'Sent'"
+                @click.native.prevent="markAsAccepted(row.id)"
+              >
+                Mark as Accepted
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="ElIconDelete"
@@ -118,16 +144,59 @@
     </el-table-column>
   </el-table>
 
-  <OrderForm />
+  <QuotationForm />
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove, edit } =
-  useCrud({
-    url: "/api/orders",
-    queryKey: "orders",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  edit,
+  keyword,
+  request,
+} = useCrud({
+  url: "/api/quotations",
+  queryKey: "quotations",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+function viewQuotation(quotation) {
+  // TODO: Implement quotation view/print/PDF export
+  ElMessage.info(`View quotation ${quotation.number}`);
+}
+
+async function markAsSent(quotationId) {
+  try {
+    await request(`/api/quotations/${quotationId}`, {
+      method: "PATCH",
+      body: {
+        status: "Sent",
+      },
+    });
+    ElMessage.success("Quotation marked as sent");
+    refreshData();
+  } catch (error) {
+    ElMessage.error("Failed to update quotation status");
+  }
+}
+
+async function markAsAccepted(quotationId) {
+  try {
+    await request(`/api/quotations/${quotationId}`, {
+      method: "PATCH",
+      body: {
+        status: "Accepted",
+      },
+    });
+    ElMessage.success("Quotation marked as accepted");
+    refreshData();
+  } catch (error) {
+    ElMessage.error("Failed to update quotation status");
+  }
+}
 </script>

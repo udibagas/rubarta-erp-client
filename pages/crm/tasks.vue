@@ -71,7 +71,7 @@
     </el-table-column>
   </el-table>
 
-  <CustomerForm />
+  <TaskForm />
 </template>
 
 <script setup>
