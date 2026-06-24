@@ -1,25 +1,16 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Contacts">
     <template #extra>
-      <div class="flex">
-        <el-button
-          size="small"
-          :icon="ElIconPlus"
-          type="success"
-          @click="openForm()"
-          class="mr-2"
-        >
-          ADD NEW CONTACTS
-        </el-button>
-
+      <div class="flex gap-2">
         <el-input
           v-model="keyword"
           placeholder="Search"
-          size="small"
           @change="refreshData()"
           clearable
-        >
-        </el-input>
+          :prefix-icon="ElIconSearch"
+          style="width: 200px"
+        />
+        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
       </div>
     </template>
   </el-page-header>
@@ -28,11 +19,11 @@
 
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
-    <el-table-column label="Name" prop="name" width="150" />
-    <el-table-column label="Customer" prop="Customer.name" />
-    <el-table-column label="Phone" prop="phone" width="150" />
-    <el-table-column label="Email" prop="email" width="150" />
-    <el-table-column label="Position" prop="position" width="150" />
+    <el-table-column label="Name" prop="name" min-width="150" />
+    <el-table-column label="Customer" prop="Customer.name" min-width="150" />
+    <el-table-column label="Phone" prop="phone" min-width="150" />
+    <el-table-column label="Email" prop="email" min-width="150" />
+    <el-table-column label="Position" prop="position" min-width="150" />
 
     <el-table-column
       width="60px"
