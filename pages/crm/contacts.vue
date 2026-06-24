@@ -22,7 +22,13 @@
     <el-table-column label="Name" prop="name" min-width="150" />
     <el-table-column label="Customer" prop="Customer.name" min-width="150" />
     <el-table-column label="Phone" prop="phone" min-width="150" />
-    <el-table-column label="Email" prop="email" min-width="150" />
+    <el-table-column label="Email" prop="email" min-width="150">
+      <template #default="{ row }">
+        <a :href="`mailto:${row.email}`" class="text-green-600 hover:underline">
+          {{ row.email }}
+        </a>
+      </template>
+    </el-table-column>
     <el-table-column label="Position" prop="position" min-width="150" />
 
     <el-table-column
