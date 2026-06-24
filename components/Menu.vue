@@ -88,18 +88,7 @@ const menus = computed(() => [
         icon: ElIconDataAnalysis,
         visible: true,
       },
-      {
-        label: "Customers",
-        path: "/crm/customers",
-        icon: ElIconConnection,
-        visible: true,
-      },
-      {
-        label: "Contacts",
-        path: "/crm/contacts",
-        icon: ElIconPhone,
-        visible: true,
-      },
+
       {
         label: "Leads",
         path: "/crm/leads",
@@ -110,12 +99,6 @@ const menus = computed(() => [
         label: "Opportunities",
         path: "/crm/opportunities",
         icon: ElIconOpportunity,
-        visible: true,
-      },
-      {
-        label: "Quotations",
-        path: "/crm/quotations",
-        icon: ElIconDocument,
         visible: true,
       },
       {
@@ -131,6 +114,12 @@ const menus = computed(() => [
         visible: true,
       },
       {
+        label: "Quotations",
+        path: "/crm/quotations",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
         label: "Orders",
         path: "/crm/orders",
         icon: ElIconShoppingCart,
@@ -140,6 +129,18 @@ const menus = computed(() => [
         label: "Invoices",
         path: "/crm/invoices",
         icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Customers",
+        path: "/crm/customers",
+        icon: ElIconConnection,
+        visible: true,
+      },
+      {
+        label: "Contacts",
+        path: "/crm/contacts",
+        icon: ElIconPhone,
         visible: true,
       },
     ],
