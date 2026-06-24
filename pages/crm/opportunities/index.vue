@@ -34,7 +34,13 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data?.data">
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data?.data"
+    @row-click="handleRowClick"
+    style="cursor: pointer"
+  >
     <el-table-column type="index" label="#"></el-table-column>
 
     <el-table-column
@@ -92,7 +98,7 @@
         </el-button>
       </template>
       <template #default="{ row }">
-        <el-dropdown>
+        <el-dropdown @click.stop>
           <span class="el-dropdown-link">
             <el-icon>
               <ElIconMoreFilled />
@@ -100,6 +106,14 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item
+                :icon="ElIconView"
+                @click.native.prevent="
+                  navigateTo(`/crm/opportunities/${row.id}`)
+                "
+              >
+                View Details
+              </el-dropdown-item>
               <el-dropdown-item
                 :icon="ElIconEdit"
                 @click.native.prevent="openForm(row)"
@@ -145,6 +159,9 @@ const {
   handleRemove,
   companyId,
   keyword,
+  pageSize,
+  currentChange,
+  sizeChange,
 } = useCrud({
   url: "/api/opportunities",
   queryKey: "opportunities",
@@ -152,4 +169,8 @@ const {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+const handleRowClick = (row) => {
+  navigateTo(`/crm/opportunities/${row.id}`);
+};
 </script>

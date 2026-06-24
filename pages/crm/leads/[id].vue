@@ -4,15 +4,33 @@
     :content="`CRM / Leads / ${lead?.Customer?.name || ''}`"
   >
     <template #extra>
-      <el-button
-        :icon="ElIconEdit"
-        type="success"
-        @click="openEditForm"
-        v-if="lead"
-      >
-        Edit
-      </el-button>
-      <el-button :icon="ElIconRefresh" @click="refetch" v-if="lead" />
+      <div class="flex gap-2">
+        <el-button :icon="ElIconRefresh" @click="refetch" v-if="lead" />
+        <el-dropdown v-if="lead" trigger="click">
+          <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">
+                Edit Lead
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="lead.status !== 'Converted'"
+                :icon="ElIconCheck"
+                @click="convertToOpportunity"
+              >
+                Convert to Opportunity
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="lead.status !== 'Converted'"
+                :icon="ElIconClose"
+                @click="markAsUnqualified"
+              >
+                Mark as Unqualified
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </template>
   </el-page-header>
 
@@ -40,7 +58,7 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Status">
-      <StatusTag :status="lead.status" effect="dark" />
+      <StatusTag :status="lead?.status" effect="dark" />
     </el-descriptions-item>
 
     <el-descriptions-item label="Source">
@@ -86,29 +104,9 @@
 
   <br />
 
-  <el-card v-if="lead.status !== 'Converted'">
-    <template #header>
-      <h3>Actions</h3>
-    </template>
-    <div class="flex gap-2">
-      <el-button
-        type="primary"
-        :icon="ElIconCheck"
-        @click="convertToOpportunity"
-      >
-        Convert to Opportunity
-      </el-button>
-      <el-button type="warning" :icon="ElIconClose" @click="markAsUnqualified">
-        Mark as Unqualified
-      </el-button>
-    </div>
-  </el-card>
-
-  <br v-if="lead.status !== 'Converted'" />
-
   <el-tabs>
     <el-tab-pane label="INTERACTIONS">
-      <el-table :data="lead.Interactions" stripe>
+      <el-table :data="lead?.Interactions ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Type" width="120">
           <template #default="{ row }">
@@ -141,13 +139,13 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!lead.Interactions || lead.Interactions.length === 0"
+        v-if="!lead?.Interactions || lead.Interactions.length === 0"
         description="No interactions found"
       />
     </el-tab-pane>
 
     <el-tab-pane label="TASKS">
-      <el-table :data="lead.Tasks" stripe>
+      <el-table :data="lead?.Tasks ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Title" prop="title" min-width="200" />
         <el-table-column label="Status" width="120">
@@ -189,13 +187,13 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!lead.Tasks || lead.Tasks.length === 0"
+        v-if="!lead?.Tasks || lead.Tasks.length === 0"
         description="No tasks found"
       />
     </el-tab-pane>
 
-    <el-tab-pane label="OPPORTUNITIES" v-if="lead.status === 'Converted'">
-      <el-table :data="lead.Opportunities" stripe>
+    <el-tab-pane label="OPPORTUNITIES" v-if="lead?.status === 'Converted'">
+      <el-table :data="lead?.Opportunities ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Name" prop="name" min-width="200" />
         <el-table-column label="Stage" width="150">
@@ -229,7 +227,7 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!lead.Opportunities || lead.Opportunities.length === 0"
+        v-if="!lead?.Opportunities || lead.Opportunities.length === 0"
         description="No opportunities found"
       />
     </el-tab-pane>
