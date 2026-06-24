@@ -19,14 +19,21 @@ export const toCurrency = (value: string, currency: string = "IDR") => {
   });
 };
 
-export const toDecimal = (value: number) => {
+export const toDecimal = (
+  value: number,
+  currency: string = "IDR",
+  fractionDigits: number = 0,
+) => {
   if (!value) return "0";
   try {
-    const result = Number(value).toLocaleString("id-ID", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      style: "decimal",
-    });
+    const result = Number(value).toLocaleString(
+      currency === "IDR" ? "id-ID" : "en-US",
+      {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
+        style: "decimal",
+      },
+    );
 
     if (result === "NaN") {
       return "0";
