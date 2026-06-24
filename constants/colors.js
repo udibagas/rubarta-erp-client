@@ -22,4 +22,12 @@ export const colors = {
   Proposal_Sent: "primary",
   Closed_Won: "success",
   Closed_Lost: "info",
+  Call: "warning",
+  Meeting: "primary",
+  Email: "info",
+  Follow_Up: "warning",
+  Demo: "primary",
+  Presentation: "primary",
+  Contract_Sent: "primary",
+  Contract_Signed: "success",
 };

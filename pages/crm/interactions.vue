@@ -1,14 +1,7 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Interactions">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm()"
-      >
-        ADD NEW INTERACTION
-      </el-button>
+      <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
     </template>
   </el-page-header>
 
@@ -17,16 +10,26 @@
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
 
-    <el-table-column label="Customer" prop="Customer.name" />
-    <el-table-column label="User" prop="User.name" />
-    <el-table-column label="Type" prop="type" />
-    <el-table-column label="Date">
+    <el-table-column label="Customer" prop="Customer.name" width="220" />
+    <el-table-column label="User" prop="User.name" width="200" />
+    <el-table-column
+      label="Type"
+      prop="type"
+      width="120"
+      align="center"
+      header-align="center"
+    >
+      <template #default="{ row }">
+        <StatusTag :status="row.type" effect="dark" />
+      </template>
+    </el-table-column>
+    <el-table-column label="Date" prop="date" width="120">
       <template #default="{ row }">
         {{ formatDate(row.date) }}
       </template>
     </el-table-column>
     <el-table-column label="Notes" prop="notes" />
-    <el-table-column label="Last Update">
+    <el-table-column label="Last Update" prop="updatedAt" width="120">
       <template #default="{ row }">
         {{ formatDate(row.updatedAt) }}
       </template>
