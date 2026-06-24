@@ -54,10 +54,10 @@
         {{ formatDate(row.createdAt) }}
       </template>
     </el-table-column>
-    <el-table-column label="Customer" prop="Customer.name" />
-    <el-table-column label="User" prop="User.name" />
-    <el-table-column label="Source" prop="source" width="150" />
-    <el-table-column label="Notes" prop="notes" />
+    <el-table-column label="Customer" prop="Customer.name" min-width="200px" />
+    <el-table-column label="User" prop="User.name" min-width="150px" />
+    <el-table-column label="Source" prop="source" min-width="100px" />
+    <el-table-column label="Notes" prop="notes" min-width="200px" />
 
     <el-table-column
       width="60px"
