@@ -1,13 +1,34 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Opportunities">
     <template #extra>
-      <el-button
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm({ companyId })"
+      <form
+        class="flex gap-2"
+        @submit.prevent="
+          () => {
+            page = 1;
+            refreshData();
+          }
+        "
       >
-        ADD NEW OPPORTUNITY
-      </el-button>
+        <el-input
+          v-model="keyword"
+          placeholder="Cari"
+          style="width: 180px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          @clear="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
+        />
+        <el-button
+          :icon="ElIconPlus"
+          type="success"
+          @click="openForm({ companyId })"
+        />
+      </form>
     </template>
   </el-page-header>
 
@@ -123,6 +144,7 @@ const {
   refreshData,
   handleRemove,
   companyId,
+  keyword,
 } = useCrud({
   url: "/api/opportunities",
   queryKey: "opportunities",
