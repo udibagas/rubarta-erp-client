@@ -2,6 +2,7 @@
   <el-page-header @back="goBack" content="CRM / Leads">
     <template #extra>
       <form
+        class="flex gap-2"
         @submit.prevent="
           () => {
             page = 1;
@@ -9,18 +10,7 @@
           }
         "
       >
-        <el-button
-          size="small"
-          @click="openForm({ companyId })"
-          type="success"
-          :icon="ElIconPlus"
-          class="mr-2"
-        >
-          NEW LEAD
-        </el-button>
-
         <el-input
-          size="small"
           v-model="keyword"
           placeholder="Cari"
           style="width: 180px"
@@ -32,8 +22,12 @@
               refreshData();
             }
           "
-        >
-        </el-input>
+        />
+        <el-button
+          @click="openForm({ companyId })"
+          type="success"
+          :icon="ElIconPlus"
+        />
       </form>
     </template>
   </el-page-header>
