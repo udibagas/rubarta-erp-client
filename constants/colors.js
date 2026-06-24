@@ -30,4 +30,14 @@ export const colors = {
   Presentation: "primary",
   Contract_Sent: "primary",
   Contract_Signed: "success",
+  Completed: "success",
+  In_Progress: "warning",
+  InProgress: "warning",
+  Todo: "warning",
+  On_Hold: "info",
+  Cancelled: "danger",
+  // task status
+  Pending: "warning",
+  Completed: "success",
+  Overdue: "danger",
 };

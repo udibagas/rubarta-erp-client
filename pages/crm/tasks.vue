@@ -1,14 +1,30 @@
 <template>
   <el-page-header @back="goBack" content="CRM / Tasks">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm()"
+      <form
+        class="flex gap-2"
+        @submit.prevent="
+          () => {
+            page = 1;
+            refreshData();
+          }
+        "
       >
-        ADD NEW TASK
-      </el-button>
+        <el-input
+          v-model="keyword"
+          placeholder="Cari"
+          style="width: 180px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          @clear="
+            () => {
+              page = 1;
+              refreshData();
+            }
+          "
+        />
+        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+      </form>
     </template>
   </el-page-header>
 
@@ -20,16 +36,27 @@
     <el-table-column label="User" prop="User.name" />
     <el-table-column label="Customer" prop="Customer.name" />
     <el-table-column label="Title" prop="title" />
-    <el-table-column label="Description" prop="description" />
     <el-table-column label="Due Date">
       <template #default="{ row }">
         {{ formatDate(row.dueDate) }}
       </template>
     </el-table-column>
-    <el-table-column label="Status" prop="status" />
+
+    <el-table-column
+      label="Status"
+      prop="status"
+      width="120"
+      align="center"
+      header-align="center"
+    >
+      <template #default="{ row }">
+        <StatusTag :status="row.status" style="width: 100%" effect="dark" />
+      </template>
+    </el-table-column>
+
     <el-table-column label="Last Update">
       <template #default="{ row }">
-        {{ formatDate(row.updatedAt) }}
+        {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
       </template>
     </el-table-column>
 
@@ -75,11 +102,18 @@
 </template>
 
 <script setup>
-const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
-  useCrud({
-    url: "/api/tasks",
-    queryKey: "tasks",
-  });
+const {
+  openForm,
+  removeMutation,
+  fetchData,
+  refreshData,
+  handleRemove,
+  keyword,
+  page,
+} = useCrud({
+  url: "/api/tasks",
+  queryKey: "tasks",
+});
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
