@@ -2,7 +2,6 @@
   <el-page-header @back="goBack" content="CRM / Opportunities">
     <template #extra>
       <el-button
-        size="small"
         :icon="ElIconPlus"
         type="success"
         @click="openForm({ companyId })"
@@ -35,18 +34,18 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Customer" prop="Customer.name" />
-    <el-table-column label="User" prop="User.name" />
-    <el-table-column label="Opportunity" prop="name" />
+    <el-table-column label="Customer" prop="Customer.name" min-width="150px" />
+    <el-table-column label="User" prop="User.name" min-width="150px" />
+    <el-table-column label="Opportunity" prop="name" min-width="200px" />
 
     <el-table-column
       label="Amount"
-      width="120"
+      min-width="120"
       align="right"
       header-align="right"
     >
       <template #default="{ row }">
-        <strong>{{ toDecimal(row.amount) }}</strong>
+        <div class="font-mono">{{ toDecimal(row.amount) }}</div>
       </template>
     </el-table-column>
 
