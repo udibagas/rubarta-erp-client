@@ -2,23 +2,15 @@
   <el-page-header @back="goBack" content="CRM / Quotations">
     <template #extra>
       <div class="flex gap-2">
-        <el-button
-          size="small"
-          :icon="ElIconPlus"
-          type="success"
-          @click="openForm()"
-        >
-          CREATE QUOTATION
-        </el-button>
-
         <el-input
           v-model="keyword"
           placeholder="Search"
-          size="small"
           @change="refreshData()"
           clearable
-        >
-        </el-input>
+          :prefix-icon="ElIconSearch"
+        />
+
+        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
       </div>
     </template>
   </el-page-header>
@@ -67,13 +59,13 @@
       header-align="right"
     >
       <template #default="{ row }">
-        {{ toDecimal(row.totalAmount) }}
+        <span class="font-mono"> {{ toDecimal(row.totalAmount) }} </span>
       </template>
     </el-table-column>
 
     <el-table-column label="VAT" width="120" align="right" header-align="right">
       <template #default="{ row }">
-        {{ toDecimal(row.vatAmount) }}
+        <span class="font-mono">{{ toDecimal(row.vatAmount) }}</span>
       </template>
     </el-table-column>
 
@@ -84,7 +76,9 @@
       header-align="right"
     >
       <template #default="{ row }">
-        <strong class="text-green-600">{{ toDecimal(row.grandTotal) }}</strong>
+        <div class="text-green-600 font-mono font-semibold">
+          {{ toDecimal(row.grandTotal) }}
+        </div>
       </template>
     </el-table-column>
 
