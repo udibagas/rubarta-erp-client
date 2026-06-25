@@ -156,19 +156,20 @@ export interface Task {
   dueDate: string;
   status: TaskStatus;
   priority: TaskPriority;
-  customerId?: number | null;
+  leadId?: number | null;
+  opportunityId?: number | null;
   userId: number;
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  Customer?: Customer;
   User?: { id: number; name: string };
 }
 
 export interface Interaction {
   id: number;
-  customerId: number;
+  leadId?: number | null;
+  opportunityId?: number | null;
   userId: number;
   type: InteractionType;
   date: string;
@@ -179,7 +180,6 @@ export interface Interaction {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
-  Customer?: Customer;
   User?: { id: number; name: string };
 }
 
