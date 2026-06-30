@@ -24,7 +24,7 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column label="Status" width="140">
+    <el-table-column label="Status" width="140" align="center">
       <template #default="{ row }">
         <StatusTag :status="row.status">
           <template #icon>
@@ -39,7 +39,7 @@
         </StatusTag>
       </template>
     </el-table-column>
-    <el-table-column label="Priority" width="100">
+    <el-table-column label="Priority" width="100" align="center">
       <template #default="{ row }">
         <el-tag
           :type="
@@ -54,15 +54,27 @@
         </el-tag>
       </template>
     </el-table-column>
-    <el-table-column label="Due Date" width="120">
+    <el-table-column label="Due Date" width="140">
       <template #default="{ row }">
-        {{ formatDate(row.dueDate) }}
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.dueDate).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">{{ formatDate(row.dueDate) }}</div>
+        </div>
       </template>
     </el-table-column>
     <el-table-column label="Assigned To" prop="User.name" width="150" />
-    <el-table-column label="Last Update" width="150">
+    <el-table-column label="Last Update" width="140">
       <template #default="{ row }">
-        {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.updatedAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.updatedAt) }}
+          </div>
+        </div>
       </template>
     </el-table-column>
     <el-table-column width="60" align="center" fixed="right">
@@ -75,10 +87,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item
-                :icon="ElIconEdit"
-                @click="handleEditTask(row)"
-              >
+              <el-dropdown-item :icon="ElIconEdit" @click="handleEditTask(row)">
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
@@ -97,7 +106,7 @@
 
   <el-dialog
     v-model="showTaskForm"
-    width="600px"
+    width="750px"
     :title="taskFormData.id ? 'EDIT TASK' : 'ADD TASK'"
     :close-on-click-modal="false"
     @close="taskFormData = {}"
@@ -139,12 +148,38 @@
               v-model="taskFormData.status"
               placeholder="Select status"
             >
+              <template #prefix>
+                <el-icon>
+                  <ElIconCircleCheck
+                    v-if="taskFormData.status === 'Completed'"
+                  />
+                  <ElIconLoading
+                    v-else-if="taskFormData.status === 'InProgress'"
+                  />
+                  <ElIconWarning v-else-if="taskFormData.status === 'OnHold'" />
+                  <ElIconCircleClose
+                    v-else-if="taskFormData.status === 'Cancelled'"
+                  />
+                  <ElIconClock v-else />
+                </el-icon>
+              </template>
               <el-option
                 v-for="status in taskStatuses"
                 :key="status"
                 :value="status"
                 :label="status"
-              />
+              >
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <el-icon>
+                    <ElIconCircleCheck v-if="status === 'Completed'" />
+                    <ElIconLoading v-else-if="status === 'InProgress'" />
+                    <ElIconWarning v-else-if="status === 'OnHold'" />
+                    <ElIconCircleClose v-else-if="status === 'Cancelled'" />
+                    <ElIconClock v-else />
+                  </el-icon>
+                  <span>{{ status }}</span>
+                </div>
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -156,7 +191,7 @@
           type="date"
           placeholder="Due date"
           value-format="YYYY-MM-DD"
-          format="YYYY-MM-DD"
+          format="DD-MMM-YYYY"
           style="width: 100%"
         />
       </el-form-item>
@@ -173,6 +208,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { taskPriorities } from "~/constants/taskPriorities";
 import { taskStatuses } from "~/constants/taskStatuses";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const props = defineProps({
   leadId: {
@@ -225,9 +264,13 @@ const handleEditTask = (task) => {
 };
 
 const handleDeleteTask = (id) => {
-  ElMessageBox.confirm("Are you sure you want to delete this task?", "Warning", {
-    type: "warning",
-  })
+  ElMessageBox.confirm(
+    "Are you sure you want to delete this task?",
+    "Warning",
+    {
+      type: "warning",
+    },
+  )
     .then(() => {
       deleteTaskMutation(id);
     })
