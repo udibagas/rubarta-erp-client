@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="500px"
+    width="600px"
     :title="!!form.id ? 'EDIT LEAD' : 'ADD LEAD'"
     :close-on-click-modal="false"
   >
@@ -18,6 +18,15 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Title" :error="errors.title">
+        <el-input
+          v-model="form.title"
+          placeholder="Lead title"
+          maxlength="200"
+          show-word-limit
+        />
+      </el-form-item>
+
       <el-form-item label="Customer" :error="errors.customerId">
         <el-select
           v-model="form.customerId"
@@ -27,6 +36,18 @@
         >
           <el-option
             v-for="(el, i) in customers"
+            :value="el.id"
+            :label="el.name"
+            :key="i"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Assigned User" :error="errors.userId">
+        <el-select v-model="form.userId" placeholder="Select user" filterable>
+          <el-option
+            v-for="(el, i) in users"
             :value="el.id"
             :label="el.name"
             :key="i"
@@ -59,9 +80,29 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Estimated Value" :error="errors.estimatedValue">
+        <el-input
+          v-model="form.estimatedValue"
+          placeholder="0"
+          style="width: 100%"
+          :formatter="
+            (value) => {
+              if (!value) return '';
+              const parts = value.toString().split('.');
+              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              return parts.join(',');
+            }
+          "
+          :parser="(value) => value.replace(/\./g, '').replace(',', '.')"
+        >
+          <template #prepend>Rp</template>
+        </el-input>
+      </el-form-item>
+
       <el-form-item label="Notes" :error="errors.notes">
         <el-input
           type="textarea"
+          :rows="3"
           placeholder="Notes"
           v-model="form.notes"
         ></el-input>
@@ -99,5 +140,10 @@ const { data: customers } = useQuery({
 const { data: companies } = useQuery({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
+});
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
 });
 </script>

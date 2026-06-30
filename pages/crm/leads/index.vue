@@ -23,11 +23,7 @@
             }
           "
         />
-        <el-button
-          @click="openForm({ companyId })"
-          type="success"
-          :icon="ElIconPlus"
-        />
+        <el-button @click="handleNewLead" type="success" :icon="ElIconPlus" />
       </form>
     </template>
   </el-page-header>
@@ -41,29 +37,82 @@
     @row-click="handleRowClick"
     style="cursor: pointer"
   >
-    <el-table-column type="index" label="#"></el-table-column>
-
-    <el-table-column
-      label="Status"
-      prop="status"
-      width="150"
-      align="center"
-      header-align="center"
-    >
-      <template #default="{ row }">
-        <StatusTag :status="row.status" style="width: 100%" effect="dark" />
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Date" width="120">
+    <el-table-column label="Date" width="110">
       <template #default="{ row }">
         {{ formatDate(row.createdAt) }}
       </template>
     </el-table-column>
-    <el-table-column label="Customer" prop="Customer.name" min-width="200px" />
-    <el-table-column label="User" prop="User.name" min-width="150px" />
-    <el-table-column label="Source" prop="source" min-width="100px" />
-    <el-table-column label="Title" prop="title" min-width="200px" />
+
+    <el-table-column label="Title" prop="title" min-width="250">
+      <template #default="{ row }">
+        <span class="text-gray-900 font-semibold">{{ row.title }}</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Customer" prop="Customer.name" min-width="200" />
+
+    <el-table-column label="Status" prop="status" width="130" align="center">
+      <template #default="{ row }">
+        <StatusTag :status="row.status" size="small" effect="dark">
+          <template #icon>
+            <el-icon>
+              <StarFilled v-if="row.status === 'New'" />
+              <PhoneFilled v-else-if="row.status === 'Contacted'" />
+              <CircleCheckFilled v-else-if="row.status === 'Qualified'" />
+              <SuccessFilled v-else-if="row.status === 'Converted'" />
+              <CircleCloseFilled v-else-if="row.status === 'Unqualified'" />
+              <CloseBold v-else-if="row.status === 'Lost'" />
+              <More v-else />
+            </el-icon>
+          </template>
+        </StatusTag>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Source" prop="source" width="150" align="center">
+      <template #default="{ row }">
+        <StatusTag :status="row.source" size="small">
+          <template #icon>
+            <el-icon>
+              <Share v-if="row.source === 'Referral'" />
+              <Promotion v-else-if="row.source === 'Advertisement'" />
+              <ChatDotRound v-else-if="row.source === 'SocialMedia'" />
+              <Link v-else-if="row.source === 'Website'" />
+              <Phone v-else-if="row.source === 'ColdCall'" />
+              <Calendar v-else-if="row.source === 'Event'" />
+              <More v-else />
+            </el-icon>
+          </template>
+        </StatusTag>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Est. Value" width="150" align="right">
+      <template #default="{ row }">
+        <span
+          v-if="row.estimatedValue"
+          class="font-mono font-semibold text-green-600"
+        >
+          {{ toCurrency(row.estimatedValue.toString()) }}
+        </span>
+        <span v-else class="text-gray-400">-</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Assigned To" prop="User.name" width="150" />
+
+    <el-table-column label="Last Update" width="140">
+      <template #default="{ row }">
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.updatedAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.updatedAt) }}
+          </div>
+        </div>
+      </template>
+    </el-table-column>
 
     <el-table-column
       width="60px"
@@ -127,8 +176,31 @@
 </template>
 
 <script setup>
+import {
+  StarFilled,
+  PhoneFilled,
+  CircleCheckFilled,
+  SuccessFilled,
+  CircleCloseFilled,
+  CloseBold,
+  More,
+  Share,
+  Promotion,
+  ChatDotRound,
+  Link,
+  Phone,
+  Calendar,
+} from "@element-plus/icons-vue";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+
 const url = "/api/leads";
 const queryKey = "leads";
+
+const authStore = useAuthStore();
+const currentUserId = computed(() => authStore.user?.id);
 
 const {
   page,
@@ -143,6 +215,13 @@ const {
   removeMutation,
   fetchData,
 } = useCrud({ url, queryKey });
+
+const handleNewLead = () => {
+  openForm({
+    companyId: companyId.value,
+    userId: currentUserId.value,
+  });
+};
 
 watch(companyId, () => {
   page.value = 1;

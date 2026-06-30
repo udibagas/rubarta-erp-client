@@ -70,7 +70,7 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Estimated Value">
-      <span class="font-mono font-semibold">
+      <span class="font-mono font-semibold text-green-500">
         {{
           lead.estimatedValue ? toCurrency(lead.estimatedValue.toString()) : "-"
         }}
@@ -86,11 +86,21 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Created At">
-      {{ formatDateLong(lead.createdAt) }}
+      <div>
+        <div class="font-semibold">{{ dayjs(lead.createdAt).fromNow() }}</div>
+        <div class="text-xs text-gray-500">
+          {{ formatDateLong(lead.createdAt) }} {{ formatTime(lead.createdAt) }}
+        </div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item label="Updated At">
-      {{ formatDateLong(lead.updatedAt) }}
+      <div>
+        <div class="font-semibold">{{ dayjs(lead.updatedAt).fromNow() }}</div>
+        <div class="text-xs text-gray-500">
+          {{ formatDateLong(lead.updatedAt) }} {{ formatTime(lead.updatedAt) }}
+        </div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item
@@ -123,6 +133,10 @@
 
 <script setup>
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const route = useRoute();
 const request = useRequest();
