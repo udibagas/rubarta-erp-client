@@ -106,130 +106,15 @@
 
   <el-tabs>
     <el-tab-pane label="INTERACTIONS">
-      <el-table :data="lead?.Interactions ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Type" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.type" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.date) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Subject" prop="subject" min-width="200" />
-        <el-table-column label="Duration" width="100" align="center">
-          <template #default="{ row }">
-            {{ row.duration ? `${row.duration} min` : "-" }}
-          </template>
-        </el-table-column>
-        <el-table-column label="User" prop="User.name" width="150" />
-        <el-table-column label="Outcome" prop="outcome" min-width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/interactions?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!lead?.Interactions || lead.Interactions.length === 0"
-        description="No interactions found"
-      />
+      <CrmInteractionsTab :lead-id="leadId" />
     </el-tab-pane>
 
     <el-tab-pane label="TASKS">
-      <el-table :data="lead?.Tasks ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Title" prop="title" min-width="200" />
-        <el-table-column label="Status" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Priority" width="100">
-          <template #default="{ row }">
-            <el-tag
-              :type="
-                row.priority === 'Urgent'
-                  ? 'danger'
-                  : row.priority === 'High'
-                    ? 'warning'
-                    : 'info'
-              "
-            >
-              {{ row.priority }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="Due Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.dueDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Assigned To" prop="User.name" width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/tasks?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!lead?.Tasks || lead.Tasks.length === 0"
-        description="No tasks found"
-      />
+      <CrmTasksTab :lead-id="leadId" />
     </el-tab-pane>
 
     <el-tab-pane label="OPPORTUNITIES" v-if="lead?.status === 'Converted'">
-      <el-table :data="lead?.Opportunities ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Name" prop="name" min-width="200" />
-        <el-table-column label="Stage" width="150">
-          <template #default="{ row }">
-            <StatusTag :status="row.stage" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Amount" width="150" align="right">
-          <template #default="{ row }">
-            <strong>{{ toCurrency(row.amount.toString()) }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="Probability" width="100" align="center">
-          <template #default="{ row }"> {{ row.probability }}% </template>
-        </el-table-column>
-        <el-table-column label="Expected Close" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.expectedCloseDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/opportunities?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!lead?.Opportunities || lead.Opportunities.length === 0"
-        description="No opportunities found"
-      />
+      <CrmOpportunitiesTab :lead-id="leadId" />
     </el-tab-pane>
   </el-tabs>
 

@@ -1,6 +1,9 @@
 <template>
   <el-tag :type="colors[status]" effect="dark" round>
-    {{ status.replace("_", " ") }}
+    <div class="flex items-center gap-1">
+      <slot name="icon" />
+      <span>{{ status.replace("_", " ") }}</span>
+    </div>
   </el-tag>
 </template>
 

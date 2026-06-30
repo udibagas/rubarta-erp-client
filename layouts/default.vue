@@ -29,7 +29,7 @@
           <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
         </el-header>
 
-        <el-main class="main-container bg-slate-50!">
+        <el-main class="main-container bg-slate-50! p-4!">
           <el-card>
             <slot />
           </el-card>

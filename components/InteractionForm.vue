@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="600px"
+    width="750px"
     :title="!!form.id ? 'EDIT INTERACTION' : 'ADD INTERACTION'"
     :close-on-click-modal="false"
   >
