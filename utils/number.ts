@@ -9,7 +9,6 @@ export const toRupiah = (value: string) => {
 
 // assume currency is either IDR, USD or AUD
 export const toCurrency = (value: string, currency: string = "IDR") => {
-  console.log("toCurrency called with:", value, currency);
   if (!value) return "0";
   return Number(value).toLocaleString(currency === "IDR" ? "id-ID" : "en-US", {
     style: "currency",
