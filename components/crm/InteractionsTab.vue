@@ -1,37 +1,52 @@
 <template>
-  <div class="mb-4 flex justify-end">
+  <div class="mb-4 flex justify-between items-center gap-4">
+    <el-input
+      v-model="searchQuery"
+      placeholder="Search interactions..."
+      clearable
+      style="max-width: 300px"
+    >
+      <template #prefix>
+        <el-icon><Search /></el-icon>
+      </template>
+    </el-input>
+
     <el-button type="success" :icon="ElIconPlus" @click="handleNewInteraction">
       New Interaction
     </el-button>
   </div>
 
-  <el-table :data="data" stripe v-loading="isPending">
-    <el-table-column type="index" label="#" width="50" />
-    <el-table-column label="Type & Date" width="150">
+  <el-table :data="filteredData" stripe v-loading="isPending">
+    <el-table-column label="Date" width="150">
       <template #default="{ row }">
         <div>
-          <div>
-            <StatusTag :status="row.type">
-              <template #icon>
-                <el-icon>
-                  <Phone v-if="row.type === 'Call'" />
-                  <Message v-else-if="row.type === 'Email'" />
-                  <Calendar v-else-if="row.type === 'Meeting'" />
-                  <Monitor v-else-if="row.type === 'Demo'" />
-                  <Location v-else-if="row.type === 'SiteVisit'" />
-                  <Document v-else-if="row.type === 'Presentation'" />
-                  <Refresh v-else-if="row.type === 'FollowUp'" />
-                  <More v-else />
-                </el-icon>
-              </template>
-            </StatusTag>
-          </div>
-          <div class="text-sm text-gray-500 mt-1">
-            {{ formatDate(row.date) }}
+          <div class="font-semibold">{{ dayjs(row.date).fromNow() }}</div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.date) }} {{ formatTime(row.date) }}
           </div>
         </div>
       </template>
     </el-table-column>
+
+    <el-table-column label="Type" width="150" align="center">
+      <template #default="{ row }">
+        <StatusTag :status="row.type" size="medium">
+          <template #icon>
+            <el-icon>
+              <Phone v-if="row.type === 'Call'" />
+              <Message v-else-if="row.type === 'Email'" />
+              <Calendar v-else-if="row.type === 'Meeting'" />
+              <Monitor v-else-if="row.type === 'Demo'" />
+              <Location v-else-if="row.type === 'SiteVisit'" />
+              <Document v-else-if="row.type === 'Presentation'" />
+              <Refresh v-else-if="row.type === 'FollowUp'" />
+              <More v-else />
+            </el-icon>
+          </template>
+        </StatusTag>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Subject" min-width="200">
       <template #default="{ row }">
         <div>
@@ -51,8 +66,12 @@
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
   </el-table>
   <el-empty
-    v-if="!data || data.length === 0"
-    description="No interactions found"
+    v-if="!filteredData || filteredData.length === 0"
+    :description="
+      searchQuery
+        ? 'No interactions match your search'
+        : 'No interactions found'
+    "
   />
 
   <el-dialog
@@ -63,20 +82,74 @@
     @close="interactionFormData = {}"
   >
     <el-form label-width="140px" label-position="left">
+      <el-form-item label="Type" required :error="errors.type">
+        <el-select
+          v-model="interactionFormData.type"
+          placeholder="Select interaction type"
+        >
+          <template #prefix>
+            <el-icon>
+              <Phone v-if="interactionFormData.type === 'Call'" />
+              <Message v-else-if="interactionFormData.type === 'Email'" />
+              <Calendar v-else-if="interactionFormData.type === 'Meeting'" />
+              <Monitor v-else-if="interactionFormData.type === 'Demo'" />
+              <Location v-else-if="interactionFormData.type === 'SiteVisit'" />
+              <Document
+                v-else-if="interactionFormData.type === 'Presentation'"
+              />
+              <Refresh v-else-if="interactionFormData.type === 'FollowUp'" />
+              <More v-else />
+            </el-icon>
+          </template>
+          <el-option
+            v-for="type in interactionTypes"
+            :key="type"
+            :value="type"
+            :label="type"
+          >
+            <div style="display: flex; align-items: center">
+              <el-icon style="margin-right: 8px">
+                <Phone v-if="type === 'Call'" />
+                <Message v-else-if="type === 'Email'" />
+                <Calendar v-else-if="type === 'Meeting'" />
+                <Monitor v-else-if="type === 'Demo'" />
+                <Location v-else-if="type === 'SiteVisit'" />
+                <Document v-else-if="type === 'Presentation'" />
+                <Refresh v-else-if="type === 'FollowUp'" />
+                <More v-else />
+              </el-icon>
+              <span>{{ type }}</span>
+            </div>
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="User" required :error="errors.userId">
+        <el-select
+          v-model="interactionFormData.userId"
+          placeholder="Select user"
+          filterable
+        >
+          <el-option
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+            :label="user.name"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-row :gutter="16">
         <el-col :span="12">
-          <el-form-item label="Type" required>
-            <el-select
-              v-model="interactionFormData.type"
-              placeholder="Interaction type"
-            >
-              <el-option
-                v-for="type in interactionTypes"
-                :key="type"
-                :value="type"
-                :label="type"
-              />
-            </el-select>
+          <el-form-item label="Date" required :error="errors.date">
+            <el-date-picker
+              v-model="interactionFormData.date"
+              type="datetime"
+              placeholder="Interaction date"
+              value-format="YYYY-MM-DDTHH:mm:ssZ"
+              format="DD-MMM-YYYY HH:mm"
+              style="width: 100%"
+            />
           </el-form-item>
         </el-col>
 
@@ -92,18 +165,7 @@
         </el-col>
       </el-row>
 
-      <el-form-item label="Date" required>
-        <el-date-picker
-          v-model="interactionFormData.date"
-          type="datetime"
-          placeholder="Interaction date"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          format="YYYY-MM-DD HH:mm"
-          style="width: 100%"
-        />
-      </el-form-item>
-
-      <el-form-item label="Subject" required>
+      <el-form-item label="Subject" required :error="errors.subject">
         <el-input
           placeholder="Interaction subject"
           v-model="interactionFormData.subject"
@@ -135,7 +197,9 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import {
   Phone,
   Message,
@@ -145,8 +209,11 @@ import {
   Document,
   Refresh,
   More,
+  Search,
 } from "@element-plus/icons-vue";
 import { interactionTypes } from "~/constants/interactionTypes";
+
+dayjs.extend(relativeTime);
 
 const props = defineProps({
   leadId: {
@@ -163,8 +230,13 @@ const props = defineProps({
   },
 });
 
+const errors = ref({});
+
 const request = useRequest();
 const queryClient = useQueryClient();
+
+// Search functionality
+const searchQuery = ref("");
 
 // Local form state to avoid conflicts with global form store
 const showInteractionForm = ref(false);
@@ -176,26 +248,26 @@ const handleNewInteraction = () => {
   };
 
   if (props.leadId) {
-    newInteraction.leadId = props.leadId;
+    newInteraction.leadId = +props.leadId;
   }
 
   if (props.opportunityId) {
-    newInteraction.opportunityId = props.opportunityId;
-  }
-
-  if (props.customerId) {
-    newInteraction.customerId = props.customerId;
+    newInteraction.opportunityId = +props.opportunityId;
   }
 
   interactionFormData.value = newInteraction;
   showInteractionForm.value = true;
 };
 
-const { mutate: saveInteractionMutation, isPending: isSaving } = useMutation({
-  mutationFn: (data) => {
-    return request("/api/interactions", { method: "POST", body: data });
-  },
-  onSuccess: () => {
+const isSaving = ref(false);
+
+const saveInteraction = async () => {
+  try {
+    isSaving.value = true;
+    await request("/api/interactions", {
+      method: "POST",
+      body: interactionFormData.value,
+    });
     showInteractionForm.value = false;
     interactionFormData.value = {};
     queryClient.invalidateQueries({ queryKey: ["interactions"] });
@@ -204,18 +276,18 @@ const { mutate: saveInteractionMutation, isPending: isSaving } = useMutation({
       type: "success",
       showClose: true,
     });
-  },
-  onError: (error) => {
+  } catch (error) {
+    errors.value = parseError(error);
+    console.error("Error saving interaction:", errors.value);
+
     ElMessage({
       message: error.message || "Failed to save interaction",
       type: "error",
       showClose: true,
     });
-  },
-});
-
-const saveInteraction = () => {
-  saveInteractionMutation(interactionFormData.value);
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 const { data, isPending } = useQuery({
@@ -234,5 +306,31 @@ const { data, isPending } = useQuery({
     return await request(`/api/interactions${query}`);
   },
   enabled: computed(() => !!(props.leadId || props.opportunityId)),
+});
+
+// Fetch users for the select dropdown
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: async () => {
+    return await request("/api/users");
+  },
+});
+
+// Filter data based on search query
+const filteredData = computed(() => {
+  if (!data.value || !Array.isArray(data.value)) return [];
+
+  if (!searchQuery.value) return data.value;
+
+  const query = searchQuery.value.toLowerCase();
+  return data.value.filter((interaction) => {
+    return (
+      interaction.subject?.toLowerCase().includes(query) ||
+      interaction.notes?.toLowerCase().includes(query) ||
+      interaction.outcome?.toLowerCase().includes(query) ||
+      interaction.User?.name?.toLowerCase().includes(query) ||
+      interaction.type?.toLowerCase().includes(query)
+    );
+  });
 });
 </script>
