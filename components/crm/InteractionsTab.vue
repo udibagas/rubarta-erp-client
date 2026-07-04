@@ -65,12 +65,47 @@
     </el-table-column>
     <el-table-column label="User" prop="User.name" width="150" />
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
+    <el-table-column width="60" align="center" fixed="right">
+      <template #default="{ row }">
+        <el-dropdown>
+          <span class="el-dropdown-link">
+            <el-icon>
+              <ElIconMoreFilled />
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item
+                :icon="ElIconEdit"
+                @click="handleEditInteraction(row)"
+              >
+                Edit
+              </el-dropdown-item>
+              <el-dropdown-item
+                :icon="ElIconDelete"
+                @click="handleDeleteInteraction(row.id)"
+              >
+                Delete
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </template>
+    </el-table-column>
   </el-table>
+  <el-empty
+    v-if="!filteredData || filteredData.length === 0"
+    :description="
+      searchQuery
+        ? 'No interactions match your search'
+        : 'No interactions found'
+    "
+  />
 
   <el-dialog
     v-model="showInteractionForm"
     width="750px"
-    title="ADD INTERACTION"
+    :title="interactionFormData.id ? 'EDIT INTERACTION' : 'ADD INTERACTION'"
     :close-on-click-modal="false"
     @close="interactionFormData = {}"
   >
@@ -237,7 +272,7 @@ const interactionFormData = ref({});
 
 const handleNewInteraction = () => {
   const newInteraction = {
-    date: new Date().toISOString().slice(0, 19).replace("T", " "),
+    date: new Date().toISOString(),
   };
 
   if (props.leadId) {
@@ -252,15 +287,58 @@ const handleNewInteraction = () => {
   showInteractionForm.value = true;
 };
 
+const handleEditInteraction = (interaction) => {
+  interactionFormData.value = { ...interaction };
+  showInteractionForm.value = true;
+};
+
+const handleDeleteInteraction = (id) => {
+  ElMessageBox.confirm(
+    "Are you sure you want to delete this interaction?",
+    "Warning",
+    {
+      type: "warning",
+    },
+  )
+    .then(async () => {
+      try {
+        await request(`/api/interactions/${id}`, { method: "DELETE" });
+        queryClient.invalidateQueries({ queryKey: ["interactions"] });
+        ElMessage({
+          message: "Interaction deleted successfully",
+          type: "success",
+          showClose: true,
+        });
+      } catch (error) {
+        ElMessage({
+          message: error.message || "Failed to delete interaction",
+          type: "error",
+          showClose: true,
+        });
+      }
+    })
+    .catch(() => {});
+};
+
 const isSaving = ref(false);
 
 const saveInteraction = async () => {
   try {
     isSaving.value = true;
-    await request("/api/interactions", {
-      method: "POST",
-      body: interactionFormData.value,
-    });
+    const data = interactionFormData.value;
+
+    if (data.id) {
+      await request(`/api/interactions/${data.id}`, {
+        method: "PATCH",
+        body: data,
+      });
+    } else {
+      await request("/api/interactions", {
+        method: "POST",
+        body: data,
+      });
+    }
+
     showInteractionForm.value = false;
     interactionFormData.value = {};
     queryClient.invalidateQueries({ queryKey: ["interactions"] });
