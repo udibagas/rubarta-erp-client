@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="600px"
+    width="750px"
     :title="!!form.id ? 'EDIT OPPORTUNITY' : 'ADD OPPORTUNITY'"
     :close-on-click-modal="false"
   >
@@ -35,35 +35,117 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Assigned User" :error="errors.userId">
+        <el-select v-model="form.userId" placeholder="Select user" filterable>
+          <el-option
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+            :label="user.name"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="Opportunity" :error="errors.name">
         <el-input placeholder="Opportunity" v-model="form.name" />
       </el-form-item>
 
-      <el-form-item label="Amount" :error="errors.amount">
-        <el-input type="number" placeholder="Amount" v-model="form.amount" />
+      <el-form-item label="Description" :error="errors.description">
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="Description"
+          v-model="form.description"
+        />
       </el-form-item>
 
-      <el-form-item label="Expected Close Date" :error="errors.amount">
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Amount" :error="errors.amount">
+            <el-input
+              type="number"
+              placeholder="Amount"
+              v-model="form.amount"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="Probability (%)" :error="errors.probability">
+            <el-input-number
+              v-model="form.probability"
+              :min="0"
+              :max="100"
+              placeholder="0-100"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Stage" :error="errors.stage">
+            <el-select v-model="form.stage" placeholder="Stage">
+              <el-option
+                v-for="(el, i) in opportunityStages"
+                :value="el"
+                :label="el.replaceAll('_', ' ')"
+                :key="i"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item
+            label="Expected Close Date"
+            :error="errors.expectedCloseDate"
+          >
+            <el-date-picker
+              type="date"
+              v-model="form.expectedCloseDate"
+              placeholder="Select Date"
+              format="DD-MMM-YYYY"
+              value-format="YYYY-MM-DDT00:00:00Z"
+              style="width: 100%"
+            >
+            </el-date-picker>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-form-item
+        v-if="
+          form.id &&
+          (form.stage === 'Closed_Won' || form.stage === 'Closed_Lost')
+        "
+        label="Actual Close Date"
+        :error="errors.actualCloseDate"
+      >
         <el-date-picker
           type="date"
-          v-model="form.expectedCloseDate"
+          v-model="form.actualCloseDate"
           placeholder="Select Date"
           format="DD-MMM-YYYY"
+          value-format="YYYY-MM-DD"
           style="width: 100%"
         >
         </el-date-picker>
       </el-form-item>
 
-      <el-form-item label="Stage" :error="errors.stage">
-        <el-select v-model="form.stage" placeholder="Stage">
-          <el-option
-            v-for="(el, i) in opportunityStages"
-            :value="el"
-            :label="el.replaceAll('_', ' ')"
-            :key="i"
-          >
-          </el-option>
-        </el-select>
+      <el-form-item
+        v-if="form.id && form.stage === 'Closed_Lost'"
+        label="Lost Reason"
+        :error="errors.lostReason"
+      >
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="Reason for losing this opportunity"
+          v-model="form.lostReason"
+        />
       </el-form-item>
     </el-form>
 
@@ -77,6 +159,9 @@
         @click="
           () => {
             form.amount = Number(form.amount);
+            if (form.probability !== null && form.probability !== undefined) {
+              form.probability = Number(form.probability);
+            }
             save(form);
           }
         "
@@ -106,5 +191,10 @@ const { data: customers } = useQuery({
 const { data: companies } = useQuery({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
+});
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
 });
 </script>
