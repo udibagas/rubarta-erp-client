@@ -90,7 +90,7 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Amount">
-      <span class="font-mono font-semibold text-lg">
+      <span class="font-mono font-semibold text-lg text-green-500">
         {{ toCurrency(opportunity.amount.toString()) }}
       </span>
     </el-descriptions-item>
@@ -109,11 +109,27 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Assigned User">
-      {{ opportunity.User?.name || "-" }}
+      <div class="flex items-center gap-2" v-if="opportunity.User">
+        <el-avatar
+          :size="32"
+          :style="{ backgroundColor: getAvatarColor(opportunity.User.name) }"
+        >
+          {{ opportunity.User.name?.charAt(0).toUpperCase() }}
+        </el-avatar>
+        <span>{{ opportunity.User.name }}</span>
+      </div>
+      <span v-else>-</span>
     </el-descriptions-item>
 
     <el-descriptions-item label="Expected Close Date">
-      <strong>{{ formatDateLong(opportunity.expectedCloseDate) }}</strong>
+      <div>
+        <div class="font-semibold">
+          {{ dayjs(opportunity.expectedCloseDate).fromNow() }}
+        </div>
+        <div class="text-sm">
+          {{ formatDateLong(opportunity.expectedCloseDate) }}
+        </div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item
@@ -125,11 +141,21 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Created At">
-      {{ formatDateLong(opportunity.createdAt) }}
+      <div>
+        <div class="font-semibold">
+          {{ dayjs(opportunity.createdAt).fromNow() }}
+        </div>
+        <div class="text-sm">{{ formatDateLong(opportunity.createdAt) }}</div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item label="Updated At">
-      {{ formatDateLong(opportunity.updatedAt) }}
+      <div>
+        <div class="font-semibold">
+          {{ dayjs(opportunity.updatedAt).fromNow() }}
+        </div>
+        <div class="text-sm">{{ formatDateLong(opportunity.updatedAt) }}</div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item
@@ -137,7 +163,14 @@
       :span="2"
       v-if="opportunity.actualCloseDate"
     >
-      <strong>{{ formatDateLong(opportunity.actualCloseDate) }}</strong>
+      <div>
+        <div class="font-semibold">
+          {{ dayjs(opportunity.actualCloseDate).fromNow() }}
+        </div>
+        <div class="text-sm">
+          {{ formatDateLong(opportunity.actualCloseDate) }}
+        </div>
+      </div>
     </el-descriptions-item>
 
     <el-descriptions-item
@@ -153,19 +186,19 @@
 
   <el-tabs v-if="opportunity" v-loading="isLoading">
     <el-tab-pane label="INTERACTIONS">
-      <InteractionsTab :opportunityId="opportunityId" />
+      <CrmInteractionsTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="TASKS">
-      <TasksTab :opportunityId="opportunityId" />
+      <CrmTasksTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="QUOTATIONS">
-      <QuotationsTab :opportunityId="opportunityId" />
+      <CrmQuotationsTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="ORDERS" v-if="opportunity.stage === 'Closed_Won'">
-      <OrdersTab :opportunityId="opportunityId" />
+      <CrmOrdersTab :opportunityId="opportunityId" />
     </el-tab-pane>
   </el-tabs>
 
@@ -174,6 +207,11 @@
 
 <script setup>
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { getAvatarColor } from "~/utils/avatar";
+
+dayjs.extend(relativeTime);
 
 const route = useRoute();
 const request = useRequest();
