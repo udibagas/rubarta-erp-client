@@ -63,7 +63,40 @@
         {{ row.duration ? `${row.duration} min` : "-" }}
       </template>
     </el-table-column>
-    <el-table-column label="User" prop="User.name" width="150" />
+    <el-table-column label="Contact" width="220">
+      <template #default="{ row }">
+        <div v-if="row.Contact" class="flex items-center gap-2">
+          <el-avatar
+            :size="32"
+            :style="{ backgroundColor: getAvatarColor(row.Contact.name) }"
+          >
+            {{ row.Contact.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <div class="flex flex-col">
+            <span class="font-semibold text-sm">{{ row.Contact.name }}</span>
+            <div class="text-xs text-gray-500">
+              <div v-if="row.Contact.email">{{ row.Contact.email }}</div>
+              <div v-if="row.Contact.phone">{{ row.Contact.phone }}</div>
+            </div>
+          </div>
+        </div>
+        <span v-else>-</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="User" width="180">
+      <template #default="{ row }">
+        <div v-if="row.User" class="flex items-center gap-2">
+          <el-avatar
+            :size="32"
+            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+          >
+            {{ row.User.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span class="font-semibold text-sm">{{ row.User.name }}</span>
+        </div>
+        <span v-else>-</span>
+      </template>
+    </el-table-column>
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
     <el-table-column width="60" align="center" fixed="right">
       <template #default="{ row }">
