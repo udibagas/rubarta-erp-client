@@ -167,21 +167,6 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Contact" :error="errors.contactId">
-        <el-select
-          v-model="interactionFormData.contactId"
-          placeholder="Select contact"
-          filterable
-        >
-          <el-option
-            v-for="contact in contacts"
-            :key="contact.id"
-            :value="contact.id"
-            :label="contact.name"
-          />
-        </el-select>
-      </el-form-item>
-
       <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item label="Date" required :error="errors.date">
@@ -213,6 +198,40 @@
           placeholder="Interaction subject"
           v-model="interactionFormData.subject"
         />
+      </el-form-item>
+
+      <el-form-item label="Contact" :error="errors.contactId">
+        <el-select
+          v-model="interactionFormData.contactId"
+          placeholder="Select contact"
+          filterable
+        >
+          <el-option
+            v-for="contact in contacts"
+            :key="contact.id"
+            :value="contact.id"
+            :label="contact.name"
+          >
+            <div class="flex items-center gap-2 justify-between">
+              <span>
+                <el-avatar
+                  :size="24"
+                  :style="{ backgroundColor: getAvatarColor(contact.name) }"
+                  class="mr-1"
+                >
+                  {{ contact.name?.charAt(0).toUpperCase() }}
+                </el-avatar>
+                <span class="font-semibold">
+                  {{ contact.name }}
+                </span>
+              </span>
+              <div class="text-xs text-gray-500 flex gap-2">
+                <span v-if="contact.email">{{ contact.email }}</span>
+                <span v-if="contact.phone">{{ contact.phone }}</span>
+              </div>
+            </div>
+          </el-option>
+        </el-select>
       </el-form-item>
 
       <el-form-item label="Notes">
@@ -255,6 +274,7 @@ import {
   Search,
 } from "@element-plus/icons-vue";
 import { interactionTypes } from "~/constants/interactionTypes";
+import { getAvatarColor } from "~/utils/avatar";
 
 dayjs.extend(relativeTime);
 
