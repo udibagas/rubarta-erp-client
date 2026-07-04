@@ -68,7 +68,7 @@
     :column="2"
     direction="horizontal"
   >
-    <el-descriptions-item label="Name">
+    <el-descriptions-item label="Opportunity Name">
       <strong>{{ opportunity.name }}</strong>
     </el-descriptions-item>
 
@@ -141,7 +141,10 @@
         <div class="font-semibold">
           {{ dayjs(opportunity.createdAt).fromNow() }}
         </div>
-        <div class="text-sm">{{ formatDateLong(opportunity.createdAt) }}</div>
+        <div class="text-sm">
+          {{ formatDateLong(opportunity.createdAt) }}
+          {{ formatTime(opportunity.createdAt) }}
+        </div>
       </div>
     </el-descriptions-item>
 
@@ -150,7 +153,10 @@
         <div class="font-semibold">
           {{ dayjs(opportunity.updatedAt).fromNow() }}
         </div>
-        <div class="text-sm">{{ formatDateLong(opportunity.updatedAt) }}</div>
+        <div class="text-sm">
+          {{ formatDateLong(opportunity.updatedAt) }}
+          {{ formatTime(opportunity.updatedAt) }}
+        </div>
       </div>
     </el-descriptions-item>
 
@@ -165,6 +171,7 @@
         </div>
         <div class="text-sm">
           {{ formatDateLong(opportunity.actualCloseDate) }}
+          {{ formatTime(opportunity.actualCloseDate) }}
         </div>
       </div>
     </el-descriptions-item>

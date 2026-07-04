@@ -317,7 +317,12 @@
       <el-button :icon="ElIconCircleCloseFilled" @click="closeForm">
         CANCEL
       </el-button>
-      <el-button :icon="ElIconSuccessFilled" type="success" @click="save(form)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="save"
+        :loading="isSaving"
+      >
         SAVE QUOTATION
       </el-button>
     </template>
@@ -325,22 +330,30 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { quotationStatuses } from "~/constants/quotationStatuses";
 
-const { errors, form, show, closeForm, saveMutation, request } = useCrud({
-  url: "/api/quotations",
-  queryKey: "quotations",
+const request = useRequest();
+const queryClient = useQueryClient();
+
+// Local state
+const show = ref(false);
+const form = ref({
+  status: "Draft",
+  discount: 0,
+  items: [],
+  validUntil: "",
 });
+const errors = ref({});
+const isSaving = ref(false);
 
-const { mutate: save } = saveMutation();
-
-// Initialize form with items array
-watch(show, (newVal) => {
-  if (newVal && !form.value.id) {
-    form.value.status = "Draft";
-    form.value.discount = 0;
-    form.value.items = [
+// Expose method to open form from parent
+const openForm = (data = {}) => {
+  form.value = {
+    ...data,
+    status: data.status || "Draft",
+    discount: data.discount || 0,
+    items: data.items || [
       {
         partNumber: "",
         description: "",
@@ -349,13 +362,68 @@ watch(show, (newVal) => {
         discount: 0,
         vat: false,
       },
-    ];
-    // Set valid until to 30 days from now
+    ],
+  };
+
+  // Set valid until to 30 days from now if new quotation
+  if (!data.id) {
     const validDate = new Date();
     validDate.setDate(validDate.getDate() + 30);
     form.value.validUntil = validDate.toISOString().split("T")[0];
   }
-});
+
+  errors.value = {};
+  show.value = true;
+  calculateTotals();
+};
+
+const closeForm = () => {
+  show.value = false;
+  form.value = {
+    status: "Draft",
+    discount: 0,
+    items: [],
+    validUntil: "",
+  };
+  errors.value = {};
+};
+
+const save = async () => {
+  try {
+    isSaving.value = true;
+    errors.value = {};
+
+    const payload = {
+      ...form.value,
+      subtotal: totals.subtotal,
+      vatTotal: totals.vat,
+      grandTotal: totals.grandTotal,
+    };
+
+    if (form.value.id) {
+      await request(`/api/quotations/${form.value.id}`, {
+        method: "PATCH",
+        body: payload,
+      });
+    } else {
+      await request("/api/quotations", {
+        method: "POST",
+        body: payload,
+      });
+    }
+
+    ElMessage.success("Quotation saved successfully");
+    closeForm();
+    queryClient.invalidateQueries({ queryKey: ["quotations"] });
+  } catch (error) {
+    errors.value = parseError(error);
+    ElMessage.error(error.message || "Failed to save quotation");
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+defineExpose({ openForm });
 
 const totals = reactive({
   subtotal: 0,

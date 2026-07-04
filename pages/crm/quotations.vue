@@ -138,26 +138,32 @@
     </el-table-column>
   </el-table>
 
-  <QuotationForm />
+  <QuotationForm ref="quotationFormRef" />
 </template>
 
 <script setup>
-const {
-  openForm,
-  removeMutation,
-  fetchData,
-  refreshData,
-  handleRemove,
-  edit,
-  keyword,
-  request,
-} = useCrud({
+const quotationFormRef = ref(null);
+const keyword = ref("");
+const request = useRequest();
+
+const { removeMutation, fetchData, refreshData, handleRemove } = useCrud({
   url: "/api/quotations",
   queryKey: "quotations",
 });
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+const openForm = (data = {}) => {
+  quotationFormRef.value?.openForm(data);
+};
+
+const edit = (id) => {
+  const quotation = data.value?.find((q) => q.id === id);
+  if (quotation) {
+    openForm(quotation);
+  }
+};
 
 function viewQuotation(quotation) {
   // TODO: Implement quotation view/print/PDF export

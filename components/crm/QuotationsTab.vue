@@ -84,7 +84,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="ElIconView"
-                @click="navigateTo(`/crm/quotations?id=${row.id}`)"
+                @click="quotationFormRef?.openForm(row)"
               >
                 View
               </el-dropdown-item>
@@ -127,6 +127,8 @@
       keyword ? 'No quotations match your search' : 'No quotations found'
     "
   />
+
+  <QuotationForm ref="quotationFormRef" />
 </template>
 
 <script setup>
@@ -150,6 +152,7 @@ const props = defineProps({
 const request = useRequest();
 const queryClient = useQueryClient();
 const keyword = ref("");
+const quotationFormRef = ref(null);
 
 const { data, isPending } = useQuery({
   queryKey: ["quotations", props],
@@ -182,18 +185,18 @@ const filteredData = computed(() => {
 });
 
 const handleNewQuotation = () => {
-  const queryParams = new URLSearchParams();
+  const newQuotation = {};
   if (props.opportunityId) {
-    queryParams.append("opportunityId", props.opportunityId);
+    newQuotation.opportunityId = +props.opportunityId;
   }
   if (props.customerId) {
-    queryParams.append("customerId", props.customerId);
+    newQuotation.customerId = +props.customerId;
   }
-  navigateTo(`/crm/quotations?${queryParams.toString()}`);
+  quotationFormRef.value?.openForm(newQuotation);
 };
 
 const handleEditQuotation = (quotation) => {
-  navigateTo(`/crm/quotations?id=${quotation.id}`);
+  quotationFormRef.value?.openForm(quotation);
 };
 
 const { mutate: updateStatusMutation } = useMutation({

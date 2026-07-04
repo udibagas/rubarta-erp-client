@@ -114,7 +114,7 @@
 
   <br />
 
-  <el-tabs>
+  <el-tabs v-if="lead">
     <el-tab-pane label="INTERACTIONS">
       <CrmInteractionsTab :lead-id="leadId" :customer-id="lead.customerId" />
     </el-tab-pane>

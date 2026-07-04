@@ -90,6 +90,13 @@ const menus = computed(() => [
       },
 
       {
+        label: "Visit Plan",
+        path: "/crm/visit-plan",
+        icon: ElIconCalendar,
+        visible: true,
+      },
+
+      {
         label: "Leads",
         path: "/crm/leads",
         icon: ElIconFilter,
