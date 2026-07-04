@@ -129,12 +129,104 @@
   </el-tabs>
 
   <LeadForm />
+
+  <!-- Convert to Opportunity Dialog -->
+  <el-dialog
+    v-model="showConvertDialog"
+    width="750px"
+    title="CONVERT TO OPPORTUNITY"
+    :close-on-click-modal="false"
+    @close="resetConvertForm"
+  >
+    <el-form label-width="160px" label-position="left">
+      <el-form-item label="Name" required :error="convertErrors.name">
+        <el-input placeholder="Opportunity name" v-model="convertForm.name" />
+      </el-form-item>
+
+      <el-form-item label="Description" :error="convertErrors.description">
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="Description"
+          v-model="convertForm.description"
+        />
+      </el-form-item>
+
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Amount" required :error="convertErrors.amount">
+            <el-input
+              type="number"
+              placeholder="Amount"
+              v-model="convertForm.amount"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item
+            label="Probability (%)"
+            :error="convertErrors.probability"
+          >
+            <el-input-number
+              v-model="convertForm.probability"
+              :min="0"
+              :max="100"
+              placeholder="0-100"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Stage" required :error="convertErrors.stage">
+            <el-select
+              v-model="convertForm.stage"
+              placeholder="Select stage"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="stage in opportunityStages"
+                :key="stage"
+                :value="stage"
+                :label="stage.replace('_', ' ')"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item
+            label="Expected Close Date"
+            required
+            :error="convertErrors.expectedCloseDate"
+          >
+            <el-date-picker
+              v-model="convertForm.expectedCloseDate"
+              type="date"
+              placeholder="Select date"
+              value-format="YYYY-MM-DD"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+
+    <template #footer>
+      <el-button @click="showConvertDialog = false">CANCEL</el-button>
+      <el-button type="primary" @click="handleConvertSubmit">CONVERT</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { opportunityStages } from "~/constants/opportunityStages";
 
 dayjs.extend(relativeTime);
 
@@ -173,32 +265,67 @@ const goBack = () => {
 };
 
 // Convert to opportunity
+const showConvertDialog = ref(false);
+const convertForm = ref({
+  name: "",
+  description: "",
+  amount: 0,
+  probability: 50,
+  stage: "Prospecting",
+  expectedCloseDate: "",
+});
+const convertErrors = ref({});
+
 const convertToOpportunity = () => {
-  ElMessageBox.prompt("Enter opportunity name", "Convert to Opportunity", {
-    confirmButtonText: "Convert",
-    cancelButtonText: "Cancel",
-    inputPattern: /.+/,
-    inputErrorMessage: "Opportunity name is required",
-  })
-    .then(({ value }) => {
-      return request(`/api/leads/${leadId.value}/convert`, {
-        method: "POST",
-        body: {
-          name: value,
-          amount: lead.value.estimatedValue || 0,
-        },
-      });
-    })
-    .then(() => {
-      ElMessage.success("Lead converted to opportunity successfully!");
-      refetch();
-      queryClient.invalidateQueries(["leads"]);
-    })
-    .catch((error) => {
-      if (error !== "cancel") {
-        ElMessage.error("Failed to convert lead");
-      }
+  // Pre-fill form with lead data
+  convertForm.value = {
+    name: lead.value.title || "",
+    description: lead.value.notes || "",
+    amount: lead.value.estimatedValue || 0,
+    probability: 50,
+    stage: "Prospecting",
+    expectedCloseDate: "",
+  };
+  convertErrors.value = {};
+  showConvertDialog.value = true;
+};
+
+const resetConvertForm = () => {
+  convertForm.value = {
+    name: "",
+    description: "",
+    amount: 0,
+    probability: 50,
+    stage: "Prospecting",
+    expectedCloseDate: "",
+  };
+  convertErrors.value = {};
+};
+
+const handleConvertSubmit = async () => {
+  try {
+    convertErrors.value = {};
+
+    await request(`/api/leads/${leadId.value}/convert`, {
+      method: "POST",
+      body: {
+        name: convertForm.value.name,
+        description: convertForm.value.description,
+        amount: Number(convertForm.value.amount),
+        probability: convertForm.value.probability,
+        stage: convertForm.value.stage,
+        expectedCloseDate: convertForm.value.expectedCloseDate,
+      },
     });
+
+    ElMessage.success("Lead converted to opportunity successfully!");
+    showConvertDialog.value = false;
+    refetch();
+    queryClient.invalidateQueries(["leads"]);
+  } catch (error) {
+    convertErrors.value = parseError(error);
+    ElMessage.error("Failed to convert lead");
+  }
 };
 
 // Mark as unqualified
