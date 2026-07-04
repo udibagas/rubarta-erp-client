@@ -167,6 +167,21 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Contact" :error="errors.contactId">
+        <el-select
+          v-model="interactionFormData.contactId"
+          placeholder="Select contact"
+          filterable
+        >
+          <el-option
+            v-for="contact in contacts"
+            :key="contact.id"
+            :value="contact.id"
+            :label="contact.name"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item label="Date" required :error="errors.date">
@@ -385,6 +400,20 @@ const { data: users } = useQuery({
   queryFn: async () => {
     return await request("/api/users");
   },
+});
+
+// Fetch contacts for the select dropdown
+const { data: contacts } = useQuery({
+  queryKey: ["contacts", props.customerId],
+  queryFn: async () => {
+    const params = new URLSearchParams();
+    if (props.customerId) {
+      params.append("customerId", props.customerId);
+    }
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return await request(`/api/contacts${query}`);
+  },
+  enabled: computed(() => !!props.customerId),
 });
 
 // Filter data based on search query
