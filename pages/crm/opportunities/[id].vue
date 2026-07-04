@@ -132,12 +132,8 @@
       </div>
     </el-descriptions-item>
 
-    <el-descriptions-item
-      label="Description"
-      :span="2"
-      v-if="opportunity.description"
-    >
-      {{ opportunity.description }}
+    <el-descriptions-item label="Description" :span="2">
+      {{ opportunity.description || "-" }}
     </el-descriptions-item>
 
     <el-descriptions-item label="Created At">
