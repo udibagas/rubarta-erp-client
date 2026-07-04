@@ -182,7 +182,10 @@
 
   <el-tabs v-if="opportunity" v-loading="isLoading">
     <el-tab-pane label="INTERACTIONS">
-      <CrmInteractionsTab :opportunityId="opportunityId" />
+      <CrmInteractionsTab
+        :opportunityId="opportunityId"
+        :customer-id="opportunity.customerId"
+      />
     </el-tab-pane>
 
     <el-tab-pane label="TASKS">
