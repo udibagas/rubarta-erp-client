@@ -207,7 +207,8 @@
               v-model="convertForm.expectedCloseDate"
               type="date"
               placeholder="Select date"
-              value-format="YYYY-MM-DD"
+              value-format="YYYY-MM-DDT00:00:00Z"
+              format="DD-MMM-YYYY"
               style="width: 100%"
             />
           </el-form-item>
