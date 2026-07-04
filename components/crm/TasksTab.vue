@@ -78,6 +78,15 @@
       </template>
     </el-table-column>
     <el-table-column width="60" align="center" fixed="right">
+      <template #header>
+        <el-button
+          type="text"
+          size="small"
+          :icon="ElIconRefresh"
+          circle
+          @click="queryClient.invalidateQueries({ queryKey: ['tasks'] })"
+        />
+      </template>
       <template #default="{ row }">
         <el-dropdown>
           <span class="el-dropdown-link">
