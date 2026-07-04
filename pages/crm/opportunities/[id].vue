@@ -153,173 +153,19 @@
 
   <el-tabs v-if="opportunity" v-loading="isLoading">
     <el-tab-pane label="INTERACTIONS">
-      <el-table :data="opportunity.Interactions" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Type" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.type" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.date) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Subject" prop="subject" min-width="200" />
-        <el-table-column label="Duration" width="100" align="center">
-          <template #default="{ row }">
-            {{ row.duration ? `${row.duration} min` : "-" }}
-          </template>
-        </el-table-column>
-        <el-table-column label="User" prop="User.name" width="150" />
-        <el-table-column label="Outcome" prop="outcome" min-width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/interactions?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="
-          !opportunity.Interactions || opportunity.Interactions.length === 0
-        "
-        description="No interactions found"
-      />
+      <InteractionsTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="TASKS">
-      <el-table :data="opportunity.Tasks" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Title" prop="title" min-width="200" />
-        <el-table-column label="Status" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Priority" width="100">
-          <template #default="{ row }">
-            <el-tag
-              :type="
-                row.priority === 'Urgent'
-                  ? 'danger'
-                  : row.priority === 'High'
-                    ? 'warning'
-                    : 'info'
-              "
-            >
-              {{ row.priority }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="Due Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.dueDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Assigned To" prop="User.name" width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/tasks?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!opportunity.Tasks || opportunity.Tasks.length === 0"
-        description="No tasks found"
-      />
+      <TasksTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="QUOTATIONS">
-      <el-table :data="opportunity.Quotations" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Number" prop="number" width="120" />
-        <el-table-column label="Title" prop="title" min-width="200" />
-        <el-table-column label="Status" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Grand Total" width="150" align="right">
-          <template #default="{ row }">
-            <strong>{{ toCurrency(row.grandTotal.toString()) }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="Valid Until" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.validUntil) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="User" prop="User.name" width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/quotations?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!opportunity.Quotations || opportunity.Quotations.length === 0"
-        description="No quotations found"
-      />
+      <QuotationsTab :opportunityId="opportunityId" />
     </el-tab-pane>
 
     <el-tab-pane label="ORDERS" v-if="opportunity.stage === 'Closed_Won'">
-      <el-table :data="opportunity.Orders" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Order Number" prop="orderNumber" width="150" />
-        <el-table-column
-          label="Description"
-          prop="description"
-          min-width="200"
-        />
-        <el-table-column label="Status" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Total Amount" width="150" align="right">
-          <template #default="{ row }">
-            <strong>{{ toCurrency(row.totalAmount.toString()) }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="Order Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.orderDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/orders?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!opportunity.Orders || opportunity.Orders.length === 0"
-        description="No orders found"
-      />
+      <OrdersTab :opportunityId="opportunityId" />
     </el-tab-pane>
   </el-tabs>
 

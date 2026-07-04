@@ -23,38 +23,78 @@
             }
           "
         />
-        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
       </form>
     </template>
   </el-page-header>
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data">
-    <el-table-column type="index" label="#"></el-table-column>
-
-    <el-table-column label="Customer" prop="Customer.name" width="220" />
-    <el-table-column label="User" prop="User.name" width="200" />
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data"
+    @row-click="(row) => navigateTo(`/crm/interactions/${row.id}`)"
+    style="cursor: pointer"
+  >
+    <el-table-column label="User" width="180">
+      <template #default="{ row }">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <el-avatar
+            :size="32"
+            class="shrink-0"
+            :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
+          >
+            {{ row.User?.name?.charAt(0) }}
+          </el-avatar>
+          <span>{{ row.User?.name }}</span>
+        </div>
+      </template>
+    </el-table-column>
     <el-table-column
       label="Type"
       prop="type"
-      width="120"
+      width="140"
       align="center"
       header-align="center"
     >
       <template #default="{ row }">
-        <StatusTag :status="row.type" effect="dark" />
+        <StatusTag :status="row.type" effect="dark">
+          <template #icon>
+            <el-icon>
+              <ElIconPhone v-if="row.type === 'Call'" />
+              <ElIconMessage v-else-if="row.type === 'Email'" />
+              <ElIconCalendar v-else-if="row.type === 'Meeting'" />
+              <ElIconMonitor v-else-if="row.type === 'Demo'" />
+              <ElIconLocation v-else-if="row.type === 'SiteVisit'" />
+              <ElIconDocument v-else-if="row.type === 'Presentation'" />
+              <ElIconRefresh v-else-if="row.type === 'FollowUp'" />
+              <ElIconMore v-else />
+            </el-icon>
+          </template>
+        </StatusTag>
       </template>
     </el-table-column>
-    <el-table-column label="Date" prop="date" width="120">
+    <el-table-column label="Date" width="140">
       <template #default="{ row }">
-        {{ formatDate(row.date) }}
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.date).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">{{ formatDate(row.date) }}</div>
+        </div>
       </template>
     </el-table-column>
     <el-table-column label="Notes" prop="notes" />
-    <el-table-column label="Last Update" prop="updatedAt" width="150">
+    <el-table-column label="Last Update" width="140">
       <template #default="{ row }">
-        {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.updatedAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.updatedAt) }}
+          </div>
+        </div>
       </template>
     </el-table-column>
 
@@ -100,6 +140,12 @@
 </template>
 
 <script setup>
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { getAvatarColor } from "~/utils/avatar";
+
+dayjs.extend(relativeTime);
+
 const {
   openForm,
   removeMutation,

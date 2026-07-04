@@ -23,40 +23,77 @@
             }
           "
         />
-        <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
       </form>
     </template>
   </el-page-header>
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data">
-    <el-table-column type="index" label="#"></el-table-column>
-
-    <el-table-column label="User" prop="User.name" />
-    <el-table-column label="Customer" prop="Customer.name" />
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data"
+    @row-click="(row) => navigateTo(`/crm/tasks/${row.id}`)"
+    style="cursor: pointer"
+  >
     <el-table-column label="Title" prop="title" />
-    <el-table-column label="Due Date">
+    <el-table-column label="User" width="180">
       <template #default="{ row }">
-        {{ formatDate(row.dueDate) }}
+        <div style="display: flex; align-items: center; gap: 10px">
+          <el-avatar
+            :size="32"
+            class="shrink-0"
+            :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
+          >
+            {{ row.User?.name?.charAt(0) }}
+          </el-avatar>
+          <span>{{ row.User?.name }}</span>
+        </div>
+      </template>
+    </el-table-column>
+    <el-table-column label="Due Date" width="140">
+      <template #default="{ row }">
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.dueDate).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">{{ formatDate(row.dueDate) }}</div>
+        </div>
       </template>
     </el-table-column>
 
     <el-table-column
       label="Status"
       prop="status"
-      width="120"
+      width="140"
       align="center"
       header-align="center"
     >
       <template #default="{ row }">
-        <StatusTag :status="row.status" style="width: 100%" effect="dark" />
+        <StatusTag :status="row.status" style="width: 100%" effect="dark">
+          <template #icon>
+            <el-icon>
+              <ElIconCircleCheck v-if="row.status === 'Completed'" />
+              <ElIconLoading v-else-if="row.status === 'InProgress'" />
+              <ElIconWarning v-else-if="row.status === 'OnHold'" />
+              <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
+              <ElIconClock v-else />
+            </el-icon>
+          </template>
+        </StatusTag>
       </template>
     </el-table-column>
 
-    <el-table-column label="Last Update">
+    <el-table-column label="Last Update" width="140">
       <template #default="{ row }">
-        {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
+        <div>
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.updatedAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.updatedAt) }}
+          </div>
+        </div>
       </template>
     </el-table-column>
 
@@ -102,6 +139,12 @@
 </template>
 
 <script setup>
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { getAvatarColor } from "~/utils/avatar";
+
+dayjs.extend(relativeTime);
+
 const {
   openForm,
   removeMutation,

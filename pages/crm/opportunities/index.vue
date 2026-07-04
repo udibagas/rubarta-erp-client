@@ -41,8 +41,6 @@
     @row-click="handleRowClick"
     style="cursor: pointer"
   >
-    <el-table-column type="index" label="#"></el-table-column>
-
     <el-table-column
       label="Stage"
       prop="status"
@@ -51,7 +49,19 @@
       header-align="center"
     >
       <template #default="{ row }">
-        <StatusTag :status="row.stage" style="width: 100%" effect="dark" />
+        <StatusTag :status="row.stage" style="width: 100%" effect="dark">
+          <template #icon>
+            <el-icon>
+              <ElIconSearch v-if="row.stage === 'Prospecting'" />
+              <ElIconSelect v-else-if="row.stage === 'Qualification'" />
+              <ElIconEdit v-else-if="row.stage === 'Proposal'" />
+              <ElIconChatDotRound v-else-if="row.stage === 'Negotiation'" />
+              <ElIconDocument v-else-if="row.stage === 'Proposal_Sent'" />
+              <ElIconTrophy v-else-if="row.stage === 'Closed_Won'" />
+              <ElIconCircleClose v-else-if="row.stage === 'Closed_Lost'" />
+            </el-icon>
+          </template>
+        </StatusTag>
       </template>
     </el-table-column>
 
@@ -72,7 +82,9 @@
       header-align="right"
     >
       <template #default="{ row }">
-        <div class="font-mono">{{ toDecimal(row.amount) }}</div>
+        <div class="font-mono text-green-500 font-semibold">
+          {{ toDecimal(row.amount) }}
+        </div>
       </template>
     </el-table-column>
 

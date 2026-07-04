@@ -91,6 +91,27 @@
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
+                v-if="row.status !== 'InProgress'"
+                :icon="ElIconLoading"
+                @click="handleUpdateStatus(row.id, 'InProgress')"
+              >
+                Mark as In Progress
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="row.status !== 'Completed'"
+                :icon="ElIconCircleCheck"
+                @click="handleUpdateStatus(row.id, 'Completed')"
+              >
+                Mark as Completed
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="row.status !== 'OnHold'"
+                :icon="ElIconWarning"
+                @click="handleUpdateStatus(row.id, 'OnHold')"
+              >
+                Mark as On Hold
+              </el-dropdown-item>
+              <el-dropdown-item
                 :icon="ElIconDelete"
                 @click="handleDeleteTask(row.id)"
               >
@@ -102,7 +123,6 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-empty v-if="!data || data.length === 0" description="No tasks found" />
 
   <el-dialog
     v-model="showTaskForm"
@@ -123,6 +143,21 @@
           placeholder="Task description"
           v-model="taskFormData.description"
         />
+      </el-form-item>
+
+      <el-form-item label="Assigned To" required>
+        <el-select
+          v-model="taskFormData.userId"
+          placeholder="Select user"
+          filterable
+        >
+          <el-option
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+            :label="user.name"
+          />
+        </el-select>
       </el-form-item>
 
       <el-row :gutter="16">
@@ -190,7 +225,7 @@
           v-model="taskFormData.dueDate"
           type="date"
           placeholder="Due date"
-          value-format="YYYY-MM-DD"
+          value-format="YYYY-MM-DDT00:00:00Z"
           format="DD-MMM-YYYY"
           style="width: 100%"
         />
@@ -205,7 +240,7 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { taskPriorities } from "~/constants/taskPriorities";
 import { taskStatuses } from "~/constants/taskStatuses";
 import dayjs from "dayjs";
@@ -219,10 +254,6 @@ const props = defineProps({
     required: false,
   },
   opportunityId: {
-    type: [String, Number],
-    required: false,
-  },
-  customerId: {
     type: [String, Number],
     required: false,
   },
@@ -243,15 +274,11 @@ const handleNewTask = () => {
   };
 
   if (props.leadId) {
-    newTask.leadId = props.leadId;
+    newTask.leadId = +props.leadId;
   }
 
   if (props.opportunityId) {
-    newTask.opportunityId = props.opportunityId;
-  }
-
-  if (props.customerId) {
-    newTask.customerId = props.customerId;
+    newTask.opportunityId = +props.opportunityId;
   }
 
   taskFormData.value = newTask;
@@ -271,19 +298,55 @@ const handleDeleteTask = (id) => {
       type: "warning",
     },
   )
-    .then(() => {
-      deleteTaskMutation(id);
+    .then(async () => {
+      try {
+        await request(`/api/tasks/${id}`, { method: "DELETE" });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        ElMessage({
+          message: "Task deleted successfully",
+          type: "success",
+          showClose: true,
+        });
+      } catch (error) {
+        ElMessage({
+          message: error.message || "Failed to delete task",
+          type: "error",
+          showClose: true,
+        });
+      }
     })
     .catch(() => {});
 };
 
-const { mutate: saveTaskMutation, isPending: isSaving } = useMutation({
-  mutationFn: (data) => {
-    return data.id
-      ? request(`/api/tasks/${data.id}`, { method: "PATCH", body: data })
-      : request("/api/tasks", { method: "POST", body: data });
-  },
-  onSuccess: () => {
+const handleUpdateStatus = async (id, status) => {
+  try {
+    await request(`/api/tasks/${id}`, {
+      method: "PATCH",
+      body: { status },
+    });
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    ElMessage({
+      message: `Task marked as ${status.replace(/([A-Z])/g, " $1").trim()}`,
+      type: "success",
+      showClose: true,
+    });
+  } catch (error) {
+    ElMessage({
+      message: error.message || "Failed to update task status",
+      type: "error",
+      showClose: true,
+    });
+  }
+};
+
+const saveTask = async () => {
+  try {
+    const data = taskFormData.value;
+    if (data.id) {
+      await request(`/api/tasks/${data.id}`, { method: "PATCH", body: data });
+    } else {
+      await request("/api/tasks", { method: "POST", body: data });
+    }
     showTaskForm.value = false;
     taskFormData.value = {};
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -292,40 +355,14 @@ const { mutate: saveTaskMutation, isPending: isSaving } = useMutation({
       type: "success",
       showClose: true,
     });
-  },
-  onError: (error) => {
+  } catch (error) {
     ElMessage({
       message: error.message || "Failed to save task",
       type: "error",
       showClose: true,
     });
-  },
-});
-
-const saveTask = () => {
-  saveTaskMutation(taskFormData.value);
+  }
 };
-
-const { mutate: deleteTaskMutation } = useMutation({
-  mutationFn: (id) => {
-    return request(`/api/tasks/${id}`, { method: "DELETE" });
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    ElMessage({
-      message: "Task deleted successfully",
-      type: "success",
-      showClose: true,
-    });
-  },
-  onError: (error) => {
-    ElMessage({
-      message: error.message || "Failed to delete task",
-      type: "error",
-      showClose: true,
-    });
-  },
-});
 
 const { data, isPending } = useQuery({
   queryKey: ["tasks", props, keyword],
@@ -347,5 +384,13 @@ const { data, isPending } = useQuery({
     return await request(`/api/tasks${query}`);
   },
   enabled: computed(() => !!(props.leadId || props.opportunityId)),
+});
+
+// Fetch users for the select dropdown
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: async () => {
+    return await request("/api/users");
+  },
 });
 </script>

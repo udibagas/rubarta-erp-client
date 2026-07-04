@@ -18,6 +18,8 @@ export const colors = {
   Converted: "success",
   // opportunity stages
   Prospecting: "warning",
+  Qualification: "primary",
+  Proposal: "primary",
   Negotiation: "primary",
   Proposal_Sent: "primary",
   Closed_Won: "success",
@@ -40,4 +42,14 @@ export const colors = {
   Pending: "warning",
   Completed: "success",
   Overdue: "danger",
+  // quotation status
+  Draft: "info",
+  Sent: "warning",
+  Accepted: "success",
+  Rejected: "danger",
+  Expired: "info",
+  // order status
+  Confirmed: "primary",
+  Shipped: "primary",
+  Delivered: "success",
 };

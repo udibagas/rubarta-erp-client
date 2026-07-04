@@ -17,6 +17,17 @@
   </div>
 
   <el-table :data="filteredData" stripe v-loading="isPending">
+    <el-table-column label="Subject" min-width="200">
+      <template #default="{ row }">
+        <div>
+          <strong>{{ row.subject }}</strong>
+        </div>
+        <div v-if="row.notes" class="text-sm text-gray-500">
+          {{ row.notes }}
+        </div>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Date" width="150">
       <template #default="{ row }">
         <div>
@@ -47,16 +58,6 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Subject" min-width="200">
-      <template #default="{ row }">
-        <div>
-          <strong>{{ row.subject }}</strong>
-        </div>
-        <div v-if="row.notes" class="text-sm text-gray-500">
-          {{ row.notes }}
-        </div>
-      </template>
-    </el-table-column>
     <el-table-column label="Duration" width="100" align="center">
       <template #default="{ row }">
         {{ row.duration ? `${row.duration} min` : "-" }}
@@ -65,14 +66,6 @@
     <el-table-column label="User" prop="User.name" width="150" />
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
   </el-table>
-  <el-empty
-    v-if="!filteredData || filteredData.length === 0"
-    :description="
-      searchQuery
-        ? 'No interactions match your search'
-        : 'No interactions found'
-    "
-  />
 
   <el-dialog
     v-model="showInteractionForm"
