@@ -31,7 +31,7 @@
           <template #icon>
             <el-icon>
               <ElIconEdit v-if="row.status === 'Draft'" />
-              <ElIconSent v-else-if="row.status === 'Sent'" />
+              <ElIconMessage v-else-if="row.status === 'Sent'" />
               <ElIconCircleCheck v-else-if="row.status === 'Accepted'" />
               <ElIconCircleClose v-else-if="row.status === 'Rejected'" />
               <ElIconClock v-else-if="row.status === 'Expired'" />
