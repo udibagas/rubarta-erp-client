@@ -394,7 +394,7 @@
 
     <template #footer>
       <div class="flex justify-between">
-        <div class="flex gap-2">
+        <div class="flex">
           <el-button
             v-if="selectedVisit?.status === 'Planned'"
             type="success"
@@ -412,7 +412,7 @@
             Mark as Cancelled
           </el-button>
         </div>
-        <div class="flex gap-2">
+        <div class="flex">
           <el-button
             type="primary"
             :icon="ElIconEdit"
