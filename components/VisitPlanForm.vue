@@ -16,6 +16,7 @@
           v-model="form.customerId"
           placeholder="Select customer"
           filterable
+          @change="onCustomerChange"
         >
           <el-option
             v-for="customer in customers"
@@ -27,10 +28,38 @@
       </el-form-item>
 
       <el-form-item label="Contact Person" :error="errors.contactPerson">
-        <el-input
-          placeholder="Contact person name"
-          v-model="form.contactPerson"
-        />
+        <div class="flex w-full gap-2">
+          <el-select
+            v-model="form.contactId"
+            placeholder="Select from contacts"
+            filterable
+            clearable
+            :disabled="!form.customerId"
+            :loading="isFetchingContacts"
+            @change="onContactChange"
+            style="flex: 1"
+          >
+            <el-option
+              v-for="contact in contacts"
+              :key="contact.id"
+              :value="contact.id"
+              :label="contact.name"
+            >
+              <div class="flex flex-col">
+                <span>{{ contact.name }}</span>
+                <span v-if="contact.phone" class="text-xs text-gray-400">
+                  {{ contact.phone }}
+                </span>
+              </div>
+            </el-option>
+          </el-select>
+          <el-input
+            v-if="!form.contactId"
+            v-model="form.contactPerson"
+            placeholder="Or type manually"
+            style="flex: 1"
+          />
+        </div>
       </el-form-item>
 
       <el-form-item label="Contact Phone" :error="errors.contactPhone">
@@ -213,6 +242,7 @@ import { useQuery, useQueryClient } from "@tanstack/vue-query";
 const request = useRequest();
 const queryClient = useQueryClient();
 const shared = useSharedStore();
+const auth = useAuthStore();
 const { companyId } = storeToRefs(shared);
 
 // Local state
@@ -220,6 +250,7 @@ const show = ref(false);
 const form = ref({
   title: "",
   customerId: null,
+  contactId: null,
   contactPerson: "",
   contactPhone: "",
   userId: null,
@@ -237,6 +268,8 @@ const form = ref({
 });
 const errors = ref({});
 const isSaving = ref(false);
+const contacts = ref([]);
+const isFetchingContacts = ref(false);
 
 // Fetch customers
 const { data: customers } = useQuery({
@@ -254,17 +287,59 @@ const { data: users } = useQuery({
   },
 });
 
+// Fetch contacts for selected customer
+const fetchContacts = async (customerId) => {
+  if (!customerId) {
+    contacts.value = [];
+    return;
+  }
+
+  try {
+    isFetchingContacts.value = true;
+    const response = await request(`/api/contacts?customerId=${customerId}`);
+    contacts.value = response?.data || response || [];
+  } catch (error) {
+    console.error("Failed to fetch contacts:", error);
+    contacts.value = [];
+  } finally {
+    isFetchingContacts.value = false;
+  }
+};
+
+// Handle customer change
+const onCustomerChange = (customerId) => {
+  form.value.contactId = null;
+  form.value.contactPerson = "";
+  form.value.contactPhone = "";
+  fetchContacts(customerId);
+};
+
+// Handle contact change
+const onContactChange = (contactId) => {
+  if (!contactId) {
+    // When cleared, allow manual input but don't clear existing values
+    return;
+  }
+
+  const selectedContact = contacts.value.find((c) => c.id === contactId);
+  if (selectedContact) {
+    form.value.contactPerson = selectedContact.name;
+    form.value.contactPhone = selectedContact.phone || "";
+  }
+};
+
 // Open form method
 const openForm = (data = {}) => {
   form.value = {
     title: data.title || "",
     customerId: data.customerId || null,
+    contactId: data.contactId || null,
     contactPerson: data.contactPerson || "",
     contactPhone: data.contactPhone || "",
-    userId: data.userId || null,
+    userId: data.userId || auth.user?.id || null,
     scheduledDate: data.scheduledDate,
     scheduledTime: data.scheduledTime || "",
-    estimatedDuration: data.estimatedDuration || null,
+    estimatedDuration: data.estimatedDuration || 90,
     status: data.status || "Planned",
     actualVisitDate: data.actualVisitDate,
     address: data.address || "",
@@ -276,6 +351,14 @@ const openForm = (data = {}) => {
     id: data.id || null,
   };
   errors.value = {};
+
+  // Fetch contacts if customer is selected
+  if (data.customerId) {
+    fetchContacts(data.customerId);
+  } else {
+    contacts.value = [];
+  }
+
   show.value = true;
 };
 
@@ -284,12 +367,13 @@ const resetForm = () => {
   form.value = {
     title: "",
     customerId: null,
+    contactId: null,
     contactPerson: "",
     contactPhone: "",
     userId: null,
     scheduledDate: undefined,
     scheduledTime: "",
-    estimatedDuration: null,
+    estimatedDuration: 90,
     status: "Planned",
     actualVisitDate: undefined,
     address: "",
@@ -300,6 +384,7 @@ const resetForm = () => {
     meetingUrl: "",
   };
   errors.value = {};
+  contacts.value = [];
 };
 
 // Close form
