@@ -16,8 +16,8 @@ export default ({ url, queryKey, defaultQuery }) => {
     pageSize: pageSize.value,
     keyword: keyword.value,
     companyId: companyId.value,
-    ...filters.value,
     ...defaultQuery,
+    ...filters.value,
   }));
 
   function fetchData() {
