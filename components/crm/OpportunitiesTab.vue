@@ -17,7 +17,6 @@
   </div>
 
   <el-table :data="filteredData" stripe v-loading="isPending">
-    <el-table-column type="index" label="#" width="60" />
     <el-table-column label="Name" prop="name" min-width="200" />
     <el-table-column label="Stage" width="150" align="center">
       <template #default="{ row }">
@@ -26,9 +25,9 @@
     </el-table-column>
     <el-table-column label="Amount" width="150" align="right">
       <template #default="{ row }">
-        <strong class="font-mono">
+        <el-tag class="font-mono" type="success" effect="plain">
           {{ toCurrency(row.amount.toString()) }}
-        </strong>
+        </el-tag>
       </template>
     </el-table-column>
     <el-table-column label="Probability" width="200" align="center">
@@ -47,6 +46,17 @@
       </template>
     </el-table-column>
     <el-table-column width="60" align="center" fixed="right">
+      <template #header>
+        <el-button
+          type="text"
+          size="small"
+          :icon="ElIconRefresh"
+          circle
+          @click="
+            queryClient.invalidateQueries({ queryKey: ['opportunities'] })
+          "
+        />
+      </template>
       <template #default="{ row }">
         <el-dropdown>
           <span class="el-dropdown-link">
@@ -80,14 +90,6 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-empty
-    v-if="!filteredData || filteredData.length === 0"
-    :description="
-      searchQuery
-        ? 'No opportunities match your search'
-        : 'No opportunities found'
-    "
-  />
 
   <el-dialog
     v-model="showOpportunityForm"
@@ -97,19 +99,27 @@
     @close="opportunityFormData = {}"
   >
     <el-form label-width="160px" label-position="left">
-      <el-form-item label="Name" required :error="errors.name">
-        <el-input
-          placeholder="Opportunity name"
-          v-model="opportunityFormData.name"
-        />
+      <el-form-item label="Company" :error="errors.companyId">
+        <el-select
+          v-model="opportunityFormData.companyId"
+          placeholder="Company"
+          disabled
+        >
+          <el-option
+            v-for="company in companies"
+            :key="company.id"
+            :value="company.id"
+            :label="`${company.code} - ${company.name}`"
+          />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="Customer" :error="errors.customerId">
         <el-select
           v-model="opportunityFormData.customerId"
-          placeholder="Select customer"
+          placeholder="Customer"
           filterable
-          clearable
+          default-first-option
         >
           <el-option
             v-for="customer in customers"
@@ -120,62 +130,25 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Stage" required :error="errors.stage">
+      <el-form-item label="Assigned User" :error="errors.userId">
         <el-select
-          v-model="opportunityFormData.stage"
-          placeholder="Select stage"
+          v-model="opportunityFormData.userId"
+          placeholder="Select user"
+          filterable
         >
           <el-option
-            v-for="stage in opportunityStages"
-            :key="stage"
-            :value="stage"
-            :label="stage"
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+            :label="user.name"
           />
         </el-select>
       </el-form-item>
 
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="Amount" required :error="errors.amount">
-            <el-input-number
-              v-model="opportunityFormData.amount"
-              :min="0"
-              :precision="2"
-              placeholder="Amount"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="12">
-          <el-form-item
-            label="Probability (%)"
-            required
-            :error="errors.probability"
-          >
-            <el-input-number
-              v-model="opportunityFormData.probability"
-              :min="0"
-              :max="100"
-              placeholder="Probability"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-form-item
-        label="Expected Close Date"
-        required
-        :error="errors.expectedCloseDate"
-      >
-        <el-date-picker
-          v-model="opportunityFormData.expectedCloseDate"
-          type="date"
-          placeholder="Expected close date"
-          value-format="YYYY-MM-DD"
-          format="DD-MMM-YYYY"
-          style="width: 100%"
+      <el-form-item label="Opportunity" :error="errors.name">
+        <el-input
+          placeholder="Opportunity"
+          v-model="opportunityFormData.name"
         />
       </el-form-item>
 
@@ -183,8 +156,97 @@
         <el-input
           type="textarea"
           :rows="3"
-          placeholder="Opportunity description"
+          placeholder="Description"
           v-model="opportunityFormData.description"
+        />
+      </el-form-item>
+
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Amount" :error="errors.amount">
+            <el-input
+              type="number"
+              placeholder="Amount"
+              v-model="opportunityFormData.amount"
+            />
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item label="Probability (%)" :error="errors.probability">
+            <el-input-number
+              v-model="opportunityFormData.probability"
+              :min="0"
+              :max="100"
+              placeholder="0-100"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="16">
+        <el-col :span="12">
+          <el-form-item label="Stage" :error="errors.stage">
+            <el-select v-model="opportunityFormData.stage" placeholder="Stage">
+              <el-option
+                v-for="stage in opportunityStages"
+                :key="stage"
+                :value="stage"
+                :label="stage.replaceAll('_', ' ')"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="12">
+          <el-form-item
+            label="Expected Close Date"
+            :error="errors.expectedCloseDate"
+          >
+            <el-date-picker
+              v-model="opportunityFormData.expectedCloseDate"
+              type="date"
+              placeholder="Select Date"
+              value-format="YYYY-MM-DDT00:00:00Z"
+              format="DD-MMM-YYYY"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-form-item
+        v-if="
+          opportunityFormData.id &&
+          (opportunityFormData.stage === 'Closed_Won' ||
+            opportunityFormData.stage === 'Closed_Lost')
+        "
+        label="Actual Close Date"
+        :error="errors.actualCloseDate"
+      >
+        <el-date-picker
+          v-model="opportunityFormData.actualCloseDate"
+          type="date"
+          placeholder="Select Date"
+          format="DD-MMM-YYYY"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
+      </el-form-item>
+
+      <el-form-item
+        v-if="
+          opportunityFormData.id && opportunityFormData.stage === 'Closed_Lost'
+        "
+        label="Lost Reason"
+        :error="errors.lostReason"
+      >
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="Reason for losing this opportunity"
+          v-model="opportunityFormData.lostReason"
         />
       </el-form-item>
     </el-form>
@@ -215,6 +277,8 @@ const props = defineProps({
 
 const request = useRequest();
 const queryClient = useQueryClient();
+const shared = useSharedStore();
+const { companyId } = storeToRefs(shared);
 
 // Local state
 const searchQuery = ref("");
@@ -246,6 +310,22 @@ const { data: customers } = useQuery({
   },
 });
 
+// Fetch companies
+const { data: companies } = useQuery({
+  queryKey: ["companies"],
+  queryFn: async () => {
+    return await request("/api/companies");
+  },
+});
+
+// Fetch users
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: async () => {
+    return await request("/api/users");
+  },
+});
+
 // Filter data based on search query
 const filteredData = computed(() => {
   if (!data.value?.data || !Array.isArray(data.value.data)) return [];
@@ -267,6 +347,7 @@ const handleNewOpportunity = () => {
   const newOpportunity = {
     probability: 50,
     amount: 0,
+    companyId: companyId.value,
   };
 
   if (props.leadId) {
@@ -321,7 +402,13 @@ const saveOpportunity = async () => {
   try {
     isSaving.value = true;
     errors.value = {};
-    const data = opportunityFormData.value;
+    const data = { ...opportunityFormData.value };
+
+    // Convert amount to number
+    data.amount = Number(data.amount);
+    if (data.probability !== null && data.probability !== undefined) {
+      data.probability = Number(data.probability);
+    }
 
     if (data.id) {
       await request(`/api/opportunities/${data.id}`, {
