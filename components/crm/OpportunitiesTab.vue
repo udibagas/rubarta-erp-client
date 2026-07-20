@@ -32,12 +32,7 @@
     </el-table-column>
     <el-table-column label="Probability" width="200" align="center">
       <template #default="{ row }">
-        <el-progress
-          :percentage="row.probability"
-          :status="row.probability === 100 ? 'success' : 'active'"
-          :text-inside="true"
-          :stroke-width="15"
-        />
+        <el-progress :percentage="row.probability" />
       </template>
     </el-table-column>
     <el-table-column label="Expected Close" width="150" align="center">
@@ -68,7 +63,7 @@
             <el-dropdown-menu>
               <el-dropdown-item
                 :icon="ElIconView"
-                @click="navigateTo(`/crm/opportunities?id=${row.id}`)"
+                @click="navigateTo(`/crm/opportunities/${row.id}`)"
               >
                 View
               </el-dropdown-item>
@@ -99,37 +94,6 @@
     @close="opportunityFormData = {}"
   >
     <el-form label-width="160px" label-position="left">
-      <el-form-item label="Company" :error="errors.companyId">
-        <el-select
-          v-model="opportunityFormData.companyId"
-          placeholder="Company"
-          disabled
-        >
-          <el-option
-            v-for="company in companies"
-            :key="company.id"
-            :value="company.id"
-            :label="`${company.code} - ${company.name}`"
-          />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Customer" :error="errors.customerId">
-        <el-select
-          v-model="opportunityFormData.customerId"
-          placeholder="Customer"
-          filterable
-          default-first-option
-        >
-          <el-option
-            v-for="customer in customers"
-            :key="customer.id"
-            :value="customer.id"
-            :label="customer.name"
-          />
-        </el-select>
-      </el-form-item>
-
       <el-form-item label="Assigned User" :error="errors.userId">
         <el-select
           v-model="opportunityFormData.userId"
@@ -310,14 +274,6 @@ const { data: customers } = useQuery({
   },
 });
 
-// Fetch companies
-const { data: companies } = useQuery({
-  queryKey: ["companies"],
-  queryFn: async () => {
-    return await request("/api/companies");
-  },
-});
-
 // Fetch users
 const { data: users } = useQuery({
   queryKey: ["users"],
@@ -410,17 +366,16 @@ const saveOpportunity = async () => {
       data.probability = Number(data.probability);
     }
 
-    if (data.id) {
-      await request(`/api/opportunities/${data.id}`, {
-        method: "PATCH",
-        body: data,
-      });
-    } else {
-      await request("/api/opportunities", {
-        method: "POST",
-        body: data,
-      });
-    }
+    const url = data.id
+      ? `/api/opportunities/${data.id}`
+      : "/api/opportunities";
+
+    console.log("Saving opportunity:", data); // Debug log
+
+    await request(url, {
+      method: data.id ? "PATCH" : "POST",
+      body: data,
+    });
 
     showOpportunityForm.value = false;
     opportunityFormData.value = {};
