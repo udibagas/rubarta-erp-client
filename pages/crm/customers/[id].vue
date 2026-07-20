@@ -122,7 +122,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="OPPORTUNITIES">
-      <el-table :data="customer.Opportunities" stripe>
+      <el-table :data="customer?.Opportunities ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Name" prop="name" min-width="200" />
         <el-table-column label="Stage" width="150">
@@ -162,7 +162,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="ORDERS">
-      <el-table :data="customer.Orders" stripe>
+      <el-table :data="customer?.Orders ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Order Number" prop="orderNumber" width="150" />
         <el-table-column
@@ -204,7 +204,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="CONTACTS">
-      <el-table :data="customer.Contacts" stripe>
+      <el-table :data="customer?.Contacts ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Name" prop="name" min-width="150" />
         <el-table-column label="Title" prop="title" width="150" />
