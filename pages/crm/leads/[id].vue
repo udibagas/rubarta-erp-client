@@ -124,7 +124,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="OPPORTUNITIES" v-if="lead?.status === 'Converted'">
-      <CrmOpportunitiesTab :lead-id="leadId" />
+      <CrmOpportunitiesTab :lead-id="leadId" :customer-id="lead.customerId" />
     </el-tab-pane>
   </el-tabs>
 
