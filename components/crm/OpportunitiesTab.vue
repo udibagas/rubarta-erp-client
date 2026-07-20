@@ -1,21 +1,30 @@
 <template>
-  <el-table :data="data" stripe v-loading="isPending">
+  <el-table :data="data?.data ?? []" stripe v-loading="isPending">
     <el-table-column type="index" label="#" width="60" />
     <el-table-column label="Name" prop="name" min-width="200" />
-    <el-table-column label="Stage" width="150">
+    <el-table-column label="Stage" width="150" align="center">
       <template #default="{ row }">
         <StatusTag :status="row.stage" />
       </template>
     </el-table-column>
     <el-table-column label="Amount" width="150" align="right">
       <template #default="{ row }">
-        <strong>{{ toCurrency(row.amount.toString()) }}</strong>
+        <strong class="font-mono">
+          {{ toCurrency(row.amount.toString()) }}
+        </strong>
       </template>
     </el-table-column>
-    <el-table-column label="Probability" width="100" align="center">
-      <template #default="{ row }"> {{ row.probability }}% </template>
+    <el-table-column label="Probability" width="200" align="center">
+      <template #default="{ row }">
+        <el-progress
+          :percentage="row.probability"
+          :status="row.probability === 100 ? 'success' : 'active'"
+          :text-inside="true"
+          :stroke-width="15"
+        />
+      </template>
     </el-table-column>
-    <el-table-column label="Expected Close" width="120">
+    <el-table-column label="Expected Close" width="150" align="center">
       <template #default="{ row }">
         {{ formatDate(row.expectedCloseDate) }}
       </template>
@@ -58,6 +67,8 @@ const { data, isPending } = useQuery({
   queryKey: ["opportunities", props],
   queryFn: async () => {
     const params = new URLSearchParams();
+    params.append("page", "1");
+    params.append("pageSize", "1000");
     if (props.leadId) params.append("leadId", props.leadId);
     if (props.customerId) params.append("customerId", props.customerId);
     const query = params.toString() ? `?${params.toString()}` : "";
