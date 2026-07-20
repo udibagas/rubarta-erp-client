@@ -307,7 +307,7 @@ const handleConvertSubmit = async () => {
   try {
     convertErrors.value = {};
 
-    await request(`/api/leads/${leadId.value}/convert`, {
+    const response = await request(`/api/leads/${leadId.value}/convert`, {
       method: "POST",
       body: {
         name: convertForm.value.name,
@@ -318,11 +318,11 @@ const handleConvertSubmit = async () => {
         expectedCloseDate: convertForm.value.expectedCloseDate,
       },
     });
-
     ElMessage.success("Lead converted to opportunity successfully!");
     showConvertDialog.value = false;
     refetch();
     queryClient.invalidateQueries(["leads"]);
+    navigateTo(`/crm/opportunities/${response.id}`);
   } catch (error) {
     convertErrors.value = parseError(error);
     ElMessage.error("Failed to convert lead");
