@@ -228,8 +228,13 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="closeForm">CANCEL</el-button>
-      <el-button type="success" @click="save" :loading="isSaving">
+      <el-button @click="closeForm" :icon="ElIconCircleClose">CANCEL</el-button>
+      <el-button
+        type="success"
+        @click="save"
+        :loading="isSaving"
+        :icon="ElIconCircleCheckFilled"
+      >
         SAVE
       </el-button>
     </template>
