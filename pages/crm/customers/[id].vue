@@ -94,7 +94,7 @@
 
   <el-tabs>
     <el-tab-pane label="LEADS">
-      <el-table :data="customer.Leads" stripe>
+      <el-table :data="customer?.Leads ?? []" stripe>
         <el-table-column type="index" label="#"></el-table-column>
 
         <el-table-column
@@ -118,10 +118,7 @@
         <el-table-column label="Source" prop="source" min-width="100px" />
         <el-table-column label="Notes" prop="notes" min-width="200px" />
       </el-table>
-      <el-empty
-        v-if="!leads || leads.length === 0"
-        description="No leads found"
-      />
+      <el-empty v-if="!customer?.Leads?.length" description="No leads found" />
     </el-tab-pane>
 
     <el-tab-pane label="OPPORTUNITIES">
@@ -159,7 +156,7 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!opportunities || opportunities.length === 0"
+        v-if="!customer?.Opportunities?.length"
         description="No opportunities found"
       />
     </el-tab-pane>
@@ -201,7 +198,7 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!orders || orders.length === 0"
+        v-if="!customer?.Orders?.length"
         description="No orders found"
       />
     </el-tab-pane>
@@ -234,13 +231,13 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!contacts || contacts.length === 0"
+        v-if="!customer?.Contacts?.length"
         description="No contacts found"
       />
     </el-tab-pane>
 
     <el-tab-pane label="INTERACTIONS">
-      <el-table :data="customer.Interactions" stripe>
+      <el-table :data="customer?.Interactions ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Type" width="120">
           <template #default="{ row }">
@@ -273,13 +270,13 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!customer.Interactions || customer.Interactions.length === 0"
+        v-if="!customer?.Interactions?.length"
         description="No interactions found"
       />
     </el-tab-pane>
 
     <el-tab-pane label="QUOTATIONS">
-      <el-table :data="customer.Quotations" stripe>
+      <el-table :data="customer?.Quotations ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Number" prop="number" width="120" />
         <el-table-column label="Title" prop="title" min-width="200" />
@@ -312,13 +309,13 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!customer.Quotations || customer.Quotations.length === 0"
+        v-if="!customer?.Quotations?.length"
         description="No quotations found"
       />
     </el-tab-pane>
 
     <el-tab-pane label="INVOICES">
-      <el-table :data="customer.Invoices" stripe>
+      <el-table :data="customer?.Invoices ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="Number" prop="number" width="120" />
         <el-table-column label="Order Number" width="120">
@@ -364,7 +361,7 @@
         </el-table-column>
       </el-table>
       <el-empty
-        v-if="!customer.Invoices || customer.Invoices.length === 0"
+        v-if="!customer?.Invoices?.length"
         description="No invoices found"
       />
     </el-tab-pane>
