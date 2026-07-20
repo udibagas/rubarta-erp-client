@@ -16,7 +16,6 @@
           v-model="form.customerId"
           placeholder="Select customer"
           filterable
-          @change="handleCustomerChange"
         >
           <el-option
             v-for="customer in customers"
@@ -27,36 +26,18 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Contact" :error="errors.contactId">
-        <el-select
-          v-model="form.contactId"
-          placeholder="Select contact"
-          filterable
-          clearable
-        >
-          <el-option
-            v-for="contact in filteredContacts"
-            :key="contact.id"
-            :value="contact.id"
-            :label="contact.name"
-          >
-            <div class="flex items-center gap-2">
-              <el-avatar
-                :size="24"
-                :style="{ backgroundColor: getAvatarColor(contact.name) }"
-              >
-                {{ contact.name?.charAt(0).toUpperCase() }}
-              </el-avatar>
-              <div class="flex flex-col">
-                <span class="font-semibold text-sm">{{ contact.name }}</span>
-                <div class="text-xs text-gray-500">
-                  <span v-if="contact.email">{{ contact.email }}</span>
-                  <span v-if="contact.phone"> • {{ contact.phone }}</span>
-                </div>
-              </div>
-            </div>
-          </el-option>
-        </el-select>
+      <el-form-item label="Contact Person" :error="errors.contactPerson">
+        <el-input
+          placeholder="Contact person name"
+          v-model="form.contactPerson"
+        />
+      </el-form-item>
+
+      <el-form-item label="Contact Phone" :error="errors.contactPhone">
+        <el-input
+          placeholder="Contact phone number"
+          v-model="form.contactPhone"
+        />
       </el-form-item>
 
       <el-form-item label="Assigned User" required :error="errors.userId">
@@ -72,18 +53,37 @@
 
       <el-row :gutter="16">
         <el-col :span="12">
-          <el-form-item label="Visit Date" required :error="errors.visitDate">
+          <el-form-item
+            label="Scheduled Date"
+            required
+            :error="errors.scheduledDate"
+          >
             <el-date-picker
-              v-model="form.visitDate"
-              type="datetime"
-              placeholder="Select date and time"
+              v-model="form.scheduledDate"
+              type="date"
+              placeholder="Select date"
               value-format="YYYY-MM-DDTHH:mm:ssZ"
-              format="DD-MMM-YYYY HH:mm"
+              format="DD-MMM-YYYY"
               style="width: 100%"
             />
           </el-form-item>
         </el-col>
 
+        <el-col :span="12">
+          <el-form-item label="Scheduled Time" :error="errors.scheduledTime">
+            <el-time-select
+              v-model="form.scheduledTime"
+              start="06:00"
+              step="00:15"
+              end="22:00"
+              placeholder="Select time"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item label="Status" required :error="errors.status">
             <el-select
@@ -97,12 +97,53 @@
             </el-select>
           </el-form-item>
         </el-col>
+
+        <el-col :span="12">
+          <el-form-item
+            label="Duration (minutes)"
+            :error="errors.estimatedDuration"
+          >
+            <el-input-number
+              v-model="form.estimatedDuration"
+              :min="15"
+              :max="480"
+              :step="15"
+              placeholder="Duration"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
 
-      <el-form-item label="Location" :error="errors.location">
+      <el-form-item label="Visit Type" required :error="errors.visitType">
+        <el-radio-group v-model="form.visitType">
+          <el-radio value="Offline">Offline</el-radio>
+          <el-radio value="Online">Online</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item
+        v-if="form.visitType === 'Online'"
+        label="Meeting URL"
+        :error="errors.meetingUrl"
+      >
         <el-input
-          placeholder="Visit location/address"
-          v-model="form.location"
+          placeholder="https://..."
+          v-model="form.meetingUrl"
+          type="url"
+        />
+      </el-form-item>
+
+      <el-form-item
+        v-if="form.visitType === 'Offline'"
+        label="Address"
+        :error="errors.address"
+      >
+        <el-input
+          type="textarea"
+          :rows="2"
+          placeholder="Visit address"
+          v-model="form.address"
         />
       </el-form-item>
 
@@ -125,6 +166,21 @@
           :rows="2"
           placeholder="Additional notes"
           v-model="form.notes"
+        />
+      </el-form-item>
+
+      <el-form-item
+        label="Actual Visit Date"
+        :error="errors.actualVisitDate"
+        v-if="form.status === 'Completed'"
+      >
+        <el-date-picker
+          v-model="form.actualVisitDate"
+          type="datetime"
+          placeholder="Actual visit date/time"
+          value-format="YYYY-MM-DDTHH:mm:ssZ"
+          format="DD-MMM-YYYY HH:mm"
+          style="width: 100%"
         />
       </el-form-item>
 
@@ -153,24 +209,31 @@
 
 <script setup>
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import { getAvatarColor } from "~/utils/avatar";
 
 const request = useRequest();
 const queryClient = useQueryClient();
+const shared = useSharedStore();
+const { companyId } = storeToRefs(shared);
 
 // Local state
 const show = ref(false);
 const form = ref({
   title: "",
   customerId: null,
-  contactId: null,
+  contactPerson: "",
+  contactPhone: "",
   userId: null,
-  visitDate: "",
+  scheduledDate: undefined,
+  scheduledTime: "",
+  estimatedDuration: null,
   status: "Planned",
-  location: "",
+  actualVisitDate: undefined,
+  address: "",
   purpose: "",
   notes: "",
   outcome: "",
+  visitType: "Offline",
+  meetingUrl: "",
 });
 const errors = ref({});
 const isSaving = ref(false);
@@ -183,22 +246,6 @@ const { data: customers } = useQuery({
   },
 });
 
-// Fetch contacts
-const { data: contacts } = useQuery({
-  queryKey: ["contacts"],
-  queryFn: async () => {
-    return await request("/api/contacts");
-  },
-});
-
-// Filter contacts by selected customer
-const filteredContacts = computed(() => {
-  if (!contacts.value || !form.value.customerId) return [];
-  return contacts.value.filter(
-    (contact) => contact.customerId === form.value.customerId,
-  );
-});
-
 // Fetch users
 const { data: users } = useQuery({
   queryKey: ["users"],
@@ -207,24 +254,25 @@ const { data: users } = useQuery({
   },
 });
 
-// Handle customer change to reset contact
-const handleCustomerChange = () => {
-  form.value.contactId = null;
-};
-
 // Open form method
 const openForm = (data = {}) => {
   form.value = {
     title: data.title || "",
     customerId: data.customerId || null,
-    contactId: data.contactId || null,
+    contactPerson: data.contactPerson || "",
+    contactPhone: data.contactPhone || "",
     userId: data.userId || null,
-    visitDate: data.visitDate || "",
+    scheduledDate: data.scheduledDate,
+    scheduledTime: data.scheduledTime || "",
+    estimatedDuration: data.estimatedDuration || null,
     status: data.status || "Planned",
-    location: data.location || "",
+    actualVisitDate: data.actualVisitDate,
+    address: data.address || "",
     purpose: data.purpose || "",
     notes: data.notes || "",
     outcome: data.outcome || "",
+    visitType: data.visitType || "Offline",
+    meetingUrl: data.meetingUrl || "",
     id: data.id || null,
   };
   errors.value = {};
@@ -236,14 +284,20 @@ const resetForm = () => {
   form.value = {
     title: "",
     customerId: null,
-    contactId: null,
+    contactPerson: "",
+    contactPhone: "",
     userId: null,
-    visitDate: "",
+    scheduledDate: undefined,
+    scheduledTime: "",
+    estimatedDuration: null,
     status: "Planned",
-    location: "",
+    actualVisitDate: undefined,
+    address: "",
     purpose: "",
     notes: "",
     outcome: "",
+    visitType: "Offline",
+    meetingUrl: "",
   };
   errors.value = {};
 };
@@ -259,18 +313,16 @@ const save = async () => {
   try {
     isSaving.value = true;
     errors.value = {};
+    const body = { ...form.value, companyId: companyId.value };
 
-    if (form.value.id) {
-      await request(`/api/visit-plans/${form.value.id}`, {
-        method: "PATCH",
-        body: form.value,
-      });
-    } else {
-      await request("/api/visit-plans", {
-        method: "POST",
-        body: form.value,
-      });
-    }
+    const url = form.value.id
+      ? `/api/visit-plans/${form.value.id}`
+      : "/api/visit-plans";
+
+    await request(url, {
+      method: form.value.id ? "PATCH" : "POST",
+      body,
+    });
 
     ElMessage.success("Visit plan saved successfully");
     closeForm();

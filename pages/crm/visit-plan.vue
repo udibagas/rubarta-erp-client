@@ -3,13 +3,13 @@
     <template #extra>
       <div class="flex gap-2">
         <el-radio-group v-model="viewMode" size="default">
-          <el-radio-button value="table">
-            <el-icon><ElIconList /></el-icon>
-            Table
-          </el-radio-button>
           <el-radio-button value="calendar">
             <el-icon><ElIconCalendar /></el-icon>
             Calendar
+          </el-radio-button>
+          <el-radio-button value="table">
+            <el-icon><ElIconList /></el-icon>
+            Table
           </el-radio-button>
         </el-radio-group>
         <el-input
@@ -37,7 +37,7 @@
     v-if="viewMode === 'table'"
     stripe
     v-loading="isPending"
-    :data="data"
+    :data="data?.data || []"
   >
     <el-table-column type="index" label="#" width="60" />
 
@@ -52,14 +52,15 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Visit Date" width="150">
+    <el-table-column label="Scheduled Date" width="150">
       <template #default="{ row }">
         <div>
           <div class="font-semibold text-sm">
-            {{ dayjs(row.visitDate).fromNow() }}
+            {{ dayjs(row.scheduledDate).fromNow() }}
           </div>
           <div class="text-xs text-gray-500">
-            {{ formatDate(row.visitDate) }} {{ formatTime(row.visitDate) }}
+            {{ formatDate(row.scheduledDate) }}
+            <span v-if="row.scheduledTime"> {{ row.scheduledTime }}</span>
           </div>
         </div>
       </template>
@@ -68,35 +69,21 @@
     <el-table-column label="Customer" width="180">
       <template #default="{ row }">
         <a
-          class="text-green-500 hover:underline cursor-pointer"
+          class="text-green-500 hover:underline cursor-pointer font-semibold"
           @click="navigateTo(`/crm/customers/${row.customerId}`)"
         >
           {{ row.Customer?.name }}
         </a>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Contact" width="200">
-      <template #default="{ row }">
-        <div v-if="row.Contact" class="flex items-center gap-2">
-          <el-avatar
-            :size="28"
-            :style="{ backgroundColor: getAvatarColor(row.Contact.name) }"
-          >
-            {{ row.Contact.name?.charAt(0).toUpperCase() }}
-          </el-avatar>
-          <div class="flex flex-col">
-            <span class="font-semibold text-sm">{{ row.Contact.name }}</span>
-            <span v-if="row.Contact.phone" class="text-xs text-gray-500">
-              {{ row.Contact.phone }}
-            </span>
-          </div>
+        <div v-if="row.contactPerson" class="flex flex-col">
+          <span class="font-semibold text-sm">{{ row.contactPerson }}</span>
+          <span v-if="row.contactPhone" class="text-xs text-gray-500">
+            {{ row.contactPhone }}
+          </span>
         </div>
-        <span v-else class="text-gray-400">-</span>
       </template>
     </el-table-column>
 
-    <el-table-column label="Status" width="120" align="center">
+    <el-table-column label="Status" width="140" align="center">
       <template #default="{ row }">
         <StatusTag :status="row.status" effect="dark">
           <template #icon>
@@ -110,10 +97,22 @@
       </template>
     </el-table-column>
 
+    <el-table-column label="Visit Type" width="100" align="center">
+      <template #default="{ row }">
+        <el-tag
+          :type="row.visitType === 'Online' ? 'success' : 'info'"
+          size="small"
+        >
+          {{ row.visitType }}
+        </el-tag>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Assigned To" width="180">
       <template #default="{ row }">
         <div v-if="row.User" class="flex items-center gap-2">
           <el-avatar
+            class="shrink-0"
             :size="28"
             :style="{ backgroundColor: getAvatarColor(row.User.name) }"
           >
@@ -124,7 +123,25 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Location" prop="location" min-width="150" />
+    <el-table-column label="Location" min-width="180">
+      <template #default="{ row }">
+        <div v-if="row.visitType === 'Online'">
+          <a
+            v-if="row.meetingUrl"
+            :href="row.meetingUrl"
+            target="_blank"
+            class="text-green-500 hover:underline cursor-pointer text-sm"
+          >
+            <el-icon class="mr-1"><ElIconVideoCamera /></el-icon>
+            Join Meeting
+          </a>
+          <span v-else class="text-gray-400 text-sm">Online</span>
+        </div>
+        <div v-else class="text-sm">
+          {{ row.address || "-" }}
+        </div>
+      </template>
+    </el-table-column>
 
     <el-table-column width="60" align="center" fixed="right">
       <template #header>
@@ -194,6 +211,9 @@
                   <ElIconCircleCheck v-else-if="visit.status === 'Completed'" />
                   <ElIconCircleClose v-else-if="visit.status === 'Cancelled'" />
                 </el-icon>
+                <el-icon v-if="visit.visitType === 'Online'" :size="12">
+                  <ElIconVideoCamera />
+                </el-icon>
                 <span class="text-xs font-semibold truncate">{{
                   visit.title
                 }}</span>
@@ -201,8 +221,8 @@
               <div class="text-xs text-gray-600 truncate">
                 {{ visit.Customer?.name }}
               </div>
-              <div class="text-xs text-gray-500">
-                {{ formatTime(visit.visitDate) }}
+              <div v-if="visit.scheduledTime" class="text-xs text-gray-500">
+                {{ visit.scheduledTime }}
               </div>
             </div>
           </div>
@@ -239,16 +259,33 @@
           </StatusTag>
         </el-descriptions-item>
 
-        <el-descriptions-item label="Visit Date" :span="1">
+        <el-descriptions-item label="Visit Type" :span="1">
+          <el-tag
+            :type="selectedVisit.visitType === 'Online' ? 'success' : 'info'"
+          >
+            {{ selectedVisit.visitType }}
+          </el-tag>
+        </el-descriptions-item>
+
+        <el-descriptions-item label="Scheduled Date" :span="1">
           <div>
             <div class="font-semibold">
-              {{ dayjs(selectedVisit.visitDate).fromNow() }}
+              {{ dayjs(selectedVisit.scheduledDate).fromNow() }}
             </div>
             <div class="text-sm text-gray-500">
-              {{ formatDate(selectedVisit.visitDate) }}
-              {{ formatTime(selectedVisit.visitDate) }}
+              {{ formatDate(selectedVisit.scheduledDate) }}
+              <span v-if="selectedVisit.scheduledTime">
+                {{ selectedVisit.scheduledTime }}
+              </span>
             </div>
           </div>
+        </el-descriptions-item>
+
+        <el-descriptions-item label="Duration" :span="1">
+          <span v-if="selectedVisit.estimatedDuration">
+            {{ selectedVisit.estimatedDuration }} minutes
+          </span>
+          <span v-else>-</span>
         </el-descriptions-item>
 
         <el-descriptions-item label="Customer" :span="2">
@@ -262,29 +299,15 @@
           <span v-else>-</span>
         </el-descriptions-item>
 
-        <el-descriptions-item label="Contact" :span="2">
-          <div v-if="selectedVisit.Contact" class="flex items-center gap-2">
-            <el-avatar
-              :size="32"
-              :style="{
-                backgroundColor: getAvatarColor(selectedVisit.Contact.name),
-              }"
+        <el-descriptions-item label="Contact Person" :span="2">
+          <div v-if="selectedVisit.contactPerson" class="flex flex-col">
+            <span class="font-semibold">{{ selectedVisit.contactPerson }}</span>
+            <span
+              v-if="selectedVisit.contactPhone"
+              class="text-sm text-gray-500"
             >
-              {{ selectedVisit.Contact.name?.charAt(0).toUpperCase() }}
-            </el-avatar>
-            <div class="flex flex-col">
-              <span class="font-semibold">{{
-                selectedVisit.Contact.name
-              }}</span>
-              <div class="text-sm text-gray-500">
-                <div v-if="selectedVisit.Contact.email">
-                  {{ selectedVisit.Contact.email }}
-                </div>
-                <div v-if="selectedVisit.Contact.phone">
-                  {{ selectedVisit.Contact.phone }}
-                </div>
-              </div>
-            </div>
+              {{ selectedVisit.contactPhone }}
+            </span>
           </div>
           <span v-else>-</span>
         </el-descriptions-item>
@@ -304,8 +327,29 @@
           <span v-else>-</span>
         </el-descriptions-item>
 
-        <el-descriptions-item label="Location" :span="2">
-          {{ selectedVisit.location || "-" }}
+        <el-descriptions-item
+          v-if="selectedVisit.visitType === 'Online'"
+          label="Meeting URL"
+          :span="2"
+        >
+          <a
+            v-if="selectedVisit.meetingUrl"
+            :href="selectedVisit.meetingUrl"
+            target="_blank"
+            class="text-green-500 hover:underline"
+          >
+            <el-icon class="mr-1"><ElIconVideoCamera /></el-icon>
+            {{ selectedVisit.meetingUrl }}
+          </a>
+          <span v-else>-</span>
+        </el-descriptions-item>
+
+        <el-descriptions-item
+          v-if="selectedVisit.visitType === 'Offline'"
+          label="Address"
+          :span="2"
+        >
+          {{ selectedVisit.address || "-" }}
         </el-descriptions-item>
 
         <el-descriptions-item label="Purpose" :span="2">
@@ -315,6 +359,17 @@
         <el-descriptions-item label="Notes" :span="2">
           <div class="whitespace-pre-wrap">
             {{ selectedVisit.notes || "-" }}
+          </div>
+        </el-descriptions-item>
+
+        <el-descriptions-item
+          v-if="selectedVisit.actualVisitDate"
+          label="Actual Visit Date"
+          :span="2"
+        >
+          <div>
+            {{ formatDate(selectedVisit.actualVisitDate) }}
+            {{ formatTime(selectedVisit.actualVisitDate) }}
           </div>
         </el-descriptions-item>
 
@@ -370,13 +425,12 @@
 <script setup>
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { getAvatarColor } from "~/utils/avatar";
 
 dayjs.extend(relativeTime);
 
 const visitPlanFormRef = ref(null);
 const request = useRequest();
-const viewMode = ref("table");
+const viewMode = ref("calendar");
 const calendarDate = ref(new Date());
 const showDetailDialog = ref(false);
 const selectedVisit = ref(null);
@@ -387,177 +441,15 @@ const { removeMutation, fetchData, refreshData, handleRemove, keyword } =
     queryKey: "visit-plans",
   });
 
-const { isPending, data: apiData } = fetchData();
+const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
-
-// Dummy data for calendar demonstration
-const dummyVisits = ref([
-  {
-    id: 1001,
-    title: "Product Demo - Manufacturing Solutions",
-    customerId: 1,
-    Customer: { name: "PT Maju Jaya" },
-    contactId: 1,
-    Contact: { name: "Budi Santoso", phone: "+62 812-3456-7890" },
-    userId: 1,
-    User: { name: "John Doe" },
-    visitDate: "2026-07-07T10:00:00Z",
-    status: "Planned",
-    location: "Jakarta Office",
-    purpose: "Product demonstration and requirements gathering",
-    notes: "Bring product catalog and samples",
-  },
-  {
-    id: 1002,
-    title: "Contract Negotiation Meeting",
-    customerId: 2,
-    Customer: { name: "CV Sejahtera" },
-    contactId: 2,
-    Contact: { name: "Sarah Williams", phone: "+62 821-9876-5432" },
-    userId: 2,
-    User: { name: "Jane Smith" },
-    visitDate: "2026-07-09T14:00:00Z",
-    status: "Planned",
-    location: "Customer Site - Surabaya",
-    purpose: "Discuss contract terms and pricing",
-    notes: "Prepare pricing proposal",
-  },
-  {
-    id: 1003,
-    title: "Quarterly Business Review",
-    customerId: 3,
-    Customer: { name: "PT Sukses Makmur" },
-    contactId: 3,
-    Contact: { name: "Ahmad Hidayat", phone: "+62 813-1111-2222" },
-    userId: 1,
-    User: { name: "John Doe" },
-    visitDate: "2026-07-11T09:00:00Z",
-    status: "Completed",
-    location: "Bandung Office",
-    purpose: "Review Q2 performance and discuss Q3 plans",
-    notes: "Client very satisfied with service",
-    outcome: "Secured additional order for Q3. Client committed to 20% growth.",
-  },
-  {
-    id: 1004,
-    title: "Technical Support Visit",
-    customerId: 4,
-    Customer: { name: "UD Berkah Jaya" },
-    contactId: 4,
-    Contact: { name: "Lisa Anderson", phone: "+62 856-7777-8888" },
-    userId: 3,
-    User: { name: "Mike Johnson" },
-    visitDate: "2026-07-14T13:00:00Z",
-    status: "Planned",
-    location: "Semarang Warehouse",
-    purpose: "Troubleshoot installation issues",
-    notes: "Bring technical tools and spare parts",
-  },
-  {
-    id: 1005,
-    title: "New Customer Onboarding",
-    customerId: 5,
-    Customer: { name: "PT Mitra Sejati" },
-    contactId: 5,
-    Contact: { name: "David Lee", phone: "+62 822-3333-4444" },
-    userId: 2,
-    User: { name: "Jane Smith" },
-    visitDate: "2026-07-16T10:30:00Z",
-    status: "Planned",
-    location: "Yogyakarta Office",
-    purpose: "Complete onboarding process and training",
-    notes: "First meeting with new customer",
-  },
-  {
-    id: 1006,
-    title: "Follow-up: Proposal Discussion",
-    customerId: 1,
-    Customer: { name: "PT Maju Jaya" },
-    contactId: 1,
-    Contact: { name: "Budi Santoso", phone: "+62 812-3456-7890" },
-    userId: 1,
-    User: { name: "John Doe" },
-    visitDate: "2026-07-18T11:00:00Z",
-    status: "Cancelled",
-    location: "Jakarta Office",
-    purpose: "Follow up on submitted proposal",
-    notes: "Cancelled - Client requested reschedule to next month",
-  },
-  {
-    id: 1007,
-    title: "Site Survey - New Project",
-    customerId: 6,
-    Customer: { name: "CV Makmur Sentosa" },
-    contactId: 6,
-    Contact: { name: "Maria Garcia", phone: "+62 877-5555-6666" },
-    userId: 3,
-    User: { name: "Mike Johnson" },
-    visitDate: "2026-07-21T08:00:00Z",
-    status: "Planned",
-    location: "Medan Factory",
-    purpose: "Survey site for new installation project",
-    notes: "Coordinate with client's facility manager",
-  },
-  {
-    id: 1008,
-    title: "Partnership Discussion",
-    customerId: 7,
-    Customer: { name: "PT Global Solutions" },
-    contactId: 7,
-    Contact: { name: "Robert Chen", phone: "+62 815-9999-0000" },
-    userId: 2,
-    User: { name: "Jane Smith" },
-    visitDate: "2026-07-23T15:00:00Z",
-    status: "Completed",
-    location: "Bali - Conference Center",
-    purpose: "Explore strategic partnership opportunities",
-    notes: "Attended industry conference together",
-    outcome: "Agreed to pilot partnership program starting August. Signed MOU.",
-  },
-  {
-    id: 1009,
-    title: "Training Session - Product Usage",
-    customerId: 3,
-    Customer: { name: "PT Sukses Makmur" },
-    contactId: 3,
-    Contact: { name: "Ahmad Hidayat", phone: "+62 813-1111-2222" },
-    userId: 1,
-    User: { name: "John Doe" },
-    visitDate: "2026-07-25T09:30:00Z",
-    status: "Planned",
-    location: "Bandung Office",
-    purpose: "Train customer team on new product features",
-    notes: "Prepare training materials and demo setup",
-  },
-  {
-    id: 1010,
-    title: "Emergency Maintenance Visit",
-    customerId: 8,
-    Customer: { name: "UD Cahaya Abadi" },
-    contactId: 8,
-    Contact: { name: "Jennifer Wong", phone: "+62 838-2222-3333" },
-    userId: 3,
-    User: { name: "Mike Johnson" },
-    visitDate: "2026-07-28T14:30:00Z",
-    status: "Planned",
-    location: "Palembang Site",
-    purpose: "Emergency equipment maintenance",
-    notes: "Priority visit - equipment malfunction reported",
-  },
-]);
-
-// Merge API data with dummy data
-const data = computed(() => {
-  const apiRecords = apiData.value || [];
-  return [...apiRecords, ...dummyVisits.value];
-});
 
 // Get visits for a specific date
 const getVisitsForDate = (date) => {
-  if (!data.value) return [];
+  if (!data.value?.data) return [];
   const targetDate = dayjs(date).format("YYYY-MM-DD");
-  return data.value.filter((visit) => {
-    const visitDate = dayjs(visit.visitDate).format("YYYY-MM-DD");
+  return data.value.data.filter((visit) => {
+    const visitDate = dayjs(visit.scheduledDate).format("YYYY-MM-DD");
     return visitDate === targetDate;
   });
 };
