@@ -88,6 +88,7 @@
         <div v-if="row.User" class="flex items-center gap-2">
           <el-avatar
             :size="32"
+            class="shrink-0"
             :style="{ backgroundColor: getAvatarColor(row.User.name) }"
           >
             {{ row.User.name?.charAt(0).toUpperCase() }}
@@ -99,6 +100,15 @@
     </el-table-column>
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
     <el-table-column width="60" align="center" fixed="right">
+      <template #header>
+        <el-button
+          type="text"
+          size="small"
+          :icon="ElIconRefresh"
+          circle
+          @click="queryClient.invalidateQueries({ queryKey: ['interactions'] })"
+        />
+      </template>
       <template #default="{ row }">
         <el-dropdown>
           <span class="el-dropdown-link">
@@ -126,14 +136,6 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-empty
-    v-if="!filteredData || filteredData.length === 0"
-    :description="
-      searchQuery
-        ? 'No interactions match your search'
-        : 'No interactions found'
-    "
-  />
 
   <el-dialog
     v-model="showInteractionForm"
