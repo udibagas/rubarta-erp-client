@@ -2,13 +2,27 @@
   <el-page-header @back="goBack" content="CRM / Visit Plan">
     <template #extra>
       <div class="flex gap-2">
-        <el-radio-group v-model="viewMode" size="default">
+        <el-radio-group
+          v-model="viewMode"
+          size="default"
+          @change="
+            (v) => {
+              filters = {
+                ...filters,
+                page: 1,
+                pageSize: v === 'calendar' ? 1_000_000 : 10,
+              };
+
+              refreshData();
+            }
+          "
+        >
           <el-radio-button value="calendar">
             <el-icon><ElIconCalendar /></el-icon>
             Calendar
           </el-radio-button>
           <el-radio-button value="table">
-            <el-icon><ElIconList /></el-icon>
+            <el-icon><ElIconGrid /></el-icon>
             Table
           </el-radio-button>
         </el-radio-group>
@@ -431,9 +445,12 @@
           >
             Edit
           </el-button>
-          <el-button @click="showDetailDialog = false" :icon="ElIconCircleClose"
-            >Close</el-button
+          <el-button
+            @click="showDetailDialog = false"
+            :icon="ElIconCircleClose"
           >
+            Close
+          </el-button>
         </div>
       </div>
     </template>
@@ -461,13 +478,16 @@ const {
   refreshData,
   handleRemove,
   keyword,
-  page,
   pageSize,
   sizeChange,
   currentChange,
+  filters,
 } = useCrud({
   url: "/api/visit-plans",
   queryKey: "visit-plans",
+  defaultQuery: {
+    pageSize: 1_000_000,
+  },
 });
 
 const { isPending, data } = fetchData();
