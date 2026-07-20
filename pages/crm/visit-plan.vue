@@ -26,15 +26,56 @@
             Table
           </el-radio-button>
         </el-radio-group>
-        <el-input
-          v-if="viewMode === 'table'"
-          v-model="keyword"
-          placeholder="Search"
-          @change="refreshData()"
-          clearable
-          :prefix-icon="ElIconSearch"
-          style="width: 200px"
-        />
+
+        <template v-if="viewMode === 'table'">
+          <el-select
+            v-model="filters.userId"
+            placeholder="Assigned To"
+            style="width: 150px"
+            clearable
+            @change="applyFilters"
+          >
+            <el-option
+              v-for="user in users"
+              :key="user.id"
+              :label="user.name"
+              :value="user.id"
+            />
+          </el-select>
+
+          <el-select
+            v-model="filters.status"
+            placeholder="Status"
+            style="width: 130px"
+            clearable
+            @change="applyFilters"
+          >
+            <el-option label="Planned" value="Planned" />
+            <el-option label="Completed" value="Completed" />
+            <el-option label="Cancelled" value="Cancelled" />
+          </el-select>
+
+          <el-select
+            v-model="filters.visitType"
+            placeholder="Visit Type"
+            style="width: 130px"
+            clearable
+            @change="applyFilters"
+          >
+            <el-option label="Online" value="Online" />
+            <el-option label="Offline" value="Offline" />
+          </el-select>
+
+          <el-input
+            v-model="keyword"
+            placeholder="Search"
+            @change="refreshData()"
+            clearable
+            :prefix-icon="ElIconSearch"
+            style="width: 180px"
+          />
+        </template>
+
         <el-button
           :icon="ElIconPlus"
           type="success"
@@ -460,6 +501,7 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -492,6 +534,18 @@ const {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+// Fetch users for filter dropdown
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
+});
+
+// Apply filters
+const applyFilters = () => {
+  filters.value.page = 1;
+  refreshData();
+};
 
 // Get visits for a specific date
 const getVisitsForDate = (date) => {
