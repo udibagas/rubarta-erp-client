@@ -13,7 +13,6 @@
   </div>
 
   <el-table :data="data" stripe v-loading="isPending">
-    <el-table-column type="index" label="#" width="60" />
     <el-table-column label="Title" min-width="200">
       <template #default="{ row }">
         <div>
@@ -64,7 +63,21 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column label="Assigned To" prop="User.name" width="150" />
+    <el-table-column label="Assigned To" width="180">
+      <template #default="{ row }">
+        <div v-if="row.User" class="flex items-center gap-2">
+          <el-avatar
+            :size="32"
+            class="shrink-0"
+            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+          >
+            {{ row.User.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span class="font-semibold text-sm">{{ row.User.name }}</span>
+        </div>
+        <span v-else>-</span>
+      </template>
+    </el-table-column>
     <el-table-column label="Last Update" width="140">
       <template #default="{ row }">
         <div>
@@ -72,7 +85,7 @@
             {{ dayjs(row.updatedAt).fromNow() }}
           </div>
           <div class="text-xs text-gray-500">
-            {{ formatDate(row.updatedAt) }}
+            {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
           </div>
         </div>
       </template>
