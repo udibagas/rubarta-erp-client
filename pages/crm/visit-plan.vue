@@ -195,7 +195,14 @@
       <template #date-cell="{ data }">
         <div class="calendar-day">
           <div class="calendar-day-number">
-            {{ dayjs(data.date).format("D") }}
+            <span>{{ dayjs(data.date).format("D") }}</span>
+            <el-button
+              :icon="ElIconPlus"
+              size="small"
+              circle
+              class="add-event-btn"
+              @click.stop="openFormWithDate(data.date)"
+            />
           </div>
           <div class="calendar-events">
             <div
@@ -463,6 +470,11 @@ const openDetailDialog = (visit) => {
   showDetailDialog.value = true;
 };
 
+const openFormWithDate = (date) => {
+  const formattedDate = dayjs(date).format("YYYY-MM-DDTHH:mm:ssZ");
+  visitPlanFormRef.value?.openForm({ scheduledDate: formattedDate });
+};
+
 const openEditFromDialog = () => {
   showDetailDialog.value = false;
   visitPlanFormRef.value?.openForm(selectedVisit.value);
@@ -531,6 +543,21 @@ const markAsCancelled = async (id) => {
   font-weight: 600;
   color: #606266;
   margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-event-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+}
+
+.calendar-day:hover .add-event-btn {
+  opacity: 1;
 }
 
 .calendar-events {
