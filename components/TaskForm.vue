@@ -54,7 +54,7 @@
           v-model="form.dueDate"
           type="datetime"
           placeholder="Select due date"
-          value-format="YYYY-MM-DD HH:mm:ss"
+          value-format="YYYY-MM-DDTHH:mm:ssZ"
           format="YYYY-MM-DD HH:mm"
           style="width: 100%"
         >
