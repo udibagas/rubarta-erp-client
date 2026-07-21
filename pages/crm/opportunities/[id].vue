@@ -183,6 +183,25 @@
     >
       <el-text type="danger">{{ opportunity.lostReason }}</el-text>
     </el-descriptions-item>
+
+    <el-descriptions-item
+      label="Attachments"
+      v-if="opportunity.attachments && opportunity.attachments.length"
+      :span="2"
+    >
+      <ul>
+        <li v-for="file in opportunity.attachments" :key="file.filePath">
+          <el-link
+            type="primary"
+            :href="`${config.public.apiBase}/${file.filePath}`"
+            target="_blank"
+          >
+            <el-icon><ElIconDocument /></el-icon> &nbsp;
+            {{ file.fileName }}
+          </el-link>
+        </li>
+      </ul>
+    </el-descriptions-item>
   </el-descriptions>
 
   <br />
@@ -219,6 +238,7 @@ import { getAvatarColor } from "~/utils/avatar";
 
 dayjs.extend(relativeTime);
 
+const config = useRuntimeConfig();
 const route = useRoute();
 const request = useRequest();
 const queryClient = useQueryClient();

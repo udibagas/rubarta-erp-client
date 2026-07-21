@@ -219,6 +219,20 @@
           v-model="opportunityFormData.lostReason"
         />
       </el-form-item>
+
+      <el-form-item label="Attachments">
+        <el-upload
+          v-model:file-list="fileList"
+          :action="`${config.public.apiBase}/api/file`"
+          :with-credentials="true"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :multiple="true"
+        >
+          <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+        </el-upload>
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -404,4 +418,62 @@ const saveOpportunity = async () => {
     isSaving.value = false;
   }
 };
+
+// UPLOAD RELATED
+const config = useRuntimeConfig();
+const fileList = ref([]);
+
+watch(
+  () => opportunityFormData.value.attachments,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = opportunityFormData.value.attachments.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  },
+);
+
+function handleSuccess(file) {
+  if (!opportunityFormData.value.attachments) {
+    opportunityFormData.value.attachments = [];
+  }
+
+  opportunityFormData.value.attachments.push(file);
+}
+
+function handlePreview(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  window.open(`${config.public.apiBase}/${path}`, "_blank");
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = opportunityFormData.value.attachments.findIndex(
+    (f) => f.filePath == path,
+  );
+
+  if (index !== -1) {
+    opportunityFormData.value.attachments.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
+}
 </script>
