@@ -133,12 +133,12 @@
         </el-descriptions-item>
 
         <el-descriptions-item label="Customer" v-if="taskData.Customer">
-          <a
-            class="text-green-500 hover:underline cursor-pointer"
+          <el-link
+            :underline="false"
             @click="navigateTo(`/crm/customers/${taskData.customerId}`)"
           >
             {{ taskData.Customer.name }}
-          </a>
+          </el-link>
         </el-descriptions-item>
 
         <el-descriptions-item label="Created At">
@@ -164,6 +164,25 @@
             </div>
           </div>
         </el-descriptions-item>
+
+        <el-descriptions-item
+          label="Attachments"
+          v-if="taskData.attachments && taskData.attachments.length"
+          :span="2"
+        >
+          <ul>
+            <li v-for="file in taskData.attachments" :key="file.filePath">
+              <el-link
+                type="primary"
+                :href="`${config.public.apiBase}/${file.filePath}`"
+                target="_blank"
+              >
+                <el-icon><ElIconDocument /></el-icon> &nbsp;
+                {{ file.fileName }}
+              </el-link>
+            </li>
+          </ul>
+        </el-descriptions-item>
       </el-descriptions>
     </div>
 
@@ -186,6 +205,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { getAvatarColor } from "~/utils/avatar";
 
 dayjs.extend(relativeTime);
+
+const config = useRuntimeConfig();
 
 const props = defineProps({
   modelValue: {
