@@ -1,18 +1,99 @@
 <template>
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <el-card shadow="hover" class="summary-card">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-gray-500 text-sm mb-1">Total Tasks</div>
+          <div class="text-2xl font-bold">{{ totalTasks }}</div>
+        </div>
+        <el-icon :size="40" class="text-blue-500">
+          <ElIconDocument />
+        </el-icon>
+      </div>
+    </el-card>
+
+    <el-card shadow="hover" class="summary-card">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-gray-500 text-sm mb-1">Pending Tasks</div>
+          <div class="text-2xl font-bold text-orange-500">
+            {{ pendingTasks }}
+          </div>
+        </div>
+        <el-icon :size="40" class="text-orange-500">
+          <ElIconClock />
+        </el-icon>
+      </div>
+    </el-card>
+
+    <el-card shadow="hover" class="summary-card">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-gray-500 text-sm mb-1">Completed Tasks</div>
+          <div class="text-2xl font-bold text-green-500">
+            {{ completedTasks }}
+          </div>
+        </div>
+        <el-icon :size="40" class="text-green-500">
+          <ElIconCircleCheck />
+        </el-icon>
+      </div>
+    </el-card>
+
+    <el-card shadow="hover" class="summary-card">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <div class="text-gray-500 text-sm mb-2">Completion Rate</div>
+          <el-progress
+            :percentage="completionRate"
+            :color="
+              completionRate >= 75
+                ? '#67c23a'
+                : completionRate >= 50
+                  ? '#e6a23c'
+                  : '#f56c6c'
+            "
+          />
+        </div>
+      </div>
+    </el-card>
+  </div>
+
   <div class="mb-4 flex justify-between items-center">
-    <el-input
-      v-model="keyword"
-      placeholder="Search tasks..."
-      style="width: 300px"
-      :prefix-icon="ElIconSearch"
-      :clearable="true"
-    />
+    <div class="flex gap-2 items-center">
+      <el-radio-group v-model="viewMode" size="default">
+        <el-radio-button value="table">
+          <el-icon><ElIconList /></el-icon>
+          Table
+        </el-radio-button>
+        <el-radio-button value="kanban">
+          <el-icon><ElIconMenu /></el-icon>
+          Kanban
+        </el-radio-button>
+      </el-radio-group>
+
+      <el-input
+        v-if="viewMode === 'table'"
+        v-model="keyword"
+        placeholder="Search tasks..."
+        style="width: 300px"
+        :prefix-icon="ElIconSearch"
+        :clearable="true"
+      />
+    </div>
     <el-button type="success" :icon="ElIconPlus" @click="handleNewTask">
       New Task
     </el-button>
   </div>
 
-  <el-table :data="data" stripe v-loading="isPending">
+  <!-- Table View -->
+  <el-table
+    v-if="viewMode === 'table'"
+    :data="data"
+    stripe
+    v-loading="isPending"
+  >
     <el-table-column label="Title" min-width="200">
       <template #default="{ row }">
         <div>
@@ -56,10 +137,37 @@
     <el-table-column label="Due Date" width="140">
       <template #default="{ row }">
         <div>
-          <div class="font-semibold text-sm">
+          <div
+            class="font-semibold text-sm"
+            :class="{
+              'text-red-500':
+                (row.status === 'Todo' || row.status === 'InProgress') &&
+                dayjs(row.dueDate).isBefore(dayjs(), 'day'),
+            }"
+          >
             {{ dayjs(row.dueDate).fromNow() }}
+            <el-icon
+              v-if="
+                (row.status === 'Todo' || row.status === 'InProgress') &&
+                dayjs(row.dueDate).isBefore(dayjs(), 'day')
+              "
+              class="text-red-500"
+            >
+              <ElIconWarning />
+            </el-icon>
           </div>
-          <div class="text-xs text-gray-500">{{ formatDate(row.dueDate) }}</div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.dueDate) }}
+            <span
+              v-if="
+                (row.status === 'Todo' || row.status === 'InProgress') &&
+                dayjs(row.dueDate).isBefore(dayjs(), 'day')
+              "
+              class="text-red-500 font-semibold"
+            >
+              (Overdue)
+            </span>
+          </div>
         </div>
       </template>
     </el-table-column>
@@ -146,6 +254,18 @@
     </el-table-column>
   </el-table>
 
+  <!-- Kanban View -->
+  <TaskKanbanView
+    v-else-if="viewMode === 'kanban'"
+    :data="data"
+    :is-pending="isPending"
+    @open-detail="openDetailDialog"
+    @edit-task="handleEditTask"
+    @delete-task="handleDeleteTask"
+    @refresh="queryClient.invalidateQueries({ queryKey: ['tasks'] })"
+  />
+
+  <!-- Task Form Dialog -->
   <el-dialog
     v-model="showTaskForm"
     width="750px"
@@ -259,6 +379,14 @@
       <el-button type="success" @click="saveTask"> SAVE </el-button>
     </template>
   </el-dialog>
+
+  <!-- Task Detail Dialog -->
+  <TaskDetailDialog
+    v-model="showDetailDialog"
+    :task-id="selectedTaskId"
+    @task-updated="queryClient.invalidateQueries({ queryKey: ['tasks'] })"
+    @edit-task="handleEditTask"
+  />
 </template>
 
 <script setup>
@@ -284,10 +412,13 @@ const props = defineProps({
 const request = useRequest();
 const queryClient = useQueryClient();
 
-// Local form state to avoid conflicts with global form store
+// View mode and dialog states
+const viewMode = ref("table");
 const showTaskForm = ref(false);
 const taskFormData = ref({});
 const keyword = ref("");
+const showDetailDialog = ref(false);
+const selectedTaskId = ref(null);
 
 const handleNewTask = () => {
   const newTask = {
@@ -310,6 +441,12 @@ const handleNewTask = () => {
 const handleEditTask = (task) => {
   taskFormData.value = { ...task };
   showTaskForm.value = true;
+};
+
+// Open task detail dialog
+const openDetailDialog = (task) => {
+  selectedTaskId.value = task.id;
+  showDetailDialog.value = true;
 };
 
 const handleDeleteTask = (id) => {
@@ -415,4 +552,40 @@ const { data: users } = useQuery({
     return await request("/api/users");
   },
 });
+
+// Summary statistics
+const totalTasks = computed(() => {
+  return data.value?.length || 0;
+});
+
+const pendingTasks = computed(() => {
+  if (!data.value) return 0;
+  return data.value.filter(
+    (task) => task.status === "Todo" || task.status === "InProgress",
+  ).length;
+});
+
+const completedTasks = computed(() => {
+  if (!data.value) return 0;
+  return data.value.filter((task) => task.status === "Completed").length;
+});
+
+const completionRate = computed(() => {
+  if (totalTasks.value === 0) return 0;
+  return Math.round((completedTasks.value / totalTasks.value) * 100);
+});
 </script>
+
+<style scoped>
+.summary-card {
+  transition: transform 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+}
+
+.summary-card :deep(.el-card__body) {
+  padding: 20px;
+}
+</style>
