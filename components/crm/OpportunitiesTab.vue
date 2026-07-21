@@ -16,7 +16,13 @@
     </el-button>
   </div>
 
-  <el-table :data="filteredData" stripe v-loading="isPending">
+  <el-table
+    :data="filteredData"
+    stripe
+    v-loading="isPending"
+    @row-click="(row) => navigateTo(`/crm/opportunities/${row.id}`)"
+    style="cursor: pointer"
+  >
     <el-table-column label="Name" prop="name" min-width="200" />
     <el-table-column label="Stage" width="150" align="center">
       <template #default="{ row }">
