@@ -93,6 +93,7 @@
     :data="data"
     stripe
     v-loading="isPending"
+    @row-click="openDetailDialog"
   >
     <el-table-column label="Title" min-width="200">
       <template #default="{ row }">
