@@ -105,7 +105,13 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column label="Status" width="140" align="center">
+    <el-table-column
+      label="Status"
+      width="140"
+      align="center"
+      sortable="custom"
+      :sort-method="sortByStatus"
+    >
       <template #default="{ row }">
         <StatusTag :status="row.status">
           <template #icon>
@@ -120,7 +126,13 @@
         </StatusTag>
       </template>
     </el-table-column>
-    <el-table-column label="Priority" width="100" align="center">
+    <el-table-column
+      label="Priority"
+      width="120"
+      align="center"
+      sortable="custom"
+      :sort-method="sortByPriority"
+    >
       <template #default="{ row }">
         <el-tag
           :type="
@@ -135,7 +147,12 @@
         </el-tag>
       </template>
     </el-table-column>
-    <el-table-column label="Due Date" width="140">
+    <el-table-column
+      label="Due Date"
+      width="140"
+      sortable="custom"
+      :sort-method="sortByDueDate"
+    >
       <template #default="{ row }">
         <div>
           <div
@@ -373,6 +390,20 @@
           style="width: 100%"
         />
       </el-form-item>
+
+      <el-form-item label="Attachments">
+        <el-upload
+          v-model:file-list="fileList"
+          :action="`${config.public.apiBase}/api/file`"
+          :with-credentials="true"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :multiple="true"
+        >
+          <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+        </el-upload>
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -420,6 +451,64 @@ const taskFormData = ref({});
 const keyword = ref("");
 const showDetailDialog = ref(false);
 const selectedTaskId = ref(null);
+
+// UPLOAD RELATED
+const config = useRuntimeConfig();
+const fileList = ref([]);
+
+watch(
+  () => taskFormData.value.attachments,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = taskFormData.value.attachments.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  },
+);
+
+function handleSuccess(file) {
+  if (!taskFormData.value.attachments) {
+    taskFormData.value.attachments = [];
+  }
+
+  taskFormData.value.attachments.push(file);
+}
+
+function handlePreview(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  window.open(`${config.public.apiBase}/${path}`, "_blank");
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = taskFormData.value.attachments.findIndex(
+    (f) => f.filePath == path,
+  );
+
+  if (index !== -1) {
+    taskFormData.value.attachments.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
+}
 
 const handleNewTask = () => {
   const newTask = {
@@ -575,6 +664,29 @@ const completionRate = computed(() => {
   if (totalTasks.value === 0) return 0;
   return Math.round((completedTasks.value / totalTasks.value) * 100);
 });
+
+// Sort functions
+const sortByPriority = (a, b) => {
+  const priorityOrder = { Urgent: 1, High: 2, Medium: 3, Low: 4 };
+  return (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
+};
+
+const sortByStatus = (a, b) => {
+  const statusOrder = {
+    Todo: 1,
+    InProgress: 2,
+    OnHold: 3,
+    Completed: 4,
+    Cancelled: 5,
+  };
+  return (statusOrder[a.status] || 6) - (statusOrder[b.status] || 6);
+};
+
+const sortByDueDate = (a, b) => {
+  const dateA = dayjs(a.dueDate);
+  const dateB = dayjs(b.dueDate);
+  return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
+};
 </script>
 
 <style scoped>
