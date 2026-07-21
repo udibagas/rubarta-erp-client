@@ -37,9 +37,14 @@
     @row-click="handleRowClick"
     style="cursor: pointer"
   >
-    <el-table-column label="Date" width="110">
+    <el-table-column label="Created At" width="150">
       <template #default="{ row }">
-        {{ formatDate(row.createdAt) }}
+        <div class="font-semibold text-sm">
+          {{ dayjs(row.createdAt).fromNow() }}
+        </div>
+        <div class="text-xs text-gray-500">
+          {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
+        </div>
       </template>
     </el-table-column>
 
@@ -49,7 +54,18 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Customer" prop="Customer.name" min-width="200" />
+    <el-table-column label="Customer" prop="Customer.name" min-width="200">
+      <template #default="{ row }">
+        <el-link
+          v-if="row.Customer"
+          :underline="false"
+          @click.stop.prevent="navigateTo(`/crm/customers/${row.customerId}`)"
+        >
+          {{ row.Customer.name }}
+        </el-link>
+        <span v-else class="text-gray-400">-</span>
+      </template>
+    </el-table-column>
 
     <el-table-column label="Status" prop="status" width="130" align="center">
       <template #default="{ row }">
@@ -99,17 +115,31 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Assigned To" prop="User.name" width="150" />
-
-    <el-table-column label="Last Update" width="140">
+    <el-table-column label="Assigned To" width="180">
       <template #default="{ row }">
-        <div>
-          <div class="font-semibold text-sm">
-            {{ dayjs(row.updatedAt).fromNow() }}
-          </div>
-          <div class="text-xs text-gray-500">
-            {{ formatDate(row.updatedAt) }}
-          </div>
+        <div v-if="row.User" class="flex items-center gap-2">
+          <el-avatar
+            :size="30"
+            class="shrink-0"
+            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+          >
+            {{ row.User.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span class="font-semibold text-sm line-clamp-2">
+            {{ row.User.name }}
+          </span>
+        </div>
+        <span v-else class="text-gray-400">-</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Last Update" width="150">
+      <template #default="{ row }">
+        <div class="font-semibold text-sm">
+          {{ dayjs(row.updatedAt).fromNow() }}
+        </div>
+        <div class="text-xs text-gray-500">
+          {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
         </div>
       </template>
     </el-table-column>
