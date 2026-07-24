@@ -3,5 +3,8 @@ export const leadSources = [
   "Advertisement",
   "SocialMedia",
   "Website",
+  "ColdCall",
+  "EmailCampaign",
+  "Event",
   "Other",
 ];
