@@ -93,7 +93,7 @@
               return parts.join(',');
             }
           "
-          :parser="(value) => value.replace(/\./g, '').replace(',', '.')"
+          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
         >
           <template #prepend>Rp</template>
         </el-input>
