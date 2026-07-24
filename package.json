@@ -17,6 +17,8 @@
     "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
     "export-from-json": "^1.7.4",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-vue-next": "^0.552.0",
     "pinia": "^3.0.3",
     "tailwindcss": "^4.1.16",

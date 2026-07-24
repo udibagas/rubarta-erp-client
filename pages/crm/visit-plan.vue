@@ -77,6 +77,15 @@
         </template>
 
         <el-button
+          v-if="viewMode === 'table'"
+          :icon="ElIconPrinter"
+          @click="exportToPdf"
+          :disabled="!data?.data?.length"
+        >
+          Export PDF
+        </el-button>
+
+        <el-button
           :icon="ElIconPlus"
           type="success"
           @click="visitPlanFormRef?.openForm()"
@@ -256,53 +265,14 @@
   </div>
 
   <!-- Calendar View -->
-  <div v-else-if="viewMode === 'calendar'" v-loading="isPending">
-    <el-calendar v-model="calendarDate">
-      <template #date-cell="{ data }">
-        <div class="calendar-day">
-          <div class="calendar-day-number">
-            <span>{{ dayjs(data.date).format("D") }}</span>
-            <el-button
-              :icon="ElIconPlus"
-              size="small"
-              circle
-              class="add-event-btn"
-              @click.stop="openFormWithDate(data.date)"
-            />
-          </div>
-          <div class="calendar-events">
-            <div
-              v-for="visit in getVisitsForDate(data.date)"
-              :key="visit.id"
-              class="calendar-event"
-              :class="`calendar-event-${visit.status.toLowerCase()}`"
-              @click="openDetailDialog(visit)"
-            >
-              <div class="flex items-center gap-1">
-                <el-icon :size="12">
-                  <ElIconClock v-if="visit.status === 'Planned'" />
-                  <ElIconCircleCheck v-else-if="visit.status === 'Completed'" />
-                  <ElIconCircleClose v-else-if="visit.status === 'Cancelled'" />
-                </el-icon>
-                <el-icon v-if="visit.visitType === 'Online'" :size="12">
-                  <ElIconVideoCamera />
-                </el-icon>
-                <span class="text-xs font-semibold truncate">{{
-                  visit.title
-                }}</span>
-              </div>
-              <div class="text-xs text-gray-600 truncate">
-                {{ visit.Customer?.name }}
-              </div>
-              <div v-if="visit.scheduledTime" class="text-xs text-gray-500">
-                {{ visit.scheduledTime }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
-    </el-calendar>
-  </div>
+  <CrmVisitPlanCalendar
+    v-else-if="viewMode === 'calendar'"
+    v-model="calendarDate"
+    :visits="data?.data || []"
+    :loading="isPending"
+    @add-event="openFormWithDate"
+    @open-detail="openDetailDialog"
+  />
 
   <!-- Visit Plan Detail Dialog -->
   <el-dialog
@@ -504,6 +474,9 @@
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 
 dayjs.extend(relativeTime);
 
@@ -545,16 +518,6 @@ const { data: users } = useQuery({
 const applyFilters = () => {
   filters.value.page = 1;
   refreshData();
-};
-
-// Get visits for a specific date
-const getVisitsForDate = (date) => {
-  if (!data.value?.data) return [];
-  const targetDate = dayjs(date).format("YYYY-MM-DD");
-  return data.value.data.filter((visit) => {
-    const visitDate = dayjs(visit.scheduledDate).format("YYYY-MM-DD");
-    return visitDate === targetDate;
-  });
 };
 
 const goBack = () => {
@@ -627,77 +590,103 @@ const markAsCancelled = async (id) => {
     })
     .catch(() => {});
 };
+
+// Export to PDF
+const exportToPdf = () => {
+  if (!data.value?.data?.length) {
+    ElMessage.warning("No data to export");
+    return;
+  }
+
+  const doc = new jsPDF();
+
+  // Add title
+  doc.setFontSize(18);
+  doc.text("Visit Plan Report", 14, 20);
+
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Generated on: ${dayjs().format("YYYY-MM-DD HH:mm")}`, 14, 28);
+
+  // Add filter information if any
+  let yPos = 35;
+  const activeFilters = [];
+  if (filters.value.userId) {
+    const user = users.value?.find((u) => u.id === filters.value.userId);
+    if (user) activeFilters.push(`Assigned To: ${user.name}`);
+  }
+  if (filters.value.status)
+    activeFilters.push(`Status: ${filters.value.status}`);
+  if (filters.value.visitType)
+    activeFilters.push(`Visit Type: ${filters.value.visitType}`);
+  if (keyword.value) activeFilters.push(`Search: ${keyword.value}`);
+
+  if (activeFilters.length > 0) {
+    doc.setFontSize(9);
+    doc.text(`Filters: ${activeFilters.join(", ")}`, 14, yPos);
+    yPos += 8;
+  }
+
+  // Prepare table data
+  const tableData = data.value.data.map((visit) => [
+    visit.title || "-",
+    formatDate(visit.scheduledDate),
+    visit.Customer?.name || "-",
+    visit.status || "-",
+    visit.visitType || "-",
+    visit.User?.name || "-",
+    visit.visitType === "Online"
+      ? visit.meetingUrl
+        ? "Online Meeting"
+        : "Online"
+      : visit.address || "-",
+  ]);
+
+  // Add table
+  autoTable(doc, {
+    head: [
+      [
+        "Title",
+        "Scheduled Date",
+        "Customer",
+        "Status",
+        "Visit Type",
+        "Assigned To",
+        "Location",
+      ],
+    ],
+    body: tableData,
+    startY: yPos,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [67, 160, 71], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 245, 245] },
+    columnStyles: {
+      0: { cellWidth: 35 },
+      1: { cellWidth: 25 },
+      2: { cellWidth: 30 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 20 },
+      5: { cellWidth: 25 },
+      6: { cellWidth: 35 },
+    },
+  });
+
+  // Add footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      doc.internal.pageSize.width / 2,
+      doc.internal.pageSize.height - 10,
+      { align: "center" },
+    );
+  }
+
+  // Save the PDF
+  const fileName = `visit-plan-report-${dayjs().format("YYYY-MM-DD")}.pdf`;
+  doc.save(fileName);
+  ElMessage.success("PDF exported successfully");
+};
 </script>
-
-<style scoped>
-.calendar-day {
-  min-height: 100px;
-  padding: 4px;
-}
-
-.calendar-day-number {
-  font-weight: 600;
-  color: #606266;
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.add-event-btn {
-  opacity: 0;
-  transition: opacity 0.2s;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-}
-
-.calendar-day:hover .add-event-btn {
-  opacity: 1;
-}
-
-.calendar-events {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.calendar-event {
-  padding: 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-left: 3px solid;
-}
-
-.calendar-event:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.calendar-event-planned {
-  background-color: #fef3e8;
-  border-left-color: #e6a23c;
-}
-
-.calendar-event-completed {
-  background-color: #f0f9ff;
-  border-left-color: #67c23a;
-}
-
-.calendar-event-cancelled {
-  background-color: #fef0f0;
-  border-left-color: #f56c6c;
-}
-
-:deep(.el-calendar-table .el-calendar-day) {
-  height: auto;
-  min-height: 100px;
-  padding: 0;
-}
-
-:deep(.el-calendar__header) {
-  padding: 16px;
-  border-bottom: 1px solid #e4e7ed;
-}
-</style>
