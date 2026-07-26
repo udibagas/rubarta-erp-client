@@ -19,8 +19,31 @@
 
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
-    <el-table-column label="Name" prop="name" min-width="150" />
-    <el-table-column label="Customer" prop="Customer.name" min-width="150" />
+    <el-table-column label="Name" prop="name" min-width="150">
+      <template #default="{ row }">
+        <div class="flex items-center gap-2">
+          <el-avatar
+            class="shrink-0"
+            :size="28"
+            :style="{ backgroundColor: getAvatarColor(row.name) }"
+          >
+            {{ row.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span class="font-semibold text-sm line-clamp-1">{{ row.name }}</span>
+        </div>
+      </template>
+    </el-table-column>
+    <el-table-column label="Customer" prop="Customer.name" min-width="150">
+      <template #default="{ row }">
+        <el-link
+          :href="`/crm/customers/${row.Customer?.id}`"
+          target="_blank"
+          type="success"
+        >
+          {{ row.Customer?.name }}
+        </el-link>
+      </template>
+    </el-table-column>
     <el-table-column label="Phone" prop="phone" min-width="150" />
     <el-table-column label="Email" prop="email" min-width="150">
       <template #default="{ row }">
@@ -30,6 +53,7 @@
       </template>
     </el-table-column>
     <el-table-column label="Position" prop="position" min-width="150" />
+    <el-table-column label="Note" prop="note" />
 
     <el-table-column
       width="60px"
