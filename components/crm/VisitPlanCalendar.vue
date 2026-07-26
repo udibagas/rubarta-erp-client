@@ -30,12 +30,15 @@
                 <el-icon v-if="visit.visitType === 'Online'" :size="12">
                   <ElIconVideoCamera />
                 </el-icon>
-                <span class="text-xs font-semibold truncate">{{
-                  visit.title
-                }}</span>
+                <span class="text-xs font-semibold truncate">
+                  {{ visit.title }}
+                </span>
               </div>
               <div class="text-xs text-gray-600 truncate">
                 {{ visit.Customer?.name }}
+              </div>
+              <div class="text-xs text-gray-600 truncate">
+                {{ visit.User?.name }}
               </div>
               <div v-if="visit.scheduledTime" class="text-xs text-gray-500">
                 {{ visit.scheduledTime }}
