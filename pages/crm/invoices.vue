@@ -2,30 +2,21 @@
   <el-page-header @back="goBack" content="CRM / Invoices">
     <template #extra>
       <div class="flex gap-2">
-        <el-button
-          size="small"
-          :icon="ElIconPlus"
-          type="success"
-          @click="openForm()"
-        >
-          CREATE INVOICE
-        </el-button>
-
         <el-input
           v-model="keyword"
           placeholder="Search"
-          size="small"
           @change="refreshData()"
           clearable
-        >
-        </el-input>
+        />
+        <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+        </el-button>
       </div>
     </template>
   </el-page-header>
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data">
+  <el-table stripe v-loading="isPending" :data="data?.data || []">
     <el-table-column type="index" label="#" width="60"></el-table-column>
 
     <el-table-column label="Invoice #" prop="number" width="150" />
@@ -141,25 +132,24 @@
     </el-table-column>
   </el-table>
 
-  <!-- InvoiceForm component would go here when created -->
-  <!-- <InvoiceForm /> -->
+  <InvoiceForm ref="invoiceFormRef" />
 </template>
 
 <script setup>
-const {
-  openForm,
-  removeMutation,
-  fetchData,
-  refreshData,
-  handleRemove,
-  keyword,
-} = useCrud({
-  url: "/api/invoices",
-  queryKey: "invoices",
-});
+const invoiceFormRef = ref(null);
+
+const { removeMutation, fetchData, refreshData, handleRemove, keyword } =
+  useCrud({
+    url: "/api/invoices",
+    queryKey: "invoices",
+  });
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
+
+const openForm = (invoice = {}) => {
+  invoiceFormRef.value?.openForm(invoice);
+};
 
 function viewInvoice(invoice) {
   // TODO: Implement invoice view/print
