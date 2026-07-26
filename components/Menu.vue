@@ -1,15 +1,5 @@
 <template>
   <div class="sidebar">
-    <!-- Collapse Button -->
-    <div class="collapse-btn-wrapper">
-      <el-button
-        :icon="collapse ? ElIconExpand : ElIconFold"
-        circle
-        @click="$emit('toggle-collapse')"
-        class="collapse-btn"
-      />
-    </div>
-
     <el-menu
       :default-active="activeMenu"
       :collapse="collapse"
@@ -49,17 +39,36 @@
     </el-menu>
 
     <!-- User Info at Bottom -->
-    <div class="user-info" :class="{ collapsed: collapse }">
+    <div
+      class="flex items-center gap-3 p-4 bg-gray-900 border-t border-white/10 mt-auto"
+      :class="{ 'justify-center py-4 px-2': collapse }"
+    >
       <el-avatar
-        :size="collapse ? 32 : 40"
+        v-if="!collapse"
+        :size="40"
         :style="{ backgroundColor: getAvatarColor(user?.name || '') }"
       >
         {{ user?.name?.charAt(0).toUpperCase() }}
       </el-avatar>
-      <div v-if="!collapse" class="user-details">
-        <div class="user-name">{{ user?.name }}</div>
-        <div class="user-role">{{ user?.roles?.[0] || "User" }}</div>
+      <div v-if="!collapse" class="flex-1 min-w-0">
+        <div
+          class="font-semibold text-gray-100 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+        >
+          {{ user?.name }}
+        </div>
+        <div
+          class="text-xs text-gray-400 capitalize whitespace-nowrap overflow-hidden text-ellipsis"
+        >
+          {{ user?.roles?.[0] || "User" }}
+        </div>
       </div>
+
+      <el-button
+        :icon="collapse ? ElIconArrowRight : ElIconArrowLeft"
+        circle
+        @click="$emit('toggle-collapse')"
+        class="collapse-btn"
+      />
     </div>
   </div>
 </template>
@@ -250,7 +259,7 @@ function hasRole(roles: string[]): boolean {
 
 <style scoped>
 .sidebar {
-  height: 100%;
+  height: calc(100dvh - 60px);
   overflow-y: auto;
   background-color: #1f2937;
   display: flex;
@@ -310,43 +319,5 @@ function hasRole(roles: string[]): boolean {
 
 :deep(.el-sub-menu .el-menu-item:hover) {
   background-color: rgba(55, 65, 81, 0.6);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background-color: #111827;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: auto;
-}
-
-.user-info.collapsed {
-  justify-content: center;
-  padding: 1rem 0.5rem;
-}
-
-.user-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #f3f4f6;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  text-transform: capitalize;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>

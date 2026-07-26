@@ -7,10 +7,12 @@
       </el-header>
 
       <el-container>
-        <el-aside :width="collapse ? '80px' : '240px'">
+        <el-aside :width="collapse ? '80px' : '280px'">
           <Menu :collapse="collapse" @toggle-collapse="collapse = !collapse" />
         </el-aside>
-        <el-main class="main-container bg-slate-200! p-2!">
+        <el-main
+          class="main-container bg-slate-200! p-2! overflow-auto h-[calc(100dvh-60px)]"
+        >
           <el-card>
             <slot />
           </el-card>
