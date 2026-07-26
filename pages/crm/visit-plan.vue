@@ -5,6 +5,7 @@
         <el-radio-group
           v-model="viewMode"
           size="default"
+          fill="rgb(149, 212, 117)"
           @change="
             (v) => {
               filters = {
@@ -28,44 +29,6 @@
         </el-radio-group>
 
         <template v-if="viewMode === 'table'">
-          <el-select
-            v-model="filters.userId"
-            placeholder="Assigned To"
-            style="width: 150px"
-            clearable
-            @change="applyFilters"
-          >
-            <el-option
-              v-for="user in users"
-              :key="user.id"
-              :label="user.name"
-              :value="user.id"
-            />
-          </el-select>
-
-          <el-select
-            v-model="filters.status"
-            placeholder="Status"
-            style="width: 130px"
-            clearable
-            @change="applyFilters"
-          >
-            <el-option label="Planned" value="Planned" />
-            <el-option label="Completed" value="Completed" />
-            <el-option label="Cancelled" value="Cancelled" />
-          </el-select>
-
-          <el-select
-            v-model="filters.visitType"
-            placeholder="Visit Type"
-            style="width: 130px"
-            clearable
-            @change="applyFilters"
-          >
-            <el-option label="Online" value="Online" />
-            <el-option label="Offline" value="Offline" />
-          </el-select>
-
           <el-input
             v-model="keyword"
             placeholder="Search"
@@ -92,187 +55,238 @@
         />
       </div>
     </template>
-  </el-page-header>
-
-  <br />
-
-  <!-- Table View -->
-  <div v-if="viewMode === 'table'">
-    <el-table stripe v-loading="isPending" :data="data?.data || []">
-      <el-table-column type="index" label="#" width="60" />
-
-      <el-table-column label="Scheduled Date" width="150">
-        <template #default="{ row }">
-          <div>
-            <div class="font-semibold text-sm">
-              {{ dayjs(row.scheduledDate).fromNow() }}
-            </div>
-            <div class="text-xs text-gray-500">
-              {{ formatDate(row.scheduledDate) }}
-              <span v-if="row.scheduledTime"> {{ row.scheduledTime }}</span>
-            </div>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Title" min-width="200">
-        <template #default="{ row }">
-          <el-link class="font-semibold" @click="openDetailDialog(row)">
-            {{ row.title }}
-          </el-link>
-          <div v-if="row.purpose" class="text-sm text-gray-500">
-            {{ row.purpose }}
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Customer" width="180">
-        <template #default="{ row }">
-          <a
-            class="text-green-500 hover:underline cursor-pointer font-semibold"
-            @click="navigateTo(`/crm/customers/${row.customerId}`)"
-          >
-            {{ row.Customer?.name }}
-          </a>
-          <div v-if="row.contactPerson" class="flex flex-col">
-            <span class="font-semibold text-sm">{{ row.contactPerson }}</span>
-            <span v-if="row.contactPhone" class="text-xs text-gray-500">
-              {{ row.contactPhone }}
-            </span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Status" width="140" align="center">
-        <template #default="{ row }">
-          <StatusTag :status="row.status" effect="dark">
-            <template #icon>
-              <el-icon>
-                <ElIconClock v-if="row.status === 'Planned'" />
-                <ElIconCircleCheck v-else-if="row.status === 'Completed'" />
-                <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
-              </el-icon>
-            </template>
-          </StatusTag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Visit Type" width="100" align="center">
-        <template #default="{ row }">
-          <el-tag
-            :type="row.visitType === 'Online' ? 'success' : 'info'"
-            size="small"
-          >
-            {{ row.visitType }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Assigned To" width="180">
-        <template #default="{ row }">
-          <div v-if="row.User" class="flex items-center gap-2">
-            <el-avatar
-              class="shrink-0"
-              :size="28"
-              :style="{ backgroundColor: getAvatarColor(row.User.name) }"
-            >
-              {{ row.User.name?.charAt(0).toUpperCase() }}
-            </el-avatar>
-            <span class="font-semibold text-sm">{{ row.User.name }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Location" min-width="180">
-        <template #default="{ row }">
-          <div v-if="row.visitType === 'Online'">
-            <el-link
-              v-if="row.meetingUrl"
-              :href="row.meetingUrl"
-              target="_blank"
-              type="success"
-              :icon="ElIconVideoCamera"
-            >
-              &nbsp; Join Meeting
-            </el-link>
-            <span v-else class="text-gray-400 text-sm">Online</span>
-          </div>
-          <div v-else class="text-sm">
-            {{ row.address || "-" }}
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column width="60" align="center" fixed="right">
-        <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh" />
-        </template>
-        <template #default="{ row }">
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-icon>
-                <ElIconMoreFilled />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :icon="ElIconEdit"
-                  @click="visitPlanFormRef?.openForm(row)"
-                >
-                  Edit
-                </el-dropdown-item>
-                <el-dropdown-item
-                  v-if="row.status === 'Planned'"
-                  :icon="ElIconCircleCheck"
-                  @click="markAsCompleted(row.id)"
-                >
-                  Mark as Completed
-                </el-dropdown-item>
-                <el-dropdown-item
-                  v-if="row.status === 'Planned'"
-                  :icon="ElIconCircleClose"
-                  @click="markAsCancelled(row.id)"
-                >
-                  Mark as Cancelled
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconDelete"
-                  @click="handleRemove(row.id, remove)"
-                >
-                  Delete
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
-      </el-table-column>
-    </el-table>
 
     <br />
 
-    <el-pagination
-      v-if="data?.total"
-      size="small"
-      background
-      layout="total, sizes, prev, pager, next"
-      :page-size="pageSize"
-      :page-sizes="[10, 25, 50, 100]"
-      :total="data?.total"
-      @current-change="currentChange"
-      @size-change="sizeChange"
-    />
-  </div>
+    <!-- Table View -->
+    <div v-if="viewMode === 'table'">
+      <el-table
+        stripe
+        v-loading="isPending"
+        :data="data?.data || []"
+        @filter-change="filterChange"
+        @sort-change="sortChange"
+      >
+        <el-table-column
+          label="Scheduled Date"
+          width="180"
+          sortable="custom"
+          prop="scheduledDate"
+        >
+          <template #default="{ row }">
+            <div>
+              <div class="font-semibold text-sm">
+                {{ dayjs(row.scheduledDate).fromNow() }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ formatDate(row.scheduledDate) }}
+                <span v-if="row.scheduledTime"> {{ row.scheduledTime }}</span>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
 
-  <!-- Calendar View -->
-  <CrmVisitPlanCalendar
-    v-else-if="viewMode === 'calendar'"
-    v-model="calendarDate"
-    :visits="data?.data || []"
-    :loading="isPending"
-    @add-event="openFormWithDate"
-    @open-detail="openDetailDialog"
-  />
+        <el-table-column label="Title" min-width="200">
+          <template #default="{ row }">
+            <el-link class="font-semibold" @click="openDetailDialog(row)">
+              {{ row.title }}
+            </el-link>
+            <div v-if="row.purpose" class="text-sm text-gray-500">
+              {{ row.purpose }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Assigned To"
+          width="200"
+          :filters="users.map((u) => ({ text: u.name, value: u.id }))"
+          column-key="userId"
+        >
+          <template #default="{ row }">
+            <div v-if="row.User" class="flex items-center gap-2">
+              <el-avatar
+                class="shrink-0"
+                :size="28"
+                :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+              >
+                {{ row.User.name?.charAt(0).toUpperCase() }}
+              </el-avatar>
+              <span class="font-semibold text-sm line-clamp-1">{{
+                row.User.name
+              }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Customer"
+          width="180"
+          column-key="customerId"
+          :filters="customers.map((c) => ({ text: c.name, value: c.id }))"
+        >
+          <template #default="{ row }">
+            <el-link
+              @click="navigateTo(`/crm/customers/${row.customerId}`)"
+              type="success"
+              class="font-semibold"
+            >
+              {{ row.Customer?.name }}
+            </el-link>
+            <div v-if="row.contactPerson" class="flex flex-col">
+              <div>
+                <el-icon :size="12" class="mr-1">
+                  <ElIconUser />
+                </el-icon>
+                <span class="font-semibold text-sm">{{
+                  row.contactPerson
+                }}</span>
+              </div>
+              <div>
+                <el-icon :size="12" class="mr-1">
+                  <ElIconPhone />
+                </el-icon>
+                <span v-if="row.contactPhone" class="text-xs text-gray-500">
+                  {{ row.contactPhone }}
+                </span>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Status"
+          width="140"
+          align="center"
+          column-key="status"
+          :filters="
+            ['Planned', 'Completed', 'Cancelled'].map((s) => ({
+              text: s,
+              value: s,
+            }))
+          "
+        >
+          <template #default="{ row }">
+            <StatusTag :status="row.status" effect="dark">
+              <template #icon>
+                <el-icon>
+                  <ElIconClock v-if="row.status === 'Planned'" />
+                  <ElIconCircleCheck v-else-if="row.status === 'Completed'" />
+                  <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
+                </el-icon>
+              </template>
+            </StatusTag>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Visit Type"
+          width="120"
+          align="center"
+          column-key="visitType"
+          :filters="['Online', 'Offline'].map((t) => ({ text: t, value: t }))"
+        >
+          <template #default="{ row }">
+            <el-tag
+              :type="row.visitType === 'Online' ? 'success' : 'info'"
+              size="small"
+            >
+              {{ row.visitType }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Location" min-width="180">
+          <template #default="{ row }">
+            <div v-if="row.visitType === 'Online'">
+              <el-link
+                v-if="row.meetingUrl"
+                :href="row.meetingUrl"
+                target="_blank"
+                type="success"
+                :icon="ElIconVideoCamera"
+              >
+                &nbsp; Join Meeting
+              </el-link>
+              <span v-else class="text-gray-400 text-sm">Online</span>
+            </div>
+            <div v-else class="text-sm">
+              {{ row.address || "-" }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column width="60" align="center" fixed="right">
+          <template #header>
+            <el-button link @click="refreshData()" :icon="ElIconRefresh" />
+          </template>
+          <template #default="{ row }">
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                <el-icon>
+                  <ElIconMoreFilled />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    :icon="ElIconEdit"
+                    @click="visitPlanFormRef?.openForm(row)"
+                  >
+                    Edit
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="row.status === 'Planned'"
+                    :icon="ElIconCircleCheck"
+                    @click="markAsCompleted(row.id)"
+                  >
+                    Mark as Completed
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="row.status === 'Planned'"
+                    :icon="ElIconCircleClose"
+                    @click="markAsCancelled(row.id)"
+                  >
+                    Mark as Cancelled
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    :icon="ElIconDelete"
+                    @click="handleRemove(row.id, remove)"
+                  >
+                    Delete
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <br />
+
+      <el-pagination
+        v-if="data?.total"
+        size="small"
+        background
+        layout="total, sizes, prev, pager, next"
+        :page-size="pageSize"
+        :page-sizes="[10, 25, 50, 100]"
+        :total="data?.total"
+        @current-change="currentChange"
+        @size-change="sizeChange"
+      />
+    </div>
+
+    <!-- Calendar View -->
+    <CrmVisitPlanCalendar
+      v-else-if="viewMode === 'calendar'"
+      v-model="calendarDate"
+      :visits="data?.data || []"
+      :loading="isPending"
+      @add-event="openFormWithDate"
+      @open-detail="openDetailDialog"
+    />
+  </el-page-header>
 
   <!-- Visit Plan Detail Dialog -->
   <CrmVisitPlanDetailDialog
@@ -312,6 +326,8 @@ const {
   pageSize,
   sizeChange,
   currentChange,
+  filterChange,
+  sortChange,
   filters,
 } = useCrud({
   url: "/api/visit-plans",
@@ -330,11 +346,10 @@ const { data: users } = useQuery({
   queryFn: () => request("/api/users"),
 });
 
-// Apply filters
-const applyFilters = () => {
-  filters.value.page = 1;
-  refreshData();
-};
+const { data: customers } = useQuery({
+  queryKey: ["customers"],
+  queryFn: () => request("/api/customers"),
+});
 
 const goBack = () => {
   navigateTo("/crm/dashboard");
@@ -464,10 +479,10 @@ const exportToPdf = () => {
       [
         "Scheduled Date",
         "Title",
+        "Assigned To",
         "Customer",
         "Status",
         "Visit Type",
-        "Assigned To",
         "Location",
       ],
     ],
@@ -477,12 +492,12 @@ const exportToPdf = () => {
     headStyles: { fillColor: [67, 160, 71], textColor: 255 },
     alternateRowStyles: { fillColor: [245, 245, 245] },
     columnStyles: {
-      0: { cellWidth: 35 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 30 },
-      3: { cellWidth: 20 },
+      0: { cellWidth: 25 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 30 },
       4: { cellWidth: 20 },
-      5: { cellWidth: 25 },
+      5: { cellWidth: 20 },
       6: { cellWidth: 35 },
     },
   });
