@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="90%"
+    width="700px"
     :title="!!form.id ? 'EDIT QUOTATION' : 'CREATE NEW QUOTATION'"
     :close-on-click-modal="false"
     top="5vh"
@@ -13,122 +13,76 @@
           <span class="font-semibold">Quotation Information</span>
         </template>
 
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-              label="Quotation Number"
-              :error="errors.number"
-              required
+        <el-form-item label="Quotation Number" :error="errors.number" required>
+          <el-input
+            placeholder="e.g., QUO-2026-001"
+            v-model="form.number"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="Status" :error="errors.status" required>
+          <el-select v-model="form.status" placeholder="Quotation status">
+            <el-option
+              v-for="status in quotationStatuses"
+              :key="status"
+              :value="status"
+              :label="status"
             >
-              <el-input
-                placeholder="e.g., QUO-2026-001"
-                v-model="form.number"
-              ></el-input>
-            </el-form-item>
-          </el-col>
+            </el-option>
+          </el-select>
+        </el-form-item>
 
-          <el-col :span="8">
-            <el-form-item label="Status" :error="errors.status" required>
-              <el-select v-model="form.status" placeholder="Quotation status">
-                <el-option
-                  v-for="status in quotationStatuses"
-                  :key="status"
-                  :value="status"
-                  :label="status"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
+        <el-form-item label="Valid Until" :error="errors.validUntil" required>
+          <el-date-picker
+            v-model="form.validUntil"
+            type="date"
+            placeholder="Valid until date"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+          >
+          </el-date-picker>
+        </el-form-item>
 
-          <el-col :span="8">
-            <el-form-item
-              label="Valid Until"
-              :error="errors.validUntil"
-              required
+        <el-form-item label="Title" :error="errors.title" required>
+          <el-input
+            placeholder="Quotation title"
+            v-model="form.title"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="Customer" :error="errors.customerId" required>
+          <el-select
+            v-model="form.customerId"
+            placeholder="Select customer"
+            filterable
+            default-first-option
+          >
+            <el-option
+              v-for="customer in customers"
+              :key="customer.id"
+              :value="customer.id"
+              :label="customer.name"
             >
-              <el-date-picker
-                v-model="form.validUntil"
-                type="date"
-                placeholder="Valid until date"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              >
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
-        </el-row>
+            </el-option>
+          </el-select>
+        </el-form-item>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Title" :error="errors.title" required>
-              <el-input
-                placeholder="Quotation title"
-                v-model="form.title"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="Customer" :error="errors.customerId" required>
-              <el-select
-                v-model="form.customerId"
-                placeholder="Select customer"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                  :label="customer.name"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="User" :error="errors.userId" required>
-              <el-select
-                v-model="form.userId"
-                placeholder="Select user"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="user in users"
-                  :key="user.id"
-                  :value="user.id"
-                  :label="user.name"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="Opportunity" :error="errors.opportunityId">
-              <el-select
-                v-model="form.opportunityId"
-                placeholder="Link to opportunity (optional)"
-                filterable
-                clearable
-                default-first-option
-              >
-                <el-option
-                  v-for="opportunity in opportunities"
-                  :key="opportunity.id"
-                  :value="opportunity.id"
-                  :label="opportunity.name"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-form-item label="User" :error="errors.userId" required>
+          <el-select
+            v-model="form.userId"
+            placeholder="Select user"
+            filterable
+            default-first-option
+          >
+            <el-option
+              v-for="user in users"
+              :key="user.id"
+              :value="user.id"
+              :label="user.name"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="Description" :error="errors.description">
           <el-input
@@ -138,10 +92,24 @@
             v-model="form.description"
           ></el-input>
         </el-form-item>
+
+        <el-form-item label="Attachments">
+          <el-upload
+            v-model:file-list="fileList"
+            :action="`${config.public.apiBase}/api/file`"
+            :with-credentials="true"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-success="handleSuccess"
+            :multiple="true"
+          >
+            <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+          </el-upload>
+        </el-form-item>
       </el-card>
 
       <!-- Quotation Items -->
-      <el-card shadow="never" class="mb-4">
+      <!-- <el-card shadow="never" class="mb-4">
         <template #header>
           <div class="flex justify-between items-center">
             <span class="font-semibold">Quotation Items</span>
@@ -245,7 +213,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </el-card>
+      </el-card> -->
 
       <!-- Additional Information -->
       <el-card shadow="never" class="mb-4">
@@ -441,11 +409,6 @@ const { data: users } = useQuery({
   queryFn: () => request("/api/users"),
 });
 
-const { data: opportunities } = useQuery({
-  queryKey: ["opportunities"],
-  queryFn: () => request("/api/opportunities"),
-});
-
 function addItem() {
   if (!form.value.items) {
     form.value.items = [];
@@ -513,4 +476,60 @@ watch(
   },
   { deep: true },
 );
+
+// UPLOAD RELATED
+const config = useRuntimeConfig();
+const fileList = ref([]);
+
+watch(
+  () => form.value.attachments,
+  async (value, oldValue) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = form.value.attachments.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  },
+);
+
+function handleSuccess(file) {
+  if (!form.value.attachments) {
+    form.value.attachments = [];
+  }
+
+  form.value.attachments.push(file);
+}
+
+function handlePreview(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  window.open(`${config.public.apiBase}/${path}`, "_blank");
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = form.value.attachments.findIndex((f) => f.filePath == path);
+
+  if (index !== -1) {
+    form.value.attachments.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
+}
 </script>
