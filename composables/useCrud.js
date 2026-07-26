@@ -88,30 +88,26 @@ export default ({ url, queryKey, defaultQuery }) => {
   function sizeChange(size, params = {}) {
     page.value = 1;
     pageSize.value = size;
-    refreshData(queryKey, params);
+    refreshData();
   }
 
   function currentChange(currentPage, params = {}) {
     page.value = currentPage;
-    refreshData(queryKey, params);
+    refreshData();
   }
 
   function filterChange(newFilters) {
     filters.value = newFilters;
     page.value = 1;
-    refreshData(queryKey, { ...newFilters, page: 1, pageSize: pageSize.value });
+    refreshData();
   }
 
   function sortChange({ prop, order }) {
     const sortOrder =
       order === "ascending" ? "asc" : order === "descending" ? "desc" : null;
     const sortParams = sortOrder ? { sortBy: prop, sortOrder } : {};
-    refreshData(queryKey, {
-      ...filters.value,
-      ...sortParams,
-      page: page.value,
-      pageSize: pageSize.value,
-    });
+    filters.value = { ...filters.value, ...sortParams };
+    refreshData();
   }
 
   function edit(id) {
