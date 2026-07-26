@@ -92,7 +92,7 @@
 
   <br />
 
-  <el-tabs>
+  <el-tabs v-if="customer">
     <el-tab-pane label="LEADS">
       <el-table :data="customer?.Leads ?? []" stripe>
         <el-table-column type="index" label="#"></el-table-column>
@@ -122,43 +122,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="OPPORTUNITIES">
-      <el-table :data="customer?.Opportunities ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Name" prop="name" min-width="200" />
-        <el-table-column label="Stage" width="150">
-          <template #default="{ row }">
-            <StatusTag :status="row.stage" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Amount" width="150" align="right">
-          <template #default="{ row }">
-            <strong>{{ toCurrency(row.amount.toString()) }}</strong>
-          </template>
-        </el-table-column>
-        <el-table-column label="Probability" width="100" align="center">
-          <template #default="{ row }"> {{ row.probability }}% </template>
-        </el-table-column>
-        <el-table-column label="Expected Close" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.expectedCloseDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/opportunities?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!customer?.Opportunities?.length"
-        description="No opportunities found"
-      />
+      <CrmOpportunitiesTab :customer-id="customer.id" />
     </el-tab-pane>
 
     <el-tab-pane label="ORDERS">
@@ -205,30 +169,47 @@
 
     <el-tab-pane label="CONTACTS">
       <el-table :data="customer?.Contacts ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Name" prop="name" min-width="150" />
-        <el-table-column label="Title" prop="title" width="150" />
-        <el-table-column label="Email" prop="email" min-width="200" />
-        <el-table-column label="Phone" prop="phone" width="150" />
-        <el-table-column label="Is Primary" width="100" align="center">
+        <el-table-column label="Name" prop="name" min-width="150">
           <template #default="{ row }">
-            <el-tag v-if="row.isPrimary" type="success" size="small">
-              Yes
-            </el-tag>
+            <div class="flex items-center gap-2">
+              <el-avatar
+                class="shrink-0"
+                :size="28"
+                :style="{ backgroundColor: getAvatarColor(row.name) }"
+              >
+                {{ row.name?.charAt(0).toUpperCase() }}
+              </el-avatar>
+              <span class="font-semibold text-sm line-clamp-1">{{
+                row.name
+              }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Email" prop="email" min-width="200">
+          <template #default="{ row }">
+            <a
+              :href="`mailto:${row.email}`"
+              class="text-green-600 hover:underline"
+            >
+              {{ row.email }}
+            </a>
+          </template>
+        </el-table-column>
+        <el-table-column label="Phone" prop="phone" min-width="150">
+          <template #default="{ row }">
+            <a
+              v-if="row.phone"
+              :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
+              target="_blank"
+              class="text-green-600 hover:underline"
+            >
+              {{ row.phone }}
+            </a>
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/contacts?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
+        <el-table-column label="Position" prop="position" min-width="150" />
+        <el-table-column label="Note" prop="note" width="150" />
       </el-table>
       <el-empty
         v-if="!customer?.Contacts?.length"
@@ -237,42 +218,7 @@
     </el-tab-pane>
 
     <el-tab-pane label="INTERACTIONS">
-      <el-table :data="customer?.Interactions ?? []" stripe>
-        <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Type" width="120">
-          <template #default="{ row }">
-            <StatusTag :status="row.type" />
-          </template>
-        </el-table-column>
-        <el-table-column label="Date" width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.date) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="Subject" prop="subject" min-width="200" />
-        <el-table-column label="Duration" width="100" align="center">
-          <template #default="{ row }">
-            {{ row.duration ? `${row.duration} min` : "-" }}
-          </template>
-        </el-table-column>
-        <el-table-column label="User" prop="User.name" width="150" />
-        <el-table-column label="Outcome" prop="outcome" min-width="150" />
-        <el-table-column width="80" align="center">
-          <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              @click="navigateTo(`/crm/interactions?id=${row.id}`)"
-            >
-              View
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty
-        v-if="!customer?.Interactions?.length"
-        description="No interactions found"
-      />
+      <CrmInteractionsTab :customer-id="customer.id" />
     </el-tab-pane>
 
     <el-tab-pane label="QUOTATIONS">
@@ -317,23 +263,23 @@
     <el-tab-pane label="INVOICES">
       <el-table :data="customer?.Invoices ?? []" stripe>
         <el-table-column type="index" label="#" width="60" />
-        <el-table-column label="Number" prop="number" width="120" />
-        <el-table-column label="Order Number" width="120">
+        <el-table-column label="Number" prop="number" />
+        <el-table-column label="Order Number">
           <template #default="{ row }">
             {{ row.Order?.number || "-" }}
           </template>
         </el-table-column>
-        <el-table-column label="Issue Date" width="120">
+        <el-table-column label="Issue Date">
           <template #default="{ row }">
             {{ formatDate(row.issueDate) }}
           </template>
         </el-table-column>
-        <el-table-column label="Due Date" width="120">
+        <el-table-column label="Due Date">
           <template #default="{ row }">
             {{ formatDate(row.dueDate) }}
           </template>
         </el-table-column>
-        <el-table-column label="Status" width="120">
+        <el-table-column label="Status">
           <template #default="{ row }">
             <StatusTag :status="row.status" />
           </template>
@@ -353,17 +299,13 @@
             <el-button
               link
               type="primary"
-              @click="navigateTo(`/crm/invoices?id=${row.id}`)"
+              @click="navigateTo(`/crm/invoices/${row.id}`)"
             >
               View
             </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-empty
-        v-if="!customer?.Invoices?.length"
-        description="No invoices found"
-      />
     </el-tab-pane>
   </el-tabs>
 
