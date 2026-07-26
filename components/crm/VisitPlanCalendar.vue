@@ -4,7 +4,15 @@
       <template #date-cell="{ data }">
         <div class="calendar-day">
           <div class="calendar-day-number">
-            <span>{{ dayjs(data.date).format("D") }}</span>
+            <span
+              :class="
+                data.date.getDay() == 0 || data.date.getDay() == 6
+                  ? 'text-red-500'
+                  : ''
+              "
+            >
+              {{ dayjs(data.date).format("D") }}
+            </span>
             <el-button
               :icon="ElIconPlus"
               size="small"
@@ -117,7 +125,7 @@ const getVisitsForDate = (date) => {
 .calendar-events {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  /* gap: 4px; */
 }
 
 .calendar-event {
