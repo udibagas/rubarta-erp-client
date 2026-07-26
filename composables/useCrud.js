@@ -96,6 +96,24 @@ export default ({ url, queryKey, defaultQuery }) => {
     refreshData(queryKey, params);
   }
 
+  function filterChange(newFilters) {
+    filters.value = newFilters;
+    page.value = 1;
+    refreshData(queryKey, { ...newFilters, page: 1, pageSize: pageSize.value });
+  }
+
+  function sortChange({ prop, order }) {
+    const sortOrder =
+      order === "ascending" ? "asc" : order === "descending" ? "desc" : null;
+    const sortParams = sortOrder ? { sortBy: prop, sortOrder } : {};
+    refreshData(queryKey, {
+      ...filters.value,
+      ...sortParams,
+      page: page.value,
+      pageSize: pageSize.value,
+    });
+  }
+
   function edit(id) {
     request(`${url}/${id}`).then((result) => {
       openForm(result);
@@ -122,5 +140,7 @@ export default ({ url, queryKey, defaultQuery }) => {
     handleRemove,
     sizeChange,
     currentChange,
+    filterChange,
+    sortChange,
   };
 };
