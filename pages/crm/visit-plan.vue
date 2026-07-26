@@ -101,17 +101,6 @@
     <el-table stripe v-loading="isPending" :data="data?.data || []">
       <el-table-column type="index" label="#" width="60" />
 
-      <el-table-column label="Title" min-width="200">
-        <template #default="{ row }">
-          <el-link class="font-semibold" @click="openDetailDialog(row)">
-            {{ row.title }}
-          </el-link>
-          <div v-if="row.purpose" class="text-sm text-gray-500">
-            {{ row.purpose }}
-          </div>
-        </template>
-      </el-table-column>
-
       <el-table-column label="Scheduled Date" width="150">
         <template #default="{ row }">
           <div>
@@ -122,6 +111,17 @@
               {{ formatDate(row.scheduledDate) }}
               <span v-if="row.scheduledTime"> {{ row.scheduledTime }}</span>
             </div>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Title" min-width="200">
+        <template #default="{ row }">
+          <el-link class="font-semibold" @click="openDetailDialog(row)">
+            {{ row.title }}
+          </el-link>
+          <div v-if="row.purpose" class="text-sm text-gray-500">
+            {{ row.purpose }}
           </div>
         </template>
       </el-table-column>
@@ -275,197 +275,13 @@
   />
 
   <!-- Visit Plan Detail Dialog -->
-  <el-dialog
+  <CrmVisitPlanDetailDialog
     v-model="showDetailDialog"
-    title="Visit Plan Details"
-    width="700px"
-  >
-    <div v-if="selectedVisit" class="space-y-4">
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="Title" :span="2">
-          <span class="font-semibold text-lg">{{ selectedVisit.title }}</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Status" :span="1">
-          <StatusTag :status="selectedVisit.status" effect="dark">
-            <template #icon>
-              <el-icon>
-                <ElIconClock v-if="selectedVisit.status === 'Planned'" />
-                <ElIconCircleCheck
-                  v-else-if="selectedVisit.status === 'Completed'"
-                />
-                <ElIconCircleClose
-                  v-else-if="selectedVisit.status === 'Cancelled'"
-                />
-              </el-icon>
-            </template>
-          </StatusTag>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Visit Type" :span="1">
-          <el-tag
-            :type="selectedVisit.visitType === 'Online' ? 'success' : 'info'"
-          >
-            {{ selectedVisit.visitType }}
-          </el-tag>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Scheduled Date" :span="1">
-          <div>
-            <div class="font-semibold">
-              {{ dayjs(selectedVisit.scheduledDate).fromNow() }}
-            </div>
-            <div class="text-sm text-gray-500">
-              {{ formatDate(selectedVisit.scheduledDate) }}
-              <span v-if="selectedVisit.scheduledTime">
-                {{ selectedVisit.scheduledTime }}
-              </span>
-            </div>
-          </div>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Duration" :span="1">
-          <span v-if="selectedVisit.estimatedDuration">
-            {{ selectedVisit.estimatedDuration }} minutes
-          </span>
-          <span v-else>-</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Customer" :span="2">
-          <a
-            v-if="selectedVisit.customerId"
-            class="text-green-500 hover:underline cursor-pointer"
-            @click="navigateTo(`/crm/customers/${selectedVisit.customerId}`)"
-          >
-            {{ selectedVisit.Customer?.name }}
-          </a>
-          <span v-else>-</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Contact Person" :span="2">
-          <div v-if="selectedVisit.contactPerson" class="flex flex-col">
-            <span class="font-semibold">{{ selectedVisit.contactPerson }}</span>
-            <span
-              v-if="selectedVisit.contactPhone"
-              class="text-sm text-gray-500"
-            >
-              {{ selectedVisit.contactPhone }}
-            </span>
-          </div>
-          <span v-else>-</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Assigned To" :span="2">
-          <div v-if="selectedVisit.User" class="flex items-center gap-2">
-            <el-avatar
-              :size="32"
-              :style="{
-                backgroundColor: getAvatarColor(selectedVisit.User.name),
-              }"
-            >
-              {{ selectedVisit.User.name?.charAt(0).toUpperCase() }}
-            </el-avatar>
-            <span class="font-semibold">{{ selectedVisit.User.name }}</span>
-          </div>
-          <span v-else>-</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item
-          v-if="selectedVisit.visitType === 'Online'"
-          label="Meeting URL"
-          :span="2"
-        >
-          <el-link
-            v-if="selectedVisit.meetingUrl"
-            :href="selectedVisit.meetingUrl"
-            target="_blank"
-            type="success"
-            :icon="ElIconVideoCamera"
-          >
-            &nbsp; {{ selectedVisit.meetingUrl }}
-          </el-link>
-          <span v-else>-</span>
-        </el-descriptions-item>
-
-        <el-descriptions-item
-          v-if="selectedVisit.visitType === 'Offline'"
-          label="Address"
-          :span="2"
-        >
-          {{ selectedVisit.address || "-" }}
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Purpose" :span="2">
-          {{ selectedVisit.purpose || "-" }}
-        </el-descriptions-item>
-
-        <el-descriptions-item label="Notes" :span="2">
-          <div class="whitespace-pre-wrap">
-            {{ selectedVisit.notes || "-" }}
-          </div>
-        </el-descriptions-item>
-
-        <el-descriptions-item
-          v-if="selectedVisit.actualVisitDate"
-          label="Actual Visit Date"
-          :span="2"
-        >
-          <div>
-            {{ formatDate(selectedVisit.actualVisitDate) }}
-            {{ formatTime(selectedVisit.actualVisitDate) }}
-          </div>
-        </el-descriptions-item>
-
-        <el-descriptions-item
-          v-if="selectedVisit.outcome"
-          label="Outcome"
-          :span="2"
-        >
-          <div class="whitespace-pre-wrap">
-            {{ selectedVisit.outcome }}
-          </div>
-        </el-descriptions-item>
-      </el-descriptions>
-    </div>
-
-    <template #footer>
-      <div class="flex justify-between">
-        <div class="flex">
-          <el-button
-            v-if="selectedVisit?.status === 'Planned'"
-            type="success"
-            :icon="ElIconCircleCheck"
-            @click="markAsCompletedFromDialog"
-          >
-            Mark as Completed
-          </el-button>
-          <el-button
-            v-if="selectedVisit?.status === 'Planned'"
-            type="danger"
-            :icon="ElIconCircleClose"
-            @click="markAsCancelledFromDialog"
-          >
-            Mark as Cancelled
-          </el-button>
-        </div>
-        <div class="flex">
-          <el-button
-            type="primary"
-            :icon="ElIconEdit"
-            @click="openEditFromDialog"
-          >
-            Edit
-          </el-button>
-          <el-button
-            @click="showDetailDialog = false"
-            :icon="ElIconCircleClose"
-          >
-            Close
-          </el-button>
-        </div>
-      </div>
-    </template>
-  </el-dialog>
+    :visit="selectedVisit"
+    @edit="openEditFromDialog"
+    @mark-completed="markAsCompletedFromDialog"
+    @mark-cancelled="markAsCancelledFromDialog"
+  />
 
   <VisitPlanForm ref="visitPlanFormRef" />
 </template>
@@ -539,14 +355,14 @@ const openEditFromDialog = () => {
   visitPlanFormRef.value?.openForm(selectedVisit.value);
 };
 
-const markAsCompletedFromDialog = async () => {
-  await markAsCompleted(selectedVisit.value.id);
+const markAsCompletedFromDialog = async (id) => {
+  await markAsCompleted(id);
   showDetailDialog.value = false;
 };
 
-const markAsCancelledFromDialog = async () => {
+const markAsCancelledFromDialog = async (id) => {
   showDetailDialog.value = false;
-  await markAsCancelled(selectedVisit.value.id);
+  await markAsCancelled(id);
 };
 
 const markAsCompleted = async (id) => {
@@ -629,8 +445,8 @@ const exportToPdf = () => {
 
   // Prepare table data
   const tableData = data.value.data.map((visit) => [
+    [formatDate(visit.scheduledDate), visit.scheduledTime || "-"].join(" "),
     visit.title || "-",
-    formatDate(visit.scheduledDate),
     visit.Customer?.name || "-",
     visit.status || "-",
     visit.visitType || "-",
@@ -646,8 +462,8 @@ const exportToPdf = () => {
   autoTable(doc, {
     head: [
       [
-        "Title",
         "Scheduled Date",
+        "Title",
         "Customer",
         "Status",
         "Visit Type",
