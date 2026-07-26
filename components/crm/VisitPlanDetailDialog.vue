@@ -132,6 +132,16 @@
             {{ visit.outcome }}
           </div>
         </el-descriptions-item>
+
+        <el-descriptions-item
+          v-if="visit.cancelReason"
+          label="Cancellation Reason"
+          :span="2"
+        >
+          <div class="whitespace-pre-wrap">
+            {{ visit.cancelReason }}
+          </div>
+        </el-descriptions-item>
       </el-descriptions>
     </div>
 

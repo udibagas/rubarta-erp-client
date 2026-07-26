@@ -44,6 +44,8 @@
           :icon="ElIconPrinter"
           @click="exportToPdf"
           :disabled="!data?.data?.length"
+          type="info"
+          plain
         >
           Export PDF
         </el-button>
@@ -91,6 +93,7 @@
             <el-link
               class="font-semibold line-clamp-1"
               @click="openDetailDialog(row)"
+              type="success"
             >
               {{ row.title }}
             </el-link>
@@ -124,7 +127,7 @@
 
         <el-table-column
           label="Customer"
-          width="180"
+          width="200"
           column-key="customerId"
           :filters="customers.map((c) => ({ text: c.name, value: c.id }))"
         >
@@ -132,7 +135,7 @@
             <el-link
               @click="navigateTo(`/crm/customers/${row.customerId}`)"
               type="success"
-              class="font-semibold"
+              class="font-semibold line-clamp-1"
             >
               {{ row.Customer?.name }}
             </el-link>
@@ -141,9 +144,9 @@
                 <el-icon :size="12" class="mr-1">
                   <ElIconUser />
                 </el-icon>
-                <span class="font-semibold text-sm">{{
-                  row.contactPerson
-                }}</span>
+                <span class="font-semibold text-sm">
+                  {{ row.contactPerson }}
+                </span>
               </div>
               <div>
                 <el-icon :size="12" class="mr-1">
@@ -253,6 +256,7 @@
                     Mark as Cancelled
                   </el-dropdown-item>
                   <el-dropdown-item
+                    v-if="row.status == 'Planned'"
                     :icon="ElIconDelete"
                     @click="handleRemove(row.id, remove)"
                   >
@@ -300,6 +304,71 @@
     @mark-cancelled="markAsCancelledFromDialog"
   />
 
+  <!-- Complete Visit Dialog -->
+  <el-dialog
+    v-model="showCompleteDialog"
+    title="Complete Visit Plan"
+    width="500px"
+  >
+    <el-form :model="completeForm" label-position="top">
+      <el-form-item label="Actual Visit Date & Time" required>
+        <el-date-picker
+          v-model="completeForm.actualVisitDate"
+          type="datetime"
+          placeholder="Select date and time"
+          style="width: 100%"
+          format="DD-MMM-YYYY HH:mm"
+          value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+        />
+      </el-form-item>
+
+      <el-form-item label="Outcome" required>
+        <el-input
+          v-model="completeForm.outcome"
+          type="textarea"
+          :rows="4"
+          placeholder="Enter visit outcome and notes"
+        />
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <el-button @click="showCompleteDialog = false">Cancel</el-button>
+      <el-button
+        type="success"
+        @click="submitComplete"
+        :disabled="!completeForm.actualVisitDate || !completeForm.outcome"
+      >
+        Mark as Completed
+      </el-button>
+    </template>
+  </el-dialog>
+
+  <!-- Cancel Visit Dialog -->
+  <el-dialog v-model="showCancelDialog" title="Cancel Visit Plan" width="500px">
+    <el-form :model="cancelForm" label-position="top">
+      <el-form-item label="Cancellation Reason" required>
+        <el-input
+          v-model="cancelForm.cancelReason"
+          type="textarea"
+          :rows="4"
+          placeholder="Enter reason for cancellation"
+        />
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <el-button @click="showCancelDialog = false">Close</el-button>
+      <el-button
+        type="danger"
+        @click="submitCancel"
+        :disabled="!cancelForm.cancelReason"
+      >
+        Confirm Cancellation
+      </el-button>
+    </template>
+  </el-dialog>
+
   <VisitPlanForm ref="visitPlanFormRef" />
 </template>
 
@@ -319,6 +388,17 @@ const viewMode = ref("calendar");
 const calendarDate = ref(new Date());
 const showDetailDialog = ref(false);
 const selectedVisit = ref(null);
+const showCompleteDialog = ref(false);
+const completeForm = ref({
+  id: null,
+  actualVisitDate: null,
+  outcome: "",
+});
+const showCancelDialog = ref(false);
+const cancelForm = ref({
+  id: null,
+  cancelReason: "",
+});
 
 const {
   removeMutation,
@@ -374,8 +454,8 @@ const openEditFromDialog = () => {
 };
 
 const markAsCompletedFromDialog = async (id) => {
-  await markAsCompleted(id);
   showDetailDialog.value = false;
+  await markAsCompleted(id);
 };
 
 const markAsCancelledFromDialog = async (id) => {
@@ -384,14 +464,31 @@ const markAsCancelledFromDialog = async (id) => {
 };
 
 const markAsCompleted = async (id) => {
+  completeForm.value = {
+    id,
+    actualVisitDate: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+    outcome: "",
+  };
+  showCompleteDialog.value = true;
+};
+
+const submitComplete = async () => {
+  if (!completeForm.value.actualVisitDate || !completeForm.value.outcome) {
+    ElMessage.warning("Please fill in all required fields");
+    return;
+  }
+
   try {
-    await request(`/api/visit-plans/${id}`, {
+    await request(`/api/visit-plans/${completeForm.value.id}`, {
       method: "PATCH",
       body: {
         status: "Completed",
+        actualVisitDate: completeForm.value.actualVisitDate,
+        outcome: completeForm.value.outcome,
       },
     });
     ElMessage.success("Visit plan marked as completed");
+    showCompleteDialog.value = false;
     refreshData();
   } catch (error) {
     ElMessage.error("Failed to update visit plan status");
@@ -399,30 +496,33 @@ const markAsCompleted = async (id) => {
 };
 
 const markAsCancelled = async (id) => {
-  ElMessageBox.confirm(
-    "Are you sure you want to cancel this visit plan?",
-    "Confirm",
-    {
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
-      type: "warning",
-    },
-  )
-    .then(async () => {
-      try {
-        await request(`/api/visit-plans/${id}`, {
-          method: "PATCH",
-          body: {
-            status: "Cancelled",
-          },
-        });
-        ElMessage.success("Visit plan cancelled");
-        refreshData();
-      } catch (error) {
-        ElMessage.error("Failed to update visit plan status");
-      }
-    })
-    .catch(() => {});
+  cancelForm.value = {
+    id,
+    cancelReason: "",
+  };
+  showCancelDialog.value = true;
+};
+
+const submitCancel = async () => {
+  if (!cancelForm.value.cancelReason) {
+    ElMessage.warning("Please enter a cancellation reason");
+    return;
+  }
+
+  try {
+    await request(`/api/visit-plans/${cancelForm.value.id}`, {
+      method: "PATCH",
+      body: {
+        status: "Cancelled",
+        cancelReason: cancelForm.value.cancelReason,
+      },
+    });
+    ElMessage.success("Visit plan cancelled");
+    showCancelDialog.value = false;
+    refreshData();
+  } catch (error) {
+    ElMessage.error("Failed to update visit plan status");
+  }
 };
 
 // Export to PDF
