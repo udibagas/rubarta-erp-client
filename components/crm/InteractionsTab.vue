@@ -17,17 +17,6 @@
   </div>
 
   <el-table :data="filteredData" stripe v-loading="isPending">
-    <el-table-column label="Subject" min-width="200">
-      <template #default="{ row }">
-        <div>
-          <strong>{{ row.subject }}</strong>
-        </div>
-        <div v-if="row.notes" class="text-sm text-gray-500">
-          {{ row.notes }}
-        </div>
-      </template>
-    </el-table-column>
-
     <el-table-column label="Date" width="150">
       <template #default="{ row }">
         <div>
@@ -35,6 +24,17 @@
           <div class="text-xs text-gray-500">
             {{ formatDate(row.date) }} {{ formatTime(row.date) }}
           </div>
+        </div>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Subject" min-width="200">
+      <template #default="{ row }">
+        <div>
+          <strong>{{ row.subject }}</strong>
+        </div>
+        <div v-if="row.notes" class="text-sm text-gray-500">
+          {{ row.notes }}
         </div>
       </template>
     </el-table-column>
@@ -63,6 +63,23 @@
         {{ row.duration ? `${row.duration} min` : "-" }}
       </template>
     </el-table-column>
+
+    <el-table-column label="User" width="180">
+      <template #default="{ row }">
+        <div v-if="row.User" class="flex items-center gap-2">
+          <el-avatar
+            :size="32"
+            class="shrink-0"
+            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+          >
+            {{ row.User.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span class="font-semibold text-sm">{{ row.User.name }}</span>
+        </div>
+        <span v-else>-</span>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Contact" width="220">
       <template #default="{ row }">
         <div v-if="row.Contact" class="flex items-center gap-2">
@@ -83,21 +100,7 @@
         <span v-else>-</span>
       </template>
     </el-table-column>
-    <el-table-column label="User" width="180">
-      <template #default="{ row }">
-        <div v-if="row.User" class="flex items-center gap-2">
-          <el-avatar
-            :size="32"
-            class="shrink-0"
-            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
-          >
-            {{ row.User.name?.charAt(0).toUpperCase() }}
-          </el-avatar>
-          <span class="font-semibold text-sm">{{ row.User.name }}</span>
-        </div>
-        <span v-else>-</span>
-      </template>
-    </el-table-column>
+
     <el-table-column label="Outcome" prop="outcome" min-width="150" />
     <el-table-column width="60" align="center" fixed="right">
       <template #header>
