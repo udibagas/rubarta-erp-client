@@ -88,10 +88,13 @@
 
         <el-table-column label="Title" min-width="200">
           <template #default="{ row }">
-            <el-link class="font-semibold" @click="openDetailDialog(row)">
+            <el-link
+              class="font-semibold line-clamp-1"
+              @click="openDetailDialog(row)"
+            >
               {{ row.title }}
             </el-link>
-            <div v-if="row.purpose" class="text-sm text-gray-500">
+            <div v-if="row.purpose" class="text-sm text-gray-500 line-clamp-1">
               {{ row.purpose }}
             </div>
           </template>
