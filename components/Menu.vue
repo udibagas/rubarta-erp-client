@@ -142,7 +142,7 @@ const menus = computed(() => [
       },
 
       {
-        label: "Leads",
+        label: "Prospects",
         path: "/crm/leads",
         icon: ElIconFilter,
         visible: true,
