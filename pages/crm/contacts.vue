@@ -19,6 +19,7 @@
 
   <el-table stripe v-loading="isPending" :data="data">
     <el-table-column type="index" label="#"></el-table-column>
+
     <el-table-column label="Name" prop="name" min-width="150">
       <template #default="{ row }">
         <div class="flex items-center gap-2">
@@ -33,6 +34,7 @@
         </div>
       </template>
     </el-table-column>
+
     <el-table-column label="Customer" prop="Customer.name" min-width="150">
       <template #default="{ row }">
         <el-link
@@ -44,7 +46,21 @@
         </el-link>
       </template>
     </el-table-column>
-    <el-table-column label="Phone" prop="phone" min-width="150" />
+
+    <el-table-column label="Phone" prop="phone" min-width="150">
+      <template #default="{ row }">
+        <a
+          v-if="row.phone"
+          :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
+          target="_blank"
+          class="text-green-600 hover:underline"
+        >
+          {{ row.phone }}
+        </a>
+        <span v-else>-</span>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Email" prop="email" min-width="150">
       <template #default="{ row }">
         <a :href="`mailto:${row.email}`" class="text-green-600 hover:underline">
@@ -52,6 +68,7 @@
         </a>
       </template>
     </el-table-column>
+
     <el-table-column label="Position" prop="position" min-width="150" />
     <el-table-column label="Note" prop="note" />
 
