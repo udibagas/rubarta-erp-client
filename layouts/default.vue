@@ -1,35 +1,16 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside :width="collapse ? '80px' : '280px'" class="sidebar-container">
-        <!-- User Profile Section -->
-        <div v-show="!collapse" class="user-profile">
-          <div class="flex items-center justify-center mb-4">
-            <img src="/images/logo.png" :size="48" class="h-20" />
-          </div>
-          <div class="user-info">
-            <p class="user-name">{{ user?.name || "User" }}</p>
-            <p class="user-email">{{ user?.email || "user@example.com" }}</p>
-          </div>
-        </div>
-
-        <!-- Navigation Menu -->
-        <div class="navigation-section">
-          <Menu :collapse="collapse" />
-        </div>
-      </el-aside>
+      <el-header class="flex items-center gap-2 px-4!">
+        <img src="/images/logo.png" class="h-8" />
+        <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
+      </el-header>
 
       <el-container>
-        <el-header class="flex items-center gap-4 px-4! shadow-sm">
-          <el-button
-            :icon="collapse ? ChevronRight : ChevronLeft"
-            @click="collapse = !collapse"
-            circle
-          />
-          <Navbar :collapse="collapse" @toggle="collapse = !collapse" />
-        </el-header>
-
-        <el-main class="main-container bg-slate-50! p-4!">
+        <el-aside :width="collapse ? '80px' : '240px'">
+          <Menu :collapse="collapse" @toggle-collapse="collapse = !collapse" />
+        </el-aside>
+        <el-main class="main-container bg-slate-200! p-2!">
           <el-card>
             <slot />
           </el-card>
@@ -92,13 +73,6 @@ const collapse = ref(false);
   padding: 2rem;
 }
 
-/* Sidebar Container */
-.sidebar-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
 /* User Profile Section */
 .user-profile {
   padding: 1.5rem;
@@ -121,30 +95,6 @@ const collapse = ref(false);
   font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
-}
-
-/* Navigation Section */
-.navigation-section {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem 0;
-}
-
-.navigation-section::-webkit-scrollbar {
-  width: 6px;
-}
-
-.navigation-section::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-.navigation-section::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.navigation-section::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }
 
 .toggle-btn {

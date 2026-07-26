@@ -1,42 +1,87 @@
 <template>
   <div class="sidebar">
-    <ul class="menu w-full">
-      <li v-for="(menu, index) in visibleMenus" :key="menu.label">
-        <nuxt-link
-          v-if="!menu.children"
-          :to="menu.path"
-          active-class="menu-active"
-          :class="{ 'justify-center': collapse }"
-        >
-          <component :is="menu.icon" class="w-4 h-4" />
-          <span v-show="!collapse">{{ menu.label }}</span>
-        </nuxt-link>
-        <details v-else :open="!collapse && index === 0">
-          <summary :class="{ 'justify-center': collapse }">
-            <component :is="menu.icon" class="w-4 h-4" />
-            <span v-show="!collapse">{{ menu.label }}</span>
-          </summary>
-          <ul v-show="!collapse">
-            <li v-for="child in menu.children" :key="child.label">
-              <nuxt-link
-                v-if="child.visible"
-                :to="child.path"
-                exact-active-class="menu-active"
-              >
-                <component :is="child.icon" class="w-3 h-3" />
-                {{ child.label }}
-              </nuxt-link>
-            </li>
-          </ul>
-        </details>
-      </li>
-    </ul>
+    <!-- Collapse Button -->
+    <div class="collapse-btn-wrapper">
+      <el-button
+        :icon="collapse ? ElIconExpand : ElIconFold"
+        circle
+        @click="$emit('toggle-collapse')"
+        class="collapse-btn"
+      />
+    </div>
+
+    <el-menu
+      :default-active="activeMenu"
+      :collapse="collapse"
+      :default-openeds="defaultOpeneds"
+      router
+    >
+      <template v-for="menu in visibleMenus" :key="menu.label">
+        <!-- Menu without children -->
+        <el-menu-item v-if="!menu.children" :index="menu.path">
+          <el-icon>
+            <component :is="menu.icon" />
+          </el-icon>
+          <template #title>{{ menu.label }}</template>
+        </el-menu-item>
+
+        <!-- Menu with children -->
+        <el-sub-menu v-else :index="menu.path">
+          <template #title>
+            <el-icon>
+              <component :is="menu.icon" />
+            </el-icon>
+            <span>{{ menu.label }}</span>
+          </template>
+          <el-menu-item
+            v-for="child in menu.children"
+            v-show="child.visible"
+            :key="child.label"
+            :index="child.path"
+          >
+            <el-icon>
+              <component :is="child.icon" />
+            </el-icon>
+            <template #title>{{ child.label }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+      </template>
+    </el-menu>
+
+    <!-- User Info at Bottom -->
+    <div class="user-info" :class="{ collapsed: collapse }">
+      <el-avatar
+        :size="collapse ? 32 : 40"
+        :style="{ backgroundColor: getAvatarColor(user?.name || '') }"
+      >
+        {{ user?.name?.charAt(0).toUpperCase() }}
+      </el-avatar>
+      <div v-if="!collapse" class="user-details">
+        <div class="user-name">{{ user?.name }}</div>
+        <div class="user-role">{{ user?.roles?.[0] || "User" }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const { user } = useAuth();
 const { collapse } = defineProps(["collapse"]);
+const emit = defineEmits(["toggle-collapse"]);
+const route = useRoute();
+
+// Get active menu based on current route
+const activeMenu = computed(() => route.path);
+
+// Default opened submenus (open first submenu by default when not collapsed)
+const defaultOpeneds = computed(() => {
+  if (collapse) return [];
+  const menusWithChildren =
+    menus.value?.filter((m) => m.children && m.visible) || [];
+  return menusWithChildren.length > 0 && menusWithChildren[0]?.path
+    ? [menusWithChildren[0].path]
+    : [];
+});
 
 // Filter visible menus based on user roles
 const visibleMenus = computed(() => {
@@ -207,11 +252,101 @@ function hasRole(roles: string[]): boolean {
 .sidebar {
   height: 100%;
   overflow-y: auto;
-  padding: 0.5rem;
+  background-color: #1f2937;
+  display: flex;
+  flex-direction: column;
 }
 
-.menu {
-  --menu-active-fg: var(--color-green-800);
-  --menu-active-bg: var(--color-green-100);
+.collapse-btn-wrapper {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #1f2937;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.collapse-btn {
+  background-color: rgba(55, 65, 81, 0.5);
+  border: none;
+  color: #d1d5db;
+}
+
+.collapse-btn:hover {
+  background-color: rgba(55, 65, 81, 0.8);
+  color: #f3f4f6;
+}
+
+:deep(.el-menu) {
+  border-right: none;
+  background-color: #1f2937;
+  color: #d1d5db;
+  flex: 1;
+  overflow-y: auto;
+}
+
+:deep(.el-menu-item),
+:deep(.el-sub-menu__title) {
+  color: #d1d5db;
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+:deep(.el-menu-item:hover),
+:deep(.el-sub-menu__title:hover) {
+  background-color: rgba(55, 65, 81, 0.8);
+  color: #f3f4f6;
+}
+
+:deep(.el-sub-menu .el-menu) {
+  background-color: #111827;
+}
+
+:deep(.el-sub-menu .el-menu-item) {
+  background-color: #111827;
+}
+
+:deep(.el-sub-menu .el-menu-item:hover) {
+  background-color: rgba(55, 65, 81, 0.6);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #111827;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.user-info.collapsed {
+  justify-content: center;
+  padding: 1rem 0.5rem;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #f3f4f6;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
