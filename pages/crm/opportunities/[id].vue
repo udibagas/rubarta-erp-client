@@ -90,7 +90,7 @@
     </el-descriptions-item>
 
     <el-descriptions-item label="Amount">
-      <span class="font-mono font-semibold text-lg text-green-500">
+      <span class="font-mono text-lg text-green-500">
         {{ toCurrency(opportunity.amount.toString()) }}
       </span>
     </el-descriptions-item>
@@ -192,7 +192,7 @@
       <ul>
         <li v-for="file in opportunity.attachments" :key="file.filePath">
           <el-link
-            type="primary"
+            type="success"
             :href="`${config.public.apiBase}/${file.filePath}`"
             target="_blank"
           >

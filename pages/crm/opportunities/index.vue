@@ -133,6 +133,9 @@
                 Edit
               </el-dropdown-item>
               <el-dropdown-item
+                v-if="
+                  row.status !== 'Closed_Won' && row.status !== 'Closed_Lost'
+                "
                 :icon="ElIconDelete"
                 @click.native.prevent="handleRemove(row.id, remove)"
               >

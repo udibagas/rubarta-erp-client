@@ -1,5 +1,5 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Leads">
+  <el-page-header @back="goBack" content="CRM / Prospects">
     <template #extra>
       <form
         class="flex gap-2"
@@ -30,13 +30,7 @@
 
   <br />
 
-  <el-table
-    stripe
-    v-loading="isPending"
-    :data="data?.data"
-    @row-click="handleRowClick"
-    style="cursor: pointer"
-  >
+  <el-table stripe v-loading="isPending" :data="data?.data">
     <el-table-column label="Created At" width="150">
       <template #default="{ row }">
         <div class="font-semibold text-sm">
@@ -50,7 +44,13 @@
 
     <el-table-column label="Title" prop="title" min-width="250">
       <template #default="{ row }">
-        <span class="text-gray-900 font-semibold">{{ row.title }}</span>
+        <el-link
+          type="success"
+          @click="navigateTo(`/crm/leads/${row.id}`)"
+          class="font-semibold line-clamp-2"
+        >
+          {{ row.title }}
+        </el-link>
       </template>
     </el-table-column>
 
@@ -105,17 +105,19 @@
 
     <el-table-column label="Est. Value" width="150" align="right">
       <template #default="{ row }">
-        <span
+        <el-tag
+          effect="plain"
+          type="success"
           v-if="row.estimatedValue"
-          class="font-mono font-semibold text-green-600"
+          class="font-mono"
         >
           {{ toCurrency(row.estimatedValue.toString()) }}
-        </span>
+        </el-tag>
         <span v-else class="text-gray-400">-</span>
       </template>
     </el-table-column>
 
-    <el-table-column label="Assigned To" width="180">
+    <el-table-column label="Assigned To" width="200">
       <template #default="{ row }">
         <div v-if="row.User" class="flex items-center gap-2">
           <el-avatar
@@ -125,7 +127,7 @@
           >
             {{ row.User.name?.charAt(0).toUpperCase() }}
           </el-avatar>
-          <span class="font-semibold text-sm line-clamp-2">
+          <span class="font-semibold text-sm line-clamp-1">
             {{ row.User.name }}
           </span>
         </div>
@@ -260,8 +262,4 @@ watch(companyId, () => {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
-
-const handleRowClick = (row) => {
-  navigateTo(`/crm/leads/${row.id}`);
-};
 </script>
