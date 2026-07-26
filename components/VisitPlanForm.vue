@@ -225,6 +225,19 @@
           v-model="form.outcome"
         />
       </el-form-item>
+
+      <el-form-item
+        label="Cancellation Reason"
+        :error="errors.cancelReason"
+        v-if="form.status === 'Cancelled'"
+      >
+        <el-input
+          type="textarea"
+          :rows="3"
+          placeholder="Reason for cancellation"
+          v-model="form.cancelReason"
+        />
+      </el-form-item>
     </el-form>
 
     <template #footer>
