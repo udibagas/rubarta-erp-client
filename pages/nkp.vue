@@ -1,5 +1,5 @@
 <template>
-  <el-page-header @back="goBack" content="NKP">
+  <el-page-header @back="goBack" content="Nota Kuasa Pembayaran (NKP)">
     <template #extra>
       <form
         @submit.prevent="
@@ -139,7 +139,7 @@
                 row.paymentType == "EMPLOYEE"
                   ? row.grandTotal
                   : row.finalPayment,
-                row.currency
+                row.currency,
               )
             }}
           </el-tag>
