@@ -72,7 +72,7 @@ const menus = computed(() => [
         label: "Report",
         path: "/report",
         icon: ElIconPieChart,
-        visible: user.value?.roles?.includes("ADMIN") ?? false,
+        visible: hasRole(["ADMIN"]),
       },
     ],
   },
@@ -80,7 +80,7 @@ const menus = computed(() => [
     label: "CRM",
     path: "/crm",
     icon: ElIconCopyDocument,
-    visible: user.value?.roles?.includes("ADMIN") ?? false,
+    visible: hasRole(["SALES_REP", "ADMIN"]),
     children: [
       {
         label: "Dashboard",
@@ -156,7 +156,7 @@ const menus = computed(() => [
     label: "Master Data",
     icon: ElIconCoin,
     path: "/master-data",
-    visible: user.value?.roles?.includes("ADMIN") ?? false,
+    visible: hasRole(["ADMIN"]),
     children: [
       {
         label: "Companies",
@@ -197,6 +197,10 @@ const menus = computed(() => [
     ],
   },
 ]);
+
+function hasRole(roles: string[]): boolean {
+  return roles.some((role) => user.value?.roles?.includes(role));
+}
 </script>
 
 <style scoped>
