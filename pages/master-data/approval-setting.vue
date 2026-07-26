@@ -2,7 +2,6 @@
   <el-page-header @back="goBack" content="Approval Setting">
     <template #extra>
       <el-button
-        size="small"
         :icon="ElIconPlus"
         type="success"
         @click="

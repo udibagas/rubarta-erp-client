@@ -1,12 +1,7 @@
 <template>
   <el-page-header @back="goBack" content="Banks">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        @click="openForm()"
-        type="success"
-      >
+      <el-button :icon="ElIconPlus" @click="openForm()" type="success">
         ADD NEW BANK
       </el-button>
     </template>

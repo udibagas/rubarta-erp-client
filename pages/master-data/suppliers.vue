@@ -1,12 +1,7 @@
 <template>
   <el-page-header @back="goBack" content="Vendors">
     <template #extra>
-      <el-button
-        size="small"
-        :icon="ElIconPlus"
-        type="success"
-        @click="openForm()"
-      >
+      <el-button :icon="ElIconPlus" type="success" @click="openForm()">
         ADD NEW VENDOR
       </el-button>
     </template>
