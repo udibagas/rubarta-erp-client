@@ -4,6 +4,7 @@
       :default-active="activeMenu"
       :collapse="collapse"
       :default-openeds="defaultOpeneds"
+      unique-opened
       router
     >
       <template v-for="menu in visibleMenus" :key="menu.label">
