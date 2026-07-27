@@ -1,213 +1,226 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Prospects">
-    <template #extra>
-      <form
-        class="flex gap-2"
-        @submit.prevent="
-          () => {
-            page = 1;
-            refreshData();
-          }
-        "
-      >
-        <el-input
-          v-model="keyword"
-          placeholder="Cari"
-          style="width: 180px"
-          :prefix-icon="ElIconSearch"
-          :clearable="true"
-          @clear="
-            () => {
-              page = 1;
-              refreshData();
-            }
-          "
-        />
-        <el-button @click="handleNewLead" type="success" :icon="ElIconPlus" />
-      </form>
-    </template>
-  </el-page-header>
-
-  <br />
-
-  <el-table stripe v-loading="isPending" :data="data?.data">
-    <el-table-column label="Created At" width="150">
-      <template #default="{ row }">
-        <div class="font-semibold text-sm">
-          {{ dayjs(row.createdAt).fromNow() }}
-        </div>
-        <div class="text-xs text-gray-500">
-          {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
-        </div>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Title" prop="title" min-width="250">
-      <template #default="{ row }">
-        <el-link
-          type="success"
-          @click="navigateTo(`/crm/leads/${row.id}`)"
-          class="font-semibold line-clamp-2"
-        >
-          {{ row.title }}
-        </el-link>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Customer" prop="Customer.name" min-width="200">
-      <template #default="{ row }">
-        <el-link
-          v-if="row.Customer"
-          :underline="false"
-          @click.stop.prevent="navigateTo(`/crm/customers/${row.customerId}`)"
-        >
-          {{ row.Customer.name }}
-        </el-link>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Status" prop="status" width="130" align="center">
-      <template #default="{ row }">
-        <StatusTag :status="row.status" size="small" effect="dark">
-          <template #icon>
-            <el-icon>
-              <StarFilled v-if="row.status === 'New'" />
-              <PhoneFilled v-else-if="row.status === 'Contacted'" />
-              <CircleCheckFilled v-else-if="row.status === 'Qualified'" />
-              <SuccessFilled v-else-if="row.status === 'Converted'" />
-              <CircleCloseFilled v-else-if="row.status === 'Unqualified'" />
-              <CloseBold v-else-if="row.status === 'Lost'" />
-              <More v-else />
-            </el-icon>
-          </template>
-        </StatusTag>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Source" prop="source" width="150" align="center">
-      <template #default="{ row }">
-        <StatusTag :status="row.source" size="small">
-          <template #icon>
-            <el-icon>
-              <Share v-if="row.source === 'Referral'" />
-              <Promotion v-else-if="row.source === 'Advertisement'" />
-              <ChatDotRound v-else-if="row.source === 'SocialMedia'" />
-              <Link v-else-if="row.source === 'Website'" />
-              <Phone v-else-if="row.source === 'ColdCall'" />
-              <Calendar v-else-if="row.source === 'Event'" />
-              <More v-else />
-            </el-icon>
-          </template>
-        </StatusTag>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Est. Value" width="150" align="right">
-      <template #default="{ row }">
-        <el-tag
-          effect="plain"
-          type="success"
-          v-if="row.estimatedValue"
-          class="font-mono"
-        >
-          {{ toCurrency(row.estimatedValue.toString()) }}
-        </el-tag>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Assigned To" width="200">
-      <template #default="{ row }">
-        <div v-if="row.User" class="flex items-center gap-2">
-          <el-avatar
-            :size="30"
-            class="shrink-0"
-            :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack" content="CRM / Prospects">
+        <template #extra>
+          <form
+            class="flex gap-2"
+            @submit.prevent="
+              () => {
+                page = 1;
+                refreshData();
+              }
+            "
           >
-            {{ row.User.name?.charAt(0).toUpperCase() }}
-          </el-avatar>
-          <span class="font-semibold text-sm line-clamp-1">
-            {{ row.User.name }}
-          </span>
-        </div>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Last Update" width="150">
-      <template #default="{ row }">
-        <div class="font-semibold text-sm">
-          {{ dayjs(row.updatedAt).fromNow() }}
-        </div>
-        <div class="text-xs text-gray-500">
-          {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
-        </div>
-      </template>
-    </el-table-column>
-
-    <el-table-column
-      width="60px"
-      align="center"
-      header-align="center"
-      fixed="right"
+            <el-input
+              v-model="keyword"
+              placeholder="Cari"
+              style="width: 180px"
+              :prefix-icon="ElIconSearch"
+              :clearable="true"
+              @clear="
+                () => {
+                  page = 1;
+                  refreshData();
+                }
+              "
+            />
+            <el-button
+              @click="handleNewLead"
+              type="success"
+              :icon="ElIconPlus"
+            />
+          </form>
+        </template>
+      </el-page-header>
+    </template>
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data"
+      height="calc(100vh - 195px)"
     >
-      <template #header>
-        <el-button link @click="refreshData()" :icon="ElIconRefresh">
-        </el-button>
-      </template>
-      <template #default="{ row }">
-        <el-dropdown @click.stop>
-          <span class="el-dropdown-link">
-            <el-icon>
-              <ElIconMoreFilled />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                :icon="ElIconView"
-                @click.native.prevent="navigateTo(`/crm/leads/${row.id}`)"
-              >
-                View Details
-              </el-dropdown-item>
-              <el-dropdown-item
-                :icon="ElIconEdit"
-                @click.native.prevent="openForm(row)"
-              >
-                Edit
-              </el-dropdown-item>
-              <el-dropdown-item
-                :icon="ElIconDelete"
-                @click.native.prevent="handleRemove(row.id, remove)"
-              >
-                Delete
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column label="Created At" width="150">
+        <template #default="{ row }">
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.createdAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
+          </div>
+        </template>
+      </el-table-column>
 
-  <br />
+      <el-table-column label="Title" prop="title" min-width="250">
+        <template #default="{ row }">
+          <el-link
+            type="success"
+            @click="navigateTo(`/crm/leads/${row.id}`)"
+            class="font-semibold line-clamp-2"
+          >
+            {{ row.title }}
+          </el-link>
+        </template>
+      </el-table-column>
 
-  <el-pagination
-    v-if="data?.total"
-    size="small"
-    background
-    layout="total, sizes, prev, pager, next"
-    :page-size="pageSize"
-    :page-sizes="[10, 25, 50, 100]"
-    :total="data?.total"
-    @current-change="currentChange"
-    @size-change="sizeChange"
-  ></el-pagination>
+      <el-table-column label="Customer" prop="Customer.name" min-width="200">
+        <template #default="{ row }">
+          <el-link
+            v-if="row.Customer"
+            :underline="false"
+            @click.stop.prevent="navigateTo(`/crm/customers/${row.customerId}`)"
+          >
+            {{ row.Customer.name }}
+          </el-link>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+      </el-table-column>
 
-  <LeadForm />
+      <el-table-column label="Status" prop="status" width="130" align="center">
+        <template #default="{ row }">
+          <StatusTag :status="row.status" size="small" effect="dark">
+            <template #icon>
+              <el-icon>
+                <StarFilled v-if="row.status === 'New'" />
+                <PhoneFilled v-else-if="row.status === 'Contacted'" />
+                <CircleCheckFilled v-else-if="row.status === 'Qualified'" />
+                <SuccessFilled v-else-if="row.status === 'Converted'" />
+                <CircleCloseFilled v-else-if="row.status === 'Unqualified'" />
+                <CloseBold v-else-if="row.status === 'Lost'" />
+                <More v-else />
+              </el-icon>
+            </template>
+          </StatusTag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Source" prop="source" width="150" align="center">
+        <template #default="{ row }">
+          <StatusTag :status="row.source" size="small">
+            <template #icon>
+              <el-icon>
+                <Share v-if="row.source === 'Referral'" />
+                <Promotion v-else-if="row.source === 'Advertisement'" />
+                <ChatDotRound v-else-if="row.source === 'SocialMedia'" />
+                <Link v-else-if="row.source === 'Website'" />
+                <Phone v-else-if="row.source === 'ColdCall'" />
+                <Calendar v-else-if="row.source === 'Event'" />
+                <More v-else />
+              </el-icon>
+            </template>
+          </StatusTag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Est. Value" width="150" align="right">
+        <template #default="{ row }">
+          <el-tag
+            effect="plain"
+            type="success"
+            v-if="row.estimatedValue"
+            class="font-mono"
+          >
+            {{ toCurrency(row.estimatedValue.toString()) }}
+          </el-tag>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Assigned To" width="200">
+        <template #default="{ row }">
+          <div v-if="row.User" class="flex items-center gap-2">
+            <el-avatar
+              :size="30"
+              class="shrink-0"
+              :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+            >
+              {{ row.User.name?.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <span class="font-semibold text-sm line-clamp-1">
+              {{ row.User.name }}
+            </span>
+          </div>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Last Update" width="150">
+        <template #default="{ row }">
+          <div class="font-semibold text-sm">
+            {{ dayjs(row.updatedAt).fromNow() }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        width="60px"
+        align="center"
+        header-align="center"
+        fixed="right"
+      >
+        <template #header>
+          <el-button link @click="refreshData()" :icon="ElIconRefresh">
+          </el-button>
+        </template>
+        <template #default="{ row }">
+          <el-dropdown @click.stop>
+            <span class="el-dropdown-link">
+              <el-icon>
+                <ElIconMoreFilled />
+              </el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  :icon="ElIconView"
+                  @click.native.prevent="navigateTo(`/crm/leads/${row.id}`)"
+                >
+                  View Details
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :icon="ElIconEdit"
+                  @click.native.prevent="openForm(row)"
+                >
+                  Edit
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :icon="ElIconDelete"
+                  @click.native.prevent="handleRemove(row.id, remove)"
+                >
+                  Delete
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
+    <LeadForm />
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 import {
   StarFilled,
   PhoneFilled,
