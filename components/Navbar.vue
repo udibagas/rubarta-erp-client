@@ -27,7 +27,12 @@
       </el-badge>
 
       <el-dropdown>
-        <el-avatar :size="30"> {{ user?.name[0] }} </el-avatar>
+        <el-avatar
+          :size="30"
+          :style="{ backgroundColor: getAvatarColor(user?.name) }"
+        >
+          {{ user?.name[0] }}
+        </el-avatar>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
