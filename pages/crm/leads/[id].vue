@@ -1,230 +1,242 @@
 <template>
-  <el-page-header
-    @back="goBack"
-    :content="`CRM / Leads / ${lead?.Customer?.name || ''}`"
-  >
-    <template #extra>
-      <div class="flex gap-2">
-        <el-button :icon="ElIconRefresh" @click="refetch" v-if="lead" />
-        <el-dropdown v-if="lead" trigger="click">
-          <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">
-                Edit Lead
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="lead.status !== 'Converted'"
-                :icon="ElIconCheck"
-                @click="convertToOpportunity"
-              >
-                Convert to Opportunity
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="lead.status !== 'Converted'"
-                :icon="ElIconClose"
-                @click="markAsUnqualified"
-              >
-                Mark as Unqualified
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header
+        @back="goBack"
+        :content="`CRM / Leads / ${lead?.Customer?.name || ''}`"
+      >
+        <template #extra>
+          <div class="flex gap-2">
+            <el-button :icon="ElIconRefresh" @click="refetch" v-if="lead" />
+            <el-dropdown v-if="lead" trigger="click">
+              <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">
+                    Edit Lead
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="lead.status !== 'Converted'"
+                    :icon="ElIconCheck"
+                    @click="convertToOpportunity"
+                  >
+                    Convert to Opportunity
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="lead.status !== 'Converted'"
+                    :icon="ElIconClose"
+                    @click="markAsUnqualified"
+                  >
+                    Mark as Unqualified
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </template>
+      </el-page-header>
     </template>
-  </el-page-header>
 
-  <br />
-
-  <el-descriptions
-    v-if="lead"
-    :border="true"
-    :column="2"
-    direction="horizontal"
-  >
-    <el-descriptions-item label="Customer">
-      <strong>
-        <a
-          class="text-green-500 hover:underline cursor-pointer"
-          @click="navigateTo(`/crm/customers/${lead.customerId}`)"
-        >
-          {{ lead.Customer?.name }}
-        </a>
-      </strong>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Company">
-      {{ lead.Company?.name || "-" }}
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Status">
-      <StatusTag :status="lead?.status" effect="dark" />
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Source">
-      <el-tag>{{ lead.source }}</el-tag>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Assigned User">
-      {{ lead.User?.name || "-" }}
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Estimated Value">
-      <span class="font-mono font-semibold text-green-500">
-        {{
-          lead.estimatedValue ? toCurrency(lead.estimatedValue.toString()) : "-"
-        }}
-      </span>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Title" :span="2" v-if="lead.title">
-      <strong>{{ lead.title }}</strong>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Notes" :span="2" v-if="lead.notes">
-      {{ lead.notes }}
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Created At">
-      <div>
-        <div class="font-semibold">{{ dayjs(lead.createdAt).fromNow() }}</div>
-        <div class="text-xs text-gray-500">
-          {{ formatDateLong(lead.createdAt) }} {{ formatTime(lead.createdAt) }}
-        </div>
-      </div>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Updated At">
-      <div>
-        <div class="font-semibold">{{ dayjs(lead.updatedAt).fromNow() }}</div>
-        <div class="text-xs text-gray-500">
-          {{ formatDateLong(lead.updatedAt) }} {{ formatTime(lead.updatedAt) }}
-        </div>
-      </div>
-    </el-descriptions-item>
-
-    <el-descriptions-item
-      label="Converted Date"
-      :span="2"
-      v-if="lead.convertedDate"
+    <el-descriptions
+      v-if="lead"
+      :border="true"
+      :column="2"
+      direction="horizontal"
     >
-      {{ formatDateLong(lead.convertedDate) }}
-    </el-descriptions-item>
-  </el-descriptions>
-
-  <br />
-
-  <el-tabs v-if="lead">
-    <el-tab-pane label="INTERACTIONS">
-      <CrmInteractionsTab :lead-id="leadId" :customer-id="lead.customerId" />
-    </el-tab-pane>
-
-    <el-tab-pane label="TASKS">
-      <CrmTasksTab :lead-id="leadId" />
-    </el-tab-pane>
-
-    <el-tab-pane label="OPPORTUNITIES" v-if="lead?.status === 'Converted'">
-      <CrmOpportunitiesTab :lead-id="leadId" :customer-id="lead.customerId" />
-    </el-tab-pane>
-  </el-tabs>
-
-  <LeadForm />
-
-  <!-- Convert to Opportunity Dialog -->
-  <el-dialog
-    v-model="showConvertDialog"
-    width="750px"
-    title="CONVERT TO OPPORTUNITY"
-    :close-on-click-modal="false"
-    @close="resetConvertForm"
-  >
-    <el-form label-width="160px" label-position="left">
-      <el-form-item label="Name" required :error="convertErrors.name">
-        <el-input placeholder="Opportunity name" v-model="convertForm.name" />
-      </el-form-item>
-
-      <el-form-item label="Description" :error="convertErrors.description">
-        <el-input
-          type="textarea"
-          :rows="3"
-          placeholder="Description"
-          v-model="convertForm.description"
-        />
-      </el-form-item>
-
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="Amount" required :error="convertErrors.amount">
-            <el-input
-              type="number"
-              placeholder="Amount"
-              v-model="convertForm.amount"
-            />
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="12">
-          <el-form-item
-            label="Probability (%)"
-            :error="convertErrors.probability"
+      <el-descriptions-item label="Customer">
+        <strong>
+          <a
+            class="text-green-500 hover:underline cursor-pointer"
+            @click="navigateTo(`/crm/customers/${lead.customerId}`)"
           >
-            <el-input-number
-              v-model="convertForm.probability"
-              :min="0"
-              :max="100"
-              placeholder="0-100"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
+            {{ lead.Customer?.name }}
+          </a>
+        </strong>
+      </el-descriptions-item>
 
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="Stage" required :error="convertErrors.stage">
-            <el-select
-              v-model="convertForm.stage"
-              placeholder="Select stage"
-              style="width: 100%"
-            >
-              <el-option
-                v-for="stage in opportunityStages"
-                :key="stage"
-                :value="stage"
-                :label="stage.replace('_', ' ')"
+      <el-descriptions-item label="Company">
+        {{ lead.Company?.name || "-" }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Status">
+        <StatusTag :status="lead?.status" effect="dark" />
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Source">
+        <el-tag>{{ lead.source }}</el-tag>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Assigned User">
+        {{ lead.User?.name || "-" }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Estimated Value">
+        <span class="font-mono font-semibold text-green-500">
+          {{
+            lead.estimatedValue
+              ? toCurrency(lead.estimatedValue.toString())
+              : "-"
+          }}
+        </span>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Title" :span="2" v-if="lead.title">
+        <strong>{{ lead.title }}</strong>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Notes" :span="2" v-if="lead.notes">
+        {{ lead.notes }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Created At">
+        <div>
+          <div class="font-semibold">{{ dayjs(lead.createdAt).fromNow() }}</div>
+          <div class="text-xs text-gray-500">
+            {{ formatDateLong(lead.createdAt) }}
+            {{ formatTime(lead.createdAt) }}
+          </div>
+        </div>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Updated At">
+        <div>
+          <div class="font-semibold">{{ dayjs(lead.updatedAt).fromNow() }}</div>
+          <div class="text-xs text-gray-500">
+            {{ formatDateLong(lead.updatedAt) }}
+            {{ formatTime(lead.updatedAt) }}
+          </div>
+        </div>
+      </el-descriptions-item>
+
+      <el-descriptions-item
+        label="Converted Date"
+        :span="2"
+        v-if="lead.convertedDate"
+      >
+        {{ formatDateLong(lead.convertedDate) }}
+      </el-descriptions-item>
+    </el-descriptions>
+
+    <br />
+
+    <el-tabs v-if="lead">
+      <el-tab-pane label="INTERACTIONS">
+        <CrmInteractionsTab :lead-id="leadId" :customer-id="lead.customerId" />
+      </el-tab-pane>
+
+      <el-tab-pane label="TASKS">
+        <CrmTasksTab :lead-id="leadId" />
+      </el-tab-pane>
+
+      <el-tab-pane label="OPPORTUNITIES" v-if="lead?.status === 'Converted'">
+        <CrmOpportunitiesTab :lead-id="leadId" :customer-id="lead.customerId" />
+      </el-tab-pane>
+    </el-tabs>
+
+    <LeadForm />
+
+    <!-- Convert to Opportunity Dialog -->
+    <el-dialog
+      v-model="showConvertDialog"
+      width="750px"
+      title="CONVERT TO OPPORTUNITY"
+      :close-on-click-modal="false"
+      @close="resetConvertForm"
+    >
+      <el-form label-width="160px" label-position="left">
+        <el-form-item label="Name" required :error="convertErrors.name">
+          <el-input placeholder="Opportunity name" v-model="convertForm.name" />
+        </el-form-item>
+
+        <el-form-item label="Description" :error="convertErrors.description">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="Description"
+            v-model="convertForm.description"
+          />
+        </el-form-item>
+
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="Amount" required :error="convertErrors.amount">
+              <el-input
+                type="number"
+                placeholder="Amount"
+                v-model="convertForm.amount"
               />
-            </el-select>
-          </el-form-item>
-        </el-col>
+            </el-form-item>
+          </el-col>
 
-        <el-col :span="12">
-          <el-form-item
-            label="Expected Close Date"
-            required
-            :error="convertErrors.expectedCloseDate"
-          >
-            <el-date-picker
-              v-model="convertForm.expectedCloseDate"
-              type="date"
-              placeholder="Select date"
-              value-format="YYYY-MM-DDT00:00:00Z"
-              format="DD-MMM-YYYY"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-form>
+          <el-col :span="12">
+            <el-form-item
+              label="Probability (%)"
+              :error="convertErrors.probability"
+            >
+              <el-input-number
+                v-model="convertForm.probability"
+                :min="0"
+                :max="100"
+                placeholder="0-100"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-    <template #footer>
-      <el-button @click="showConvertDialog = false">CANCEL</el-button>
-      <el-button type="primary" @click="handleConvertSubmit">CONVERT</el-button>
-    </template>
-  </el-dialog>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="Stage" required :error="convertErrors.stage">
+              <el-select
+                v-model="convertForm.stage"
+                placeholder="Select stage"
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="stage in opportunityStages"
+                  :key="stage"
+                  :value="stage"
+                  :label="stage.replace('_', ' ')"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item
+              label="Expected Close Date"
+              required
+              :error="convertErrors.expectedCloseDate"
+            >
+              <el-date-picker
+                v-model="convertForm.expectedCloseDate"
+                type="date"
+                placeholder="Select date"
+                value-format="YYYY-MM-DDT00:00:00Z"
+                format="DD-MMM-YYYY"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="showConvertDialog = false">CANCEL</el-button>
+        <el-button type="primary" @click="handleConvertSubmit"
+          >CONVERT</el-button
+        >
+      </template>
+    </el-dialog>
+  </nuxt-layout>
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+definePageMeta({
+  layout: false,
+});
+
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { opportunityStages } from "~/constants/opportunityStages";

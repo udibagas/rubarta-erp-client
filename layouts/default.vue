@@ -13,7 +13,7 @@
         <el-main
           class="main-container bg-slate-200! p-1! overflow-auto h-[calc(100dvh-60px)]"
         >
-          <el-card body-class="p-2!">
+          <el-card body-class="p-2! min-h-[calc(100vh-140px)]">
             <template v-if="$slots.header" #header>
               <slot name="header" />
             </template>

@@ -1,236 +1,246 @@
 <template>
-  <el-page-header
-    @back="goBack"
-    :content="`CRM / Opportunities / ${opportunity?.name || ''}`"
-  >
-    <template #extra>
-      <div class="flex gap-2">
-        <el-button :icon="ElIconRefresh" @click="refetch" v-if="opportunity" />
-        <el-dropdown v-if="opportunity" trigger="click">
-          <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">
-                Edit Opportunity
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="
-                  opportunity.stage !== 'Closed_Won' &&
-                  opportunity.stage !== 'Closed_Lost'
-                "
-                :icon="ElIconCheck"
-                @click="updateStage('Proposal_Sent')"
-              >
-                Mark as Proposal Sent
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="
-                  opportunity.stage !== 'Closed_Won' &&
-                  opportunity.stage !== 'Closed_Lost'
-                "
-                :icon="ElIconCheck"
-                @click="markAsWon"
-              >
-                Mark as Won
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="
-                  opportunity.stage !== 'Closed_Won' &&
-                  opportunity.stage !== 'Closed_Lost'
-                "
-                :icon="ElIconClose"
-                @click="markAsLost"
-              >
-                Mark as Lost
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="
-                  opportunity.stage !== 'Closed_Won' &&
-                  opportunity.stage !== 'Closed_Lost'
-                "
-                :icon="ElIconDocument"
-                @click="createQuotation"
-              >
-                Create Quotation
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    </template>
-  </el-page-header>
-
-  <br />
-
-  <el-descriptions
-    v-if="opportunity"
-    :border="true"
-    :column="2"
-    direction="horizontal"
-  >
-    <el-descriptions-item label="Opportunity Name">
-      <strong>{{ opportunity.name }}</strong>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Customer">
-      <a
-        class="text-green-500 hover:underline cursor-pointer"
-        @click="navigateTo(`/crm/customers/${opportunity.customerId}`)"
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header
+        @back="goBack"
+        :content="`CRM / Opportunities / ${opportunity?.name || ''}`"
       >
-        <strong>{{ opportunity.Customer?.name }}</strong>
-      </a>
-    </el-descriptions-item>
+        <template #extra>
+          <div class="flex gap-2">
+            <el-button
+              :icon="ElIconRefresh"
+              @click="refetch"
+              v-if="opportunity"
+            />
+            <el-dropdown v-if="opportunity" trigger="click">
+              <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">
+                    Edit Opportunity
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="
+                      opportunity.stage !== 'Closed_Won' &&
+                      opportunity.stage !== 'Closed_Lost'
+                    "
+                    :icon="ElIconCheck"
+                    @click="updateStage('Proposal_Sent')"
+                  >
+                    Mark as Proposal Sent
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="
+                      opportunity.stage !== 'Closed_Won' &&
+                      opportunity.stage !== 'Closed_Lost'
+                    "
+                    :icon="ElIconCheck"
+                    @click="markAsWon"
+                  >
+                    Mark as Won
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="
+                      opportunity.stage !== 'Closed_Won' &&
+                      opportunity.stage !== 'Closed_Lost'
+                    "
+                    :icon="ElIconClose"
+                    @click="markAsLost"
+                  >
+                    Mark as Lost
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="
+                      opportunity.stage !== 'Closed_Won' &&
+                      opportunity.stage !== 'Closed_Lost'
+                    "
+                    :icon="ElIconDocument"
+                    @click="createQuotation"
+                  >
+                    Create Quotation
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </template>
+      </el-page-header>
+    </template>
 
-    <el-descriptions-item label="Stage">
-      <StatusTag :status="opportunity?.stage" effect="dark" />
-    </el-descriptions-item>
+    <el-descriptions
+      v-if="opportunity"
+      :border="true"
+      :column="2"
+      direction="horizontal"
+    >
+      <el-descriptions-item label="Opportunity Name">
+        <strong>{{ opportunity.name }}</strong>
+      </el-descriptions-item>
 
-    <el-descriptions-item label="Company">
-      {{ opportunity.Company?.name || "-" }}
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Amount">
-      <span class="font-mono text-lg text-green-500">
-        {{ toCurrency(opportunity.amount.toString()) }}
-      </span>
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Probability">
-      <el-progress
-        :percentage="opportunity.probability || 0"
-        :color="
-          opportunity.probability >= 75
-            ? '#67c23a'
-            : opportunity.probability >= 50
-              ? '#e6a23c'
-              : '#f56c6c'
-        "
-      />
-    </el-descriptions-item>
-
-    <el-descriptions-item label="Assigned User">
-      <div class="flex items-center gap-2" v-if="opportunity.User">
-        <el-avatar
-          :size="32"
-          :style="{ backgroundColor: getAvatarColor(opportunity.User.name) }"
+      <el-descriptions-item label="Customer">
+        <a
+          class="text-green-500 hover:underline cursor-pointer"
+          @click="navigateTo(`/crm/customers/${opportunity.customerId}`)"
         >
-          {{ opportunity.User.name?.charAt(0).toUpperCase() }}
-        </el-avatar>
-        <span>{{ opportunity.User.name }}</span>
-      </div>
-      <span v-else>-</span>
-    </el-descriptions-item>
+          <strong>{{ opportunity.Customer?.name }}</strong>
+        </a>
+      </el-descriptions-item>
 
-    <el-descriptions-item label="Expected Close Date">
-      <div>
-        <div class="font-semibold">
-          {{ dayjs(opportunity.expectedCloseDate).fromNow() }}
-        </div>
-        <div class="text-sm">
-          {{ formatDateLong(opportunity.expectedCloseDate) }}
-        </div>
-      </div>
-    </el-descriptions-item>
+      <el-descriptions-item label="Stage">
+        <StatusTag :status="opportunity?.stage" effect="dark" />
+      </el-descriptions-item>
 
-    <el-descriptions-item label="Description" :span="2">
-      {{ opportunity.description || "-" }}
-    </el-descriptions-item>
+      <el-descriptions-item label="Company">
+        {{ opportunity.Company?.name || "-" }}
+      </el-descriptions-item>
 
-    <el-descriptions-item label="Created At">
-      <div>
-        <div class="font-semibold">
-          {{ dayjs(opportunity.createdAt).fromNow() }}
-        </div>
-        <div class="text-sm">
-          {{ formatDateLong(opportunity.createdAt) }}
-          {{ formatTime(opportunity.createdAt) }}
-        </div>
-      </div>
-    </el-descriptions-item>
+      <el-descriptions-item label="Amount">
+        <span class="font-mono text-lg text-green-500">
+          {{ toCurrency(opportunity.amount.toString()) }}
+        </span>
+      </el-descriptions-item>
 
-    <el-descriptions-item label="Updated At">
-      <div>
-        <div class="font-semibold">
-          {{ dayjs(opportunity.updatedAt).fromNow() }}
-        </div>
-        <div class="text-sm">
-          {{ formatDateLong(opportunity.updatedAt) }}
-          {{ formatTime(opportunity.updatedAt) }}
-        </div>
-      </div>
-    </el-descriptions-item>
+      <el-descriptions-item label="Probability">
+        <el-progress
+          :percentage="opportunity.probability || 0"
+          :color="
+            opportunity.probability >= 75
+              ? '#67c23a'
+              : opportunity.probability >= 50
+                ? '#e6a23c'
+                : '#f56c6c'
+          "
+        />
+      </el-descriptions-item>
 
-    <el-descriptions-item
-      label="Actual Close Date"
-      :span="2"
-      v-if="opportunity.actualCloseDate"
-    >
-      <div>
-        <div class="font-semibold">
-          {{ dayjs(opportunity.actualCloseDate).fromNow() }}
-        </div>
-        <div class="text-sm">
-          {{ formatDateLong(opportunity.actualCloseDate) }}
-          {{ formatTime(opportunity.actualCloseDate) }}
-        </div>
-      </div>
-    </el-descriptions-item>
-
-    <el-descriptions-item
-      label="Lost Reason"
-      :span="2"
-      v-if="opportunity.lostReason"
-    >
-      <el-text type="danger">{{ opportunity.lostReason }}</el-text>
-    </el-descriptions-item>
-
-    <el-descriptions-item
-      label="Attachments"
-      v-if="opportunity.attachments && opportunity.attachments.length"
-      :span="2"
-    >
-      <ul>
-        <li v-for="file in opportunity.attachments" :key="file.filePath">
-          <el-link
-            type="success"
-            :href="`${config.public.apiBase}/${file.filePath}`"
-            target="_blank"
+      <el-descriptions-item label="Assigned User">
+        <div class="flex items-center gap-2" v-if="opportunity.User">
+          <el-avatar
+            :size="32"
+            :style="{ backgroundColor: getAvatarColor(opportunity.User.name) }"
           >
-            <el-icon><ElIconDocument /></el-icon> &nbsp;
-            {{ file.fileName }}
-          </el-link>
-        </li>
-      </ul>
-    </el-descriptions-item>
-  </el-descriptions>
+            {{ opportunity.User.name?.charAt(0).toUpperCase() }}
+          </el-avatar>
+          <span>{{ opportunity.User.name }}</span>
+        </div>
+        <span v-else>-</span>
+      </el-descriptions-item>
 
-  <br />
+      <el-descriptions-item label="Expected Close Date">
+        <div>
+          <div class="font-semibold">
+            {{ dayjs(opportunity.expectedCloseDate).fromNow() }}
+          </div>
+          <div class="text-sm">
+            {{ formatDateLong(opportunity.expectedCloseDate) }}
+          </div>
+        </div>
+      </el-descriptions-item>
 
-  <el-tabs v-if="opportunity" v-loading="isLoading">
-    <el-tab-pane label="INTERACTIONS">
-      <CrmInteractionsTab
-        :opportunityId="opportunityId"
-        :customer-id="opportunity.customerId"
-      />
-    </el-tab-pane>
+      <el-descriptions-item label="Description" :span="2">
+        {{ opportunity.description || "-" }}
+      </el-descriptions-item>
 
-    <el-tab-pane label="TASKS">
-      <CrmTasksTab :opportunityId="opportunityId" />
-    </el-tab-pane>
+      <el-descriptions-item label="Created At">
+        <div>
+          <div class="font-semibold">
+            {{ dayjs(opportunity.createdAt).fromNow() }}
+          </div>
+          <div class="text-sm">
+            {{ formatDateLong(opportunity.createdAt) }}
+            {{ formatTime(opportunity.createdAt) }}
+          </div>
+        </div>
+      </el-descriptions-item>
 
-    <el-tab-pane label="QUOTATIONS">
-      <CrmQuotationsTab :opportunityId="opportunityId" />
-    </el-tab-pane>
+      <el-descriptions-item label="Updated At">
+        <div>
+          <div class="font-semibold">
+            {{ dayjs(opportunity.updatedAt).fromNow() }}
+          </div>
+          <div class="text-sm">
+            {{ formatDateLong(opportunity.updatedAt) }}
+            {{ formatTime(opportunity.updatedAt) }}
+          </div>
+        </div>
+      </el-descriptions-item>
 
-    <el-tab-pane label="ORDERS" v-if="opportunity.stage === 'Closed_Won'">
-      <CrmOrdersTab :opportunityId="opportunityId" />
-    </el-tab-pane>
-  </el-tabs>
+      <el-descriptions-item
+        label="Actual Close Date"
+        :span="2"
+        v-if="opportunity.actualCloseDate"
+      >
+        <div>
+          <div class="font-semibold">
+            {{ dayjs(opportunity.actualCloseDate).fromNow() }}
+          </div>
+          <div class="text-sm">
+            {{ formatDateLong(opportunity.actualCloseDate) }}
+            {{ formatTime(opportunity.actualCloseDate) }}
+          </div>
+        </div>
+      </el-descriptions-item>
 
-  <OpportunityForm />
+      <el-descriptions-item
+        label="Lost Reason"
+        :span="2"
+        v-if="opportunity.lostReason"
+      >
+        <el-text type="danger">{{ opportunity.lostReason }}</el-text>
+      </el-descriptions-item>
+
+      <el-descriptions-item
+        label="Attachments"
+        v-if="opportunity.attachments && opportunity.attachments.length"
+        :span="2"
+      >
+        <ul>
+          <li v-for="file in opportunity.attachments" :key="file.filePath">
+            <el-link
+              type="success"
+              :href="`${config.public.apiBase}/${file.filePath}`"
+              target="_blank"
+            >
+              <el-icon><ElIconDocument /></el-icon> &nbsp;
+              {{ file.fileName }}
+            </el-link>
+          </li>
+        </ul>
+      </el-descriptions-item>
+    </el-descriptions>
+
+    <br />
+
+    <el-tabs v-if="opportunity" v-loading="isLoading">
+      <el-tab-pane label="INTERACTIONS">
+        <CrmInteractionsTab
+          :opportunityId="opportunityId"
+          :customer-id="opportunity.customerId"
+        />
+      </el-tab-pane>
+
+      <el-tab-pane label="TASKS">
+        <CrmTasksTab :opportunityId="opportunityId" />
+      </el-tab-pane>
+
+      <el-tab-pane label="QUOTATIONS">
+        <CrmQuotationsTab :opportunityId="opportunityId" />
+      </el-tab-pane>
+
+      <el-tab-pane label="ORDERS" v-if="opportunity.stage === 'Closed_Won'">
+        <CrmOrdersTab :opportunityId="opportunityId" />
+      </el-tab-pane>
+    </el-tabs>
+
+    <OpportunityForm />
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

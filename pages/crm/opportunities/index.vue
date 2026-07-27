@@ -1,171 +1,181 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Opportunities">
-    <template #extra>
-      <form
-        class="flex gap-2"
-        @submit.prevent="
-          () => {
-            page = 1;
-            refreshData();
-          }
-        "
-      >
-        <el-input
-          v-model="keyword"
-          placeholder="Cari"
-          style="width: 180px"
-          :prefix-icon="ElIconSearch"
-          :clearable="true"
-          @clear="
-            () => {
-              page = 1;
-              refreshData();
-            }
-          "
-        />
-        <el-button
-          :icon="ElIconPlus"
-          type="success"
-          @click="openForm({ companyId })"
-        />
-      </form>
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack" content="CRM / Opportunities">
+        <template #extra>
+          <form
+            class="flex gap-2"
+            @submit.prevent="
+              () => {
+                page = 1;
+                refreshData();
+              }
+            "
+          >
+            <el-input
+              v-model="keyword"
+              placeholder="Cari"
+              style="width: 180px"
+              :prefix-icon="ElIconSearch"
+              :clearable="true"
+              @clear="
+                () => {
+                  page = 1;
+                  refreshData();
+                }
+              "
+            />
+            <el-button
+              :icon="ElIconPlus"
+              type="success"
+              @click="openForm({ companyId })"
+            />
+          </form>
+        </template>
+      </el-page-header>
     </template>
-  </el-page-header>
 
-  <br />
-
-  <el-table
-    stripe
-    v-loading="isPending"
-    :data="data?.data"
-    @row-click="handleRowClick"
-    style="cursor: pointer"
-  >
-    <el-table-column
-      label="Stage"
-      prop="status"
-      width="150"
-      align="center"
-      header-align="center"
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data"
+      @row-click="handleRowClick"
+      style="cursor: pointer"
+      height="calc(100vh - 198px)"
     >
-      <template #default="{ row }">
-        <StatusTag :status="row.stage" style="width: 100%" effect="dark">
-          <template #icon>
-            <el-icon>
-              <ElIconSearch v-if="row.stage === 'Prospecting'" />
-              <ElIconSelect v-else-if="row.stage === 'Qualification'" />
-              <ElIconEdit v-else-if="row.stage === 'Proposal'" />
-              <ElIconChatDotRound v-else-if="row.stage === 'Negotiation'" />
-              <ElIconDocument v-else-if="row.stage === 'Proposal_Sent'" />
-              <ElIconTrophy v-else-if="row.stage === 'Closed_Won'" />
-              <ElIconCircleClose v-else-if="row.stage === 'Closed_Lost'" />
-            </el-icon>
-          </template>
-        </StatusTag>
-      </template>
-    </el-table-column>
+      <el-table-column
+        label="Stage"
+        prop="status"
+        width="150"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          <StatusTag :status="row.stage" style="width: 100%" effect="dark">
+            <template #icon>
+              <el-icon>
+                <ElIconSearch v-if="row.stage === 'Prospecting'" />
+                <ElIconSelect v-else-if="row.stage === 'Qualification'" />
+                <ElIconEdit v-else-if="row.stage === 'Proposal'" />
+                <ElIconChatDotRound v-else-if="row.stage === 'Negotiation'" />
+                <ElIconDocument v-else-if="row.stage === 'Proposal_Sent'" />
+                <ElIconTrophy v-else-if="row.stage === 'Closed_Won'" />
+                <ElIconCircleClose v-else-if="row.stage === 'Closed_Lost'" />
+              </el-icon>
+            </template>
+          </StatusTag>
+        </template>
+      </el-table-column>
 
-    <el-table-column label="Date" width="120">
-      <template #default="{ row }">
-        {{ formatDate(row.createdAt) }}
-      </template>
-    </el-table-column>
+      <el-table-column label="Date" width="120">
+        <template #default="{ row }">
+          {{ formatDate(row.createdAt) }}
+        </template>
+      </el-table-column>
 
-    <el-table-column label="Customer" prop="Customer.name" min-width="150px" />
-    <el-table-column label="User" prop="User.name" min-width="150px" />
-    <el-table-column label="Opportunity" prop="name" min-width="200px" />
+      <el-table-column
+        label="Customer"
+        prop="Customer.name"
+        min-width="150px"
+      />
+      <el-table-column label="User" prop="User.name" min-width="150px" />
+      <el-table-column label="Opportunity" prop="name" min-width="200px" />
 
-    <el-table-column
-      label="Amount"
-      min-width="120"
-      align="right"
-      header-align="right"
-    >
-      <template #default="{ row }">
-        <div class="font-mono text-green-500 font-semibold">
-          {{ toDecimal(row.amount) }}
-        </div>
-      </template>
-    </el-table-column>
+      <el-table-column
+        label="Amount"
+        min-width="120"
+        align="right"
+        header-align="right"
+      >
+        <template #default="{ row }">
+          <div class="font-mono text-green-500 font-semibold">
+            {{ toDecimal(row.amount) }}
+          </div>
+        </template>
+      </el-table-column>
 
-    <el-table-column
-      label="Exp Close Date"
-      width="150"
-      align="center"
-      header-align="center"
-    >
-      <template #default="{ row }">
-        {{ formatDate(row.expectedCloseDate) }}
-      </template>
-    </el-table-column>
+      <el-table-column
+        label="Exp Close Date"
+        width="150"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          {{ formatDate(row.expectedCloseDate) }}
+        </template>
+      </el-table-column>
 
-    <el-table-column
-      width="60px"
-      align="center"
-      header-align="center"
-      fixed="right"
-    >
-      <template #header>
-        <el-button link @click="refreshData()" :icon="ElIconRefresh">
-        </el-button>
-      </template>
-      <template #default="{ row }">
-        <el-dropdown @click.stop>
-          <span class="el-dropdown-link">
-            <el-icon>
-              <ElIconMoreFilled />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                :icon="ElIconView"
-                @click.native.prevent="
-                  navigateTo(`/crm/opportunities/${row.id}`)
-                "
-              >
-                View Details
-              </el-dropdown-item>
-              <el-dropdown-item
-                :icon="ElIconEdit"
-                @click.native.prevent="openForm(row)"
-              >
-                Edit
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="
-                  row.status !== 'Closed_Won' && row.status !== 'Closed_Lost'
-                "
-                :icon="ElIconDelete"
-                @click.native.prevent="handleRemove(row.id, remove)"
-              >
-                Delete
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column
+        width="60px"
+        align="center"
+        header-align="center"
+        fixed="right"
+      >
+        <template #header>
+          <el-button link @click="refreshData()" :icon="ElIconRefresh">
+          </el-button>
+        </template>
+        <template #default="{ row }">
+          <el-dropdown @click.stop>
+            <span class="el-dropdown-link">
+              <el-icon>
+                <ElIconMoreFilled />
+              </el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  :icon="ElIconView"
+                  @click.native.prevent="
+                    navigateTo(`/crm/opportunities/${row.id}`)
+                  "
+                >
+                  View Details
+                </el-dropdown-item>
+                <el-dropdown-item
+                  :icon="ElIconEdit"
+                  @click.native.prevent="openForm(row)"
+                >
+                  Edit
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-if="
+                    row.status !== 'Closed_Won' && row.status !== 'Closed_Lost'
+                  "
+                  :icon="ElIconDelete"
+                  @click.native.prevent="handleRemove(row.id, remove)"
+                >
+                  Delete
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-table-column>
+    </el-table>
 
-  <br />
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    ></el-pagination>
 
-  <el-pagination
-    v-if="data?.total"
-    size="small"
-    background
-    layout="total, sizes, prev, pager, next"
-    :page-size="pageSize"
-    :page-sizes="[10, 25, 50, 100]"
-    :total="data?.total"
-    @current-change="currentChange"
-    @size-change="sizeChange"
-  ></el-pagination>
-
-  <OpportunityForm />
+    <OpportunityForm />
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 const {
   openForm,
   removeMutation,
