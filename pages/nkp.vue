@@ -103,7 +103,7 @@
         <template #default="{ row }">
           <div v-if="row.Requester" class="flex items-center gap-2">
             <el-avatar
-              :size="32"
+              size="small"
               class="shrink-0"
               :style="{ backgroundColor: getAvatarColor(row.Requester.name) }"
             >
@@ -130,7 +130,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Payment To">
+      <el-table-column label="Payment To" width="300">
         <template #default="{ row }">
           <div class="font-semibold line-clamp-1">
             {{
