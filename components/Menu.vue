@@ -238,6 +238,12 @@ const menus = computed(() => [
         visible: true,
       },
       {
+        label: "Materials",
+        path: "/master-data/materials",
+        icon: ElIconBox,
+        visible: true,
+      },
+      {
         label: "Employees",
         path: "/master-data/users",
         icon: ElIconUser,
