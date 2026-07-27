@@ -3,9 +3,19 @@
     <template #header>
       <el-page-header @back="goBack" content="Vendors">
         <template #extra>
-          <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            ADD NEW VENDOR
-          </el-button>
+          <form @submit.prevent="refreshData()" class="flex gap-2">
+            <el-input
+              v-model="keyword"
+              placeholder="Search by name, code, or address..."
+              clearable
+              style="width: 300px"
+              :prefix-icon="ElIconSearch"
+              @clear="refreshData()"
+            />
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+              ADD NEW VENDOR
+            </el-button>
+          </form>
         </template>
       </el-page-header>
     </template>
@@ -17,24 +27,40 @@
     >
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="Name">
+      <el-table-column label="Name" min-width="250px">
         <template #default="{ row }">
           <strong>{{ row.name }}</strong> <br />
           {{ row.code }}
         </template>
       </el-table-column>
 
-      <el-table-column label="Address">
+      <el-table-column label="Contact" width="250px">
         <template #default="{ row }">
-          {{ row.address }} <br />
-          Phone: {{ row.phone || "-" }} <br />
-          Email: {{ row.email || "-" }}
+          <div class="flex gap-2 items-center">
+            <el-icon><ElIconPhone /></el-icon> {{ row.phone || "-" }}
+          </div>
+          <div class="flex gap-2 items-center">
+            <el-icon><ElIconMessage /></el-icon>
+            <el-link
+              type="success"
+              :href="`mailto:${row.email}`"
+              target="_blank"
+            >
+              {{ row.email || "-" }}
+            </el-link>
+          </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Bank">
+      <el-table-column label="Address" min-width="300px">
         <template #default="{ row }">
-          {{ row.Bank?.name }} <br />
+          {{ row.address }}
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Bank" min-width="250px">
+        <template #default="{ row }">
+          <strong>{{ row.Bank?.name }}</strong> <br />
           {{ row.bankAccount }} ({{ row.currency }})
         </template>
       </el-table-column>
