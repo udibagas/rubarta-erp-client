@@ -64,14 +64,14 @@
           <StatusTag :status="row.type" size="medium">
             <template #icon>
               <el-icon>
-                <Phone v-if="row.type === 'Call'" />
-                <Message v-else-if="row.type === 'Email'" />
-                <Calendar v-else-if="row.type === 'Meeting'" />
-                <Monitor v-else-if="row.type === 'Demo'" />
-                <Location v-else-if="row.type === 'SiteVisit'" />
-                <Document v-else-if="row.type === 'Presentation'" />
-                <Refresh v-else-if="row.type === 'FollowUp'" />
-                <More v-else />
+                <ElIconPhone v-if="row.type === 'Call'" />
+                <ElIconMessage v-else-if="row.type === 'Email'" />
+                <ElIconCalendar v-else-if="row.type === 'Meeting'" />
+                <ElIconMonitor v-else-if="row.type === 'Demo'" />
+                <ElIconLocation v-else-if="row.type === 'SiteVisit'" />
+                <ElIconDocument v-else-if="row.type === 'Presentation'" />
+                <ElIconRefresh v-else-if="row.type === 'FollowUp'" />
+                <ElIconMore v-else />
               </el-icon>
             </template>
           </StatusTag>
