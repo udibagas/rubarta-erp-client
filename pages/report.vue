@@ -100,7 +100,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Number" prop="number">
+      <el-table-column label="Number" prop="number" width="250px">
         <template #default="{ row }">
           <span class="font-mono">
             {{ row.number }}
