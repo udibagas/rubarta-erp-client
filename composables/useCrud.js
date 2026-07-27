@@ -22,7 +22,7 @@ export default ({ url, queryKey, defaultQuery }) => {
 
   function fetchData() {
     return useQuery({
-      queryKey: [queryKey],
+      queryKey: [queryKey, params.value],
       queryFn: () =>
         request(url, {
           params: params.value,
@@ -82,7 +82,7 @@ export default ({ url, queryKey, defaultQuery }) => {
       type: "warning",
     })
       .then(() => callback(id))
-      .catch(() => console.log(e));
+      .catch((e) => console.log(e));
   }
 
   function sizeChange(size, params = {}) {
