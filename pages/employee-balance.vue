@@ -35,7 +35,11 @@
 
       <el-table-column label="Balance" align="right">
         <template #default="{ row }">
-          <el-tag type="success" effect="plain" class="font-mono">
+          <el-tag
+            :type="row.balance > 0 ? 'danger' : 'success'"
+            effect="plain"
+            class="font-mono"
+          >
             {{ toRupiah(row.balance) }}
           </el-tag>
         </template>
