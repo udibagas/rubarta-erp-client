@@ -4,7 +4,11 @@
       <el-page-header @back="goBack" content="NKP REPORT">
         <template #extra>
           <div class="flex">
-            <el-radio-group v-model="filters.paymentType" class="mr-2">
+            <el-radio-group
+              v-model="filters.paymentType"
+              class="mr-2"
+              fill="rgb(149, 212, 117)"
+            >
               <el-radio-button value="ALL">ALL</el-radio-button>
               <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
               <el-radio-button value="VENDOR">VENDOR</el-radio-button>
@@ -98,12 +102,16 @@
 
       <el-table-column label="Number" prop="number">
         <template #default="{ row }">
-          <el-tag class="font-mono">
+          <span class="font-mono">
             {{ row.number }}
-          </el-tag>
+          </span>
         </template>
       </el-table-column>
-      <el-table-column label="Bank Ref No" prop="bankRefNo" width="200px" />
+      <el-table-column label="Bank Ref No" prop="bankRefNo">
+        <template #default="{ row }">
+          <span class="line-clamp-1">{{ row.bankRefNo }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column
         v-if="filters.paymentType == 'VENDOR'"
@@ -114,15 +122,9 @@
 
       <el-table-column label="Description" prop="description" min-width="150" />
 
-      <el-table-column
-        label="Amount"
-        width="150"
-        align="right"
-        hader-align="right"
-        fixed="right"
-      >
+      <el-table-column label="Amount" width="150" align="right" fixed="right">
         <template #default="{ row }">
-          <el-tag type="success" class="font-mono">
+          <el-tag type="success" class="font-mono" effect="plain">
             {{
               toCurrency(
                 row.paymentType == "EMPLOYEE"
