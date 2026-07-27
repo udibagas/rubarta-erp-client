@@ -11,9 +11,12 @@
           <Menu :collapse="collapse" @toggle-collapse="collapse = !collapse" />
         </el-aside>
         <el-main
-          class="main-container bg-slate-200! p-2! overflow-auto h-[calc(100dvh-60px)]"
+          class="main-container bg-slate-200! p-1! overflow-auto h-[calc(100dvh-60px)]"
         >
-          <el-card>
+          <el-card body-class="p-2!">
+            <template v-if="$slots.header" #header>
+              <slot name="header" />
+            </template>
             <slot />
           </el-card>
         </el-main>
