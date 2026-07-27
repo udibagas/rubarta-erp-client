@@ -1,148 +1,161 @@
 <template>
-  <el-page-header @back="goBack" content="NKP REPORT">
-    <template #extra>
-      <div class="flex">
-        <el-radio-group v-model="filters.paymentType" class="mr-2">
-          <el-radio-button value="ALL">ALL</el-radio-button>
-          <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
-          <el-radio-button value="VENDOR">VENDOR</el-radio-button>
-        </el-radio-group>
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack" content="NKP REPORT">
+        <template #extra>
+          <div class="flex">
+            <el-radio-group v-model="filters.paymentType" class="mr-2">
+              <el-radio-button value="ALL">ALL</el-radio-button>
+              <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
+              <el-radio-button value="VENDOR">VENDOR</el-radio-button>
+            </el-radio-group>
 
-        <el-date-picker
-          v-model="filters.dateRange"
-          type="daterange"
-          range-separator="-"
-          start-placeholder="Start"
-          end-placeholder="End"
-          style="width: 200px"
-          value-format="YYYY-MM-DD"
-          format="DD/MM/YYYY"
-          class="mr-2"
-        />
+            <el-date-picker
+              v-model="filters.dateRange"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="Start"
+              end-placeholder="End"
+              style="width: 200px"
+              value-format="YYYY-MM-DD"
+              format="DD/MM/YYYY"
+              class="mr-2"
+            />
 
-        <el-dropdown
-          split-button
-          type="success"
-          @command="download"
-          class="mr-2"
-        >
-          <el-icon class="mr-2">
-            <ElIconDownload />
-          </el-icon>
-          Download
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="pdf" :icon="ElIconDocument">
-                PDF
-              </el-dropdown-item>
-              <el-dropdown-item command="excel" :icon="ElIconMemo">
-                Excel
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+            <el-dropdown
+              split-button
+              type="success"
+              @command="download"
+              class="mr-2"
+            >
+              <el-icon class="mr-2">
+                <ElIconDownload />
+              </el-icon>
+              Download
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="pdf" :icon="ElIconDocument">
+                    PDF
+                  </el-dropdown-item>
+                  <el-dropdown-item command="excel" :icon="ElIconMemo">
+                    Excel
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
 
-        <el-input
-          size="small"
-          v-model="keyword"
-          placeholder="Cari"
-          style="width: 150px; margin-right: 5px"
-          :prefix-icon="ElIconSearch"
-          :clearable="true"
-          @keydown.enter="
-            () => {
-              page = 1;
-              refreshData();
-            }
-          "
-          @clear="
-            () => {
-              page = 1;
-              refreshData();
-            }
-          "
-        >
-        </el-input>
+            <el-input
+              size="small"
+              v-model="keyword"
+              placeholder="Cari"
+              style="width: 150px; margin-right: 5px"
+              :prefix-icon="ElIconSearch"
+              :clearable="true"
+              @keydown.enter="
+                () => {
+                  page = 1;
+                  refreshData();
+                }
+              "
+              @clear="
+                () => {
+                  page = 1;
+                  refreshData();
+                }
+              "
+            >
+            </el-input>
 
-        <el-button
-          :icon="ElIconRefresh"
-          @click="
-            () => {
-              page = 1;
-              keyword = '';
-              refreshData();
-            }
-          "
-        ></el-button>
-      </div>
+            <el-button
+              :icon="ElIconRefresh"
+              @click="
+                () => {
+                  page = 1;
+                  keyword = '';
+                  refreshData();
+                }
+              "
+            ></el-button>
+          </div>
+        </template>
+      </el-page-header>
     </template>
-  </el-page-header>
 
-  <br />
-
-  <el-table stripe v-loading="isPending" :data="data?.data" table-layout="auto">
-    <el-table-column type="index" label="#"></el-table-column>
-
-    <el-table-column label="Date" prop="number" width="120px">
-      <template #default="{ row }">
-        {{ formatDate(row.date) }}
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Number" prop="number">
-      <template #default="{ row }">
-        <el-tag class="font-mono">
-          {{ row.number }}
-        </el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column label="Bank Ref No" prop="bankRefNo" width="200px" />
-
-    <el-table-column
-      v-if="filters.paymentType == 'VENDOR'"
-      label="Invoice Number"
-      prop="invoiceNumber"
-      width="200"
-    />
-
-    <el-table-column label="Description" prop="description" min-width="150" />
-
-    <el-table-column
-      label="Amount"
-      width="150"
-      align="right"
-      hader-align="right"
-      fixed="right"
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data"
+      table-layout="auto"
+      height="calc(100vh - 195px)"
     >
-      <template #default="{ row }">
-        <el-tag type="success" class="font-mono">
-          {{
-            toCurrency(
-              row.paymentType == "EMPLOYEE" ? row.grandTotal : row.finalPayment,
-              row.currency
-            )
-          }}
-        </el-tag>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column type="index" label="#"></el-table-column>
 
-  <br />
+      <el-table-column label="Date" prop="number" width="120px">
+        <template #default="{ row }">
+          {{ formatDate(row.date) }}
+        </template>
+      </el-table-column>
 
-  <el-pagination
-    v-if="data?.total"
-    size="small"
-    background
-    layout="total, sizes, prev, pager, next"
-    :page-size="pageSize"
-    :page-sizes="[10, 25, 50, 100]"
-    :total="data?.total"
-    @current-change="currentChange"
-    @size-change="sizeChange"
-  ></el-pagination>
+      <el-table-column label="Number" prop="number">
+        <template #default="{ row }">
+          <el-tag class="font-mono">
+            {{ row.number }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="Bank Ref No" prop="bankRefNo" width="200px" />
+
+      <el-table-column
+        v-if="filters.paymentType == 'VENDOR'"
+        label="Invoice Number"
+        prop="invoiceNumber"
+        width="200"
+      />
+
+      <el-table-column label="Description" prop="description" min-width="150" />
+
+      <el-table-column
+        label="Amount"
+        width="150"
+        align="right"
+        hader-align="right"
+        fixed="right"
+      >
+        <template #default="{ row }">
+          <el-tag type="success" class="font-mono">
+            {{
+              toCurrency(
+                row.paymentType == "EMPLOYEE"
+                  ? row.grandTotal
+                  : row.finalPayment,
+                row.currency,
+              )
+            }}
+          </el-tag>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    ></el-pagination>
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 const config = useRuntimeConfig();
 const url = "/api/nkp";
 const queryKey = "nkp-report";
@@ -176,7 +189,7 @@ watch(
   () => {
     page.value = 1;
     refreshData();
-  }
+  },
 );
 
 watch(
@@ -184,7 +197,7 @@ watch(
   () => {
     page.value = 1;
     refreshData();
-  }
+  },
 );
 
 // Default filters
@@ -204,7 +217,7 @@ async function download(format) {
   const query = new URLSearchParams(params).toString();
   return window.open(
     new URL(`${config.public.apiBase}/api/nkp?${query}`),
-    "_blank"
+    "_blank",
   );
 }
 </script>

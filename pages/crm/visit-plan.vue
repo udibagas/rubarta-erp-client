@@ -1,64 +1,66 @@
 <template>
-  <el-page-header @back="goBack" content="CRM / Visit Plan">
-    <template #extra>
-      <div class="flex gap-2">
-        <el-radio-group
-          v-model="viewMode"
-          size="default"
-          fill="rgb(149, 212, 117)"
-          @change="
-            (v) => {
-              filters = {
-                ...filters,
-                page: 1,
-                pageSize: v === 'calendar' ? 1_000_000 : 10,
-              };
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack" content="CRM / Visit Plan">
+        <template #extra>
+          <div class="flex gap-2">
+            <el-radio-group
+              v-model="viewMode"
+              size="default"
+              fill="rgb(149, 212, 117)"
+              @change="
+                (v) => {
+                  filters = {
+                    ...filters,
+                    page: 1,
+                    pageSize: v === 'calendar' ? 1_000_000 : 10,
+                  };
 
-              refreshData();
-            }
-          "
-        >
-          <el-radio-button value="calendar">
-            <el-icon><ElIconCalendar /></el-icon>
-            Calendar
-          </el-radio-button>
-          <el-radio-button value="table">
-            <el-icon><ElIconGrid /></el-icon>
-            Table
-          </el-radio-button>
-        </el-radio-group>
+                  refreshData();
+                }
+              "
+            >
+              <el-radio-button value="calendar">
+                <el-icon><ElIconCalendar /></el-icon>
+                Calendar
+              </el-radio-button>
+              <el-radio-button value="table">
+                <el-icon><ElIconGrid /></el-icon>
+                Table
+              </el-radio-button>
+            </el-radio-group>
 
-        <template v-if="viewMode === 'table'">
-          <el-input
-            v-model="keyword"
-            placeholder="Search"
-            @change="refreshData()"
-            clearable
-            :prefix-icon="ElIconSearch"
-            style="width: 180px"
-          />
+            <template v-if="viewMode === 'table'">
+              <el-input
+                v-model="keyword"
+                placeholder="Search"
+                @change="refreshData()"
+                clearable
+                :prefix-icon="ElIconSearch"
+                style="width: 180px"
+              />
+            </template>
+
+            <el-button
+              v-if="viewMode === 'table'"
+              :icon="ElIconPrinter"
+              @click="exportToPdf"
+              :disabled="!data?.data?.length"
+              type="info"
+              plain
+            >
+              Export PDF
+            </el-button>
+
+            <el-button
+              :icon="ElIconPlus"
+              type="success"
+              @click="visitPlanFormRef?.openForm()"
+            />
+          </div>
         </template>
-
-        <el-button
-          v-if="viewMode === 'table'"
-          :icon="ElIconPrinter"
-          @click="exportToPdf"
-          :disabled="!data?.data?.length"
-          type="info"
-          plain
-        >
-          Export PDF
-        </el-button>
-
-        <el-button
-          :icon="ElIconPlus"
-          type="success"
-          @click="visitPlanFormRef?.openForm()"
-        />
-      </div>
+      </el-page-header>
     </template>
-
-    <br />
 
     <!-- Table View -->
     <div v-if="viewMode === 'table'">
@@ -68,6 +70,7 @@
         :data="data?.data || []"
         @filter-change="filterChange"
         @sort-change="sortChange"
+        height="calc(100vh - 195px)"
       >
         <el-table-column
           label="Scheduled Date"
@@ -269,9 +272,8 @@
         </el-table-column>
       </el-table>
 
-      <br />
-
       <el-pagination
+        class="p-2 bg-slate-100"
         v-if="data?.total"
         size="small"
         background
@@ -293,86 +295,94 @@
       @add-event="openFormWithDate"
       @open-detail="openDetailDialog"
     />
-  </el-page-header>
 
-  <!-- Visit Plan Detail Dialog -->
-  <CrmVisitPlanDetailDialog
-    v-model="showDetailDialog"
-    :visit="selectedVisit"
-    @edit="openEditFromDialog"
-    @mark-completed="markAsCompletedFromDialog"
-    @mark-cancelled="markAsCancelledFromDialog"
-  />
+    <!-- Visit Plan Detail Dialog -->
+    <CrmVisitPlanDetailDialog
+      v-model="showDetailDialog"
+      :visit="selectedVisit"
+      @edit="openEditFromDialog"
+      @mark-completed="markAsCompletedFromDialog"
+      @mark-cancelled="markAsCancelledFromDialog"
+    />
 
-  <!-- Complete Visit Dialog -->
-  <el-dialog
-    v-model="showCompleteDialog"
-    title="Complete Visit Plan"
-    width="500px"
-  >
-    <el-form :model="completeForm" label-position="top">
-      <el-form-item label="Actual Visit Date & Time" required>
-        <el-date-picker
-          v-model="completeForm.actualVisitDate"
-          type="datetime"
-          placeholder="Select date and time"
-          style="width: 100%"
-          format="DD-MMM-YYYY HH:mm"
-          value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
-        />
-      </el-form-item>
+    <!-- Complete Visit Dialog -->
+    <el-dialog
+      v-model="showCompleteDialog"
+      title="Complete Visit Plan"
+      width="500px"
+    >
+      <el-form :model="completeForm" label-position="top">
+        <el-form-item label="Actual Visit Date & Time" required>
+          <el-date-picker
+            v-model="completeForm.actualVisitDate"
+            type="datetime"
+            placeholder="Select date and time"
+            style="width: 100%"
+            format="DD-MMM-YYYY HH:mm"
+            value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+          />
+        </el-form-item>
 
-      <el-form-item label="Outcome" required>
-        <el-input
-          v-model="completeForm.outcome"
-          type="textarea"
-          :rows="4"
-          placeholder="Enter visit outcome and notes"
-        />
-      </el-form-item>
-    </el-form>
+        <el-form-item label="Outcome" required>
+          <el-input
+            v-model="completeForm.outcome"
+            type="textarea"
+            :rows="4"
+            placeholder="Enter visit outcome and notes"
+          />
+        </el-form-item>
+      </el-form>
 
-    <template #footer>
-      <el-button @click="showCompleteDialog = false">Cancel</el-button>
-      <el-button
-        type="success"
-        @click="submitComplete"
-        :disabled="!completeForm.actualVisitDate || !completeForm.outcome"
-      >
-        Mark as Completed
-      </el-button>
-    </template>
-  </el-dialog>
+      <template #footer>
+        <el-button @click="showCompleteDialog = false">Cancel</el-button>
+        <el-button
+          type="success"
+          @click="submitComplete"
+          :disabled="!completeForm.actualVisitDate || !completeForm.outcome"
+        >
+          Mark as Completed
+        </el-button>
+      </template>
+    </el-dialog>
 
-  <!-- Cancel Visit Dialog -->
-  <el-dialog v-model="showCancelDialog" title="Cancel Visit Plan" width="500px">
-    <el-form :model="cancelForm" label-position="top">
-      <el-form-item label="Cancellation Reason" required>
-        <el-input
-          v-model="cancelForm.cancelReason"
-          type="textarea"
-          :rows="4"
-          placeholder="Enter reason for cancellation"
-        />
-      </el-form-item>
-    </el-form>
+    <!-- Cancel Visit Dialog -->
+    <el-dialog
+      v-model="showCancelDialog"
+      title="Cancel Visit Plan"
+      width="500px"
+    >
+      <el-form :model="cancelForm" label-position="top">
+        <el-form-item label="Cancellation Reason" required>
+          <el-input
+            v-model="cancelForm.cancelReason"
+            type="textarea"
+            :rows="4"
+            placeholder="Enter reason for cancellation"
+          />
+        </el-form-item>
+      </el-form>
 
-    <template #footer>
-      <el-button @click="showCancelDialog = false">Close</el-button>
-      <el-button
-        type="danger"
-        @click="submitCancel"
-        :disabled="!cancelForm.cancelReason"
-      >
-        Confirm Cancellation
-      </el-button>
-    </template>
-  </el-dialog>
+      <template #footer>
+        <el-button @click="showCancelDialog = false">Close</el-button>
+        <el-button
+          type="danger"
+          @click="submitCancel"
+          :disabled="!cancelForm.cancelReason"
+        >
+          Confirm Cancellation
+        </el-button>
+      </template>
+    </el-dialog>
 
-  <VisitPlanForm ref="visitPlanFormRef" />
+    <VisitPlanForm ref="visitPlanFormRef" />
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

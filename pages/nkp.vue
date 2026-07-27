@@ -61,136 +61,129 @@
       </el-page-header>
     </template>
 
-    <div class="border border-gray-200">
-      <el-table
-        stripe
-        v-loading="isPending"
-        :data="data?.data"
-        @row-click="(row) => show(row.id)"
-        table-layout="auto"
-        height="calc(100vh - 198px)"
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data"
+      @row-click="(row) => show(row.id)"
+      table-layout="auto"
+      height="calc(100vh - 198px)"
+    >
+      <el-table-column
+        label="Status"
+        align="center"
+        header-align="center"
+        width="200"
       >
-        <el-table-column
-          label="Status"
-          align="center"
-          header-align="center"
-          width="200"
-        >
-          <template #default="{ row }">
-            <StatusTag :status="row.status" style="width: 100%" /> <br />
-            <el-text
-              type="success"
-              v-if="row.status == 'CLOSED'"
-              class="line-clamp-1"
-            >
-              Ref no. {{ row.bankRefNo }}
-            </el-text>
-          </template>
-        </el-table-column>
+        <template #default="{ row }">
+          <StatusTag :status="row.status" style="width: 100%" /> <br />
+          <el-text
+            type="success"
+            v-if="row.status == 'CLOSED'"
+            class="line-clamp-1"
+          >
+            Ref no. {{ row.bankRefNo }}
+          </el-text>
+        </template>
+      </el-table-column>
 
-        <el-table-column label="Number">
-          <template #default="{ row }">
-            <el-tag class="font-mono hover:cursor-pointer font-semibold">
-              {{ row.number }}
-            </el-tag>
-            <br />
-            <span class="text-gray-400 text-sm">
-              {{ formatDateLong(row.date) }}
+      <el-table-column label="Number">
+        <template #default="{ row }">
+          <el-tag class="font-mono hover:cursor-pointer font-semibold">
+            {{ row.number }}
+          </el-tag>
+          <br />
+          <span class="text-gray-400 text-sm">
+            {{ formatDateLong(row.date) }}
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Requester" width="220">
+        <template #default="{ row }">
+          <div v-if="row.Requester" class="flex items-center gap-2">
+            <el-avatar
+              :size="32"
+              class="shrink-0"
+              :style="{ backgroundColor: getAvatarColor(row.Requester.name) }"
+            >
+              {{ row.Requester.name?.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <span class="font-semibold text-sm line-clamp-1">
+              {{ row.Requester.name }}
             </span>
-          </template>
-        </el-table-column>
+          </div>
+        </template>
+      </el-table-column>
 
-        <el-table-column label="Requester" width="220">
-          <template #default="{ row }">
-            <div v-if="row.Requester" class="flex items-center gap-2">
-              <el-avatar
-                :size="32"
-                class="shrink-0"
-                :style="{ backgroundColor: getAvatarColor(row.Requester.name) }"
-              >
-                {{ row.Requester.name?.charAt(0).toUpperCase() }}
-              </el-avatar>
-              <span class="font-semibold text-sm line-clamp-1">
-                {{ row.Requester.name }}
-              </span>
-            </div>
-          </template>
-        </el-table-column>
+      <el-table-column label="Type">
+        <template #default="{ row }">
+          {{ row.paymentType }} <br />
+          <el-tag
+            :type="getNkpTypeStyle(row.nkpType)"
+            size="small"
+            round
+            effect="plain"
+          >
+            {{ formatNkpType(row.nkpType) }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-        <el-table-column label="Type">
-          <template #default="{ row }">
-            {{ row.paymentType }} <br />
-            <el-tag
-              :type="getNkpTypeStyle(row.nkpType)"
-              size="small"
-              round
-              effect="plain"
-            >
-              {{ formatNkpType(row.nkpType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
+      <el-table-column label="Payment To">
+        <template #default="{ row }">
+          <div class="font-semibold line-clamp-1">
+            {{
+              row.paymentType == "EMPLOYEE"
+                ? row.Employee?.name
+                : row.Supplier?.name
+            }}
+          </div>
+          <span class="text-gray-400">
+            {{ row.Bank?.code }} - {{ row.bankAccount }} <br />
+          </span>
+          <el-tag v-if="row.invoiceNumber" type="warning" class="font-mono">
+            Invoice No. {{ row.invoiceNumber }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-        <el-table-column label="Payment To">
-          <template #default="{ row }">
-            <div class="font-semibold line-clamp-1">
-              {{
+      <el-table-column label="Description" prop="description">
+        <template #default="{ row }">
+          <span class="whitespace-pre-line line-clamp-3">
+            {{ row.description }}
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Amount" align="right" fixed="right">
+        <template #default="{ row }">
+          <el-tag type="success" class="font-mono" size="large" effect="plain">
+            {{
+              toCurrency(
                 row.paymentType == "EMPLOYEE"
-                  ? row.Employee?.name
-                  : row.Supplier?.name
-              }}
-            </div>
-            <span class="text-gray-400">
-              {{ row.Bank?.code }} - {{ row.bankAccount }} <br />
-            </span>
-            <el-tag v-if="row.invoiceNumber" type="warning" class="font-mono">
-              Invoice No. {{ row.invoiceNumber }}
-            </el-tag>
-          </template>
-        </el-table-column>
+                  ? row.grandTotal
+                  : row.finalPayment,
+                row.currency,
+              )
+            }}
+          </el-tag>
+        </template>
+      </el-table-column>
+    </el-table>
 
-        <el-table-column label="Description" prop="description">
-          <template #default="{ row }">
-            <span class="whitespace-pre-line line-clamp-3">
-              {{ row.description }}
-            </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Amount" align="right" fixed="right">
-          <template #default="{ row }">
-            <el-tag
-              type="success"
-              class="font-mono"
-              size="large"
-              effect="plain"
-            >
-              {{
-                toCurrency(
-                  row.paymentType == "EMPLOYEE"
-                    ? row.grandTotal
-                    : row.finalPayment,
-                  row.currency,
-                )
-              }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-pagination
-        class="p-2 bg-slate-100"
-        v-if="data?.total"
-        size="small"
-        background
-        layout="total, sizes, prev, pager, next"
-        :page-size="pageSize"
-        :page-sizes="[10, 25, 50, 100]"
-        :total="data?.total"
-        @current-change="currentChange"
-        @size-change="sizeChange"
-      />
-    </div>
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
 
     <NkpForm />
     <NkpDetail />
