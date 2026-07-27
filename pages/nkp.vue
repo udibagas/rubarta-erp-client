@@ -100,7 +100,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="Requester">
+        <el-table-column label="Requester" width="220">
           <template #default="{ row }">
             <div v-if="row.Requester" class="flex items-center gap-2">
               <el-avatar
