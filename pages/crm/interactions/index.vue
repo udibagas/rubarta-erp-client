@@ -37,17 +37,6 @@
       style="cursor: pointer"
       height="calc(100vh - 198px)"
     >
-      <el-table-column label="Subject" min-width="200">
-        <template #default="{ row }">
-          <div>
-            <strong>{{ row.subject }}</strong>
-          </div>
-          <div v-if="row.notes" class="text-sm text-gray-500">
-            {{ row.notes }}
-          </div>
-        </template>
-      </el-table-column>
-
       <el-table-column label="Date" width="150">
         <template #default="{ row }">
           <div>
@@ -55,6 +44,17 @@
             <div class="text-xs text-gray-500">
               {{ formatDate(row.date) }} {{ formatTime(row.date) }}
             </div>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Subject" min-width="200">
+        <template #default="{ row }">
+          <div>
+            <strong>{{ row.subject }}</strong>
+          </div>
+          <div v-if="row.notes" class="text-sm text-gray-500 line-clamp-1">
+            {{ row.notes }}
           </div>
         </template>
       </el-table-column>
@@ -83,6 +83,7 @@
           {{ row.duration ? `${row.duration} min` : "-" }}
         </template>
       </el-table-column>
+
       <el-table-column label="Contact" width="220">
         <template #default="{ row }">
           <div v-if="row.Contact" class="flex items-center gap-2">
@@ -103,7 +104,8 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="User" width="180">
+
+      <el-table-column label="User" width="200">
         <template #default="{ row }">
           <div v-if="row.User" class="flex items-center gap-2">
             <el-avatar
@@ -118,7 +120,11 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="Outcome" prop="outcome" min-width="150" />
+      <el-table-column label="Outcome" prop="outcome" min-width="150">
+        <template #default="{ row }">
+          <span class="line-clamp-2">{{ row.outcome }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column
         width="60px"
