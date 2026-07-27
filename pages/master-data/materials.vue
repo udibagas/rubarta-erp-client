@@ -3,60 +3,29 @@
     <template #header>
       <el-page-header @back="goBack" content="Materials">
         <template #extra>
-          <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            ADD NEW MATERIAL
-          </el-button>
+          <form @submit.prevent="refreshData()" class="flex gap-2">
+            <el-checkbox
+              v-model="filters.lowStock"
+              @change="refreshData()"
+              label="Low Stock Only"
+            />
+
+            <el-input
+              v-model="keyword"
+              placeholder="Search by part number, name, or description..."
+              clearable
+              style="width: 300px"
+              :prefix-icon="ElIconSearch"
+              @clear="refreshData()"
+            />
+
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+              ADD NEW MATERIAL
+            </el-button>
+          </form>
         </template>
       </el-page-header>
     </template>
-
-    <!-- Filters -->
-    <div class="mb-4 flex gap-2">
-      <el-input
-        v-model="keyword"
-        placeholder="Search by part number, name, or description..."
-        clearable
-        style="width: 300px"
-        :prefix-icon="ElIconSearch"
-      />
-      <el-select
-        v-model="filters.category"
-        placeholder="Category"
-        clearable
-        style="width: 200px"
-      >
-        <el-option
-          v-for="cat in categories"
-          :key="cat"
-          :label="cat"
-          :value="cat"
-        />
-      </el-select>
-      <el-select
-        v-model="filters.supplierId"
-        placeholder="Supplier"
-        clearable
-        filterable
-        style="width: 200px"
-      >
-        <el-option
-          v-for="supplier in suppliers"
-          :key="supplier.id"
-          :label="supplier.name"
-          :value="supplier.id"
-        />
-      </el-select>
-      <el-select
-        v-model="filters.isActive"
-        placeholder="Status"
-        clearable
-        style="width: 150px"
-      >
-        <el-option label="Active" :value="true" />
-        <el-option label="Inactive" :value="false" />
-      </el-select>
-      <el-checkbox v-model="filters.lowStock" label="Low Stock Only" />
-    </div>
 
     <el-table
       stripe
@@ -68,7 +37,7 @@
 
       <el-table-column label="Part Number" width="150">
         <template #default="{ row }">
-          <strong>{{ row.partNumber }}</strong>
+          <div class="font-semibold font-mono">{{ row.partNumber }}</div>
         </template>
       </el-table-column>
 
@@ -83,7 +52,15 @@
 
       <el-table-column label="Category" width="150">
         <template #default="{ row }">
-          {{ row.category || "-" }}
+          <el-tag
+            v-if="row.category"
+            type="warning"
+            size="small"
+            effect="plain"
+          >
+            {{ row.category }}
+          </el-tag>
+          <span v-else>-</span>
         </template>
       </el-table-column>
 
@@ -248,15 +225,6 @@ const {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
-
-// Watch filters
-watch(
-  () => [keyword.value, filters.value],
-  () => {
-    filterChange(filters.value);
-  },
-  { deep: true },
-);
 
 // Fetch suppliers for filter
 const request = useRequest();
