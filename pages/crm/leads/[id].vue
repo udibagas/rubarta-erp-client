@@ -9,7 +9,7 @@
           <div class="flex gap-2">
             <el-button :icon="ElIconRefresh" @click="refetch" v-if="lead" />
             <el-dropdown v-if="lead" trigger="click">
-              <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
+              <el-button type="success" :icon="ElIconMore"> Actions </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item :icon="ElIconEdit" @click="openEditForm">

@@ -9,7 +9,7 @@
     <div v-if="taskData && !isLoading">
       <div class="flex justify-end mb-4">
         <el-dropdown trigger="click">
-          <el-button type="primary" :icon="ElIconMore"> Actions </el-button>
+          <el-button type="success" :icon="ElIconMore"> Actions </el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item :icon="ElIconEdit" @click="handleEdit">
