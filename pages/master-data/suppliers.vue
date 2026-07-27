@@ -19,17 +19,19 @@
         </template>
       </el-page-header>
     </template>
+
     <el-table
       stripe
       v-loading="isPending"
       :data="data"
       height="calc(100vh - 155px)"
+      @row-click="(row) => openForm(row)"
     >
       <el-table-column type="index" label="#"></el-table-column>
 
       <el-table-column label="Name" min-width="250px">
         <template #default="{ row }">
-          <strong>{{ row.name }}</strong> <br />
+          <div class="line-clamp-1 font-semibold">{{ row.name }}</div>
           {{ row.code }}
         </template>
       </el-table-column>
@@ -45,6 +47,7 @@
               type="success"
               :href="`mailto:${row.email}`"
               target="_blank"
+              class="line-clamp-1"
             >
               {{ row.email || "-" }}
             </el-link>
