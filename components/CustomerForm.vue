@@ -132,6 +132,26 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="Account Manager" :error="errors.accountManagerId">
+        <el-select
+          v-model="form.accountManagerId"
+          placeholder="Account Manager"
+          filterable
+          default-first-option
+        >
+          <el-option
+            v-for="user in users"
+            :key="user.id"
+            :value="user.id"
+            :label="user.name"
+          >
+          </el-option>
+          <template #prefix>
+            <el-icon><ElIconUser /></el-icon>
+          </template>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="Active" :error="errors.isActive">
         <el-switch
           v-model="form.isActive"
@@ -155,9 +175,17 @@
 </template>
 
 <script setup>
+import { useQuery } from "@tanstack/vue-query";
+
 const { errors, form, show, closeForm, saveMutation } = useCrud({
   url: "/api/customers",
   queryKey: "customers",
 });
+
 const { mutate: save } = saveMutation();
+
+const { data: users } = useQuery({
+  queryKey: ["users"],
+  queryFn: () => request("/api/users"),
+});
 </script>

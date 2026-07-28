@@ -100,6 +100,23 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="Account Manager" min-width="200">
+        <template #default="{ row }">
+          <div class="flex items-center gap-2" v-if="row.accountManagerId">
+            <el-avatar
+              size="small"
+              class="shrink-0"
+              :style="{
+                backgroundColor: getAvatarColor(row.accountManager?.name),
+              }"
+            >
+              {{ row.accountManager?.name?.charAt(0) }}
+            </el-avatar>
+            <span>{{ row.accountManager?.name }}</span>
+          </div>
+        </template>
+      </el-table-column>
+
       <el-table-column
         label="Status"
         prop="isActive"

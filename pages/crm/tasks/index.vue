@@ -110,9 +110,9 @@
 
       <el-table-column label="User">
         <template #default="{ row }">
-          <div style="display: flex; align-items: center; gap: 10px">
+          <div class="flex items-center gap-2">
             <el-avatar
-              :size="30"
+              size="small"
               class="shrink-0"
               :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
             >
