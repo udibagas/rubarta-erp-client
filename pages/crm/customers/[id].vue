@@ -56,7 +56,7 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Employee Count">
-        {{ customer.employeeCount || "-" }}
+        {{ customer.employeeCount?.toLocaleString("id-ID") || "-" }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Revenue">

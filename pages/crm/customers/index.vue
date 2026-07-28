@@ -28,24 +28,53 @@
 
       <el-table-column label="Name" prop="name" min-width="150">
         <template #default="{ row }">
-          <div class="font-semibold">
+          <el-link
+            @click="navigateTo(`/crm/customers/${row.id}`)"
+            type="success"
+          >
             {{ row.name }}
+          </el-link>
+
+          <div
+            v-if="row.industry || row.tags?.length > 0"
+            class="flex gap-1 flex-wrap mt-1"
+          >
+            <el-tag size="small" v-if="row.industry" effect="plain" type="info">
+              {{ row.industry }}
+            </el-tag>
+            <el-tag
+              size="small"
+              effect="plain"
+              v-for="t in row.tags"
+              :key="t"
+              type="info"
+            >
+              {{ t }}
+            </el-tag>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="Email" prop="email" min-width="150">
+      <el-table-column label="Contact" prop="email" min-width="150">
         <template #default="{ row }">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1" v-if="row.email">
             <el-icon><ElIconMessage /></el-icon>
-            <el-link type="success" :href="`mailto:${row.email}`">
+            <el-link :href="`mailto:${row.email}`">
               {{ row.email }}
             </el-link>
           </div>
-          <div class="flex items-center gap-1">
+
+          <div class="flex items-center gap-1" v-if="row.phone">
             <el-icon><ElIconPhone /></el-icon>
             <span>
               {{ row.phone }}
             </span>
+          </div>
+
+          <div class="flex items-center gap-1" v-if="row.website">
+            <el-icon><ElIconLink /></el-icon>
+            <el-link :href="row.website" target="_blank">
+              {{ row.website }}
+            </el-link>
           </div>
         </template>
       </el-table-column>
@@ -125,8 +154,4 @@ const {
 
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
-
-const handleRowClick = (row) => {
-  navigateTo(`/crm/customers/${row.id}`);
-};
 </script>
