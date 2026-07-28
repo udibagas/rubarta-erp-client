@@ -109,7 +109,7 @@
       </el-table-column>
       <el-table-column label="Bank Ref No" prop="bankRefNo">
         <template #default="{ row }">
-          <span class="line-clamp-1">{{ row.bankRefNo }}</span>
+          <span class="line-clamp-2">{{ row.bankRefNo }}</span>
         </template>
       </el-table-column>
 
