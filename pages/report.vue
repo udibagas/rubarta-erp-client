@@ -94,13 +94,13 @@
     >
       <el-table-column type="index" label="#"></el-table-column>
 
-      <el-table-column label="Date" prop="number" width="120px">
+      <el-table-column label="Date" prop="date" width="120px">
         <template #default="{ row }">
           {{ formatDate(row.date) }}
         </template>
       </el-table-column>
 
-      <el-table-column label="Number" prop="number" width="250px">
+      <el-table-column label="Number" prop="number" width="280px">
         <template #default="{ row }">
           <span class="font-mono">
             {{ row.number }}
