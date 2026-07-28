@@ -29,21 +29,25 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Email">
-        <a class="text-green-500" :href="`mailto:${customer.email}`">{{
-          customer.email || "-"
-        }}</a>
+        <el-link :href="`mailto:${customer.email}`">
+          {{ customer.email || "-" }}
+        </el-link>
       </el-descriptions-item>
 
       <el-descriptions-item label="Phone">
-        <a class="text-green-500" :href="`tel:${customer.phone}`">
+        <el-link class="text-green-500" :href="`tel:${customer.phone}`">
           {{ customer.phone || "-" }}
-        </a>
+        </el-link>
       </el-descriptions-item>
 
       <el-descriptions-item label="Website">
-        <a v-if="customer.website" :href="customer.website" target="_blank">
+        <el-link
+          v-if="customer.website"
+          :href="customer.website"
+          target="_blank"
+        >
           {{ customer.website }}
-        </a>
+        </el-link>
         <span v-else>-</span>
       </el-descriptions-item>
 
@@ -87,7 +91,9 @@
         <el-tag
           v-for="tag in customer.tags"
           :key="tag"
-          style="margin-right: 8px"
+          class="mr-2"
+          type="info"
+          effect="plain"
         >
           {{ tag }}
         </el-tag>
@@ -189,7 +195,7 @@
               <div class="flex items-center gap-2">
                 <el-avatar
                   class="shrink-0"
-                  :size="28"
+                  size="small"
                   :style="{ backgroundColor: getAvatarColor(row.name) }"
                 >
                   {{ row.name?.charAt(0).toUpperCase() }}
@@ -202,29 +208,38 @@
           </el-table-column>
           <el-table-column label="Email" prop="email" min-width="200">
             <template #default="{ row }">
-              <a
-                :href="`mailto:${row.email}`"
-                class="text-green-600 hover:underline"
-              >
+              <el-link :href="`mailto:${row.email}`">
                 {{ row.email }}
-              </a>
+              </el-link>
             </template>
           </el-table-column>
           <el-table-column label="Phone" prop="phone" min-width="150">
             <template #default="{ row }">
-              <a
+              <el-link
                 v-if="row.phone"
                 :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
                 target="_blank"
-                class="text-green-600 hover:underline"
               >
                 {{ row.phone }}
-              </a>
+              </el-link>
               <span v-else>-</span>
             </template>
           </el-table-column>
           <el-table-column label="Position" prop="position" min-width="150" />
           <el-table-column label="Note" prop="note" width="150" />
+
+          <el-table-column
+            label="Is Primary"
+            prop="isPrimary"
+            min-width="100"
+            align="center"
+          >
+            <template #default="{ row }">
+              <el-tag effect="plain" :type="row.isPrimary ? 'success' : 'info'">
+                {{ row.isPrimary ? "Yes" : "No" }}
+              </el-tag>
+            </template>
+          </el-table-column>
         </el-table>
         <el-empty
           v-if="!customer?.Contacts?.length"

@@ -88,6 +88,32 @@
       </el-table-column>
 
       <el-table-column
+        label="Revenue"
+        prop="revenue"
+        align="right"
+        min-width="180"
+      >
+        <template #default="{ row }">
+          <el-tag type="success" effect="plain">
+            {{ toCurrency(row.revenue) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="Status"
+        prop="isActive"
+        width="100"
+        align="center"
+      >
+        <template #default="{ row }">
+          <el-tag :type="row.isActive ? 'success' : 'danger'" effect="plain">
+            {{ row.isActive ? "Active" : "Inactive" }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column
         width="60px"
         align="center"
         header-align="center"

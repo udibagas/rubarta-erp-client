@@ -31,7 +31,7 @@
           <div class="flex items-center gap-2">
             <el-avatar
               class="shrink-0"
-              :size="28"
+              size="small"
               :style="{ backgroundColor: getAvatarColor(row.name) }"
             >
               {{ row.name?.charAt(0).toUpperCase() }}
@@ -45,11 +45,7 @@
 
       <el-table-column label="Customer" prop="Customer.name" min-width="150">
         <template #default="{ row }">
-          <el-link
-            :href="`/crm/customers/${row.Customer?.id}`"
-            target="_blank"
-            type="success"
-          >
+          <el-link :href="`/crm/customers/${row.Customer?.id}`" target="_blank">
             {{ row.Customer?.name }}
           </el-link>
         </template>
@@ -57,31 +53,41 @@
 
       <el-table-column label="Phone" prop="phone" min-width="150">
         <template #default="{ row }">
-          <a
+          <el-link
             v-if="row.phone"
             :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
             target="_blank"
-            class="text-green-600 hover:underline"
           >
             {{ row.phone }}
-          </a>
+          </el-link>
           <span v-else>-</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Email" prop="email" min-width="150">
         <template #default="{ row }">
-          <a
-            :href="`mailto:${row.email}`"
-            class="text-green-600 hover:underline"
-          >
+          <el-link :href="`mailto:${row.email}`">
             {{ row.email }}
-          </a>
+          </el-link>
         </template>
       </el-table-column>
 
       <el-table-column label="Position" prop="position" min-width="150" />
+
       <el-table-column label="Note" prop="note" />
+
+      <el-table-column
+        label="Is Primary"
+        prop="isPrimary"
+        min-width="100"
+        align="center"
+      >
+        <template #default="{ row }">
+          <el-tag effect="plain" :type="row.isPrimary ? 'success' : 'info'">
+            {{ row.isPrimary ? "Yes" : "No" }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column
         width="60px"
