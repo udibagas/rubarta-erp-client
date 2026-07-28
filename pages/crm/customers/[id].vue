@@ -35,7 +35,7 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Phone">
-        <el-link class="text-green-500" :href="`tel:${customer.phone}`">
+        <el-link :href="`tel:${customer.phone}`">
           {{ customer.phone || "-" }}
         </el-link>
       </el-descriptions-item>
