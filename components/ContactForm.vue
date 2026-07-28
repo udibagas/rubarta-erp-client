@@ -20,31 +20,56 @@
             :key="i"
           >
           </el-option>
+          <template #prefix>
+            <el-icon><ElIconOfficeBuilding /></el-icon>
+          </template>
         </el-select>
       </el-form-item>
 
       <el-form-item label="Name" :error="errors.name">
-        <el-input placeholder="Name" v-model="form.name"></el-input>
+        <el-input
+          placeholder="Name"
+          v-model="form.name"
+          :prefix-icon="ElIconUser"
+        />
       </el-form-item>
 
       <el-form-item label="Email" :error="errors.email">
-        <el-input placeholder="Email" v-model="form.email"></el-input>
+        <el-input
+          placeholder="Email"
+          v-model="form.email"
+          :prefix-icon="ElIconMessage"
+        />
       </el-form-item>
 
       <el-form-item label="Phone" :error="errors.phone">
-        <el-input placeholder="Phone" v-model="form.phone"></el-input>
+        <el-input
+          placeholder="Phone"
+          v-model="form.phone"
+          :prefix-icon="ElIconPhone"
+        />
       </el-form-item>
 
       <el-form-item label="Position" :error="errors.position">
-        <el-input placeholder="Position" v-model="form.position"></el-input>
+        <el-input
+          placeholder="Position"
+          v-model="form.position"
+          :prefix-icon="ElIconStar"
+        />
       </el-form-item>
 
       <el-form-item label="Notes" :error="errors.notes">
-        <el-input
-          type="textarea"
-          placeholder="Notes"
-          v-model="form.notes"
-        ></el-input>
+        <el-input type="textarea" placeholder="Notes" v-model="form.notes" />
+      </el-form-item>
+
+      <el-form-item label="Is Primary" :error="errors.isPrimary">
+        <el-switch
+          v-model="form.isPrimary"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="Yes"
+          inactive-text="No"
+        />
       </el-form-item>
     </el-form>
 
