@@ -52,7 +52,9 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Address" :span="2">
-        {{ customer.address || "-" }}
+        <div class="whitespace-pre-line">
+          {{ customer.address || "-" }}
+        </div>
       </el-descriptions-item>
 
       <el-descriptions-item label="Industry">
@@ -64,29 +66,35 @@
       </el-descriptions-item>
 
       <el-descriptions-item label="Revenue">
-        <span class="font-mono font-semibold">
+        <el-tag class="font-mono" type="success" effect="plain">
           {{ customer.revenue ? toCurrency(customer.revenue.toString()) : "-" }}
-        </span>
+        </el-tag>
       </el-descriptions-item>
 
       <el-descriptions-item label="Status">
-        <el-tag :type="customer.isActive ? 'success' : 'danger'">
+        <el-tag :type="customer.isActive ? 'success' : 'danger'" effect="plain">
           {{ customer.isActive ? "Active" : "Inactive" }}
         </el-tag>
       </el-descriptions-item>
 
-      <el-descriptions-item label="Created At">
-        {{ formatDateLong(customer.createdAt) }}
-      </el-descriptions-item>
-
-      <el-descriptions-item label="Updated At">
-        {{ formatDateLong(customer.updatedAt) }}
+      <el-descriptions-item label="Account Manager">
+        <div class="flex items-center gap-2" v-if="customer.accountManagerId">
+          <el-avatar
+            size="small"
+            class="shrink-0"
+            :style="{
+              backgroundColor: getAvatarColor(customer.accountManager?.name),
+            }"
+          >
+            {{ customer.accountManager?.name?.charAt(0) }}
+          </el-avatar>
+          <span>{{ customer.accountManager?.name }}</span>
+        </div>
       </el-descriptions-item>
 
       <el-descriptions-item
         v-if="customer.tags && customer.tags.length > 0"
         label="Tags"
-        :span="2"
       >
         <el-tag
           v-for="tag in customer.tags"
@@ -97,6 +105,14 @@
         >
           {{ tag }}
         </el-tag>
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Created At">
+        {{ formatDateLong(customer.createdAt) }}
+      </el-descriptions-item>
+
+      <el-descriptions-item label="Updated At">
+        {{ formatDateLong(customer.updatedAt) }}
       </el-descriptions-item>
     </el-descriptions>
 
