@@ -90,7 +90,7 @@
     <el-descriptions-item label="Assigned To">
       <div style="display: flex; align-items: center; gap: 10px">
         <el-avatar
-          :size="32"
+          size="small"
           :style="{ backgroundColor: getAvatarColor(task.User?.name) }"
         >
           {{ task.User?.name?.charAt(0) }}

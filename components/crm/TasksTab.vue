@@ -193,7 +193,7 @@
       <template #default="{ row }">
         <div v-if="row.User" class="flex items-center gap-2">
           <el-avatar
-            :size="32"
+            size="small"
             class="shrink-0"
             :style="{ backgroundColor: getAvatarColor(row.User.name) }"
           >

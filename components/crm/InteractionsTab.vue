@@ -68,7 +68,7 @@
       <template #default="{ row }">
         <div v-if="row.User" class="flex items-center gap-2">
           <el-avatar
-            :size="32"
+            size="small"
             class="shrink-0"
             :style="{ backgroundColor: getAvatarColor(row.User.name) }"
           >
@@ -84,7 +84,7 @@
       <template #default="{ row }">
         <div v-if="row.Contact" class="flex items-center gap-2">
           <el-avatar
-            :size="32"
+            size="small"
             :style="{ backgroundColor: getAvatarColor(row.Contact.name) }"
           >
             {{ row.Contact.name?.charAt(0).toUpperCase() }}
@@ -256,7 +256,7 @@
             <div class="flex items-center gap-2 justify-between">
               <span>
                 <el-avatar
-                  :size="24"
+                  size="small"
                   :style="{ backgroundColor: getAvatarColor(contact.name) }"
                   class="mr-1"
                 >

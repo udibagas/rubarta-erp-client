@@ -69,7 +69,7 @@
         <el-descriptions-item label="Assigned To" :span="2">
           <div v-if="visit.User" class="flex items-center gap-2">
             <el-avatar
-              :size="32"
+              size="small"
               :style="{
                 backgroundColor: getAvatarColor(visit.User.name),
               }"

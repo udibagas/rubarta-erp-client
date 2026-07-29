@@ -116,7 +116,7 @@
       <el-descriptions-item label="Assigned User">
         <div class="flex items-center gap-2" v-if="opportunity.User">
           <el-avatar
-            :size="32"
+            size="small"
             :style="{ backgroundColor: getAvatarColor(opportunity.User.name) }"
           >
             {{ opportunity.User.name?.charAt(0).toUpperCase() }}

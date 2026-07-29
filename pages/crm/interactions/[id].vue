@@ -55,7 +55,7 @@
       <el-descriptions-item label="User">
         <div style="display: flex; align-items: center; gap: 10px">
           <el-avatar
-            :size="32"
+            size="small"
             :style="{ backgroundColor: getAvatarColor(interaction.User?.name) }"
           >
             {{ interaction.User?.name?.charAt(0) }}

@@ -116,7 +116,7 @@
             <div v-if="row.User" class="flex items-center gap-2">
               <el-avatar
                 class="shrink-0"
-                :size="28"
+                size="small"
                 :style="{ backgroundColor: getAvatarColor(row.User.name) }"
               >
                 {{ row.User.name?.charAt(0).toUpperCase() }}

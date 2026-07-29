@@ -69,7 +69,7 @@
           <div class="kanban-card-footer">
             <div class="flex items-center gap-2">
               <el-avatar
-                :size="24"
+                size="small"
                 :style="{ backgroundColor: getAvatarColor(task.User?.name) }"
               >
                 {{ task.User?.name?.charAt(0) }}
