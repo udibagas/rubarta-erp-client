@@ -187,7 +187,12 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button :icon="ElIconCircleCloseFilled" @click="closeStockDialog">
+        <el-button
+          :icon="ElIconCircleCloseFilled"
+          @click="closeStockDialog"
+          type="info"
+          plain
+        >
           CANCEL
         </el-button>
         <el-button

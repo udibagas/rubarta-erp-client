@@ -422,8 +422,21 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="showTaskForm = false"> CANCEL </el-button>
-      <el-button type="success" @click="saveTask"> SAVE </el-button>
+      <el-button
+        @click="showTaskForm = false"
+        :icon="ElIconCircleClose"
+        type="info"
+        plain
+      >
+        CANCEL
+      </el-button>
+      <el-button
+        type="success"
+        @click="saveTask"
+        :icon="ElIconCircleCheckFilled"
+      >
+        SAVE
+      </el-button>
     </template>
   </el-dialog>
 

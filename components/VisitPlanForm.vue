@@ -263,7 +263,9 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="closeForm" :icon="ElIconCircleClose">CANCEL</el-button>
+      <el-button @click="closeForm" :icon="ElIconCircleClose" type="info" plain>
+        CANCEL
+      </el-button>
       <el-button
         type="success"
         @click="save"

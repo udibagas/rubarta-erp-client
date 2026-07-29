@@ -239,8 +239,20 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="showOpportunityForm = false"> CANCEL </el-button>
-      <el-button type="success" @click="saveOpportunity" :loading="isSaving">
+      <el-button
+        @click="showOpportunityForm = false"
+        :icon="ElIconCircleClose"
+        type="info"
+        plain
+      >
+        CANCEL
+      </el-button>
+      <el-button
+        type="success"
+        @click="saveOpportunity"
+        :loading="isSaving"
+        :icon="ElIconCircleCheckFilled"
+      >
         SAVE
       </el-button>
     </template>

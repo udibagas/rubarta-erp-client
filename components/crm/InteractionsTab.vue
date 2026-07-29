@@ -298,7 +298,12 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="showInteractionForm = false" :icon="ElIconCircleClose">
+      <el-button
+        @click="showInteractionForm = false"
+        :icon="ElIconCircleClose"
+        type="info"
+        plain
+      >
         CANCEL
       </el-button>
       <el-button

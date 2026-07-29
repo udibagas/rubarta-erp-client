@@ -222,10 +222,21 @@
       </el-form>
 
       <template #footer>
-        <el-button @click="showConvertDialog = false">CANCEL</el-button>
-        <el-button type="primary" @click="handleConvertSubmit"
-          >CONVERT</el-button
+        <el-button
+          @click="showConvertDialog = false"
+          :icon="ElIconCircleClose"
+          type="info"
+          plain
         >
+          CANCEL
+        </el-button>
+        <el-button
+          type="success"
+          @click="handleConvertSubmit"
+          :icon="ElIconCircleCheckFilled"
+        >
+          CONVERT
+        </el-button>
       </template>
     </el-dialog>
   </nuxt-layout>
