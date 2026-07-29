@@ -39,8 +39,6 @@
       stripe
       v-loading="isPending"
       :data="data?.data"
-      @row-click="handleRowClick"
-      style="cursor: pointer"
       height="calc(100vh - 198px)"
     >
       <el-table-column
@@ -67,19 +65,47 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Date" width="120">
+      <el-table-column label="Created At" width="150">
         <template #default="{ row }">
-          {{ formatDate(row.createdAt) }}
+          {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
         </template>
       </el-table-column>
 
-      <el-table-column
-        label="Customer"
-        prop="Customer.name"
-        min-width="150px"
-      />
-      <el-table-column label="User" prop="User.name" min-width="150px" />
-      <el-table-column label="Opportunity" prop="name" min-width="200px" />
+      <el-table-column label="Customer" prop="Customer.name" min-width="150px">
+        <template #default="{ row }">
+          <el-link @click="navigateTo(`/crm/customers/${row.customerId}`)">
+            {{ row.Customer?.name }}
+          </el-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Opportunity" prop="name" min-width="200px">
+        <template #default="{ row }">
+          <el-link
+            @click="navigateTo(`/crm/opportunities/${row.id}`)"
+            type="success"
+          >
+            {{ row.name }}
+          </el-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="User" prop="User.name" min-width="150px">
+        <template #default="{ row }">
+          <div v-if="row.User" class="flex items-center gap-2">
+            <el-avatar
+              class="shrink-0"
+              size="small"
+              :style="{ backgroundColor: getAvatarColor(row.User.name) }"
+            >
+              {{ row.User.name?.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <span class="font-semibold text-sm line-clamp-1">
+              {{ row.User.name }}
+            </span>
+          </div>
+        </template>
+      </el-table-column>
 
       <el-table-column
         label="Amount"
@@ -88,9 +114,9 @@
         header-align="right"
       >
         <template #default="{ row }">
-          <div class="font-mono text-green-500 font-semibold">
+          <el-tag type="success" effect="plain" class="font-mono font-semibold">
             {{ toDecimal(row.amount) }}
-          </div>
+          </el-tag>
         </template>
       </el-table-column>
 
