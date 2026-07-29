@@ -199,7 +199,9 @@
           >
             {{ row.User.name?.charAt(0).toUpperCase() }}
           </el-avatar>
-          <span class="font-semibold text-sm">{{ row.User.name }}</span>
+          <span class="font-semibold text-sm line-clamp-1">
+            {{ row.User.name }}
+          </span>
         </div>
         <span v-else>-</span>
       </template>
