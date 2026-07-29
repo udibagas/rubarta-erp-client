@@ -99,7 +99,7 @@
             >
               {{ taskData.User?.name?.charAt(0) }}
             </el-avatar>
-            <span>{{ taskData.User?.name || "-" }}</span>
+            <span class="font-semibold">{{ taskData.User?.name || "-" }}</span>
           </div>
         </el-descriptions-item>
 
@@ -173,7 +173,7 @@
           <ul>
             <li v-for="file in taskData.attachments" :key="file.filePath">
               <el-link
-                type="primary"
+                type="success"
                 :href="`${config.public.apiBase}/${file.filePath}`"
                 target="_blank"
               >
