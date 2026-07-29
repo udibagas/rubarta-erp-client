@@ -238,6 +238,7 @@
         <el-input
           placeholder="Interaction subject"
           v-model="interactionFormData.subject"
+          :prefix-icon="ElIconTickets"
         />
       </el-form-item>
 
@@ -272,6 +273,9 @@
               </div>
             </div>
           </el-option>
+          <template #prefix>
+            <el-icon><ElIconUser /></el-icon>
+          </template>
         </el-select>
       </el-form-item>
 
@@ -288,13 +292,22 @@
         <el-input
           placeholder="Outcome of the interaction"
           v-model="interactionFormData.outcome"
+          :prefix-icon="ElIconDocumentCopy"
         />
       </el-form-item>
     </el-form>
 
     <template #footer>
-      <el-button @click="showInteractionForm = false"> CANCEL </el-button>
-      <el-button type="success" @click="saveInteraction"> SAVE </el-button>
+      <el-button @click="showInteractionForm = false" :icon="ElIconCircleClose">
+        CANCEL
+      </el-button>
+      <el-button
+        type="success"
+        @click="saveInteraction"
+        :icon="ElIconCircleCheckFilled"
+      >
+        SAVE
+      </el-button>
     </template>
   </el-dialog>
 </template>

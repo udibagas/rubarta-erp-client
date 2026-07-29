@@ -299,7 +299,11 @@
   >
     <el-form label-width="140px" label-position="left">
       <el-form-item label="Title" required>
-        <el-input placeholder="Task title" v-model="taskFormData.title" />
+        <el-input
+          placeholder="Task title"
+          v-model="taskFormData.title"
+          :prefix-icon="ElIconTickets"
+        />
       </el-form-item>
 
       <el-form-item label="Description">
@@ -410,7 +414,9 @@
           :on-success="handleSuccess"
           :multiple="true"
         >
-          <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+          <el-button type="success" :icon="ElIconUpload" plain
+            >Upload</el-button
+          >
         </el-upload>
       </el-form-item>
     </el-form>
