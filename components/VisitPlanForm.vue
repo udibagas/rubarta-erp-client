@@ -48,11 +48,23 @@
               :value="contact.id"
               :label="contact.name"
             >
-              <div class="flex flex-col">
-                <span>{{ contact.name }}</span>
-                <span v-if="contact.phone" class="text-xs text-gray-400">
-                  {{ contact.phone }}
+              <div class="flex items-center gap-2 justify-between">
+                <span>
+                  <el-avatar
+                    size="small"
+                    :style="{ backgroundColor: getAvatarColor(contact.name) }"
+                    class="mr-1"
+                  >
+                    {{ contact.name?.charAt(0).toUpperCase() }}
+                  </el-avatar>
+                  <span class="font-semibold">
+                    {{ contact.name }}
+                  </span>
                 </span>
+                <div class="text-xs text-gray-500 flex gap-2">
+                  <span v-if="contact.email">{{ contact.email }}</span>
+                  <span v-if="contact.phone">{{ contact.phone }}</span>
+                </div>
               </div>
             </el-option>
             <template #prefix>
