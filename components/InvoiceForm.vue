@@ -75,8 +75,10 @@
                   :key="user.id"
                   :value="user.id"
                   :label="user.name"
-                >
-                </el-option>
+                />
+                <template #prefix>
+                  <el-icon><ElIconUser /></el-icon>
+                </template>
               </el-select>
             </el-form-item>
           </el-col>

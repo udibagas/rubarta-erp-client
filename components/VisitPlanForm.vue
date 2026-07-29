@@ -77,6 +77,9 @@
             :value="user.id"
             :label="user.name"
           />
+          <template #prefix>
+            <el-icon><ElIconUser /></el-icon>
+          </template>
         </el-select>
       </el-form-item>
 

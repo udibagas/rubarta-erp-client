@@ -144,8 +144,7 @@
             :key="user.id"
             :value="user.id"
             :label="user.name"
-          >
-          </el-option>
+          />
           <template #prefix>
             <el-icon><ElIconUser /></el-icon>
           </template>
@@ -184,6 +183,7 @@ const { errors, form, show, closeForm, saveMutation } = useCrud({
 
 const { mutate: save } = saveMutation();
 
+const request = useRequest();
 const { data: users } = useQuery({
   queryKey: ["users"],
   queryFn: () => request("/api/users"),

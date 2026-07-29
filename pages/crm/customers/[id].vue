@@ -92,10 +92,7 @@
         </div>
       </el-descriptions-item>
 
-      <el-descriptions-item
-        v-if="customer.tags && customer.tags.length > 0"
-        label="Tags"
-      >
+      <el-descriptions-item label="Tags">
         <el-tag
           v-for="tag in customer.tags"
           :key="tag"
@@ -109,10 +106,12 @@
 
       <el-descriptions-item label="Created At">
         {{ formatDateLong(customer.createdAt) }}
+        {{ formatTime(customer.createdAt) }}
       </el-descriptions-item>
 
       <el-descriptions-item label="Updated At">
         {{ formatDateLong(customer.updatedAt) }}
+        {{ formatTime(customer.updatedAt) }}
       </el-descriptions-item>
     </el-descriptions>
 

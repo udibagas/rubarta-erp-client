@@ -94,7 +94,7 @@
         min-width="180"
       >
         <template #default="{ row }">
-          <el-tag type="success" effect="plain">
+          <el-tag type="success" effect="plain" size="large" class="font-mono">
             {{ toCurrency(row.revenue) }}
           </el-tag>
         </template>
@@ -112,7 +112,9 @@
             >
               {{ row.accountManager?.name?.charAt(0) }}
             </el-avatar>
-            <span>{{ row.accountManager?.name }}</span>
+            <span class="font-semibold line-clamp-1">{{
+              row.accountManager?.name
+            }}</span>
           </div>
         </template>
       </el-table-column>
