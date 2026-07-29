@@ -24,6 +24,9 @@
             :value="customer.id"
             :label="customer.name"
           />
+          <template #prefix>
+            <el-icon><ElIconOfficeBuilding /></el-icon>
+          </template>
         </el-select>
       </el-form-item>
 
@@ -52,6 +55,9 @@
                 </span>
               </div>
             </el-option>
+            <template #prefix>
+              <el-icon><ElIconUser /></el-icon>
+            </template>
           </el-select>
           <el-input
             v-if="!form.contactId"
@@ -66,6 +72,7 @@
         <el-input
           placeholder="Contact phone number"
           v-model="form.contactPhone"
+          :prefix-icon="ElIconPhone"
         />
       </el-form-item>
 

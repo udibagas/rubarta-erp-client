@@ -93,8 +93,10 @@
             :key="customer.id"
             :value="customer.id"
             :label="customer.name"
-          >
-          </el-option>
+          />
+          <template #prefix>
+            <el-icon><ElIconOfficeBuilding /></el-icon>
+          </template>
         </el-select>
       </el-form-item>
     </el-form>
