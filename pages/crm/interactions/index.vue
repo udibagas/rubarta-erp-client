@@ -25,6 +25,9 @@
                 }
               "
             />
+
+            <el-button @click="refreshData()" :icon="ElIconRefresh">
+            </el-button>
           </form>
         </template>
       </el-page-header>
@@ -115,7 +118,9 @@
             >
               {{ row.User.name?.charAt(0).toUpperCase() }}
             </el-avatar>
-            <span class="font-semibold text-sm">{{ row.User.name }}</span>
+            <span class="font-semibold text-sm line-clamp-1">
+              {{ row.User.name }}
+            </span>
           </div>
           <span v-else>-</span>
         </template>
@@ -123,43 +128,6 @@
       <el-table-column label="Outcome" prop="outcome" min-width="150">
         <template #default="{ row }">
           <span class="line-clamp-2">{{ row.outcome }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        width="60px"
-        align="center"
-        header-align="center"
-        fixed="right"
-      >
-        <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
-        </template>
-        <template #default="{ row }">
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-icon>
-                <ElIconMoreFilled />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :icon="ElIconEdit"
-                  @click.native.prevent="openForm(row)"
-                >
-                  Edit
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconDelete"
-                  @click.native.prevent="handleRemove(row.id, remove)"
-                >
-                  Delete
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -176,8 +144,6 @@
       @current-change="currentChange"
       @size-change="sizeChange"
     />
-
-    <InteractionForm />
   </nuxt-layout>
 </template>
 
@@ -193,11 +159,8 @@ import { getAvatarColor } from "~/utils/avatar";
 dayjs.extend(relativeTime);
 
 const {
-  openForm,
-  removeMutation,
   fetchData,
   refreshData,
-  handleRemove,
   keyword,
   page,
   pageSize,
@@ -212,5 +175,4 @@ const {
 });
 
 const { isPending, data } = fetchData();
-const { mutate: remove } = removeMutation();
 </script>
