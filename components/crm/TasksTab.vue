@@ -62,7 +62,11 @@
 
   <div class="mb-4 flex justify-between items-center">
     <div class="flex gap-2 items-center">
-      <el-radio-group v-model="viewMode" size="default">
+      <el-radio-group
+        v-model="viewMode"
+        size="default"
+        fill="rgb(149, 212, 117)"
+      >
         <el-radio-button value="table">
           <el-icon><ElIconList /></el-icon>
           Table
