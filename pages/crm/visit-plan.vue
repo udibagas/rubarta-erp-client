@@ -100,7 +100,7 @@
             >
               {{ row.title }}
             </el-link>
-            <div v-if="row.purpose" class="text-sm text-gray-500 line-clamp-1">
+            <div v-if="row.purpose" class="text-sm text-gray-500 line-clamp-2">
               {{ row.purpose }}
             </div>
           </template>
@@ -121,16 +121,16 @@
               >
                 {{ row.User.name?.charAt(0).toUpperCase() }}
               </el-avatar>
-              <span class="font-semibold text-sm line-clamp-1">{{
-                row.User.name
-              }}</span>
+              <span class="font-semibold text-sm line-clamp-1">
+                {{ row.User.name }}
+              </span>
             </div>
           </template>
         </el-table-column>
 
         <el-table-column
           label="Customer"
-          width="200"
+          min-width="200"
           column-key="customerId"
           :filters="customers.map((c) => ({ text: c.name, value: c.id }))"
         >
@@ -151,7 +151,7 @@
                   {{ row.contactPerson }}
                 </span>
               </div>
-              <div>
+              <div v-if="row.contactPhone">
                 <el-icon :size="12" class="mr-1">
                   <ElIconPhone />
                 </el-icon>
@@ -219,7 +219,7 @@
               </el-link>
               <span v-else class="text-gray-400 text-sm">Online</span>
             </div>
-            <div v-else class="text-sm">
+            <div v-else class="text-sm whitespace-pre-line">
               {{ row.address || "-" }}
             </div>
           </template>
