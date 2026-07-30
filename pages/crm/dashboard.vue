@@ -34,37 +34,7 @@
     </el-card>
 
     <!-- KPI Cards -->
-    <el-row :gutter="20">
-      <el-col :xs="24" :sm="12" :md="6" v-for="kpi in kpiData" :key="kpi.title">
-        <el-card
-          class="rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
-          shadow="hover"
-        >
-          <div class="flex items-center gap-4">
-            <div
-              class="w-15 h-15 rounded-xl flex items-center justify-center text-white shrink-0"
-              :style="{ backgroundColor: kpi.color }"
-            >
-              <component :is="kpi.icon" :size="24" />
-            </div>
-            <div class="flex-1">
-              <div class="text-sm text-gray-500 mb-1">{{ kpi.title }}</div>
-              <div class="text-3xl font-bold text-gray-800 mb-1">
-                {{ kpi.value }}
-              </div>
-              <div
-                class="text-sm font-semibold flex items-center gap-1"
-                :class="kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'"
-              >
-                <TrendingUp v-if="kpi.trend === 'up'" :size="16" />
-                <TrendingUp v-else :size="16" class="rotate-180" />
-                {{ kpi.change }}
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <CrmDashboardKpi />
 
     <!-- Main Charts Section -->
     <el-row :gutter="20">
@@ -322,42 +292,6 @@ let revenueChartInstance = null;
 let leadSourceChartInstance = null;
 let customerSegmentChartInstance = null;
 let salesPerformanceChartInstance = null;
-
-// KPI Data
-const kpiData = ref([
-  {
-    title: "Total Revenue",
-    value: "$1,234,567",
-    change: "+12.5%",
-    trend: "up",
-    icon: TrendingUp,
-    color: "#019932",
-  },
-  {
-    title: "New Leads",
-    value: "348",
-    change: "+8.2%",
-    trend: "up",
-    icon: Users,
-    color: "#409EFF",
-  },
-  {
-    title: "Conversion Rate",
-    value: "24.6%",
-    change: "-2.1%",
-    trend: "down",
-    icon: PieChart,
-    color: "#E6A23C",
-  },
-  {
-    title: "Active Deals",
-    value: "156",
-    change: "+15.3%",
-    trend: "up",
-    icon: ShoppingCart,
-    color: "#F56C6C",
-  },
-]);
 
 // Recent Activities
 const recentActivities = ref([
