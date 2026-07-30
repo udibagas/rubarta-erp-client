@@ -53,41 +53,17 @@
     <el-row :gutter="20">
       <!-- Lead Sources -->
       <el-col :xs="24" :lg="8">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex items-center gap-2 font-semibold">
-              <Filter :size="16" class="text-green-600" />
-              <span>Lead Sources</span>
-            </div>
-          </template>
-          <div ref="leadSourceChart" class="h-70 w-full"></div>
-        </el-card>
+        <CrmDashboardLeadSources />
       </el-col>
 
       <!-- Customer Segments -->
       <el-col :xs="24" :lg="8">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex items-center gap-2 font-semibold">
-              <Users :size="16" class="text-green-600" />
-              <span>Customer Segments</span>
-            </div>
-          </template>
-          <div ref="customerSegmentChart" class="h-70 w-full"></div>
-        </el-card>
+        <CrmDashboardCustomerSegments />
       </el-col>
 
       <!-- Sales Performance -->
       <el-col :xs="24" :lg="8">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex items-center gap-2 font-semibold">
-              <Target :size="16" class="text-green-600" />
-              <span>Sales Team Performance</span>
-            </div>
-          </template>
-          <div ref="salesPerformanceChart" class="h-70 w-full"></div>
-        </el-card>
+        <CrmDashboardSalesPerformance />
       </el-col>
     </el-row>
 
@@ -198,16 +174,10 @@
 import { ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import {
-  Users,
-  PieChart,
   BarChart3,
-  LineChart,
-  Target,
-  Filter,
   Calendar,
   RefreshCw,
   ArrowRight,
-  ChevronDown,
   Activity,
   Briefcase,
 } from "lucide-vue-next";
@@ -215,22 +185,6 @@ import {
 // Reactive data
 const loading = ref(false);
 const dateRange = ref([]);
-const pipelineFilter = ref("This Month");
-const revenueFilter = ref("monthly");
-
-// Chart refs
-const pipelineChart = ref(null);
-const revenueChart = ref(null);
-const leadSourceChart = ref(null);
-const customerSegmentChart = ref(null);
-const salesPerformanceChart = ref(null);
-
-// Chart instances
-let pipelineChartInstance = null;
-let revenueChartInstance = null;
-let leadSourceChartInstance = null;
-let customerSegmentChartInstance = null;
-let salesPerformanceChartInstance = null;
 
 // Recent Activities
 const recentActivities = ref([
@@ -326,288 +280,6 @@ const refreshData = async () => {
   loading.value = false;
 };
 
-const handlePipelineFilter = (command) => {
-  pipelineFilter.value = command;
-  updatePipelineChart();
-};
-
-const updateAllCharts = () => {
-  updatePipelineChart();
-  updateRevenueChart();
-  updateLeadSourceChart();
-  updateCustomerSegmentChart();
-  updateSalesPerformanceChart();
-};
-
-const updatePipelineChart = () => {
-  if (!pipelineChartInstance) return;
-
-  const option = {
-    title: {
-      show: false,
-    },
-    tooltip: {
-      trigger: "item",
-      formatter: "{b}: ${c} ({d}%)",
-    },
-    legend: {
-      bottom: "0%",
-      left: "center",
-    },
-    series: [
-      {
-        type: "pie",
-        radius: ["40%", "70%"],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: "#fff",
-          borderWidth: 2,
-        },
-        label: {
-          show: false,
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 14,
-            fontWeight: "bold",
-          },
-        },
-        labelLine: {
-          show: false,
-        },
-        data: [
-          { value: 335000, name: "Qualified", itemStyle: { color: "#019932" } },
-          { value: 210000, name: "Proposal", itemStyle: { color: "#409EFF" } },
-          {
-            value: 180000,
-            name: "Negotiation",
-            itemStyle: { color: "#E6A23C" },
-          },
-          { value: 95000, name: "Closed Won", itemStyle: { color: "#67C23A" } },
-          {
-            value: 45000,
-            name: "Closed Lost",
-            itemStyle: { color: "#F56C6C" },
-          },
-        ],
-      },
-    ],
-  };
-
-  pipelineChartInstance.setOption(option);
-};
-
-const updateRevenueChart = () => {
-  if (!revenueChartInstance) return;
-
-  const monthlyData = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-  const revenueData = [120000, 145000, 135000, 180000, 165000, 195000];
-  const targetData = [150000, 150000, 150000, 170000, 170000, 170000];
-
-  const option = {
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-      },
-    },
-    legend: {
-      data: ["Revenue", "Target"],
-      top: "5%",
-    },
-    grid: {
-      left: "3%",
-      right: "4%",
-      bottom: "3%",
-      containLabel: true,
-    },
-    xAxis: [
-      {
-        type: "category",
-        boundaryGap: false,
-        data: monthlyData,
-      },
-    ],
-    yAxis: [
-      {
-        type: "value",
-        axisLabel: {
-          formatter: "${value}",
-        },
-      },
-    ],
-    series: [
-      {
-        name: "Revenue",
-        type: "line",
-        smooth: true,
-        itemStyle: {
-          color: "#019932",
-        },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(1, 153, 50, 0.3)" },
-              { offset: 1, color: "rgba(1, 153, 50, 0.05)" },
-            ],
-          },
-        },
-        data: revenueData,
-      },
-      {
-        name: "Target",
-        type: "line",
-        smooth: true,
-        lineStyle: {
-          type: "dashed",
-        },
-        itemStyle: {
-          color: "#409EFF",
-        },
-        data: targetData,
-      },
-    ],
-  };
-
-  revenueChartInstance.setOption(option);
-};
-
-const updateLeadSourceChart = () => {
-  if (!leadSourceChartInstance) return;
-
-  const option = {
-    tooltip: {
-      trigger: "item",
-      formatter: "{b}: {c} ({d}%)",
-    },
-    series: [
-      {
-        type: "pie",
-        radius: "70%",
-        data: [
-          { value: 45, name: "Website", itemStyle: { color: "#019932" } },
-          { value: 30, name: "Social Media", itemStyle: { color: "#409EFF" } },
-          { value: 25, name: "Referrals", itemStyle: { color: "#E6A23C" } },
-          {
-            value: 20,
-            name: "Email Campaign",
-            itemStyle: { color: "#67C23A" },
-          },
-          { value: 15, name: "Events", itemStyle: { color: "#F56C6C" } },
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-      },
-    ],
-  };
-
-  leadSourceChartInstance.setOption(option);
-};
-
-const updateCustomerSegmentChart = () => {
-  if (!customerSegmentChartInstance) return;
-
-  const option = {
-    tooltip: {
-      trigger: "item",
-    },
-    series: [
-      {
-        type: "pie",
-        radius: "70%",
-        data: [
-          { value: 40, name: "Enterprise", itemStyle: { color: "#019932" } },
-          { value: 35, name: "Mid-Market", itemStyle: { color: "#409EFF" } },
-          { value: 25, name: "SMB", itemStyle: { color: "#E6A23C" } },
-        ],
-        label: {
-          show: true,
-          position: "outside",
-          formatter: "{b}: {d}%",
-        },
-      },
-    ],
-  };
-
-  customerSegmentChartInstance.setOption(option);
-};
-
-const updateSalesPerformanceChart = () => {
-  if (!salesPerformanceChartInstance) return;
-
-  const option = {
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "shadow",
-      },
-    },
-    grid: {
-      left: "3%",
-      right: "4%",
-      bottom: "3%",
-      containLabel: true,
-    },
-    xAxis: {
-      type: "value",
-    },
-    yAxis: {
-      type: "category",
-      data: ["John S.", "Sarah J.", "Mike W.", "Lisa D.", "Tom B."],
-    },
-    series: [
-      {
-        type: "bar",
-        data: [
-          { value: 95, itemStyle: { color: "#019932" } },
-          { value: 88, itemStyle: { color: "#409EFF" } },
-          { value: 82, itemStyle: { color: "#67C23A" } },
-          { value: 76, itemStyle: { color: "#E6A23C" } },
-          { value: 69, itemStyle: { color: "#F56C6C" } },
-        ],
-        barWidth: "60%",
-      },
-    ],
-  };
-
-  salesPerformanceChartInstance.setOption(option);
-};
-
-const initCharts = async () => {
-  await nextTick();
-
-  // Initialize all charts
-  pipelineChartInstance = echarts.init(pipelineChart.value);
-  revenueChartInstance = echarts.init(revenueChart.value);
-  leadSourceChartInstance = echarts.init(leadSourceChart.value);
-  customerSegmentChartInstance = echarts.init(customerSegmentChart.value);
-  salesPerformanceChartInstance = echarts.init(salesPerformanceChart.value);
-
-  // Update all charts
-  updateAllCharts();
-
-  // Handle window resize
-  window.addEventListener("resize", () => {
-    pipelineChartInstance?.resize();
-    revenueChartInstance?.resize();
-    leadSourceChartInstance?.resize();
-    customerSegmentChartInstance?.resize();
-    salesPerformanceChartInstance?.resize();
-  });
-};
-
 // Utility functions
 const formatNumber = (num) => {
   return new Intl.NumberFormat().format(num);
@@ -650,20 +322,6 @@ onMounted(() => {
     start.toISOString().split("T")[0],
     end.toISOString().split("T")[0],
   ];
-
-  initCharts();
-});
-
-onBeforeUnmount(() => {
-  // Dispose charts
-  pipelineChartInstance?.dispose();
-  revenueChartInstance?.dispose();
-  leadSourceChartInstance?.dispose();
-  customerSegmentChartInstance?.dispose();
-  salesPerformanceChartInstance?.dispose();
-
-  // Remove resize listener
-  window.removeEventListener("resize", () => {});
 });
 </script>
 
