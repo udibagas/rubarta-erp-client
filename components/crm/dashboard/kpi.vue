@@ -10,7 +10,9 @@
             class="w-15 h-15 rounded-xl flex items-center justify-center text-white shrink-0"
             :style="{ backgroundColor: kpi.color }"
           >
-            <component :is="kpi.icon" :size="24" />
+            <el-icon>
+              <component :is="kpi.icon" :size="24" />
+            </el-icon>
           </div>
           <div class="flex-1">
             <div class="text-sm text-gray-500 mb-1">{{ kpi.title }}</div>
@@ -34,10 +36,6 @@
       </el-card>
     </el-col>
   </el-row>
-
-  <pre>
-    {{ data }}
-  </pre>
 </template>
 
 <script setup>

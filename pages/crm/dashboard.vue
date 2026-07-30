@@ -40,71 +40,12 @@
     <el-row :gutter="20">
       <!-- Sales Pipeline -->
       <el-col :xs="24" :lg="12">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2 font-semibold">
-                <PieChart :size="18" class="text-green-600" />
-                <span>Sales Pipeline</span>
-              </div>
-              <el-dropdown @command="handlePipelineFilter">
-                <el-button text size="small">
-                  {{ pipelineFilter }}
-                  <ChevronDown :size="14" />
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item command="This Month"
-                      >This Month</el-dropdown-item
-                    >
-                    <el-dropdown-item command="Last 3 Months"
-                      >Last 3 Months</el-dropdown-item
-                    >
-                    <el-dropdown-item command="This Year"
-                      >This Year</el-dropdown-item
-                    >
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </div>
-          </template>
-          <div ref="pipelineChart" class="h-80 w-full"></div>
-        </el-card>
+        <CrmDashboardSalesPipeline />
       </el-col>
 
       <!-- Revenue Trend -->
       <el-col :xs="24" :lg="12">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2 font-semibold">
-                <LineChart :size="18" class="text-green-600" />
-                <span>Revenue Trend</span>
-              </div>
-              <el-button-group size="small">
-                <el-button
-                  :type="revenueFilter === 'monthly' ? 'primary' : 'default'"
-                  @click="
-                    revenueFilter = 'monthly';
-                    updateRevenueChart();
-                  "
-                >
-                  Monthly
-                </el-button>
-                <el-button
-                  :type="revenueFilter === 'quarterly' ? 'primary' : 'default'"
-                  @click="
-                    revenueFilter = 'quarterly';
-                    updateRevenueChart();
-                  "
-                >
-                  Quarterly
-                </el-button>
-              </el-button-group>
-            </div>
-          </template>
-          <div ref="revenueChart" class="h-80 w-full"></div>
-        </el-card>
+        <CrmDashboardRevenueTrend />
       </el-col>
     </el-row>
 
@@ -257,10 +198,8 @@
 import { ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import {
-  TrendingUp,
   Users,
   PieChart,
-  ShoppingCart,
   BarChart3,
   LineChart,
   Target,
