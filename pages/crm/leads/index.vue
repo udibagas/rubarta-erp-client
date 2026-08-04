@@ -112,7 +112,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Est. Value" width="150" align="right">
+      <el-table-column label="Est. Value" width="170" align="right">
         <template #default="{ row }">
           <el-tag
             effect="plain"
