@@ -4,7 +4,7 @@
 
     <div class="flex items-center gap-4">
       <el-select
-        :model-value="companyId"
+        v-model="companyId"
         placeholder="Select Company"
         style="width: 270px"
         @change="(id) => changeCompany(id)"
@@ -66,12 +66,25 @@ interface Company {
   id: number;
   code: string;
   name: string;
+  isDefault: boolean;
 }
 
 const { data: companies } = useQuery<Company[]>({
   queryKey: ["companies"],
   queryFn: () => request("/api/companies"),
 });
+
+// Set default company when companies data loads
+watch(
+  companies,
+  (newCompanies) => {
+    if (newCompanies && newCompanies.length > 0 && !companyId.value) {
+      const defaultCompany = newCompanies.find((c) => c.isDefault);
+      companyId.value = defaultCompany?.id ?? newCompanies?.[0]?.id ?? null;
+    }
+  },
+  { immediate: true },
+);
 
 const { data: unread } = useQuery<number>({
   queryKey: ["unread-notifications"],
@@ -80,6 +93,7 @@ const { data: unread } = useQuery<number>({
 
 const { mutate: changeCompany } = useMutation({
   mutationFn: (id: number | string) => {
+    companyId.value = id;
     return request(`/api/companies/set/${id}`, { method: "POST" });
   },
 });
