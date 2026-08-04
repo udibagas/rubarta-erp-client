@@ -73,7 +73,7 @@
         label="Status"
         align="center"
         header-align="center"
-        width="200"
+        width="190"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" style="width: 100%" /> <br />
