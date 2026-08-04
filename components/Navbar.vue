@@ -1,11 +1,10 @@
 <template>
   <div class="flex items-center justify-between gap-4 w-full">
-    <!-- Remove the duplicate toggle button since it's now in the layout -->
     <div class="text-green-600 font-bold text-xl">RUBARTA ERP SYSTEM</div>
 
     <div class="flex items-center gap-4">
       <el-select
-        v-model="companyId"
+        :model-value="companyId"
         placeholder="Select Company"
         style="width: 270px"
         @change="(id) => changeCompany(id)"
@@ -74,17 +73,6 @@ const { data: companies } = useQuery<Company[]>({
   queryFn: () => request("/api/companies"),
 });
 
-// Set default company when companies data loads
-watch(
-  companies,
-  (newCompanies) => {
-    if (newCompanies && newCompanies.length > 0 && !companyId.value) {
-      companyId.value = newCompanies?.[0]?.id || null;
-    }
-  },
-  { immediate: true },
-);
-
 const { data: unread } = useQuery<number>({
   queryKey: ["unread-notifications"],
   queryFn: () => request("/api/notifications/unread"),
@@ -92,7 +80,6 @@ const { data: unread } = useQuery<number>({
 
 const { mutate: changeCompany } = useMutation({
   mutationFn: (id: number | string) => {
-    companyId.value = id;
     return request(`/api/companies/set/${id}`, { method: "POST" });
   },
 });
