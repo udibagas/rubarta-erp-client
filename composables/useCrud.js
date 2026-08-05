@@ -31,7 +31,6 @@ export default ({ url, queryKey, defaultQuery }) => {
   }
 
   function refreshData(key) {
-    page.value = 1;
     queryClient.invalidateQueries({
       queryKey: [key ?? queryKey],
     });
