@@ -68,12 +68,27 @@
       @row-click="(row) => show(row.id)"
       table-layout="auto"
       height="calc(100vh - 198px)"
+      @filter-change="filterChange"
     >
       <el-table-column
         label="Status"
         align="center"
         header-align="center"
-        width="190"
+        column-key="status"
+        width="180"
+        :filters="
+          [
+            'DRAFT',
+            'SUBMITTED',
+            'PARTIALLY_APPROVED',
+            'FULLY_APPROVED',
+            'REJECTED',
+            'VERIFIED',
+            'AUTHORIZED',
+            'PAID',
+            'CLOSED',
+          ].map((s) => ({ text: s, value: s }))
+        "
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" style="width: 100%" /> <br />
@@ -208,6 +223,7 @@ const {
   keyword,
   sizeChange,
   currentChange,
+  filterChange,
   refreshData,
   fetchData,
   companyId,
