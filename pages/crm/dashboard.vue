@@ -71,246 +71,37 @@
     <el-row :gutter="20" class="mb-8">
       <!-- Recent Activities -->
       <el-col :xs="24" :lg="12">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2 font-semibold">
-                <Activity :size="18" class="text-green-600" />
-                <span>Recent Activities</span>
-              </div>
-              <el-button text size="small" @click="viewAllActivities">
-                View All
-                <ArrowRight :size="14" />
-              </el-button>
-            </div>
-          </template>
-          <el-timeline>
-            <el-timeline-item
-              v-for="activity in recentActivities"
-              :key="activity.id"
-              :timestamp="activity.timestamp"
-              placement="top"
-              :color="activity.color"
-            >
-              <div class="py-2">
-                <div class="font-semibold text-gray-800 mb-1">
-                  {{ activity.title }}
-                </div>
-                <div class="text-gray-500 text-sm mb-1">
-                  {{ activity.description }}
-                </div>
-                <div class="text-gray-400 text-xs">{{ activity.user }}</div>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
-        </el-card>
+        <CrmDashboardRecentActivities />
       </el-col>
 
       <!-- Top Opportunities -->
       <el-col :xs="24" :lg="12">
-        <el-card class="rounded-xl h-full" shadow="hover">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2 font-semibold">
-                <Briefcase :size="18" class="text-green-600" />
-                <span>Top Opportunities</span>
-              </div>
-              <el-button text size="small" @click="viewAllOpportunities">
-                View All
-                <ArrowRight :size="14" />
-              </el-button>
-            </div>
-          </template>
-          <el-table :data="topOpportunities" style="width: 100%" size="small">
-            <el-table-column prop="name" label="Opportunity" min-width="120">
-              <template #default="{ row }">
-                <div>
-                  <div class="font-semibold text-gray-800 text-sm">
-                    {{ row.name }}
-                  </div>
-                  <div class="text-gray-500 text-xs">{{ row.company }}</div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="value" label="Value" align="right">
-              <template #default="{ row }">
-                <span class="font-semibold text-emerald-600"
-                  >${{ formatNumber(row.value) }}</span
-                >
-              </template>
-            </el-table-column>
-            <el-table-column prop="stage" label="Stage">
-              <template #default="{ row }">
-                <el-tag :type="getStageType(row.stage)" size="small">
-                  {{ row.stage }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              prop="probability"
-              label="Probability"
-              align="center"
-            >
-              <template #default="{ row }">
-                <el-progress
-                  :percentage="row.probability"
-                  :color="getProgressColor(row.probability)"
-                  :stroke-width="8"
-                  :show-text="false"
-                />
-                <span class="text-xs text-gray-500 ml-2"
-                  >{{ row.probability }}%</span
-                >
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
+        <CrmDashboardTopOpportunities />
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
-import * as echarts from "echarts";
-import {
-  BarChart3,
-  Calendar,
-  RefreshCw,
-  ArrowRight,
-  Activity,
-  Briefcase,
-} from "lucide-vue-next";
+import { ref, onMounted } from "vue";
+import { BarChart3, Calendar, RefreshCw } from "lucide-vue-next";
 
 // Reactive data
 const loading = ref(false);
 const dateRange = ref([]);
-
-// Recent Activities
-const recentActivities = ref([
-  {
-    id: 1,
-    title: "New lead created",
-    description: "ABC Corp - Enterprise software inquiry",
-    user: "John Smith",
-    timestamp: "2 hours ago",
-    color: "#019932",
-  },
-  {
-    id: 2,
-    title: "Deal closed",
-    description: "XYZ Ltd - $50,000 annual contract",
-    user: "Sarah Johnson",
-    timestamp: "4 hours ago",
-    color: "#409EFF",
-  },
-  {
-    id: 3,
-    title: "Meeting scheduled",
-    description: "Demo with Tech Solutions Inc",
-    user: "Mike Wilson",
-    timestamp: "6 hours ago",
-    color: "#E6A23C",
-  },
-  {
-    id: 4,
-    title: "Follow-up completed",
-    description: "Proposal sent to Global Systems",
-    user: "Lisa Davis",
-    timestamp: "1 day ago",
-    color: "#909399",
-  },
-]);
-
-// Top Opportunities
-const topOpportunities = ref([
-  {
-    id: 1,
-    name: "Enterprise CRM System",
-    company: "TechCorp Ltd",
-    value: 150000,
-    stage: "Proposal",
-    probability: 75,
-  },
-  {
-    id: 2,
-    name: "Cloud Migration Project",
-    company: "Global Systems",
-    value: 250000,
-    stage: "Negotiation",
-    probability: 85,
-  },
-  {
-    id: 3,
-    name: "Digital Transformation",
-    company: "Innovation Inc",
-    value: 180000,
-    stage: "Qualification",
-    probability: 45,
-  },
-  {
-    id: 4,
-    name: "Software Licensing",
-    company: "Business Solutions",
-    value: 95000,
-    stage: "Proposal",
-    probability: 60,
-  },
-  {
-    id: 5,
-    name: "IT Consulting Services",
-    company: "StartupX",
-    value: 75000,
-    stage: "Discovery",
-    probability: 30,
-  },
-]);
 
 // Methods
 const goBack = () => {
   navigateTo("/crm");
 };
 
-const refreshData = async () => {
+function refreshData() {
   loading.value = true;
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // Update charts
-  updateAllCharts();
-  loading.value = false;
-};
-
-// Utility functions
-const formatNumber = (num) => {
-  return new Intl.NumberFormat().format(num);
-};
-
-const getStageType = (stage) => {
-  const types = {
-    Discovery: "info",
-    Qualification: "warning",
-    Proposal: "primary",
-    Negotiation: "success",
-    "Closed Won": "success",
-    "Closed Lost": "danger",
-  };
-  return types[stage] || "info";
-};
-
-const getProgressColor = (percentage) => {
-  if (percentage >= 80) return "#67C23A";
-  if (percentage >= 60) return "#019932";
-  if (percentage >= 40) return "#E6A23C";
-  return "#F56C6C";
-};
-
-const viewAllActivities = () => {
-  navigateTo("/crm/interactions");
-};
-
-const viewAllOpportunities = () => {
-  navigateTo("/crm/opportunities");
-};
+  // Simulate data fetching
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+}
 
 // Lifecycle
 onMounted(() => {
