@@ -28,8 +28,9 @@
             {{ activity.description }}
           </div>
           <div class="text-gray-400 text-xs flex items-center gap-2">
-            <span>{{ activity.customerName }}</span>
-            <span>•</span>
+            <span v-if="activity.customerName">
+              {{ activity.customerName }} &bull;
+            </span>
             <span>{{ activity.userName }}</span>
           </div>
         </div>
