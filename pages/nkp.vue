@@ -190,6 +190,7 @@
     <el-pagination
       class="p-2 bg-slate-100"
       v-if="data?.total"
+      :current-page="page"
       size="small"
       background
       layout="total, sizes, prev, pager, next"
