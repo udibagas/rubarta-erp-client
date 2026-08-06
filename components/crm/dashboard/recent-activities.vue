@@ -6,74 +6,89 @@
           <Activity :size="18" class="text-green-600" />
           <span>Recent Activities</span>
         </div>
-        <el-button text size="small" @click="viewAllActivities">
+        <!-- <el-button text size="small">
           View All
           <ArrowRight :size="14" />
-        </el-button>
+        </el-button> -->
       </div>
     </template>
     <el-timeline>
       <el-timeline-item
-        v-for="activity in recentActivities"
-        :key="activity.id"
-        :timestamp="activity.timestamp"
+        v-for="(activity, index) in recentActivities"
+        :key="index"
+        :timestamp="formatDate(activity.date)"
         placement="top"
-        :color="activity.color"
+        :color="getActivityColor(activity.type)"
       >
         <div class="py-2">
           <div class="font-semibold text-gray-800 mb-1">
-            {{ activity.title }}
+            {{ activity.type }}
           </div>
           <div class="text-gray-500 text-sm mb-1">
             {{ activity.description }}
           </div>
-          <div class="text-gray-400 text-xs">{{ activity.user }}</div>
+          <div class="text-gray-400 text-xs flex items-center gap-2">
+            <span>{{ activity.customerName }}</span>
+            <span>•</span>
+            <span>{{ activity.userName }}</span>
+          </div>
         </div>
       </el-timeline-item>
     </el-timeline>
   </el-card>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
 import { ArrowRight, Activity } from "lucide-vue-next";
-// Recent Activities
-const recentActivities = ref([
-  {
-    id: 1,
-    title: "New lead created",
-    description: "ABC Corp - Enterprise software inquiry",
-    user: "John Smith",
-    timestamp: "2 hours ago",
-    color: "#019932",
-  },
-  {
-    id: 2,
-    title: "Deal closed",
-    description: "XYZ Ltd - $50,000 annual contract",
-    user: "Sarah Johnson",
-    timestamp: "4 hours ago",
-    color: "#409EFF",
-  },
-  {
-    id: 3,
-    title: "Meeting scheduled",
-    description: "Demo with Tech Solutions Inc",
-    user: "Mike Wilson",
-    timestamp: "6 hours ago",
-    color: "#E6A23C",
-  },
-  {
-    id: 4,
-    title: "Follow-up completed",
-    description: "Proposal sent to Global Systems",
-    user: "Lisa Davis",
-    timestamp: "1 day ago",
-    color: "#909399",
-  },
-]);
+const { useQuery } = await import("@tanstack/vue-query");
+const request = useRequest();
 
-const viewAllActivities = () => {
-  navigateTo("/crm/interactions");
+interface Activity {
+  type: string; // Lead, Interaction, Opportunity, etc.
+  description: string;
+  customerId: number;
+  customerName: string;
+  userId: number;
+  userName: string;
+  date: string; // ISO date string
+}
+
+const { data: recentActivities } = useQuery<Activity[]>({
+  queryKey: ["recent-activities"],
+  queryFn: () => request("/api/crm-dashboard/recent-activities?limit=5"),
+  refetchOnWindowFocus: false,
+});
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return "Today";
+  } else if (diffDays === 1) {
+    return "Yesterday";
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  } else {
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+};
+
+const getActivityColor = (type: string) => {
+  const colorMap: Record<string, string> = {
+    Lead: "#409EFF",
+    Interaction: "#67C23A",
+    Opportunity: "#E6A23C",
+    Quotation: "#F56C6C",
+    Order: "#909399",
+    Task: "#019932",
+  };
+  return colorMap[type] || "#409EFF";
 };
 </script>

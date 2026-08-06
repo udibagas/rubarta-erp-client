@@ -117,44 +117,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Custom height for chart containers */
-.h-70 {
-  height: 17.5rem;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.activity-card,
-.opportunity-card {
-  border-radius: 12px;
-  height: 100%;
-}
-
-.activity-item {
-  padding: 0.5rem 0;
-}
-
-.activity-title {
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
-}
-
-.activity-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.activity-user {
-  color: #9ca3af;
-  font-size: 0.75rem;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .kpi-section-card,

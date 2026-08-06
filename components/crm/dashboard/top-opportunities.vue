@@ -127,7 +127,7 @@ const sortOptions = [
 
 const params = computed(() => ({
   page: 1,
-  pageSize: 5,
+  pageSize: 10,
   sortBy: sortOption.value,
   sortOrder: "desc",
 }));
