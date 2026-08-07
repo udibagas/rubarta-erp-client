@@ -11,49 +11,92 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import { Filter } from "lucide-vue-next";
+const { useQuery } = await import("@tanstack/vue-query");
+const request = useRequest();
 
-// Reactive data
-const loading = ref(false);
-const dateRange = ref([]);
+const { data } = useQuery({
+  queryKey: ["lead-sources"],
+  queryFn: () => request("/api/crm-dashboard/leads/source-breakdown"),
+  keepPreviousData: true,
+  refetchOnWindowFocus: false,
+});
 
-// Chart refs
 const leadSourceChart = ref(null);
-
-// Chart instances
 let leadSourceChartInstance = null;
 
 const updateLeadSourceChart = () => {
-  if (!leadSourceChartInstance) return;
+  if (!leadSourceChartInstance || !data.value) return;
+
+  // Sort by count descending
+  const sortedData = [...data.value].sort((a, b) => b.count - a.count);
+
+  // Format source names (convert camelCase to readable)
+  const formatSourceName = (source) => {
+    return source
+      .replace(/([A-Z])/g, " $1")
+      .trim()
+      .replace(/^./, (str) => str.toUpperCase());
+  };
+
+  // Get color based on conversion rate
+  const getColorByConversion = (rate) => {
+    if (rate >= 80) return "#019932";
+    if (rate >= 60) return "#67C23A";
+    if (rate >= 40) return "#409EFF";
+    if (rate >= 20) return "#E6A23C";
+    return "#F56C6C";
+  };
 
   const option = {
     tooltip: {
-      trigger: "item",
-      formatter: "{b}: {c} ({d}%)",
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow",
+      },
+      formatter: (params) => {
+        const item = params[0];
+        const dataItem = sortedData[item.dataIndex];
+        return `
+          <div style="font-weight: bold; margin-bottom: 8px;">${formatSourceName(dataItem.source)}</div>
+          <div style="margin-bottom: 4px;">Total Leads: <b>${dataItem.count}</b></div>
+          <div>Conversion Rate: <b>${dataItem.conversionRate.toFixed(1)}%</b></div>
+        `;
+      },
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "value",
+      minInterval: 1,
+    },
+    yAxis: {
+      type: "category",
+      data: sortedData.map((item) => formatSourceName(item.source)),
     },
     series: [
       {
-        type: "pie",
-        radius: "70%",
-        data: [
-          { value: 45, name: "Website", itemStyle: { color: "#019932" } },
-          { value: 30, name: "Social Media", itemStyle: { color: "#409EFF" } },
-          { value: 25, name: "Referrals", itemStyle: { color: "#E6A23C" } },
-          {
-            value: 20,
-            name: "Email Campaign",
-            itemStyle: { color: "#67C23A" },
+        name: "Leads",
+        type: "bar",
+        data: sortedData.map((item) => ({
+          value: item.count,
+          itemStyle: { color: getColorByConversion(item.conversionRate) },
+        })),
+        barWidth: "50%",
+        label: {
+          show: true,
+          position: "right",
+          formatter: (params) => {
+            const dataItem = sortedData[params.dataIndex];
+            return `${dataItem.conversionRate.toFixed(0)}%`;
           },
-          { value: 15, name: "Events", itemStyle: { color: "#F56C6C" } },
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
+          color: "#666",
+          fontSize: 11,
         },
       },
     ],
@@ -62,40 +105,30 @@ const updateLeadSourceChart = () => {
   leadSourceChartInstance.setOption(option);
 };
 
-const initCharts = async () => {
+const initChart = async () => {
   await nextTick();
-
-  // Initialize all charts
   leadSourceChartInstance = echarts.init(leadSourceChart.value);
-
-  // Update all charts
   updateLeadSourceChart();
 
-  // Handle window resize
   window.addEventListener("resize", () => {
     leadSourceChartInstance?.resize();
   });
 };
 
-// Lifecycle
-onMounted(() => {
-  // Set default date range (last 30 days)
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 30);
-  dateRange.value = [
-    start.toISOString().split("T")[0],
-    end.toISOString().split("T")[0],
-  ];
+watch(data, () => {
+  if (data.value) {
+    updateLeadSourceChart();
+  }
+});
 
-  initCharts();
+onMounted(() => {
+  initChart();
 });
 
 onBeforeUnmount(() => {
-  // Dispose charts
   leadSourceChartInstance?.dispose();
-
-  // Remove resize listener
-  window.removeEventListener("resize", () => {});
+  window.removeEventListener("resize", () => {
+    leadSourceChartInstance?.resize();
+  });
 });
 </script>
