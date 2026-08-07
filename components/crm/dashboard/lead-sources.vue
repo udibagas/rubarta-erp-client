@@ -19,7 +19,6 @@ const request = useRequest();
 const { data } = useQuery({
   queryKey: ["lead-sources"],
   queryFn: () => request("/api/crm-dashboard/leads/source-breakdown"),
-  keepPreviousData: true,
   refetchOnWindowFocus: false,
 });
 

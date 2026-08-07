@@ -4,25 +4,14 @@
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-2 font-semibold">
           <PieChart :size="18" class="text-green-600" />
-          <span>Sales Pipeline</span>
+          <span>Conversion Funnel</span>
         </div>
-        <el-dropdown @command="handlePipelineFilter">
-          <el-button text size="small">
-            {{ pipelineFilter }}
-            <ChevronDown :size="14" />
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="This Month"
-                >This Month</el-dropdown-item
-              >
-              <el-dropdown-item command="Last 3 Months"
-                >Last 3 Months</el-dropdown-item
-              >
-              <el-dropdown-item command="This Year">This Year</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span>Overall Conversion: </span>
+          <span class="font-bold text-green-600">
+            {{ data?.overallConversionRate?.toFixed(1) ?? 0 }}%
+          </span>
+        </div>
       </div>
     </template>
     <div ref="pipelineChart" class="h-80 w-full"></div>
@@ -31,72 +20,114 @@
 
 <script setup>
 import * as echarts from "echarts";
-import { PieChart, ChevronDown } from "lucide-vue-next";
+import { PieChart } from "lucide-vue-next";
+import { useQuery } from "@tanstack/vue-query";
+const request = useRequest();
 
-const pipelineFilter = ref("This Month");
 const pipelineChart = ref(null);
-const dateRange = ref([]);
+
+const { data } = useQuery({
+  queryKey: ["conversion-funnel"],
+  queryFn: () => request("/api/crm-dashboard/conversion-funnel"),
+  refetchOnWindowFocus: false,
+});
 
 let pipelineChartInstance = null;
 
-const handlePipelineFilter = (command) => {
-  pipelineFilter.value = command;
-  updatePipelineChart();
-};
-
 const updatePipelineChart = () => {
-  if (!pipelineChartInstance) return;
+  if (!pipelineChartInstance || !data.value) return;
+
+  const funnelData = [
+    {
+      value: data.value.totalLeads,
+      name: "Total Leads",
+    },
+    {
+      value: data.value.qualifiedLeads,
+      name: "Qualified Leads",
+    },
+    {
+      value: data.value.totalOpportunities,
+      name: "Opportunities",
+    },
+    {
+      value: data.value.proposalSent,
+      name: "Proposals Sent",
+    },
+    {
+      value: data.value.wonOpportunities,
+      name: "Won Opportunities",
+    },
+    {
+      value: data.value.totalOrders,
+      name: "Total Orders",
+    },
+    {
+      value: data.value.completedOrders,
+      name: "Completed Orders",
+    },
+  ];
+
+  const colors = [
+    "#019932",
+    "#4CAF50",
+    "#409EFF",
+    "#66B1FF",
+    "#E6A23C",
+    "#F56C6C",
+    "#F78989",
+  ];
 
   const option = {
-    title: {
-      show: false,
-    },
     tooltip: {
-      trigger: "item",
-      formatter: "{b}: ${c} ({d}%)",
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow",
+      },
+      formatter: (params) => {
+        const item = params[0];
+        const total = data.value.totalLeads;
+        const percentage = ((item.value / total) * 100).toFixed(1);
+        return `
+          <div style="font-weight: bold; margin-bottom: 4px;">${item.name}</div>
+          <div>Count: <b>${item.value}</b></div>
+          <div>Percentage: <b>${percentage}%</b></div>
+        `;
+      },
     },
-    legend: {
-      bottom: "0%",
-      left: "center",
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "category",
+      data: funnelData.map((item) => item.name),
+      axisLabel: {
+        rotate: 45,
+        fontSize: 11,
+      },
+    },
+    yAxis: {
+      type: "value",
+      minInterval: 1,
     },
     series: [
       {
-        type: "pie",
-        radius: ["40%", "70%"],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: "#fff",
-          borderWidth: 2,
-        },
+        type: "bar",
+        data: funnelData.map((item, index) => ({
+          value: item.value,
+          itemStyle: { color: colors[index] },
+        })),
+        barWidth: "60%",
         label: {
-          show: false,
+          show: true,
+          position: "top",
+          formatter: "{c}",
+          fontSize: 11,
+          color: "#666",
         },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 14,
-            fontWeight: "bold",
-          },
-        },
-        labelLine: {
-          show: false,
-        },
-        data: [
-          { value: 335000, name: "Qualified", itemStyle: { color: "#019932" } },
-          { value: 210000, name: "Proposal", itemStyle: { color: "#409EFF" } },
-          {
-            value: 180000,
-            name: "Negotiation",
-            itemStyle: { color: "#E6A23C" },
-          },
-          { value: 95000, name: "Closed Won", itemStyle: { color: "#67C23A" } },
-          {
-            value: 45000,
-            name: "Closed Lost",
-            itemStyle: { color: "#F56C6C" },
-          },
-        ],
       },
     ],
   };
@@ -104,40 +135,27 @@ const updatePipelineChart = () => {
   pipelineChartInstance.setOption(option);
 };
 
-const initCharts = async () => {
+const initChart = async () => {
   await nextTick();
-
-  // Initialize chart
   pipelineChartInstance = echarts.init(pipelineChart.value);
-
-  // Update chart
   updatePipelineChart();
-
-  // Handle window resize
   window.addEventListener("resize", () => {
     pipelineChartInstance?.resize();
   });
 };
 
-// Lifecycle
-onMounted(() => {
-  // Set default date range (last 30 days)
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 30);
-  dateRange.value = [
-    start.toISOString().split("T")[0],
-    end.toISOString().split("T")[0],
-  ];
+watch(data, () => {
+  if (data.value) {
+    updatePipelineChart();
+  }
+});
 
-  initCharts();
+onMounted(() => {
+  initChart();
 });
 
 onBeforeUnmount(() => {
-  // Dispose charts
   pipelineChartInstance?.dispose();
-
-  // Remove resize listener
   window.removeEventListener("resize", () => {});
 });
 </script>
