@@ -11,13 +11,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
+import { useQuery } from "@tanstack/vue-query";
 import * as echarts from "echarts";
 import { Target } from "lucide-vue-next";
+const request = useRequest();
 
 // Reactive data
-const loading = ref(false);
 const dateRange = ref([]);
+
+const { data } = useQuery({
+  queryKey: ["sales-performance", dateRange],
+  queryFn: () =>
+    request(
+      `/api/crm-dashboard/sales-performance?startDate=${dateRange.value[0]}&endDate=${dateRange.value[1]}`,
+    ),
+  refetchOnWindowFocus: false,
+});
 
 // Chart refs
 const salesPerformanceChart = ref(null);
@@ -26,13 +35,35 @@ const salesPerformanceChart = ref(null);
 let salesPerformanceChartInstance = null;
 
 const updateSalesPerformanceChart = () => {
-  if (!salesPerformanceChartInstance) return;
+  if (!salesPerformanceChartInstance || !data.value) return;
+
+  // Sort by total revenue descending
+  const sortedData = [...data.value].sort(
+    (a, b) => b.totalRevenue - a.totalRevenue,
+  );
+
+  // Get color based on index
+  const getColor = (index) => {
+    const colors = ["#019932", "#409EFF", "#67C23A", "#E6A23C", "#F56C6C"];
+    return colors[index % colors.length];
+  };
 
   const option = {
     tooltip: {
       trigger: "axis",
       axisPointer: {
         type: "shadow",
+      },
+      formatter: (params) => {
+        const item = params[0];
+        const dataItem = sortedData[item.dataIndex];
+        return `
+          <div style="font-weight: bold; margin-bottom: 8px;">${dataItem.userName}</div>
+          <div style="margin-bottom: 4px;">Total Revenue: <b>${toCurrency(dataItem.totalRevenue)}</b></div>
+          <div style="margin-bottom: 4px;">Leads: ${dataItem.totalLeads} (Converted: ${dataItem.convertedLeads})</div>
+          <div style="margin-bottom: 4px;">Opportunities: ${dataItem.totalOpportunities} (Won: ${dataItem.wonOpportunities})</div>
+          <div>Quotations: ${dataItem.totalQuotations} (Accepted: ${dataItem.acceptedQuotations})</div>
+        `;
       },
     },
     grid: {
@@ -43,21 +74,28 @@ const updateSalesPerformanceChart = () => {
     },
     xAxis: {
       type: "value",
+      axisLabel: {
+        formatter: (value) => {
+          if (value >= 1000000) {
+            return (value / 1000000).toFixed(1) + "M";
+          } else if (value >= 1000) {
+            return (value / 1000).toFixed(0) + "K";
+          }
+          return value;
+        },
+      },
     },
     yAxis: {
       type: "category",
-      data: ["John S.", "Sarah J.", "Mike W.", "Lisa D.", "Tom B."],
+      data: sortedData.map((item) => item.userName),
     },
     series: [
       {
         type: "bar",
-        data: [
-          { value: 95, itemStyle: { color: "#019932" } },
-          { value: 88, itemStyle: { color: "#409EFF" } },
-          { value: 82, itemStyle: { color: "#67C23A" } },
-          { value: 76, itemStyle: { color: "#E6A23C" } },
-          { value: 69, itemStyle: { color: "#F56C6C" } },
-        ],
+        data: sortedData.map((item, index) => ({
+          value: item.totalRevenue,
+          itemStyle: { color: getColor(index) },
+        })),
         barWidth: "60%",
       },
     ],
@@ -66,7 +104,7 @@ const updateSalesPerformanceChart = () => {
   salesPerformanceChartInstance.setOption(option);
 };
 
-const initCharts = async () => {
+const initChart = async () => {
   await nextTick();
 
   // Initialize all charts
@@ -81,6 +119,13 @@ const initCharts = async () => {
   });
 };
 
+// Watch for data changes
+watch(data, () => {
+  if (data.value) {
+    updateSalesPerformanceChart();
+  }
+});
+
 // Lifecycle
 onMounted(() => {
   // Set default date range (last 30 days)
@@ -92,7 +137,7 @@ onMounted(() => {
     end.toISOString().split("T")[0],
   ];
 
-  initCharts();
+  initChart();
 });
 
 onBeforeUnmount(() => {

@@ -52,17 +52,12 @@
     <!-- Secondary Charts Section -->
     <el-row :gutter="20">
       <!-- Lead Sources -->
-      <el-col :xs="24" :lg="8">
+      <el-col :xs="24" :lg="12">
         <CrmDashboardLeadSources />
       </el-col>
 
-      <!-- Customer Segments -->
-      <el-col :xs="24" :lg="8">
-        <CrmDashboardCustomerSegments />
-      </el-col>
-
       <!-- Sales Performance -->
-      <el-col :xs="24" :lg="8">
+      <el-col :xs="24" :lg="12">
         <CrmDashboardSalesPerformance />
       </el-col>
     </el-row>
