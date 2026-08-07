@@ -61,7 +61,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="amount" label="Value" align="center" width="200">
+      <el-table-column prop="amount" label="Value" align="center" width="180">
         <template #default="{ row }">
           <el-tag
             type="success"
@@ -74,7 +74,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="stage" label="Stage" width="150">
+      <el-table-column prop="stage" label="Stage" width="140">
         <template #default="{ row }">
           <StatusTag :status="row.stage" style="width: 100%" effect="dark">
             <template #icon>
@@ -91,7 +91,7 @@
           </StatusTag>
         </template>
       </el-table-column>
-      <el-table-column prop="probability" label="Probability" width="200">
+      <el-table-column prop="probability" label="Probability" width="170">
         <template #default="{ row }">
           <el-progress
             :percentage="row.probability"
