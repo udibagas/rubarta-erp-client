@@ -17,6 +17,10 @@
         <el-input placeholder="Material Name" v-model="form.name"></el-input>
       </el-form-item>
 
+      <el-form-item label="Model" :error="errors.model">
+        <el-input placeholder="Model" v-model="form.model"></el-input>
+      </el-form-item>
+
       <el-form-item label="Description" :error="errors.description">
         <el-input
           type="textarea"
@@ -61,50 +65,108 @@
         </el-select>
       </el-form-item>
 
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="Unit" :error="errors.unit">
-            <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit">
-            </el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="Unit Price" :error="errors.unitPrice">
-            <el-input-number
-              v-model="form.unitPrice"
-              :min="0"
-              :controls="false"
-              style="width: 100%"
-              placeholder="0"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <el-form-item label="Unit" :error="errors.unit">
+        <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit">
+        </el-input>
+      </el-form-item>
 
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="Current Stock" :error="errors.currentStock">
-            <el-input-number
-              v-model="form.currentStock"
-              :min="0"
-              :controls="false"
-              style="width: 100%"
-              placeholder="0"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="Min Stock" :error="errors.minStock">
-            <el-input-number
-              v-model="form.minStock"
-              :min="0"
-              :controls="false"
-              style="width: 100%"
-              placeholder="0"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <el-form-item label="Weight" :error="errors.weight">
+        <el-input
+          placeholder="0"
+          v-model="form.weight"
+          :formatter="
+            (value) => {
+              if (!value) return '';
+              const parts = value.toString().split('.');
+              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              return parts.join(',');
+            }
+          "
+          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+        >
+          <template #append>
+            <span>grams</span>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-form-item label="Purchase Price" :error="errors.purchasePrice">
+        <el-input
+          v-model="form.purchasePrice"
+          placeholder="0"
+          :formatter="
+            (value) => {
+              if (!value) return '';
+              const parts = value.toString().split('.');
+              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              return parts.join(',');
+            }
+          "
+          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+        >
+          <template #prepend>
+            <el-select
+              v-model="form.purchaseCurrency"
+              placeholder="Curr"
+              style="width: 100px"
+              clearable
+            >
+              <el-option label="USD" value="USD"></el-option>
+              <el-option label="EUR" value="EUR"></el-option>
+              <el-option label="IDR" value="IDR"></el-option>
+            </el-select>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-form-item label="Selling Price" :error="errors.sellingPrice">
+        <el-input
+          v-model="form.sellingPrice"
+          placeholder="0"
+          :formatter="
+            (value) => {
+              if (!value) return '';
+              const parts = value.toString().split('.');
+              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+              return parts.join(',');
+            }
+          "
+          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+        >
+          <template #prepend>
+            <el-select
+              v-model="form.sellingCurrency"
+              placeholder="Curr"
+              style="width: 100px"
+              clearable
+            >
+              <el-option label="USD" value="USD"></el-option>
+              <el-option label="EUR" value="EUR"></el-option>
+              <el-option label="IDR" value="IDR"></el-option>
+            </el-select>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-form-item label="Current Stock" :error="errors.currentStock">
+        <el-input-number
+          v-model="form.currentStock"
+          :min="0"
+          :controls="false"
+          style="width: 100%"
+          placeholder="0"
+        />
+      </el-form-item>
+
+      <el-form-item label="Min Stock" :error="errors.minStock">
+        <el-input-number
+          v-model="form.minStock"
+          :min="0"
+          :controls="false"
+          style="width: 100%"
+          placeholder="0"
+        />
+      </el-form-item>
 
       <el-form-item label="Lead Time (days)" :error="errors.leadTimeDays">
         <el-input-number
