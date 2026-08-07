@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="700px"
+    width="1000px"
     :title="!!form.id ? 'EDIT QUOTATION' : 'CREATE NEW QUOTATION'"
     :close-on-click-modal="false"
     top="5vh"
@@ -10,38 +10,41 @@
       <!-- Quotation Header -->
       <el-card shadow="never" class="mb-4">
         <template #header>
-          <span class="font-semibold">Quotation Information</span>
+          <span class="font-semibold">QUOTATION INFORMATION</span>
         </template>
 
-        <el-form-item label="Quotation Number" :error="errors.number" required>
-          <el-input
-            placeholder="e.g., QUO-2026-001"
-            v-model="form.number"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="Status" :error="errors.status" required>
-          <el-select v-model="form.status" placeholder="Quotation status">
-            <el-option
-              v-for="status in quotationStatuses"
-              :key="status"
-              :value="status"
-              :label="status"
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item
+              label="Quotation Number"
+              :error="errors.number"
+              required
             >
-            </el-option>
-          </el-select>
-        </el-form-item>
+              <el-input
+                placeholder="e.g., QUO-2026-001"
+                v-model="form.number"
+              ></el-input>
+            </el-form-item>
+          </el-col>
 
-        <el-form-item label="Valid Until" :error="errors.validUntil" required>
-          <el-date-picker
-            v-model="form.validUntil"
-            type="date"
-            placeholder="Valid until date"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          >
-          </el-date-picker>
-        </el-form-item>
+          <el-col :span="12">
+            <el-form-item
+              label="Valid Until"
+              :error="errors.validUntil"
+              required
+            >
+              <el-date-picker
+                v-model="form.validUntil"
+                type="date"
+                placeholder="Valid until date"
+                format="DD-MMM-YYYY"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              >
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
         <el-form-item label="Title" :error="errors.title" required>
           <el-input
@@ -94,7 +97,18 @@
             :rows="2"
             placeholder="Quotation description"
             v-model="form.description"
-          ></el-input>
+          />
+        </el-form-item>
+
+        <el-form-item label="Status" :error="errors.status" required>
+          <el-select v-model="form.status" placeholder="Quotation status">
+            <el-option
+              v-for="status in quotationStatuses"
+              :key="status"
+              :value="status"
+              :label="status"
+            />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="Attachments">
@@ -113,78 +127,92 @@
       </el-card>
 
       <!-- Quotation Items -->
-      <!-- <el-card shadow="never" class="mb-4">
+      <el-card shadow="never" class="mb-4" body-class="p-0!">
         <template #header>
           <div class="flex justify-between items-center">
-            <span class="font-semibold">Quotation Items</span>
+            <span class="font-semibold">QUOTATION ITEMS</span>
             <el-button
-              type="primary"
-              size="small"
-              :icon="ElIconPlus"
-              @click="addItem"
+              type="success"
+              link
+              :icon="ElIconUpload"
+              @click="importItems"
             >
-              Add Item
+              Import Items
             </el-button>
           </div>
         </template>
 
-        <el-table :data="form.items" stripe border>
-          <el-table-column label="#" type="index" width="50" />
+        <el-table :data="form.items" stripe>
+          <el-table-column label="#" type="index" width="40" />
 
           <el-table-column label="Part Number" width="150">
             <template #default="{ row }">
-              <el-input
+              <el-select
                 v-model="row.partNumber"
-                placeholder="Part #"
-                size="small"
-              ></el-input>
+                placeholder="Select part number"
+                @change="(v) => setMaterial(v, row)"
+                filterable
+                default-first-option
+              >
+                <el-option
+                  v-for="material in materials"
+                  :key="material.partNumber"
+                  :value="material.partNumber"
+                  :label="material.partNumber"
+                />
+              </el-select>
             </template>
           </el-table-column>
 
-          <el-table-column label="Description" min-width="200">
+          <el-table-column label="Description" min-width="250">
             <template #default="{ row }">
-              <el-input
-                v-model="row.description"
-                placeholder="Description"
-                size="small"
-              ></el-input>
+              <div>
+                <strong>{{ row.name }}</strong>
+                <div class="text-xs text-gray-500">
+                  {{ row.model }} - {{ row.description }}
+                </div>
+              </div>
             </template>
           </el-table-column>
 
           <el-table-column label="Quantity" width="120">
             <template #default="{ row }">
-              <el-input-number
+              <el-input
                 v-model="row.quantity"
-                :min="1"
-                size="small"
                 style="width: 100%"
                 @change="calculateTotals"
-              ></el-input-number>
+              ></el-input>
             </template>
           </el-table-column>
 
           <el-table-column label="Unit Price" width="150">
             <template #default="{ row }">
-              <el-input-number
+              <el-input
                 v-model="row.unitPrice"
-                :min="0"
-                :precision="2"
-                size="small"
-                style="width: 100%"
+                class="font-mono w-full"
                 @change="calculateTotals"
-              ></el-input-number>
+                :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+                :formatter="
+                  (value) => {
+                    if (!value) return '';
+                    const parts = value.toString().split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    return parts.join(',');
+                  }
+                "
+              />
             </template>
           </el-table-column>
 
-          <el-table-column label="Discount %" width="100">
+          <!-- <el-table-column label="Discount %" width="120">
             <template #default="{ row }">
               <el-input-number
                 v-model="row.discount"
                 :min="0"
                 :max="100"
                 :precision="2"
-                size="small"
                 style="width: 100%"
+                :controls="false"
                 @change="calculateTotals"
               ></el-input-number>
             </template>
@@ -197,32 +225,83 @@
                 @change="calculateTotals"
               ></el-checkbox>
             </template>
-          </el-table-column>
+          </el-table-column> -->
 
           <el-table-column label="Amount" width="150" align="right">
             <template #default="{ row }">
-              <strong>{{ toDecimal(calculateItemAmount(row)) }}</strong>
+              <span class="w-full font-mono">
+                {{ toDecimal(calculateItemAmount(row)) }}
+              </span>
             </template>
           </el-table-column>
 
-          <el-table-column label="Actions" width="80" align="center">
+          <el-table-column width="80" align="center">
+            <template #header>
+              <el-button
+                type="success"
+                :icon="ElIconPlus"
+                @click="addItem"
+                link
+              />
+            </template>
             <template #default="{ $index }">
               <el-button
                 type="danger"
-                size="small"
                 :icon="ElIconDelete"
                 @click="removeItem($index)"
-                circle
+                link
               ></el-button>
             </template>
           </el-table-column>
         </el-table>
-      </el-card> -->
+      </el-card>
 
-      <!-- Additional Information -->
+      <!-- Quotation Summary -->
       <el-card shadow="never" class="mb-4">
         <template #header>
-          <span class="font-semibold">Additional Information</span>
+          <span class="font-semibold">QUOTATION SUMMARY</span>
+        </template>
+
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="12">
+            <div class="space-y-2">
+              <div class="flex justify-between text-base">
+                <span>Subtotal:</span>
+                <span class="font-mono">{{ toDecimal(totals.subtotal) }}</span>
+              </div>
+              <div class="flex justify-between text-base">
+                <span>Quotation Discount:</span>
+                <el-input
+                  v-model="form.discount"
+                  :min="0"
+                  :precision="2"
+                  @change="calculateTotals"
+                  style="width: 150px"
+                  class="font-mono"
+                />
+              </div>
+              <div class="flex justify-between text-base">
+                <span>VAT (11%):</span>
+                <span class="font-mono">{{ toDecimal(totals.vat) }}</span>
+              </div>
+              <el-divider class="my-2" />
+              <div
+                class="flex justify-between text-xl font-bold text-green-600"
+              >
+                <span>Grand Total:</span>
+                <span class="font-mono">{{
+                  toDecimal(totals.grandTotal)
+                }}</span>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </el-card>
+
+      <!-- Additional Information -->
+      <el-card shadow="never">
+        <template #header>
+          <span class="font-semibold">ADDITIONAL INFORMATION</span>
         </template>
 
         <el-form-item label="Terms & Conditions" :error="errors.terms">
@@ -242,46 +321,6 @@
             v-model="form.notes"
           ></el-input>
         </el-form-item>
-      </el-card>
-
-      <!-- Quotation Summary -->
-      <el-card shadow="never">
-        <template #header>
-          <span class="font-semibold">Quotation Summary</span>
-        </template>
-
-        <el-row :gutter="20">
-          <el-col :span="12" :offset="12">
-            <div class="space-y-2">
-              <div class="flex justify-between text-base">
-                <span>Subtotal:</span>
-                <span>{{ toDecimal(totals.subtotal) }}</span>
-              </div>
-              <div class="flex justify-between text-base">
-                <span>Quotation Discount:</span>
-                <el-input-number
-                  v-model="form.discount"
-                  :min="0"
-                  :precision="2"
-                  size="small"
-                  @change="calculateTotals"
-                  style="width: 150px"
-                ></el-input-number>
-              </div>
-              <div class="flex justify-between text-base">
-                <span>VAT (11%):</span>
-                <span>{{ toDecimal(totals.vat) }}</span>
-              </div>
-              <el-divider class="my-2" />
-              <div
-                class="flex justify-between text-xl font-bold text-green-600"
-              >
-                <span>Grand Total:</span>
-                <span>{{ toDecimal(totals.grandTotal) }}</span>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
       </el-card>
     </el-form>
 
@@ -323,6 +362,21 @@ const form = ref({
 });
 const errors = ref({});
 const isSaving = ref(false);
+
+const { data: materials } = useQuery({
+  queryKey: ["materials"],
+  queryFn: () => request("/api/materials"),
+});
+
+function setMaterial(partNumber, item) {
+  const material = materials.value.find((m) => m.partNumber === partNumber);
+  if (material) {
+    item.name = material.name;
+    item.model = material.model;
+    item.description = material.description;
+    item.unitPrice = material.sellingPrice;
+  }
+}
 
 // Expose method to open form from parent
 const openForm = (data = {}) => {
