@@ -164,6 +164,12 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
+                  :icon="ElIconView"
+                  @click.native.prevent="openDetailDialog(row)"
+                >
+                  View Detail
+                </el-dropdown-item>
+                <el-dropdown-item
                   :icon="ElIconEdit"
                   @click.native.prevent="openForm(row)"
                 >
@@ -189,6 +195,155 @@
     </el-table>
 
     <MaterialForm />
+
+    <!-- Material Detail Dialog -->
+    <el-dialog
+      v-model="detailDialog.show"
+      width="700px"
+      title="Material Details"
+      :close-on-click-modal="false"
+    >
+      <div v-if="detailDialog.material" class="space-y-4">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="Part Number" :span="2">
+            <span class="font-mono font-bold">{{
+              detailDialog.material.partNumber
+            }}</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="Name" :span="2">
+            <strong>{{ detailDialog.material.name }}</strong>
+          </el-descriptions-item>
+          <el-descriptions-item label="Model" :span="2">
+            {{ detailDialog.material.model || "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Description" :span="2">
+            {{ detailDialog.material.description || "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Category">
+            <el-tag
+              v-if="detailDialog.material.category"
+              type="warning"
+              size="small"
+            >
+              {{ detailDialog.material.category }}
+            </el-tag>
+            <span v-else>-</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="Status">
+            <el-tag
+              :type="detailDialog.material.isActive ? 'success' : 'info'"
+              size="small"
+            >
+              {{ detailDialog.material.isActive ? "Active" : "Inactive" }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="Supplier" :span="2">
+            {{ detailDialog.material.Supplier?.name || "-" }}
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <el-divider content-position="left">Stock Information</el-divider>
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="Current Stock">
+            <span
+              :class="{
+                'text-red-600 font-bold':
+                  detailDialog.material.currentStock !== null &&
+                  detailDialog.material.minStock !== null &&
+                  detailDialog.material.currentStock <=
+                    detailDialog.material.minStock,
+              }"
+            >
+              {{ detailDialog.material.currentStock ?? "-" }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="Minimum Stock">
+            {{ detailDialog.material.minStock ?? "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Unit">
+            {{ detailDialog.material.unit || "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Lead Time">
+            {{
+              detailDialog.material.leadTimeDays
+                ? `${detailDialog.material.leadTimeDays} days`
+                : "-"
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Weight">
+            {{
+              detailDialog.material.weight
+                ? `${formatNumber(detailDialog.material.weight)} g`
+                : "-"
+            }}
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <el-divider content-position="left">Pricing Information</el-divider>
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="Purchase Price">
+            {{
+              detailDialog.material.purchasePrice
+                ? formatPrice(
+                    detailDialog.material.purchasePrice,
+                    detailDialog.material.purchaseCurrency,
+                  )
+                : "-"
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Selling Price">
+            {{
+              detailDialog.material.sellingPrice
+                ? formatPrice(
+                    detailDialog.material.sellingPrice,
+                    detailDialog.material.sellingCurrency,
+                  )
+                : "-"
+            }}
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <el-divider content-position="left">System Information</el-divider>
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="Created At">
+            {{
+              detailDialog.material.createdAt
+                ? new Date(detailDialog.material.createdAt).toLocaleString(
+                    "id-ID",
+                  )
+                : "-"
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="Updated At">
+            {{
+              detailDialog.material.updatedAt
+                ? new Date(detailDialog.material.updatedAt).toLocaleString(
+                    "id-ID",
+                  )
+                : "-"
+            }}
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+
+      <template #footer>
+        <el-button
+          :icon="ElIconEdit"
+          type="primary"
+          @click="editFromDetail"
+          plain
+        >
+          EDIT
+        </el-button>
+        <el-button
+          :icon="ElIconCircleCloseFilled"
+          @click="closeDetailDialog"
+          type="info"
+        >
+          CLOSE
+        </el-button>
+      </template>
+    </el-dialog>
 
     <!-- Import Dialog -->
     <el-dialog
@@ -363,6 +518,27 @@ const categories = ref([
   "Consumable",
   "Other",
 ]);
+
+// Material detail dialog
+const detailDialog = reactive({
+  show: false,
+  material: null,
+});
+
+function openDetailDialog(material) {
+  detailDialog.show = true;
+  detailDialog.material = material;
+}
+
+function closeDetailDialog() {
+  detailDialog.show = false;
+  detailDialog.material = null;
+}
+
+function editFromDetail() {
+  openForm(detailDialog.material);
+  closeDetailDialog();
+}
 
 // Import dialog
 const importDialog = reactive({
