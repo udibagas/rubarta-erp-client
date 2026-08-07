@@ -280,6 +280,7 @@
         layout="total, sizes, prev, pager, next"
         :page-size="pageSize"
         :page-sizes="[10, 25, 50, 100]"
+        :current-page="page"
         :total="data?.total"
         @current-change="currentChange"
         @size-change="sizeChange"
@@ -416,7 +417,9 @@ const {
   refreshData,
   handleRemove,
   keyword,
+  page,
   pageSize,
+  companyId,
   sizeChange,
   currentChange,
   filterChange,
@@ -428,6 +431,11 @@ const {
   defaultQuery: {
     pageSize: 1_000_000,
   },
+});
+
+watch(companyId, () => {
+  page.value = 1;
+  refreshData();
 });
 
 const { isPending, data } = fetchData();
