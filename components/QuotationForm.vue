@@ -15,24 +15,50 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item
-              label="Quotation Number"
-              :error="errors.number"
-              required
-            >
+            <el-form-item label="Quotation Number" :error="errors.number">
               <el-input
                 placeholder="e.g., QUO-2026-001"
                 v-model="form.number"
-              ></el-input>
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="Quotation Date">
+              <el-date-picker
+                v-model="form.date"
+                type="date"
+                placeholder="Date of quotation"
+                format="DD-MMM-YYYY"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="Validity" :error="errors.validity">
+              <el-input
+                type="number"
+                placeholder="e.g., 30 days"
+                v-model="form.validity"
+                @change="
+                  (v) =>
+                    dayjs(form.date || undefined)
+                      .add(v, 'day')
+                      .format('YYYY-MM-DD')
+                "
+              >
+                <template #suffix>
+                  <span>days</span>
+                </template>
+              </el-input>
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
-            <el-form-item
-              label="Valid Until"
-              :error="errors.validUntil"
-              required
-            >
+            <el-form-item label="Valid Until" :error="errors.validUntil">
               <el-date-picker
                 v-model="form.validUntil"
                 type="date"
@@ -40,55 +66,58 @@
                 format="DD-MMM-YYYY"
                 value-format="YYYY-MM-DD"
                 style="width: 100%"
+                disabled
               >
               </el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item label="Title" :error="errors.title" required>
-          <el-input
-            placeholder="Quotation title"
-            v-model="form.title"
-          ></el-input>
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="Sales Person" :error="errors.userId">
+              <el-select
+                v-model="form.userId"
+                placeholder="Select user"
+                filterable
+                default-first-option
+              >
+                <el-option
+                  v-for="user in users"
+                  :key="user.id"
+                  :value="user.id"
+                  :label="user.name"
+                />
+                <template #prefix>
+                  <el-icon><ElIconUser /></el-icon>
+                </template>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="Customer" :error="errors.customerId">
+              <el-select
+                v-model="form.customerId"
+                placeholder="Select customer"
+                filterable
+                default-first-option
+              >
+                <el-option
+                  v-for="customer in customers"
+                  :key="customer.id"
+                  :value="customer.id"
+                  :label="customer.name"
+                />
+                <template #prefix>
+                  <el-icon><ElIconOfficeBuilding /></el-icon>
+                </template>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <el-form-item label="Customer" :error="errors.customerId" required>
-          <el-select
-            v-model="form.customerId"
-            placeholder="Select customer"
-            filterable
-            default-first-option
-          >
-            <el-option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
-              :label="customer.name"
-            />
-            <template #prefix>
-              <el-icon><ElIconOfficeBuilding /></el-icon>
-            </template>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="User" :error="errors.userId" required>
-          <el-select
-            v-model="form.userId"
-            placeholder="Select user"
-            filterable
-            default-first-option
-          >
-            <el-option
-              v-for="user in users"
-              :key="user.id"
-              :value="user.id"
-              :label="user.name"
-            />
-            <template #prefix>
-              <el-icon><ElIconUser /></el-icon>
-            </template>
-          </el-select>
+        <el-form-item label="Title" :error="errors.title">
+          <el-input placeholder="Quotation title" v-model="form.title" />
         </el-form-item>
 
         <el-form-item label="Description" :error="errors.description">
@@ -100,7 +129,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="Status" :error="errors.status" required>
+        <el-form-item label="Status" :error="errors.status">
           <el-select v-model="form.status" placeholder="Quotation status">
             <el-option
               v-for="status in quotationStatuses"
@@ -181,6 +210,16 @@
                 v-model="row.quantity"
                 style="width: 100%"
                 @change="calculateTotals"
+                class="font-mono"
+                :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+                :formatter="
+                  (value) => {
+                    if (!value) return '';
+                    const parts = value.toString().split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    return parts.join(',');
+                  }
+                "
               ></el-input>
             </template>
           </el-table-column>
@@ -348,17 +387,21 @@
 <script setup>
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { quotationStatuses } from "~/constants/quotationStatuses";
+import dayjs from "dayjs";
 
 const request = useRequest();
 const queryClient = useQueryClient();
 
 // Local state
 const show = ref(false);
+
 const form = ref({
   status: "Draft",
   discount: 0,
   items: [],
-  validUntil: "",
+  date: dayjs().format("YYYY-MM-DD"),
+  validity: 30,
+  validUntil: dayjs().add(30, "day").format("YYYY-MM-DD"),
 });
 const errors = ref({});
 const isSaving = ref(false);
@@ -382,11 +425,16 @@ function setMaterial(partNumber, item) {
 const openForm = (data = {}) => {
   form.value = {
     ...data,
+    date: data.date || dayjs().format("YYYY-MM-DD"),
+    validity: data.validity || 30,
+    validUntil: data.validUntil || dayjs().add(30, "day").format("YYYY-MM-DD"),
     status: data.status || "Draft",
     discount: data.discount || 0,
     items: data.items || [
       {
         partNumber: "",
+        name: "",
+        model: "",
         description: "",
         quantity: 1,
         unitPrice: 0,
@@ -478,6 +526,8 @@ function addItem() {
   }
   form.value.items.push({
     partNumber: "",
+    name: "",
+    model: "",
     description: "",
     quantity: 1,
     unitPrice: 0,

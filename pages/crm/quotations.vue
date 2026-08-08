@@ -109,7 +109,7 @@
               </el-dropdown-item>
               <el-dropdown-item
                 :icon="ElIconEdit"
-                @click.native.prevent="edit(row.id)"
+                @click.native.prevent="openForm(row)"
               >
                 Edit
               </el-dropdown-item>
@@ -156,13 +156,6 @@ const { mutate: remove } = removeMutation();
 
 const openForm = (data = {}) => {
   quotationFormRef.value?.openForm(data);
-};
-
-const edit = (id) => {
-  const quotation = data.value?.find((q) => q.id === id);
-  if (quotation) {
-    openForm(quotation);
-  }
 };
 
 function viewQuotation(quotation) {
