@@ -17,7 +17,13 @@
 
   <br />
 
-  <el-table stripe v-loading="isPending" :data="data">
+  <el-table
+    stripe
+    v-loading="isPending"
+    :data="data"
+    @row-click="(row) => viewQuotation(row)"
+    class="cursor-pointer"
+  >
     <el-table-column type="index" label="#" width="60"></el-table-column>
 
     <el-table-column label="Quotation #" prop="number" width="150" />
@@ -159,8 +165,7 @@ const openForm = (data = {}) => {
 };
 
 function viewQuotation(quotation) {
-  // TODO: Implement quotation view/print/PDF export
-  ElMessage.info(`View quotation ${quotation.number}`);
+  navigateTo(`/crm/quotations/${quotation.id}`);
 }
 
 async function markAsSent(quotationId) {

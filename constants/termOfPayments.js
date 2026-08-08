@@ -1,8 +1,8 @@
 export const termOfPayments = [
-  { label: "15 Days", value: 15 },
-  { label: "30 Days", value: 30 },
-  { label: "45 Days", value: 45 },
-  { label: "60 Days", value: 60 },
-  { label: "75 Days", value: 75 },
-  { label: "90 Days", value: 90 },
+  { label: "15 Days", value: "15 Days" },
+  { label: "30 Days", value: "30 Days" },
+  { label: "45 Days", value: "45 Days" },
+  { label: "60 Days", value: "60 Days" },
+  { label: "75 Days", value: "75 Days" },
+  { label: "90 Days", value: "90 Days" },
 ];

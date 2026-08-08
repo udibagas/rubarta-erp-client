@@ -389,7 +389,6 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import "jspdf-autotable";
 
 dayjs.extend(relativeTime);
 

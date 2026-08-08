@@ -29,7 +29,7 @@
                 type="date"
                 placeholder="Date of quotation"
                 format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DD"
+                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
                 style="width: 100%"
               />
             </el-form-item>
@@ -39,21 +39,22 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Validity" :error="errors.validity">
-              <el-input
-                type="number"
+              <el-input-number
                 placeholder="e.g., 30 days"
                 v-model="form.validity"
+                class="w-full!"
+                :controls="false"
                 @change="
                   (v) =>
-                    dayjs(form.date || undefined)
+                    (form.validUntil = dayjs(form.date || undefined)
                       .add(v, 'day')
-                      .format('YYYY-MM-DD')
+                      .format('YYYY-MM-DD'))
                 "
               >
                 <template #suffix>
                   <span>days</span>
                 </template>
-              </el-input>
+              </el-input-number>
             </el-form-item>
           </el-col>
 
@@ -64,7 +65,7 @@
                 type="date"
                 placeholder="Valid until date"
                 format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DD"
+                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
                 style="width: 100%"
                 disabled
               >
@@ -93,8 +94,8 @@
           <span class="font-semibold">CUSTOMER INFORMATION</span>
         </template>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
+        <div class="flex gap-4">
+          <div class="flex-1">
             <el-form-item label="Customer" :error="errors.customerId">
               <el-select
                 v-model="form.customerId"
@@ -113,22 +114,7 @@
                 </template>
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item
-              label="Customer Address"
-              :error="errors.customerAddress"
-            >
-              <el-input
-                placeholder="Customer address"
-                v-model="form.customerAddress"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
             <el-form-item label="Contact Person" :error="errors.contactPerson">
               <el-input
                 placeholder="Contact person name"
@@ -139,8 +125,7 @@
                 </template>
               </el-input>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
             <el-form-item label="Contact Phone" :error="errors.contactPhone">
               <el-input
                 placeholder="Contact phone number"
@@ -151,8 +136,32 @@
                 </template>
               </el-input>
             </el-form-item>
-          </el-col>
-        </el-row>
+
+            <el-form-item label="Contact Email" :error="errors.contactEmail">
+              <el-input
+                placeholder="Contact email address"
+                v-model="form.contactEmail"
+              >
+                <template #prefix>
+                  <el-icon><ElIconMessage /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+          </div>
+          <div class="flex-1">
+            <el-form-item
+              label="Customer Address"
+              :error="errors.customerAddress"
+            >
+              <el-input
+                type="textarea"
+                :rows="8"
+                placeholder="Customer address"
+                v-model="form.customerAddress"
+              />
+            </el-form-item>
+          </div>
+        </div>
       </el-card>
 
       <!-- Sales & Request Type -->
@@ -539,7 +548,6 @@
 
 <script setup>
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import { quotationStatuses } from "~/constants/quotationStatuses";
 import { currencies } from "~/constants/currencies";
 import { requestTypes } from "~/constants/requestTypes";
 import { termOfPayments } from "~/constants/termOfPayments";
@@ -547,28 +555,32 @@ import { termOfDeliveries } from "~/constants/termOfDeliveries";
 import { paymentMethods } from "~/constants/paymentMethods";
 import dayjs from "dayjs";
 
+const emit = defineEmits(["saved"]);
+
 const request = useRequest();
 const queryClient = useQueryClient();
 
-// Local state
-const show = ref(false);
-
-const form = ref({
+const defaultValue = {
   status: "Draft",
   discount: 0,
   items: [],
-  date: dayjs().format("YYYY-MM-DD"),
+  date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
   validity: 30,
-  validUntil: dayjs().add(30, "day").format("YYYY-MM-DD"),
+  validUntil: dayjs().add(30, "day").format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
   currency: "IDR",
-  termOfPayment: 30,
+  termOfPayment: "30 Days",
   termOfDelivery: "FOB",
   paymentMethod: "Bank Transfer",
   requestType: "Sales",
   customerAddress: "",
   contactPerson: "",
   contactPhone: "",
-});
+};
+
+// Local state
+const show = ref(false);
+
+const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
 
@@ -591,13 +603,15 @@ function setMaterial(partNumber, item) {
 const openForm = (data = {}) => {
   form.value = {
     ...data,
-    date: data.date || dayjs().format("YYYY-MM-DD"),
+    date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     validity: data.validity || 30,
-    validUntil: data.validUntil || dayjs().add(30, "day").format("YYYY-MM-DD"),
+    validUntil:
+      data.validUntil ||
+      dayjs().add(30, "day").format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     status: data.status || "Draft",
     discount: data.discount || 0,
     currency: data.currency || "IDR",
-    termOfPayment: data.termOfPayment || 30,
+    termOfPayment: data.termOfPayment || "30 Days",
     termOfDelivery: data.termOfDelivery || "FOB",
     paymentMethod: data.paymentMethod || "Bank Transfer",
     requestType: data.requestType || "Sales",
@@ -622,7 +636,7 @@ const openForm = (data = {}) => {
   if (!data.id) {
     const validDate = new Date();
     validDate.setDate(validDate.getDate() + 30);
-    form.value.validUntil = validDate.toISOString().split("T")[0];
+    form.value.validUntil = validDate.toISOString();
   }
 
   errors.value = {};
@@ -632,20 +646,7 @@ const openForm = (data = {}) => {
 
 const closeForm = () => {
   show.value = false;
-  form.value = {
-    status: "Draft",
-    discount: 0,
-    items: [],
-    validUntil: "",
-    currency: "IDR",
-    termOfPayment: 30,
-    termOfDelivery: "FOB",
-    paymentMethod: "Bank Transfer",
-    requestType: "Sales",
-    customerAddress: "",
-    contactPerson: "",
-    contactPhone: "",
-  };
+  form.value = { ...defaultValue };
   errors.value = {};
 };
 
@@ -654,26 +655,17 @@ const save = async () => {
     isSaving.value = true;
     errors.value = {};
 
-    const payload = {
-      ...form.value,
-      subtotal: totals.subtotal,
-      vatTotal: totals.vat,
-      grandTotal: totals.grandTotal,
-    };
+    const url = form.value.id
+      ? `/api/quotations/${form.value.id}`
+      : "/api/quotations";
 
-    if (form.value.id) {
-      await request(`/api/quotations/${form.value.id}`, {
-        method: "PATCH",
-        body: payload,
-      });
-    } else {
-      await request("/api/quotations", {
-        method: "POST",
-        body: payload,
-      });
-    }
+    await request(url, {
+      method: form.value.id ? "PUT" : "POST",
+      body: form.value,
+    });
 
     ElMessage.success("Quotation saved successfully");
+    emit("saved");
     closeForm();
     queryClient.invalidateQueries({ queryKey: ["quotations"] });
   } catch (error) {
