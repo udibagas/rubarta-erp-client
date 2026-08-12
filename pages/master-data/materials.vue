@@ -18,24 +18,26 @@
               @clear="refreshData()"
             />
 
-            <el-button
-              :icon="ElIconDownload"
-              @click="exportExcel()"
-              title="Export Materials to Excel"
-            />
-            <el-button
-              :icon="ElIconUpload"
-              @click="importData()"
-              title="Import Materials from Excel"
-              class="ml-0!"
-            />
+            <el-tooltip content="Export Materials to Excel" placement="top">
+              <el-button :icon="ElIconDownload" @click="exportExcel()" />
+            </el-tooltip>
 
-            <el-button
-              :icon="ElIconPlus"
-              type="success"
-              @click="openForm()"
-              class="ml-0!"
-            />
+            <el-tooltip content="Import Materials from Excel" placement="top">
+              <el-button
+                :icon="ElIconUpload"
+                @click="importData()"
+                class="ml-0!"
+              />
+            </el-tooltip>
+
+            <el-tooltip content="Add New Material" placement="top">
+              <el-button
+                :icon="ElIconPlus"
+                type="success"
+                @click="openForm()"
+                class="ml-0!"
+              />
+            </el-tooltip>
           </form>
         </template>
       </el-page-header>
