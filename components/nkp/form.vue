@@ -440,6 +440,7 @@
 </template>
 
 <script setup>
+import { gql } from "@apollo/client";
 import { useQuery } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
 
@@ -457,25 +458,35 @@ const { errors, form, show, request, closeForm, saveMutation } = useCrud({
 });
 const { mutate: save } = saveMutation();
 
-const { data: companies } = useQuery({
-  queryKey: ["companies"],
-  queryFn: () => request("/api/companies"),
-});
-
-const { data: suppliers } = useQuery({
-  queryKey: ["suppliers"],
-  queryFn: () => request("/api/suppliers"),
-});
-
-const { data: banks } = useQuery({
-  queryKey: ["banks"],
-  queryFn: () => request("/api/banks"),
-});
-
-const { data: users } = useQuery({
-  queryKey: ["users"],
-  queryFn: () => request("/api/users"),
-});
+const {
+  data: { companies, suppliers, banks, users },
+} = await useGraphqlQuery(gql`
+  query {
+    companies {
+      id
+      code
+      name
+    }
+    suppliers {
+      id
+      code
+      name
+    }
+    banks {
+      id
+      code
+      name
+    }
+    users {
+      id
+      code
+      name
+      bankId
+      bankAccount
+      currency
+    }
+  }
+`);
 
 const { data: balances } = useQuery({
   queryKey: ["user-balance"],
@@ -512,7 +523,7 @@ const grandTotal = computed(() => {
   return (
     form.value.NkpItem?.reduce(
       (total, current) => total + Number(current.amount),
-      0
+      0,
     ) ?? 0
   );
 });
@@ -549,7 +560,7 @@ async function saveWithStatus(status) {
         "Warning",
         {
           type: "warning",
-        }
+        },
       );
     } catch (error) {
       return;
@@ -609,7 +620,7 @@ watch(
         filePath,
       };
     });
-  }
+  },
 );
 
 // kalau dia cash advance, ambil data balance employee
@@ -620,7 +631,7 @@ watch(
       const employeeBalance = balances.value.find((el) => el.userId == value);
       form.value.cashAdvanceBalance = employeeBalance?.balance ?? 0;
     }
-  }
+  },
 );
 
 function handleSuccess(file) {

@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { gql } from "@apollo/client";
 import { currencies } from "~/constants/currencies";
 
 const { user, refreshIdentity } = useAuth();
@@ -157,15 +157,22 @@ const save = () => {
     .finally(() => loadingInstance.close());
 };
 
-const { data: departments } = useQuery({
-  queryKey: ["departments"],
-  queryFn: () => request("/api/departments"),
-});
-
-const { data: banks } = useQuery({
-  queryKey: ["banks"],
-  queryFn: () => request("/api/banks"),
-});
+const {
+  data: { departments, banks },
+} = await useGraphqlQuery(gql`
+  query {
+    departments {
+      id
+      code
+      name
+    }
+    banks {
+      id
+      code
+      name
+    }
+  }
+`);
 
 function handleSuccess(file) {
   formModel.value.signatureSpeciment = file;

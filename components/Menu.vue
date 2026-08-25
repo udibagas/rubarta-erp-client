@@ -81,7 +81,10 @@ const emit = defineEmits(["toggle-collapse"]);
 const route = useRoute();
 
 // Get active menu based on current route
-const activeMenu = computed(() => route.path);
+const activeMenu = computed(() => {
+  console.log(route.path);
+  return route.path;
+});
 
 // Default opened submenus (open first submenu by default when not collapsed)
 const defaultOpeneds = computed(() => {
@@ -176,6 +179,26 @@ const menus = computed(() => [
         visible: true,
       },
       {
+        label: "Customers",
+        path: "/crm/customers",
+        icon: ElIconConnection,
+        visible: true,
+      },
+      {
+        label: "Contacts",
+        path: "/crm/contacts",
+        icon: ElIconPhone,
+        visible: true,
+      },
+    ],
+  },
+  {
+    label: "Sales",
+    icon: ElIconShoppingCartFull,
+    path: "/sales",
+    visible: hasRole(["ADMIN", "SALES_REP"]),
+    children: [
+      {
         label: "Quotations",
         path: "/crm/quotations",
         icon: ElIconDocument,
@@ -193,16 +216,74 @@ const menus = computed(() => [
         icon: ElIconDocument,
         visible: true,
       },
+    ],
+  },
+  {
+    label: "Purchasing & Logistics",
+    icon: ElIconCoin,
+    path: "/purchasing-logistics",
+    visible: hasRole(["ADMIN"]),
+    children: [
       {
-        label: "Customers",
-        path: "/crm/customers",
-        icon: ElIconConnection,
+        label: "Purchase Orders",
+        path: "/purchasing-logistics/purchase-orders",
+        icon: ElIconDocument,
         visible: true,
       },
       {
-        label: "Contacts",
-        path: "/crm/contacts",
-        icon: ElIconPhone,
+        label: "Goods Receipts",
+        path: "/purchasing-logistics/goods-receipts",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Delivery Orders",
+        path: "/purchasing-logistics/delivery-orders",
+        icon: ElIconDocument,
+        visible: true,
+      },
+    ],
+  },
+  {
+    label: "Reports",
+    path: "/reports",
+    icon: ElIconDocument,
+    visible: true,
+    children: [
+      {
+        label: "Sales Dashboard",
+        path: "/reports/sales-dashboard",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Sales Report",
+        path: "/reports/sales-report",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Aging Report",
+        path: "/reports/aging-report",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Purchase Report",
+        path: "/reports/purchase-report",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Outstanding Purchase Order",
+        path: "/reports/outstanding-purchase-order",
+        icon: ElIconDocument,
+        visible: true,
+      },
+      {
+        label: "Outstanding Back Order",
+        path: "/reports/outstanding-back-order",
+        icon: ElIconDocument,
         visible: true,
       },
     ],

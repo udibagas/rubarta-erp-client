@@ -26,9 +26,6 @@
 </template>
 
 <script setup>
-import { ChevronLeft, ChevronRight } from "lucide-vue-next";
-
-const { user } = useAuth();
 const collapse = ref(false);
 </script>
 

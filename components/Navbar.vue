@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import { gql } from "@apollo/client";
 import { useQuery, useMutation } from "@tanstack/vue-query";
 const emit = defineEmits(["toggle"]);
 const shared = useSharedStore();
@@ -69,10 +70,23 @@ interface Company {
   isDefault: boolean;
 }
 
-const { data: companies } = useQuery<Company[]>({
-  queryKey: ["companies"],
-  queryFn: () => request("/api/companies"),
-});
+const { data } = await useGraphqlQuery<{ companies: Company[] }>(gql`
+  query {
+    companies {
+      id
+      code
+      name
+      isDefault
+    }
+  }
+`);
+
+const companies = computed(() => data?.companies ?? []);
+
+// const { data: companies } = useQuery<Company[]>({
+//   queryKey: ["companies"],
+//   queryFn: () => request("/api/companies"),
+// });
 
 // Set default company when companies data loads
 watch(
