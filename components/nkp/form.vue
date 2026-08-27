@@ -469,6 +469,7 @@ const {
       id
       code
       name
+      bankId
       currency
       bankAccount
     }
