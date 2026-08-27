@@ -470,6 +470,7 @@ const {
       code
       name
       currency
+      bankAccount
     }
     banks {
       id
