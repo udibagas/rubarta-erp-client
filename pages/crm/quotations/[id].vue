@@ -1,42 +1,58 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="Quotation Detail">
+      <el-page-header @back="goBack">
+        <template #content>
+          {{ quotation?.number }}
+          <div class="text-sm text-gray-500">{{ quotation?.title }}</div>
+        </template>
         <template #extra>
-          <div class="flex gap-2">
-            <el-button
-              :icon="ElIconEdit"
-              type="primary"
-              @click="editQuotation"
-              v-if="quotation?.status === 'Draft'"
-            >
-              Edit
-            </el-button>
-            <el-button
-              :icon="ElIconPrinter"
-              type="success"
-              @click="printToPDF"
-              :loading="isGeneratingPDF"
-            >
-              Print PDF
-            </el-button>
+          <div class="flex gap-2 items-center">
+            <StatusTag
+              :status="quotation?.status"
+              effect="dark"
+              size="large"
+              :round="false"
+            />
+
+            <el-dropdown>
+              <el-button :icon="ElIconMore"></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    :icon="ElIconEdit"
+                    @click="editQuotation"
+                    v-if="quotation?.status === 'Draft'"
+                  >
+                    Edit
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
+                    :icon="ElIconCircleCheckFilled"
+                    v-if="quotation?.status === 'Draft'"
+                  >
+                    Submit
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
+                    :icon="ElIconMessage"
+                    v-if="quotation?.status === 'Submitted'"
+                  >
+                    Send
+                  </el-dropdown-item>
+
+                  <el-dropdown-item :icon="ElIconPrinter" @click="printToPDF">
+                    Print PDF
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </template>
       </el-page-header>
     </template>
 
     <div v-if="quotation">
-      <!-- Header Card -->
-      <el-card shadow="never" class="mb-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold">{{ quotation.number }}</h1>
-            <p class="text-gray-500 mt-1">{{ quotation.title }}</p>
-          </div>
-          <StatusTag :status="quotation.status" effect="dark" size="large" />
-        </div>
-      </el-card>
-
       <!-- Quotation Information -->
       <el-card shadow="never" class="mb-4">
         <template #header>
@@ -489,6 +505,7 @@ async function printToPDF() {
 
     // Save PDF
     doc.save(`Quotation-${quotation.value.number}.pdf`);
+    doc.autoPrint();
     ElMessage.success("PDF generated successfully");
   } catch (error) {
     console.error("PDF generation error:", error);
@@ -496,10 +513,6 @@ async function printToPDF() {
   } finally {
     isGeneratingPDF.value = false;
   }
-}
-
-function goBack() {
-  router.push("/crm/quotations");
 }
 
 function onQuotationSaved() {
