@@ -25,10 +25,12 @@
 
       <el-form-item label="Payment Target" :error="errors.paymentType">
         <el-radio-group v-model="form.paymentType" @change="resetBank">
-          <el-radio value="EMPLOYEE" :disabled="!!form.parentId">
-            EMPLOYEE
-          </el-radio>
-          <el-radio value="VENDOR" :disabled="!!form.parentId">VENDOR</el-radio>
+          <el-radio
+            value="EMPLOYEE"
+            label="EMPLOYEE"
+            :disabled="!!form.parentId"
+          />
+          <el-radio value="VENDOR" label="VENDOR" :disabled="!!form.parentId" />
         </el-radio-group>
       </el-form-item>
 
@@ -41,40 +43,37 @@
           <el-radio
             v-if="form.paymentType == 'EMPLOYEE'"
             value="CASH_ADVANCE"
+            label="CASH ADVANCE"
             :disabled="!!form.parentId"
-          >
-            CASH ADVANCE
-          </el-radio>
+          />
+
           <el-radio
             v-if="form.paymentType == 'EMPLOYEE'"
             value="DECLARATION"
+            label="DECLARATION"
             :disabled="!!form.parentId"
-          >
-            DECLARATION
-          </el-radio>
+          />
 
           <el-radio
             v-if="form.paymentType == 'EMPLOYEE'"
             value="SALARY"
+            label="SALARY"
             :disabled="!!form.parentId"
-          >
-            SALARY
-          </el-radio>
+          />
 
           <el-radio
             v-if="form.paymentType == 'VENDOR'"
             value="DOWN_PAYMENT"
+            label="DOWN PAYMENT"
             :disabled="!!form.parentId"
-          >
-            DOWN PAYMENT
-          </el-radio>
+          />
+
           <el-radio
             v-if="form.paymentType == 'VENDOR'"
             value="SETTLEMENT"
+            label="SETTLEMENT"
             :disabled="!!form.parentId"
-          >
-            SETTLEMENT
-          </el-radio>
+          />
         </el-radio-group>
       </el-form-item>
 
@@ -164,13 +163,12 @@
       >
         <el-radio-group v-model="form.currency">
           <el-radio
-            v-for="(currency, i) in currencies"
+            v-for="(currency, i) in [...currencies, null]"
             :value="currency"
+            :label="currency"
             :key="i"
             :disabled="!!form.parentId"
-          >
-            {{ currency }}
-          </el-radio>
+          />
         </el-radio-group>
       </el-form-item>
 
@@ -471,6 +469,7 @@ const {
       id
       code
       name
+      currency
     }
     banks {
       id
@@ -497,11 +496,11 @@ function updateBank(id) {
   let data = {};
 
   if (form.value.paymentType == "EMPLOYEE") {
-    data = users.value.find((u) => u.id == id);
+    data = users.find((u) => u.id == id);
   }
 
   if (form.value.paymentType == "VENDOR") {
-    data = suppliers.value.find((u) => u.id == id);
+    data = suppliers.find((u) => u.id == id);
   }
 
   if (data) {
@@ -670,13 +669,6 @@ function handleRemove(file) {
 function handleTab(e, index) {
   if (index == form.value.NkpItem.length - 1) {
     addItem();
-  }
-}
-
-async function handleChangeBank(value) {
-  if (form.value.paymentType == "COMPANY") {
-    // TODO: cari detail bank milik company
-    // form.value.bankAccount =
   }
 }
 </script>
