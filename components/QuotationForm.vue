@@ -302,10 +302,10 @@
         >
           <el-input
             type="textarea"
-            :rows="3"
+            :rows="2"
             placeholder="Terms and conditions"
             v-model="form.termsAndConditions"
-          ></el-input>
+          />
         </el-form-item>
 
         <el-form-item label="Notes" :error="errors.notes">
@@ -314,7 +314,7 @@
             :rows="2"
             placeholder="Additional notes"
             v-model="form.notes"
-          ></el-input>
+          />
         </el-form-item>
 
         <el-form-item label="Attachments">
@@ -327,7 +327,7 @@
             :on-success="handleSuccess"
             :multiple="true"
           >
-            <el-button type="success" :icon="ElIconUpload">Upload</el-button>
+            <el-button plain :icon="ElIconUpload"> Upload </el-button>
           </el-upload>
         </el-form-item>
       </el-card>
@@ -337,7 +337,7 @@
         <template #header>
           <div class="flex items-center justify-between">
             <span class="font-semibold">QUOTATION ITEMS</span>
-            <el-button type="success" :icon="ElIconUpload" size="small">
+            <el-button type="success" link :icon="ElIconUpload">
               Import Items
             </el-button>
           </div>
@@ -392,17 +392,18 @@
                     return parts.join(',');
                   }
                 "
-              ></el-input>
+              />
             </template>
           </el-table-column>
 
           <el-table-column label="Unit Price" width="160">
-            <template #default="{ row }">
+            <template #default="{ row, $index }">
               <el-input
                 v-model="row.unitPrice"
                 class="font-mono w-full"
                 @change="calculateTotals"
                 :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+                @keydown.tab="(e) => handleTab(e, $index)"
                 :formatter="
                   (value) => {
                     if (!value) return '';
@@ -457,6 +458,7 @@
             </template>
             <template #default="{ $index }">
               <el-button
+                tabindex="-1"
                 type="danger"
                 :icon="ElIconDelete"
                 @click="removeItem($index)"
@@ -474,12 +476,11 @@
             <div class="space-y-2">
               <div class="flex justify-between text-base">
                 <span>Subtotal:</span>
-                <el-input
-                  class="font-mono font-bold w-[200px]!"
-                  readonly
-                  :model-value="toDecimal(totals.subtotal)"
+                <div
+                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
-                </el-input>
+                  {{ toDecimal(totals.subtotal) }}
+                </div>
               </div>
               <div class="flex justify-between text-base">
                 <span>Quotation Discount:</span>
@@ -502,22 +503,21 @@
               </div>
               <div class="flex justify-between text-base">
                 <span class="flex-1">VAT (11%):</span>
-                <el-input
-                  class="font-mono font-bold w-[200px]! text-right!"
-                  readonly
-                  :model-value="toDecimal(totals.vat)"
-                />
+                <div
+                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                >
+                  {{ toDecimal(totals.vat) }}
+                </div>
               </div>
-              <el-divider />
               <div
-                class="flex justify-between text-xl font-semibold text-green-600"
+                class="flex justify-between text-lg font-semibold text-green-600"
               >
                 <span>Grand Total:</span>
-                <span
-                  class="font-mono border border-green-500 rounded px-3 py-1 min-w-[200px] text-right"
+                <div
+                  class="font-mono w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.grandTotal) }}
-                </span>
+                </div>
               </div>
             </div>
           </el-col>
@@ -818,5 +818,11 @@ function handleRemove(file) {
       showClose: true,
     });
   });
+}
+
+function handleTab(e, index) {
+  if (index == form.value.items.length - 1) {
+    addItem();
+  }
 }
 </script>

@@ -1,29 +1,29 @@
 <template>
-  <div v-loading="isPending">
-    <el-page-header @back="goBack" content="Quotation Detail">
-      <template #extra>
-        <div class="flex gap-2">
-          <el-button
-            :icon="ElIconEdit"
-            type="primary"
-            @click="editQuotation"
-            v-if="quotation?.status === 'Draft'"
-          >
-            Edit
-          </el-button>
-          <el-button
-            :icon="ElIconPrinter"
-            type="success"
-            @click="printToPDF"
-            :loading="isGeneratingPDF"
-          >
-            Print PDF
-          </el-button>
-        </div>
-      </template>
-    </el-page-header>
-
-    <br />
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack" content="Quotation Detail">
+        <template #extra>
+          <div class="flex gap-2">
+            <el-button
+              :icon="ElIconEdit"
+              type="primary"
+              @click="editQuotation"
+              v-if="quotation?.status === 'Draft'"
+            >
+              Edit
+            </el-button>
+            <el-button
+              :icon="ElIconPrinter"
+              type="success"
+              @click="printToPDF"
+              :loading="isGeneratingPDF"
+            >
+              Print PDF
+            </el-button>
+          </div>
+        </template>
+      </el-page-header>
+    </template>
 
     <div v-if="quotation">
       <!-- Header Card -->
@@ -44,7 +44,7 @@
         </template>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-descriptions :column="1" border>
+            <el-descriptions :column="1" border label-width="200">
               <el-descriptions-item label="Date">
                 {{ formatDate(quotation.date) }}
               </el-descriptions-item>
@@ -63,7 +63,7 @@
             </el-descriptions>
           </el-col>
           <el-col :span="12">
-            <el-descriptions :column="1" border>
+            <el-descriptions :column="1" border label-width="200">
               <el-descriptions-item label="Customer">
                 {{ quotation.Customer?.name }}
               </el-descriptions-item>
@@ -91,7 +91,12 @@
         </template>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-descriptions :column="1" border title="Payment Terms">
+            <el-descriptions
+              :column="1"
+              border
+              title="Payment Terms"
+              label-width="200"
+            >
               <el-descriptions-item label="Currency">
                 {{ quotation.currency }}
               </el-descriptions-item>
@@ -104,7 +109,12 @@
             </el-descriptions>
           </el-col>
           <el-col :span="12">
-            <el-descriptions :column="1" border title="Delivery Terms">
+            <el-descriptions
+              :column="1"
+              border
+              title="Delivery Terms"
+              label-width="200"
+            >
               <el-descriptions-item label="Term of Delivery">
                 {{ quotation.termOfDelivery }}
               </el-descriptions-item>
@@ -164,22 +174,34 @@
         </template>
         <el-row>
           <el-col :span="12" :offset="12">
-            <el-descriptions :column="1" border>
-              <el-descriptions-item label="Subtotal">
-                <span class="font-mono">{{ toDecimal(totals.subtotal) }}</span>
+            <el-descriptions :column="1" border label-width="200">
+              <el-descriptions-item
+                label="Subtotal"
+                class-name="font-mono"
+                align="right"
+              >
+                {{ toDecimal(totals.subtotal) }}
               </el-descriptions-item>
-              <el-descriptions-item label="Discount">
-                <span class="font-mono">{{
-                  toDecimal(quotation.discount)
-                }}</span>
+              <el-descriptions-item
+                label="Discount"
+                align="right"
+                class-name="font-mono"
+              >
+                {{ toDecimal(quotation.discount) }}
               </el-descriptions-item>
-              <el-descriptions-item label="VAT (11%)">
-                <span class="font-mono">{{ toDecimal(totals.vat) }}</span>
+              <el-descriptions-item
+                label="VAT (11%)"
+                align="right"
+                class-name="font-mono"
+              >
+                {{ toDecimal(totals.vat) }}
               </el-descriptions-item>
-              <el-descriptions-item label="Grand Total">
-                <span class="text-lg font-bold text-green-600 font-mono">{{
-                  toDecimal(totals.grandTotal)
-                }}</span>
+              <el-descriptions-item
+                label="Grand Total"
+                align="right"
+                class-name="font-semibold text-green-600! font-mono"
+              >
+                {{ toDecimal(totals.grandTotal) }}
               </el-descriptions-item>
             </el-descriptions>
           </el-col>
@@ -202,12 +224,16 @@
         <p class="whitespace-pre-wrap">{{ quotation.notes }}</p>
       </el-card>
     </div>
-  </div>
 
-  <QuotationForm ref="quotationFormRef" @saved="onQuotationSaved" />
+    <QuotationForm ref="quotationFormRef" @saved="onQuotationSaved" />
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({
+  layout: false,
+});
+
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
