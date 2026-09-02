@@ -25,27 +25,19 @@
       @row-click="(row) => viewQuotation(row)"
       class="cursor-pointer"
     >
-      <el-table-column type="index" label="#" width="60"></el-table-column>
-
-      <el-table-column label="Quotation #" prop="number" width="150" />
-
-      <el-table-column label="Title" prop="title" min-width="200" />
-
-      <el-table-column
-        label="Status"
-        prop="status"
-        width="120"
-        align="center"
-        header-align="center"
-      >
+      <el-table-column label="Quotation #" prop="number" width="150">
         <template #default="{ row }">
-          <StatusTag :status="row.status" effect="dark" />
+          <div class="font-mono font-semibold">{{ row.number }}</div>
+          <span class="text-xs text-gray-500">
+            {{ formatDate(row.createdAt) }}
+          </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Date" width="120">
+      <el-table-column label="Customer" min-width="200">
         <template #default="{ row }">
-          {{ formatDate(row.createdAt) }}
+          <div class="font-semibold">{{ row.Customer?.name || "-" }}</div>
+          <div class="font-xs text-gray-500">{{ row.title }}</div>
         </template>
       </el-table-column>
 
@@ -55,31 +47,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Customer" prop="Customer.name" min-width="180" />
-
-      <el-table-column label="User" prop="User.name" width="150" />
-
-      <el-table-column
-        label="Total Amount"
-        width="150"
-        align="right"
-        header-align="right"
-      >
+      <el-table-column label="Created By" prop="User.name" width="150">
         <template #default="{ row }">
-          <span class="font-mono"> {{ toDecimal(row.totalAmount) }} </span>
+          <div class="line-clamp-1">
+            {{ row.User?.name || "-" }}
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column
-        label="VAT"
-        width="120"
-        align="right"
-        header-align="right"
-      >
-        <template #default="{ row }">
-          <span class="font-mono">{{ toDecimal(row.vatAmount) }}</span>
-        </template>
-      </el-table-column>
+        label="Items"
+        prop="_count.QuotationItems"
+        width="80"
+        align="center"
+        header-align="center"
+      />
 
       <el-table-column
         label="Grand Total"
@@ -91,6 +73,18 @@
           <div class="text-green-600 font-mono font-semibold">
             {{ toDecimal(row.grandTotal) }}
           </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="Status"
+        prop="status"
+        width="120"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          <StatusTag :status="row.status" effect="dark" />
         </template>
       </el-table-column>
 
@@ -128,6 +122,7 @@
                 <el-dropdown-item
                   v-if="row.status === 'Draft'"
                   @click.native.prevent="markAsSent(row.id)"
+                  :icon="ElIconMessage"
                 >
                   Mark as Sent
                 </el-dropdown-item>
