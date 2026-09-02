@@ -90,6 +90,7 @@
                 placeholder="Select customer"
                 filterable
                 default-first-option
+                @change="(v) => handleChangeCustomer(v)"
               >
                 <el-option
                   v-for="customer in customers"
@@ -104,14 +105,27 @@
             </el-form-item>
 
             <el-form-item label="Contact Person" :error="errors.contactPerson">
-              <el-input
+              <el-select
                 placeholder="Contact person name"
                 v-model="form.contactPerson"
+                filterable
+                default-first-option
+                allow-create
+                clearable
+                @change="(v) => handleContactChange(v)"
               >
+                <el-option
+                  v-for="contact in contacts.filter(
+                    (c) => c.customerId === form.customerId,
+                  )"
+                  :key="contact.id"
+                  :value="contact.name"
+                  :label="contact.name"
+                />
                 <template #prefix>
                   <el-icon><ElIconUser /></el-icon>
                 </template>
-              </el-input>
+              </el-select>
             </el-form-item>
 
             <el-form-item label="Contact Phone" :error="errors.contactPhone">
@@ -360,7 +374,7 @@
         <el-table :data="form.items" stripe v-loading="isImporting" border>
           <el-table-column label="#" type="index" width="50" />
 
-          <el-table-column label="Part Number" width="160">
+          <el-table-column label="Part Number" min-width="160">
             <template #default="{ row }">
               <el-select
                 v-model="row.partNumber"
@@ -392,7 +406,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Description" min-width="250">
+          <el-table-column label="Description" min-width="200">
             <template #default="{ row }">
               <div>
                 <strong>{{ row.name }}</strong>
@@ -618,6 +632,7 @@ const errors = ref({});
 const isSaving = ref(false);
 
 const customers = ref([]);
+const contacts = ref([]);
 const users = ref([]);
 const materials = ref([]);
 
@@ -626,6 +641,19 @@ useGraphqlQuery(gql`
     customers {
       id
       name
+      address
+      Contacts {
+        name
+        phone
+        email
+      }
+    }
+    contacts {
+      id
+      name
+      phone
+      email
+      customerId
     }
     users {
       id
@@ -642,6 +670,7 @@ useGraphqlQuery(gql`
 `)
   .then((result) => {
     customers.value = result.data.customers;
+    contacts.value = result.data.contacts;
     users.value = result.data.users;
     materials.value = result.data.materials;
   })
@@ -678,6 +707,7 @@ const openForm = (data = {}) => {
     customerAddress: data.customerAddress || "",
     contactPerson: data.contactPerson || "",
     contactPhone: data.contactPhone || "",
+    contactEmail: data.contactEmail || "",
     items: data.items || [
       {
         partNumber: "",
@@ -947,6 +977,19 @@ async function handleImportItems(e) {
     isImporting.value = false;
     e.target.value = "";
   }
+}
+
+function handleChangeCustomer(customerId) {
+  const customer = customers.value.find((c) => c.id === customerId);
+  form.value.customerAddress = customer?.address || "";
+}
+
+function handleContactChange(contactName) {
+  const contact = contacts.value.find(
+    (c) => c.name === contactName && c.customerId === form.value.customerId,
+  );
+  form.value.contactPhone = contact?.phone || "";
+  form.value.contactEmail = contact?.email || "";
 }
 
 defineExpose({ openForm });
