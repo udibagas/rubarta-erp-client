@@ -59,7 +59,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Material" min-width="200">
+      <el-table-column label="Material" min-width="150">
         <template #default="{ row }">
           <strong>{{ row.name }}</strong>
           <div v-if="row.model" class="text-xs text-gray-600">
@@ -85,9 +85,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Supplier" width="180">
+      <el-table-column label="Supplier" min-width="180">
         <template #default="{ row }">
-          {{ row.Supplier?.name || "-" }}
+          <span class="line-clamp-2">
+            {{ row.Supplier?.name || "-" }}
+          </span>
         </template>
       </el-table-column>
 
@@ -534,7 +536,6 @@ const {
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
 
-// Fetch suppliers for filter
 const request = useRequest();
 
 // Material detail dialog
