@@ -8,6 +8,7 @@
               v-model="filters.lowStock"
               @change="refreshData()"
               label="Low Stock Only"
+              border
             />
 
             <el-input
@@ -18,26 +19,27 @@
               @clear="refreshData()"
             />
 
-            <el-tooltip content="Export Materials to Excel" placement="top">
-              <el-button :icon="ElIconDownload" @click="exportExcel()" />
-            </el-tooltip>
-
-            <el-tooltip content="Import Materials from Excel" placement="top">
-              <el-button
-                :icon="ElIconUpload"
-                @click="importData()"
-                class="ml-0!"
-              />
-            </el-tooltip>
-
-            <el-tooltip content="Add New Material" placement="top">
-              <el-button
-                :icon="ElIconPlus"
-                type="success"
-                @click="openForm()"
-                class="ml-0!"
-              />
-            </el-tooltip>
+            <el-dropdown>
+              <el-button type="success" :icon="ElIconSetting">
+                Actions
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="openForm()" :icon="ElIconPlus">
+                    Add New Material
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    @click="exportExcel()"
+                    :icon="ElIconDownload"
+                  >
+                    Export to Excel
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="importData()" :icon="ElIconUpload">
+                    Import from Excel
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </form>
         </template>
       </el-page-header>
@@ -46,8 +48,8 @@
     <el-table
       stripe
       v-loading="isPending"
-      :data="data"
-      height="calc(100vh - 220px)"
+      :data="data?.data ?? []"
+      height="calc(100vh - 198px)"
     >
       <el-table-column type="index" label="#" width="60"></el-table-column>
 
@@ -122,18 +124,29 @@
 
       <el-table-column label="Purchase Price" width="150" align="right">
         <template #default="{ row }">
-          <span v-if="row.purchasePrice">
+          <el-tag
+            v-if="row.purchasePrice"
+            size="small"
+            effect="plain"
+            class="font-mono"
+          >
             {{ formatPrice(row.purchasePrice, row.purchaseCurrency) }}
-          </span>
+          </el-tag>
           <span v-else>-</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Selling Price" width="150" align="right">
         <template #default="{ row }">
-          <span v-if="row.sellingPrice">
+          <el-tag
+            v-if="row.sellingPrice"
+            size="small"
+            effect="plain"
+            class="font-mono"
+            type="success"
+          >
             {{ formatPrice(row.sellingPrice, row.sellingCurrency) }}
-          </span>
+          </el-tag>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -195,6 +208,20 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
 
     <MaterialForm />
 
@@ -480,7 +507,7 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 const config = useRuntimeConfig();
 
 definePageMeta({
@@ -493,9 +520,12 @@ const {
   fetchData,
   refreshData,
   handleRemove,
+  currentChange,
+  sizeChange,
+  page,
+  pageSize,
   keyword,
   filters,
-  filterChange,
 } = useCrud({
   url: "/api/materials",
   queryKey: "materials",
@@ -506,20 +536,6 @@ const { mutate: remove } = removeMutation();
 
 // Fetch suppliers for filter
 const request = useRequest();
-const { data: suppliers } = useQuery({
-  queryKey: ["suppliers"],
-  queryFn: () => request("/api/suppliers"),
-});
-
-// Material categories (you can adjust these based on your needs)
-const categories = ref([
-  "Raw Material",
-  "Component",
-  "Finished Product",
-  "Packaging",
-  "Consumable",
-  "Other",
-]);
 
 // Material detail dialog
 const detailDialog = reactive({
