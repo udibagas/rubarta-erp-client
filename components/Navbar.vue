@@ -83,11 +83,6 @@ const { data } = await useGraphqlQuery<{ companies: Company[] }>(gql`
 
 const companies = computed(() => data?.companies ?? []);
 
-// const { data: companies } = useQuery<Company[]>({
-//   queryKey: ["companies"],
-//   queryFn: () => request("/api/companies"),
-// });
-
 // Set default company when companies data loads
 watch(
   companies,
