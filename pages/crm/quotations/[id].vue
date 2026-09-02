@@ -428,7 +428,7 @@ async function printToPDF() {
     const tableData = quotation.value.QuotationItems.map((item, index) => [
       index + 1,
       item.partNumber,
-      `${item.name}\n${item.model} - ${item.description}`,
+      `${item.name}`,
       toDecimal(item.quantity),
       toDecimal(item.unitPrice),
       toDecimal(calculateItemAmount(item)),
@@ -448,8 +448,8 @@ async function printToPDF() {
         1: { cellWidth: 30 },
         2: { cellWidth: 60 },
         3: { cellWidth: 20, halign: "center" },
-        4: { cellWidth: 30, halign: "right", font: "courier" },
-        5: { cellWidth: 30, halign: "right", font: "courier" },
+        4: { cellWidth: 30, halign: "right" },
+        5: { cellWidth: 30, halign: "right" },
       },
     });
 
@@ -504,10 +504,21 @@ async function printToPDF() {
       doc.text(splitTerms, 14, yPos);
     }
 
-    // Save PDF
-    doc.save(`Quotation-${quotation.value.number}.pdf`);
-    doc.autoPrint();
-    ElMessage.success("PDF generated successfully");
+    // Open PDF in a new browser window instead of downloading it
+    const pdfBlob = doc.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const pdfWindow = window.open(pdfUrl, "_blank", "noopener,noreferrer");
+
+    if (pdfWindow) {
+      pdfWindow.focus();
+    } else {
+      ElMessage.warning(
+        "Pop-up blocked. Please allow pop-ups to open the PDF.",
+      );
+    }
+
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 10000);
+    ElMessage.success("PDF opened successfully");
   } catch (error) {
     console.error("PDF generation error:", error);
     ElMessage.error("Failed to generate PDF");
