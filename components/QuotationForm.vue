@@ -2,7 +2,7 @@
   <el-dialog
     v-model="show"
     width="1000px"
-    :title="!!form.id ? 'EDIT QUOTATION' : 'CREATE NEW QUOTATION'"
+    :title="!!form?.id ? 'EDIT QUOTATION' : 'CREATE NEW QUOTATION'"
     :close-on-click-modal="false"
     top="5vh"
   >
@@ -336,21 +336,47 @@
       <el-card shadow="never" body-style="padding: 0">
         <template #header>
           <div class="flex items-center justify-between">
-            <span class="font-semibold">QUOTATION ITEMS</span>
-            <el-button type="success" link :icon="ElIconUpload">
-              Import Items
-            </el-button>
+            <span class="font-semibold">
+              QUOTATION ITEMS ({{ form.items.length }})
+            </span>
+            <div>
+              <el-button
+                type="success"
+                link
+                :icon="ElIconUpload"
+                :loading="isImporting"
+                @click="triggerImportItems"
+              >
+                {{ isImporting ? "Importing..." : "Import Items" }}
+              </el-button>
+              <el-button
+                v-if="form.items.length > 0"
+                :icon="ElIconDelete"
+                link
+                type="danger"
+                @click="form.items = []"
+              >
+                Delete All Items
+              </el-button>
+              <input
+                ref="importInputRef"
+                type="file"
+                accept=".xlsx,.xls"
+                class="hidden"
+                @change="handleImportItems"
+              />
+            </div>
           </div>
         </template>
 
-        <el-table :data="form.items" stripe>
-          <el-table-column label="#" type="index" width="40" />
+        <el-table :data="form.items" stripe v-loading="isImporting" border>
+          <el-table-column label="#" type="index" width="50" />
 
           <el-table-column label="Part Number" width="160">
             <template #default="{ row }">
               <el-select
                 v-model="row.partNumber"
-                placeholder="Select part number"
+                placeholder="Select Part Number"
                 @change="(v) => setMaterial(v, row)"
                 filterable
                 default-first-option
@@ -360,7 +386,20 @@
                   :key="material.partNumber"
                   :value="material.partNumber"
                   :label="material.partNumber"
-                />
+                >
+                  <span style="float: left" class="font-mono mr-2">
+                    {{ material.partNumber }}
+                  </span>
+                  <span
+                    style="
+                      float: right;
+                      color: var(--el-text-color-secondary);
+                      font-size: 13px;
+                    "
+                  >
+                    {{ material.name }}
+                  </span>
+                </el-option>
               </el-select>
             </template>
           </el-table-column>
@@ -369,8 +408,12 @@
             <template #default="{ row }">
               <div>
                 <strong>{{ row.name }}</strong>
-                <div class="text-xs text-gray-500">
-                  {{ row.model }} - {{ row.description }}
+                <div
+                  v-if="row.model || row.description"
+                  class="text-xs text-gray-500"
+                >
+                  {{ row.model }}
+                  {{ row.description ? "- " + row.description : "" }}
                 </div>
               </div>
             </template>
@@ -547,13 +590,15 @@
 </template>
 
 <script setup>
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { useQueryClient } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
 import { requestTypes } from "~/constants/requestTypes";
 import { termOfPayments } from "~/constants/termOfPayments";
 import { termOfDeliveries } from "~/constants/termOfDeliveries";
 import { paymentMethods } from "~/constants/paymentMethods";
 import dayjs from "dayjs";
+import { gql } from "@apollo/client";
+import ExcelJS from "exceljs";
 
 const emit = defineEmits(["saved"]);
 
@@ -584,10 +629,37 @@ const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
 
-const { data: materials } = useQuery({
-  queryKey: ["materials"],
-  queryFn: () => request("/api/materials"),
-});
+const customers = ref([]);
+const users = ref([]);
+const materials = ref([]);
+
+useGraphqlQuery(gql`
+  query {
+    customers {
+      id
+      name
+    }
+    users {
+      id
+      name
+    }
+    materials {
+      partNumber
+      name
+      model
+      description
+      sellingPrice
+    }
+  }
+`)
+  .then((result) => {
+    customers.value = result.data.customers;
+    users.value = result.data.users;
+    materials.value = result.data.materials;
+  })
+  .catch((error) => {
+    console.error("Failed to fetch GraphQL data:", error);
+  });
 
 function setMaterial(partNumber, item) {
   const material = materials.value.find((m) => m.partNumber === partNumber);
@@ -676,22 +748,10 @@ const save = async () => {
   }
 };
 
-defineExpose({ openForm });
-
 const totals = reactive({
   subtotal: 0,
   vat: 0,
   grandTotal: 0,
-});
-
-const { data: customers } = useQuery({
-  queryKey: ["customers"],
-  queryFn: () => request("/api/customers"),
-});
-
-const { data: users } = useQuery({
-  queryKey: ["users"],
-  queryFn: () => request("/api/users"),
 });
 
 function addItem() {
@@ -825,4 +885,81 @@ function handleTab(e, index) {
     addItem();
   }
 }
+
+// IMPORT ITEMS FROM EXCEL
+const importInputRef = ref(null);
+const isImporting = ref(false);
+
+function triggerImportItems() {
+  importInputRef.value?.click();
+}
+
+async function handleImportItems(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    isImporting.value = true;
+
+    const buffer = await file.arrayBuffer();
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const worksheet = workbook.worksheets[0];
+
+    const notFound = [];
+    const imported = [];
+
+    worksheet.eachRow((row, rowNumber) => {
+      // Skip header row
+      if (rowNumber === 1) return;
+
+      const partNumber = row.getCell(1).value?.toString().trim();
+      const quantity = Number(row.getCell(2).value) || 0;
+
+      if (!partNumber) return;
+
+      const material = materials.value.find((m) => m.partNumber === partNumber);
+
+      if (!material) {
+        notFound.push(partNumber);
+        return;
+      }
+
+      imported.push({
+        partNumber: material.partNumber,
+        name: material.name,
+        model: material.model,
+        description: material.description,
+        quantity: quantity || 1,
+        unitPrice: material.sellingPrice,
+        discount: 0,
+        vat: false,
+      });
+    });
+
+    if (imported.length) {
+      // Remove empty placeholder row before adding imported items
+      form.value.items = form.value.items.filter((item) => item.partNumber);
+      form.value.items.push(...imported);
+      calculateTotals();
+    }
+
+    if (notFound.length) {
+      ElMessage.warning(
+        `Part number(s) not found and skipped: ${notFound.join(", ")}`,
+      );
+    }
+
+    if (imported.length) {
+      ElMessage.success(`${imported.length} item(s) imported successfully`);
+    }
+  } catch (error) {
+    ElMessage.error(error.message || "Failed to import items");
+  } finally {
+    isImporting.value = false;
+    e.target.value = "";
+  }
+}
+
+defineExpose({ openForm });
 </script>

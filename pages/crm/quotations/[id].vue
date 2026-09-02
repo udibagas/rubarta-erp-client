@@ -9,7 +9,7 @@
         <template #extra>
           <div class="flex gap-2 items-center">
             <StatusTag
-              :status="quotation?.status"
+              :status="quotation?.status || 'Draft'"
               effect="dark"
               size="large"
               :round="false"
@@ -150,7 +150,9 @@
       <!-- Items Table -->
       <el-card shadow="never" class="mb-4">
         <template #header>
-          <span class="font-semibold">QUOTATION ITEMS</span>
+          <span class="font-semibold">
+            QUOTATION ITEMS ({{ quotation.QuotationItems.length }})
+          </span>
         </template>
         <el-table :data="quotation.QuotationItems" stripe border>
           <el-table-column type="index" label="#" width="60" />
@@ -158,8 +160,12 @@
           <el-table-column label="Description" min-width="250">
             <template #default="{ row }">
               <div class="font-medium">{{ row.name }}</div>
-              <div class="text-sm text-gray-500">
-                {{ row.model }} - {{ row.description }}
+              <div
+                v-if="row.model || row.description"
+                class="text-sm text-gray-500"
+              >
+                {{ row.model }}
+                {{ row.description }}
               </div>
             </template>
           </el-table-column>

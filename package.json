@@ -17,6 +17,7 @@
     "@tanstack/vue-query": "^5.90.6",
     "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
+    "exceljs": "^4.4.0",
     "export-from-json": "^1.7.4",
     "graphql": "^17.0.2",
     "jspdf": "^4.2.1",
