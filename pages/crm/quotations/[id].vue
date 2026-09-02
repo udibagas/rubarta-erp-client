@@ -147,6 +147,22 @@
         <p class="whitespace-pre-wrap">{{ quotation.description }}</p>
       </el-card>
 
+      <!-- Terms & Conditions -->
+      <el-card v-if="quotation.termsAndConditions" shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">TERMS & CONDITIONS</span>
+        </template>
+        <p class="whitespace-pre-wrap">{{ quotation.termsAndConditions }}</p>
+      </el-card>
+
+      <!-- Notes -->
+      <el-card v-if="quotation.notes" shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">NOTES</span>
+        </template>
+        <p class="whitespace-pre-wrap">{{ quotation.notes }}</p>
+      </el-card>
+
       <!-- Items Table -->
       <el-card shadow="never" class="mb-4">
         <template #header>
@@ -190,61 +206,40 @@
       </el-card>
 
       <!-- Summary -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">SUMMARY</span>
-        </template>
-        <el-row>
-          <el-col :span="12" :offset="12">
-            <el-descriptions :column="1" border label-width="200">
-              <el-descriptions-item
-                label="Subtotal"
-                class-name="font-mono"
-                align="right"
-              >
-                {{ toDecimal(totals.subtotal) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="Discount"
-                align="right"
-                class-name="font-mono"
-              >
-                {{ toDecimal(quotation.discount) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="VAT (11%)"
-                align="right"
-                class-name="font-mono"
-              >
-                {{ toDecimal(totals.vat) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="Grand Total"
-                align="right"
-                class-name="font-semibold text-green-600! font-mono"
-              >
-                {{ toDecimal(totals.grandTotal) }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-col>
-        </el-row>
-      </el-card>
-
-      <!-- Terms & Conditions -->
-      <el-card v-if="quotation.termsAndConditions" shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">TERMS & CONDITIONS</span>
-        </template>
-        <p class="whitespace-pre-wrap">{{ quotation.termsAndConditions }}</p>
-      </el-card>
-
-      <!-- Notes -->
-      <el-card v-if="quotation.notes" shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">NOTES</span>
-        </template>
-        <p class="whitespace-pre-wrap">{{ quotation.notes }}</p>
-      </el-card>
+      <el-row>
+        <el-col :span="12" :offset="12">
+          <el-descriptions :column="1" border label-width="200">
+            <el-descriptions-item
+              label="Subtotal"
+              class-name="font-mono"
+              align="right"
+            >
+              {{ toDecimal(totals.subtotal) }}
+            </el-descriptions-item>
+            <el-descriptions-item
+              label="Discount"
+              align="right"
+              class-name="font-mono"
+            >
+              {{ toDecimal(quotation.discount) }}
+            </el-descriptions-item>
+            <el-descriptions-item
+              label="VAT (11%)"
+              align="right"
+              class-name="font-mono"
+            >
+              {{ toDecimal(totals.vat) }}
+            </el-descriptions-item>
+            <el-descriptions-item
+              label="Grand Total"
+              align="right"
+              class-name="font-semibold text-green-600! font-mono"
+            >
+              {{ toDecimal(totals.grandTotal) }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-col>
+      </el-row>
     </div>
 
     <QuotationForm ref="quotationFormRef" @saved="onQuotationSaved" />

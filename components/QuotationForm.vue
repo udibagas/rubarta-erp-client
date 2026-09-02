@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="1000px"
+    width="1100px"
     :title="!!form?.id ? 'EDIT QUOTATION' : 'CREATE NEW QUOTATION'"
     :close-on-click-modal="false"
     top="5vh"
@@ -15,14 +15,6 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="Quotation Number" :error="errors.number">
-              <el-input
-                placeholder="e.g., QUO-2026-001"
-                v-model="form.number"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="Quotation Date">
               <el-date-picker
                 v-model="form.date"
@@ -33,11 +25,7 @@
                 style="width: 100%"
               />
             </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
             <el-form-item label="Validity" :error="errors.validity">
               <el-input-number
                 placeholder="e.g., 30 days"
@@ -56,9 +44,7 @@
                 </template>
               </el-input-number>
             </el-form-item>
-          </el-col>
 
-          <el-col :span="12">
             <el-form-item label="Valid Until" :error="errors.validUntil">
               <el-date-picker
                 v-model="form.validUntil"
@@ -72,20 +58,22 @@
               </el-date-picker>
             </el-form-item>
           </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="Title" :error="errors.title">
+              <el-input placeholder="Quotation title" v-model="form.title" />
+            </el-form-item>
+
+            <el-form-item label="Description" :error="errors.description">
+              <el-input
+                type="textarea"
+                :rows="4"
+                placeholder="Quotation description"
+                v-model="form.description"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
-
-        <el-form-item label="Title" :error="errors.title">
-          <el-input placeholder="Quotation title" v-model="form.title" />
-        </el-form-item>
-
-        <el-form-item label="Description" :error="errors.description">
-          <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="Quotation description"
-            v-model="form.description"
-          />
-        </el-form-item>
       </el-card>
 
       <!-- Customer Information -->
