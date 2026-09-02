@@ -20,7 +20,7 @@
             />
 
             <el-dropdown>
-              <el-button type="success" :icon="ElIconSetting">
+              <el-button type="success" :icon="ElIconMoreFilled">
                 Actions
               </el-button>
               <template #dropdown>
@@ -51,8 +51,6 @@
       :data="data?.data ?? []"
       height="calc(100vh - 198px)"
     >
-      <el-table-column type="index" label="#" width="60"></el-table-column>
-
       <el-table-column label="Part Number" width="150">
         <template #default="{ row }">
           <div class="font-semibold font-mono">{{ row.partNumber }}</div>
@@ -61,11 +59,14 @@
 
       <el-table-column label="Material" min-width="150">
         <template #default="{ row }">
-          <strong>{{ row.name }}</strong>
+          <strong class="line-clamp-1">{{ row.name }}</strong>
           <div v-if="row.model" class="text-xs text-gray-600">
             Model: {{ row.model }}
           </div>
-          <div v-if="row.description" class="text-xs text-gray-500">
+          <div
+            v-if="row.description"
+            class="text-xs text-gray-500 line-clamp-1"
+          >
             {{ row.description }}
           </div>
         </template>
