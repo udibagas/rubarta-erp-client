@@ -209,7 +209,11 @@
         </div>
 
         <div class="w-90 shrink-0 flex flex-col gap-2">
-          <ApprovalList approvalType="QUOTATION" :moduleId="quotationId" />
+          <ApprovalList
+            v-if="quotation.status !== 'Draft'"
+            approvalType="QUOTATION"
+            :moduleId="quotationId"
+          />
           <QuotationSummary :quotation="quotation" :totals="totals" />
         </div>
       </div>
