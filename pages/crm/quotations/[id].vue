@@ -47,6 +47,7 @@
                     :icon="ElIconCircleCheckFilled"
                     v-if="quotation?.status === 'Sent'"
                     @click="handleSetToAccepted"
+                    class="text-green-500!"
                   >
                     Set To Accepted
                   </el-dropdown-item>
@@ -55,6 +56,7 @@
                     :icon="ElIconCircleCloseFilled"
                     v-if="quotation?.status === 'Sent'"
                     @click="handleSetToRejected"
+                    class="text-red-500!"
                   >
                     Set To Rejected
                   </el-dropdown-item>
@@ -157,7 +159,7 @@
             :loading="isSendingEmail"
             @click="submitSendQuotation"
           >
-            Send Email
+            {{ isSendingEmail ? "Sending..." : "Send Email" }}
           </el-button>
         </span>
       </template>
