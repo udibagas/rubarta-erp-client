@@ -94,6 +94,13 @@
         label="Signature Speciment"
         :error="formErrors.signatureSpeciment"
       >
+        <img
+          v-if="formModel.signatureSpeciment"
+          :src="`${config.public.apiBase}/${formModel.signatureSpeciment.filePath}`"
+          alt=""
+          class="mb-4"
+        />
+
         <el-upload
           :action="`${config.public.apiBase}/api/file`"
           :with-credentials="true"
@@ -102,13 +109,9 @@
           :multiple="false"
           :show-file-list="false"
         >
-          <img
-            v-if="formModel.signatureSpeciment"
-            :src="`${config.public.apiBase}/${formModel.signatureSpeciment.filePath}`"
-            alt=""
-            style="height: 100px"
-          />
-          <el-button v-else :icon="ElIconUploadFilled"> Upload </el-button>
+          <el-button :icon="ElIconUploadFilled">
+            {{ formModel.signatureSpeciment ? "Change" : "Upload" }}
+          </el-button>
         </el-upload>
       </el-form-item>
 
