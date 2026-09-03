@@ -73,191 +73,209 @@
     </template>
 
     <div v-if="quotation">
-      <!-- Quotation Information -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">QUOTATION INFORMATION</span>
-        </template>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-descriptions :column="1" border label-width="200">
-              <el-descriptions-item label="Date">
-                {{ formatDate(quotation.date) }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Valid Until">
-                {{ formatDate(quotation.validUntil) }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Validity">
-                {{ quotation.validity }} days
-              </el-descriptions-item>
-              <el-descriptions-item label="Sales Person">
-                {{ quotation.User?.name }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Request Type">
-                {{ quotation.requestType }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-col>
-          <el-col :span="12">
-            <el-descriptions :column="1" border label-width="200">
-              <el-descriptions-item label="Customer">
-                {{ quotation.Customer?.name }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Address">
-                {{ quotation.customerAddress || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Contact Person">
-                {{ quotation.contactPerson || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Phone">
-                {{ quotation.contactPhone || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Email">
-                {{ quotation.contactEmail || "-" }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-col>
-        </el-row>
-      </el-card>
-
-      <!-- Payment & Delivery Terms -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">PAYMENT & DELIVERY TERMS</span>
-        </template>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-descriptions
-              :column="1"
-              border
-              title="Payment Terms"
-              label-width="200"
-            >
-              <el-descriptions-item label="Currency">
-                {{ quotation.currency }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Payment Method">
-                {{ quotation.paymentMethod }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Term of Payment">
-                {{ quotation.termOfPayment }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-col>
-          <el-col :span="12">
-            <el-descriptions
-              :column="1"
-              border
-              title="Delivery Terms"
-              label-width="200"
-            >
-              <el-descriptions-item label="Term of Delivery">
-                {{ quotation.termOfDelivery }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-col>
-        </el-row>
-      </el-card>
-
-      <!-- Description -->
-      <el-card v-if="quotation.description" shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">DESCRIPTION</span>
-        </template>
-        <p class="whitespace-pre-wrap">{{ quotation.description }}</p>
-      </el-card>
-
-      <!-- Terms & Conditions -->
-      <el-card v-if="quotation.termsAndConditions" shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">TERMS & CONDITIONS</span>
-        </template>
-        <p class="whitespace-pre-wrap">{{ quotation.termsAndConditions }}</p>
-      </el-card>
-
-      <!-- Notes -->
-      <el-card v-if="quotation.notes" shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">NOTES</span>
-        </template>
-        <p class="whitespace-pre-wrap">{{ quotation.notes }}</p>
-      </el-card>
-
-      <!-- Items Table -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">
-            QUOTATION ITEMS ({{ quotation.QuotationItems.length }})
-          </span>
-        </template>
-        <el-table :data="quotation.QuotationItems" stripe border>
-          <el-table-column type="index" label="#" width="60" />
-          <el-table-column label="Part Number" prop="partNumber" width="150" />
-          <el-table-column label="Description" min-width="250">
-            <template #default="{ row }">
-              <div class="font-medium">{{ row.name }}</div>
-              <div
-                v-if="row.model || row.description"
-                class="text-sm text-gray-500"
-              >
-                {{ row.model }}
-                {{ row.description }}
-              </div>
+      <el-row :gutter="20">
+        <el-col :span="17">
+          <!-- Quotation Information -->
+          <el-card shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">QUOTATION INFORMATION</span>
             </template>
-          </el-table-column>
-          <el-table-column label="Quantity" width="120" align="center">
-            <template #default="{ row }">
-              <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Unit Price" width="150" align="right">
-            <template #default="{ row }">
-              <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Amount" width="150" align="right">
-            <template #default="{ row }">
-              <span class="font-mono">{{
-                toDecimal(calculateItemAmount(row))
-              }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-descriptions :column="1" border label-width="200">
+                  <el-descriptions-item label="Date">
+                    {{ formatDate(quotation.date) }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Valid Until">
+                    {{ formatDate(quotation.validUntil) }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Validity">
+                    {{ quotation.validity }} days
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Sales Person">
+                    {{ quotation.User?.name }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Request Type">
+                    {{ quotation.requestType }}
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-col>
+              <el-col :span="12">
+                <el-descriptions :column="1" border label-width="200">
+                  <el-descriptions-item label="Customer">
+                    {{ quotation.Customer?.name }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Address">
+                    {{ quotation.customerAddress || "-" }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Contact Person">
+                    {{ quotation.contactPerson || "-" }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Phone">
+                    {{ quotation.contactPhone || "-" }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Email">
+                    {{ quotation.contactEmail || "-" }}
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-col>
+            </el-row>
+          </el-card>
 
-      <!-- Summary -->
-      <el-row>
-        <el-col :span="12" :offset="12">
-          <el-descriptions :column="1" border label-width="200">
-            <el-descriptions-item
-              label="Subtotal"
-              class-name="font-mono"
-              align="right"
-            >
-              {{ toDecimal(totals.subtotal) }}
-            </el-descriptions-item>
-            <el-descriptions-item
-              label="Discount"
-              align="right"
-              class-name="font-mono"
-            >
-              {{ toDecimal(quotation.discount) }}
-            </el-descriptions-item>
-            <el-descriptions-item
-              label="VAT (11%)"
-              align="right"
-              class-name="font-mono"
-            >
-              {{ toDecimal(totals.vat) }}
-            </el-descriptions-item>
-            <el-descriptions-item
-              label="Grand Total"
-              align="right"
-              class-name="font-semibold text-green-600! font-mono"
-            >
-              {{ toDecimal(totals.grandTotal) }}
-            </el-descriptions-item>
-          </el-descriptions>
+          <!-- Payment & Delivery Terms -->
+          <el-card shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">PAYMENT & DELIVERY TERMS</span>
+            </template>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-descriptions
+                  :column="1"
+                  border
+                  title="Payment Terms"
+                  label-width="200"
+                >
+                  <el-descriptions-item label="Currency">
+                    {{ quotation.currency }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Payment Method">
+                    {{ quotation.paymentMethod }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Term of Payment">
+                    {{ quotation.termOfPayment }}
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-col>
+              <el-col :span="12">
+                <el-descriptions
+                  :column="1"
+                  border
+                  title="Delivery Terms"
+                  label-width="200"
+                >
+                  <el-descriptions-item label="Term of Delivery">
+                    {{ quotation.termOfDelivery }}
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-col>
+            </el-row>
+          </el-card>
+
+          <!-- Description -->
+          <el-card v-if="quotation.description" shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">DESCRIPTION</span>
+            </template>
+            <p class="whitespace-pre-wrap">{{ quotation.description }}</p>
+          </el-card>
+
+          <!-- Terms & Conditions -->
+          <el-card
+            v-if="quotation.termsAndConditions"
+            shadow="never"
+            class="mb-4"
+          >
+            <template #header>
+              <span class="font-semibold">TERMS & CONDITIONS</span>
+            </template>
+            <p class="whitespace-pre-wrap">
+              {{ quotation.termsAndConditions }}
+            </p>
+          </el-card>
+
+          <!-- Notes -->
+          <el-card v-if="quotation.notes" shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">NOTES</span>
+            </template>
+            <p class="whitespace-pre-wrap">{{ quotation.notes }}</p>
+          </el-card>
+
+          <!-- Items Table -->
+          <el-card shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">
+                QUOTATION ITEMS ({{ quotation.QuotationItems.length }})
+              </span>
+            </template>
+            <el-table :data="quotation.QuotationItems" stripe border>
+              <el-table-column type="index" label="#" width="60" />
+              <el-table-column
+                label="Part Number"
+                prop="partNumber"
+                width="150"
+              />
+              <el-table-column label="Description" min-width="250">
+                <template #default="{ row }">
+                  <div class="font-medium">{{ row.name }}</div>
+                  <div
+                    v-if="row.model || row.description"
+                    class="text-sm text-gray-500"
+                  >
+                    {{ row.model }}
+                    {{ row.description }}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="Quantity" width="120" align="center">
+                <template #default="{ row }">
+                  <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Unit Price" width="150" align="right">
+                <template #default="{ row }">
+                  <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Amount" width="150" align="right">
+                <template #default="{ row }">
+                  <span class="font-mono">{{
+                    toDecimal(calculateItemAmount(row))
+                  }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+
+          <!-- Summary -->
+          <el-row>
+            <el-col :span="12" :offset="12">
+              <el-descriptions :column="1" border label-width="200">
+                <el-descriptions-item
+                  label="Subtotal"
+                  class-name="font-mono"
+                  align="right"
+                >
+                  {{ toDecimal(totals.subtotal) }}
+                </el-descriptions-item>
+                <el-descriptions-item
+                  label="Discount"
+                  align="right"
+                  class-name="font-mono"
+                >
+                  {{ toDecimal(quotation.discount) }}
+                </el-descriptions-item>
+                <el-descriptions-item
+                  label="VAT (11%)"
+                  align="right"
+                  class-name="font-mono"
+                >
+                  {{ toDecimal(totals.vat) }}
+                </el-descriptions-item>
+                <el-descriptions-item
+                  label="Grand Total"
+                  align="right"
+                  class-name="font-semibold text-green-600! font-mono"
+                >
+                  {{ toDecimal(totals.grandTotal) }}
+                </el-descriptions-item>
+              </el-descriptions>
+            </el-col>
+          </el-row>
+        </el-col>
+
+        <el-col :span="7">
+          <QuotationSummary :quotation="quotation" :totals="totals" />
         </el-col>
       </el-row>
     </div>
