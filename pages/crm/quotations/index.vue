@@ -82,6 +82,7 @@
         width="120"
         align="center"
         header-align="center"
+        fixed="right"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="dark" />

@@ -30,6 +30,7 @@
                   <el-dropdown-item
                     :icon="ElIconCircleCheckFilled"
                     v-if="quotation?.status === 'Draft'"
+                    @click="handleSubmitButton"
                   >
                     Submit
                   </el-dropdown-item>
@@ -37,8 +38,25 @@
                   <el-dropdown-item
                     :icon="ElIconMessage"
                     v-if="quotation?.status === 'Submitted'"
+                    @click="openSendDialog"
                   >
                     Send
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
+                    :icon="ElIconCircleCheckFilled"
+                    v-if="quotation?.status === 'Sent'"
+                    @click="handleSetToAccepted"
+                  >
+                    Set To Accepted
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
+                    :icon="ElIconCircleCloseFilled"
+                    v-if="quotation?.status === 'Sent'"
+                    @click="handleSetToRejected"
+                  >
+                    Set To Rejected
                   </el-dropdown-item>
 
                   <el-dropdown-item :icon="ElIconPrinter" @click="printToPDF">
@@ -47,6 +65,8 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+
+            <el-button :icon="ElIconRefresh" @click="refreshData"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -242,6 +262,55 @@
       </el-row>
     </div>
 
+    <el-dialog
+      v-model="sendDialogVisible"
+      title="Send quotation"
+      width="700px"
+      @closed="resetSendForm"
+    >
+      <el-form :model="sendForm" label-position="top" label-width="100px">
+        <el-form-item label="Subject">
+          <el-input
+            v-model="sendForm.subject"
+            placeholder="Quotation subject"
+          />
+        </el-form-item>
+
+        <el-form-item label="To">
+          <el-input v-model="sendForm.to" />
+        </el-form-item>
+
+        <el-form-item label="CC">
+          <el-input
+            v-model="sendForm.cc"
+            placeholder="Please click the Enter key after input"
+          />
+        </el-form-item>
+
+        <el-form-item label="Email Body">
+          <el-input
+            v-model="sendForm.body"
+            type="textarea"
+            :rows="10"
+            placeholder="Write your email message here"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="sendDialogVisible = false">Cancel</el-button>
+          <el-button
+            type="primary"
+            :loading="isSendingEmail"
+            @click="submitSendQuotation"
+          >
+            Send Email
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
     <QuotationForm ref="quotationFormRef" @saved="onQuotationSaved" />
   </nuxt-layout>
 </template>
@@ -256,11 +325,19 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const route = useRoute();
-const router = useRouter();
 const request = useRequest();
 const queryClient = useQueryClient();
 const quotationFormRef = ref(null);
 const isGeneratingPDF = ref(false);
+const sendDialogVisible = ref(false);
+const isSendingEmail = ref(false);
+
+const sendForm = reactive({
+  subject: "",
+  body: "",
+  to: "",
+  cc: "",
+});
 
 const quotationId = route.params.id;
 
@@ -315,6 +392,67 @@ function editQuotation() {
     items: quotation.value.QuotationItems || [],
   };
   quotationFormRef.value?.openForm(formData);
+}
+
+function resetSendForm() {
+  sendForm.subject = "";
+  sendForm.body = "";
+  sendForm.to = "";
+  sendForm.cc = "";
+}
+
+function openSendDialog() {
+  if (!quotation.value) return;
+
+  const customerName = quotation.value.Customer?.name || "Customer";
+  const subject = `Quotation ${quotation.value.number}${
+    quotation.value.title ? ` - ${quotation.value.title}` : ""
+  }`;
+
+  sendForm.subject = subject;
+  sendForm.to = quotation.value.contactEmail || "";
+  sendForm.body = `Dear ${customerName},\n\nPlease find attached our quotation for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${quotation.value.User?.name || "Sales Team"}`;
+  sendDialogVisible.value = true;
+}
+
+async function submitSendQuotation() {
+  if (!quotation.value) return;
+
+  const trimmedSubject = sendForm.subject.trim();
+  const trimmedBody = sendForm.body.trim();
+
+  if (!trimmedSubject || !trimmedBody) {
+    ElMessage.warning("Please fill in the email subject and body.");
+    return;
+  }
+
+  const ccRecipients = sendForm.cc
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+
+  try {
+    isSendingEmail.value = true;
+
+    await request(`/api/quotations/${quotationId}/send`, {
+      method: "POST",
+      body: {
+        subject: trimmedSubject,
+        to: quotation.value.contactEmail,
+        body: trimmedBody,
+        cc: ccRecipients,
+      },
+    });
+
+    ElMessage.success("Quotation email sent successfully");
+    sendDialogVisible.value = false;
+    resetSendForm();
+  } catch (error) {
+    console.error("Send quotation error:", error);
+    ElMessage.error("Failed to send quotation email");
+  } finally {
+    isSendingEmail.value = false;
+  }
 }
 
 async function printToPDF() {
@@ -527,7 +665,91 @@ async function printToPDF() {
   }
 }
 
+function refreshData() {
+  queryClient.invalidateQueries({ queryKey: ["quotation", quotationId] });
+  queryClient.invalidateQueries({ queryKey: ["quotations"] });
+}
+
 function onQuotationSaved() {
   queryClient.invalidateQueries({ queryKey: ["quotation", quotationId] });
+}
+
+async function updateQuotationStatus(status, successMessage) {
+  try {
+    await request(`/api/quotations/${quotationId}`, {
+      method: "PATCH",
+      body: { status },
+    });
+
+    ElMessage.success(successMessage);
+    refreshData();
+  } catch (error) {
+    console.error("Update quotation status error:", error);
+    ElMessage.error("Failed to update quotation status");
+  }
+}
+
+function handleSetToAccepted() {
+  ElMessageBox.confirm("Mark this quotation as accepted?", "Confirm", {
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
+    type: "success",
+  })
+    .then(() => {
+      updateQuotationStatus("Accepted", "Quotation marked as accepted");
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "Quotation acceptance canceled",
+      });
+    });
+}
+
+function handleSetToRejected() {
+  ElMessageBox.confirm("Mark this quotation as rejected?", "Confirm", {
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
+    type: "warning",
+  })
+    .then(() => {
+      updateQuotationStatus("Rejected", "Quotation marked as rejected");
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "Quotation rejection canceled",
+      });
+    });
+}
+
+async function handleSubmitButton() {
+  ElMessageBox.confirm(
+    "Are you sure you want to submit this quotation?",
+    "Warning",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "warning",
+    },
+  )
+    .then(async () => {
+      await request(`/api/quotations/${quotationId}/submit`, {
+        method: "POST",
+      });
+
+      ElMessage({
+        type: "success",
+        message: "Quotation submitted successfully",
+      });
+
+      refreshData();
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "Quotation submission canceled",
+      });
+    });
 }
 </script>

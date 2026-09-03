@@ -750,7 +750,7 @@ const save = async () => {
       : "/api/quotations";
 
     await request(url, {
-      method: form.value.id ? "PUT" : "POST",
+      method: form.value.id ? "PATCH" : "POST",
       body: form.value,
     });
 
