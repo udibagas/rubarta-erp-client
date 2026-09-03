@@ -3,8 +3,8 @@
     <template #header>
       <el-page-header @back="goBack">
         <template #content>
-          {{ quotation?.number }}
-          <div class="text-sm text-gray-500">{{ quotation?.title }}</div>
+          <span class="font-medium mr-2"> #{{ quotation?.number }} </span>
+          <span class="text-sm text-gray-500">{{ quotation?.title }}</span>
         </template>
         <template #extra>
           <div class="flex gap-2 items-center">
@@ -117,6 +117,23 @@
 
         <el-form-item label="CC">
           <el-input v-model="sendForm.cc" placeholder="CC recipients" />
+        </el-form-item>
+
+        <!-- TODO: Implement preview of the attachment -->
+        <el-form-item label="Attachment">
+          <el-tag
+            effect="plain"
+            class="cursor-pointer"
+            type="success"
+            size="large"
+          >
+            <span class="flex items-center gap-1">
+              <el-icon>
+                <ElIconDocument />
+              </el-icon>
+              {{ quotation?.number }}.pdf
+            </span>
+          </el-tag>
         </el-form-item>
 
         <el-input
