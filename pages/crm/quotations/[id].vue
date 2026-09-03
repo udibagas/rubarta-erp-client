@@ -59,14 +59,17 @@
                     Set To Rejected
                   </el-dropdown-item>
 
-                  <el-dropdown-item :icon="ElIconPrinter" @click="printToPDF">
+                  <el-dropdown-item
+                    :icon="ElIconPrinter"
+                    @click="() => previewQuotation()"
+                  >
                     Print PDF
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refreshData"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -119,13 +122,13 @@
           <el-input v-model="sendForm.cc" placeholder="CC recipients" />
         </el-form-item>
 
-        <!-- TODO: Implement preview of the attachment -->
         <el-form-item label="Attachment">
           <el-tag
             effect="plain"
             class="cursor-pointer"
             type="success"
             size="large"
+            @click="() => previewQuotation()"
           >
             <span class="flex items-center gap-1">
               <el-icon>
@@ -160,24 +163,19 @@
       </template>
     </el-dialog>
 
-    <QuotationForm ref="quotationFormRef" @saved="onQuotationSaved" />
+    <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+import { useQuery } from "@tanstack/vue-query";
 
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+definePageMeta({ layout: false });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const request = useRequest();
-const queryClient = useQueryClient();
 const quotationFormRef = ref(null);
-const isGeneratingPDF = ref(false);
 const sendDialogVisible = ref(false);
 const isSendingEmail = ref(false);
 
@@ -229,14 +227,6 @@ const totals = computed(() => {
     grandTotal: subtotal + vatTotal,
   };
 });
-
-function calculateItemAmount(item) {
-  const baseAmount = item.quantity * item.unitPrice;
-  const discountAmount = baseAmount * ((item.discount || 0) / 100);
-  const amountAfterDiscount = baseAmount - discountAmount;
-  const vatAmount = item.vat ? amountAfterDiscount * 0.11 : 0;
-  return amountAfterDiscount + vatAmount;
-}
 
 function editQuotation() {
   // Transform QuotationItems to items format for the form
@@ -308,225 +298,6 @@ async function submitSendQuotation() {
   }
 }
 
-async function printToPDF() {
-  try {
-    isGeneratingPDF.value = true;
-
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let yPos = 20;
-
-    // Header
-    doc.setFontSize(24);
-    doc.setFont(undefined, "bold");
-    doc.text("QUOTATION", pageWidth / 2, yPos, { align: "center" });
-
-    yPos += 10;
-    doc.setFontSize(12);
-    doc.setFont(undefined, "normal");
-    doc.text(quotation.value.number, pageWidth / 2, yPos, { align: "center" });
-
-    yPos += 15;
-
-    // Quotation Info - Left Column
-    doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
-    doc.text("Quotation Information", 14, yPos);
-
-    doc.setFont(undefined, "normal");
-    yPos += 7;
-    doc.text(`Date: ${formatDate(quotation.value.date)}`, 14, yPos);
-    yPos += 5;
-    doc.text(
-      `Valid Until: ${formatDate(quotation.value.validUntil)}`,
-      14,
-      yPos,
-    );
-    yPos += 5;
-    doc.text(`Validity: ${quotation.value.validity} days`, 14, yPos);
-    yPos += 5;
-    doc.text(`Sales Person: ${quotation.value.User?.name || "-"}`, 14, yPos);
-    yPos += 5;
-    doc.text(`Request Type: ${quotation.value.requestType}`, 14, yPos);
-
-    // Customer Info - Right Column
-    let yPosRight = 45;
-    doc.setFont(undefined, "bold");
-    doc.text("Customer Information", 110, yPosRight);
-
-    doc.setFont(undefined, "normal");
-    yPosRight += 7;
-    doc.text(
-      `Customer: ${quotation.value.Customer?.name || "-"}`,
-      110,
-      yPosRight,
-    );
-    yPosRight += 5;
-    doc.text(
-      `Address: ${quotation.value.customerAddress || "-"}`,
-      110,
-      yPosRight,
-    );
-    yPosRight += 5;
-    doc.text(
-      `Contact: ${quotation.value.contactPerson || "-"}`,
-      110,
-      yPosRight,
-    );
-    yPosRight += 5;
-    doc.text(`Phone: ${quotation.value.contactPhone || "-"}`, 110, yPosRight);
-    yPosRight += 5;
-    doc.text(`Email: ${quotation.value.contactEmail || "-"}`, 110, yPosRight);
-
-    yPos = Math.max(yPos, yPosRight) + 10;
-
-    // Payment & Delivery Terms
-    doc.setFont(undefined, "bold");
-    doc.text("Payment & Delivery Terms", 14, yPos);
-    yPos += 7;
-
-    doc.setFont(undefined, "normal");
-    doc.text(
-      `Currency: ${quotation.value.currency} | Payment: ${quotation.value.paymentMethod} | Term: ${quotation.value.termOfPayment}`,
-      14,
-      yPos,
-    );
-    yPos += 5;
-    doc.text(`Delivery Term: ${quotation.value.termOfDelivery}`, 14, yPos);
-
-    yPos += 10;
-
-    // Title & Description
-    if (quotation.value.title) {
-      doc.setFont(undefined, "bold");
-      doc.setFontSize(12);
-      doc.text(quotation.value.title, 14, yPos);
-      yPos += 7;
-    }
-
-    if (quotation.value.description) {
-      doc.setFont(undefined, "normal");
-      doc.setFontSize(10);
-      const splitDescription = doc.splitTextToSize(
-        quotation.value.description,
-        pageWidth - 28,
-      );
-      doc.text(splitDescription, 14, yPos);
-      yPos += splitDescription.length * 5 + 5;
-    }
-
-    // Items Table
-    const tableData = quotation.value.QuotationItems.map((item, index) => [
-      index + 1,
-      item.partNumber,
-      `${item.name}`,
-      toDecimal(item.quantity),
-      toDecimal(item.unitPrice),
-      toDecimal(calculateItemAmount(item)),
-    ]);
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [
-        ["#", "Part Number", "Description", "Qty", "Unit Price", "Amount"],
-      ],
-      body: tableData,
-      theme: "grid",
-      styles: { fontSize: 8, cellPadding: 3 },
-      headStyles: { fillColor: [75, 85, 99], fontStyle: "bold" },
-      columnStyles: {
-        0: { cellWidth: 10, halign: "center" },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 60 },
-        3: { cellWidth: 20, halign: "center" },
-        4: { cellWidth: 30, halign: "right" },
-        5: { cellWidth: 30, halign: "right" },
-      },
-    });
-
-    yPos = doc.lastAutoTable.finalY + 10;
-
-    // Summary
-    const summaryX = pageWidth - 70;
-    doc.setFontSize(10);
-    doc.text("Subtotal:", summaryX, yPos);
-    doc.text(toDecimal(totals.value.subtotal), summaryX + 50, yPos, {
-      align: "right",
-    });
-
-    yPos += 6;
-    doc.text("Discount:", summaryX, yPos);
-    doc.text(toDecimal(quotation.value.discount), summaryX + 50, yPos, {
-      align: "right",
-    });
-
-    yPos += 6;
-    doc.text("VAT (11%):", summaryX, yPos);
-    doc.text(toDecimal(totals.value.vat), summaryX + 50, yPos, {
-      align: "right",
-    });
-
-    yPos += 8;
-    doc.setFont(undefined, "bold");
-    doc.setFontSize(12);
-    doc.text("Grand Total:", summaryX, yPos);
-    doc.text(toDecimal(totals.value.grandTotal), summaryX + 50, yPos, {
-      align: "right",
-    });
-
-    // Terms & Conditions
-    if (quotation.value.termsAndConditions) {
-      yPos += 15;
-      if (yPos > 250) {
-        doc.addPage();
-        yPos = 20;
-      }
-      doc.setFont(undefined, "bold");
-      doc.setFontSize(10);
-      doc.text("Terms & Conditions", 14, yPos);
-      yPos += 7;
-
-      doc.setFont(undefined, "normal");
-      doc.setFontSize(9);
-      const splitTerms = doc.splitTextToSize(
-        quotation.value.termsAndConditions,
-        pageWidth - 28,
-      );
-      doc.text(splitTerms, 14, yPos);
-    }
-
-    // Open PDF in a new browser window instead of downloading it
-    const pdfBlob = doc.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    const pdfWindow = window.open(pdfUrl, "_blank", "noopener,noreferrer");
-
-    if (pdfWindow) {
-      pdfWindow.focus();
-    } else {
-      ElMessage.warning(
-        "Pop-up blocked. Please allow pop-ups to open the PDF.",
-      );
-    }
-
-    setTimeout(() => URL.revokeObjectURL(pdfUrl), 10000);
-    ElMessage.success("PDF opened successfully");
-  } catch (error) {
-    console.error("PDF generation error:", error);
-    ElMessage.error("Failed to generate PDF");
-  } finally {
-    isGeneratingPDF.value = false;
-  }
-}
-
-function refreshData() {
-  queryClient.invalidateQueries({ queryKey: ["quotation", quotationId] });
-  queryClient.invalidateQueries({ queryKey: ["quotations"] });
-}
-
-function onQuotationSaved() {
-  queryClient.invalidateQueries({ queryKey: ["quotation", quotationId] });
-}
-
 async function updateQuotationStatus(status, successMessage) {
   try {
     await request(`/api/quotations/${quotationId}`, {
@@ -535,7 +306,7 @@ async function updateQuotationStatus(status, successMessage) {
     });
 
     ElMessage.success(successMessage);
-    refreshData();
+    refetch();
   } catch (error) {
     console.error("Update quotation status error:", error);
     ElMessage.error("Failed to update quotation status");
@@ -596,7 +367,7 @@ async function handleSubmitButton() {
         message: "Quotation submitted successfully",
       });
 
-      refreshData();
+      refetch();
     })
     .catch(() => {
       ElMessage({
@@ -604,5 +375,10 @@ async function handleSubmitButton() {
         message: "Quotation submission canceled",
       });
     });
+}
+
+function previewQuotation() {
+  const pdfUrl = `${config.public.apiBase}/api/quotations/${quotationId}/preview`;
+  window.open(pdfUrl, "_blank");
 }
 </script>
