@@ -3,12 +3,18 @@
     <template #header>
       <div class="flex justify-between">
         <div class="font-semibold">APPROVAL</div>
-        <el-button
-          @click="() => refetch()"
-          :icon="ElIconRefresh"
-          link
-          type="primary"
-        ></el-button>
+        <div class="flex gap-2">
+          <status-tag
+            v-if="data?.items?.length > 1"
+            :status="data?.status ?? 'Pending'"
+          />
+          <el-button
+            @click="() => refetch()"
+            :icon="ElIconRefresh"
+            link
+            type="primary"
+          />
+        </div>
       </div>
     </template>
     <div class="flex flex-col gap-4">
@@ -60,10 +66,11 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+import StatusTag from "./StatusTag.vue";
 
 const { user } = useAuth();
 const request = useRequest();
-const emit = defineEmits(["reload"]);
+const emit = defineEmits(["update"]);
 
 const { approvalType, moduleId } = defineProps(["approvalType", "moduleId"]);
 
@@ -95,7 +102,7 @@ async function approve() {
     });
 
     await refetch();
-    emit("reload");
+    emit("update");
   } catch (error) {
     ElMessage.info({
       type: "info",

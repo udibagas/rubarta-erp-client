@@ -37,7 +37,7 @@
 
                   <el-dropdown-item
                     :icon="ElIconMessage"
-                    v-if="quotation?.status === 'Submitted'"
+                    v-if="quotation?.status === 'Approved'"
                     @click="openSendDialog"
                   >
                     Send
@@ -75,144 +75,22 @@
     <div v-if="quotation">
       <div class="flex gap-2">
         <div class="grow overflow-auto">
-          <el-card shadow="never" body-style="padding: 0">
-            <template #header>
-              <span class="font-semibold">QUOTATION INFORMATION</span>
-            </template>
-            <el-descriptions :column="1" border label-width="200">
-              <el-descriptions-item label="Date">
-                {{ formatDate(quotation.date) }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Valid Until">
-                {{ formatDate(quotation.validUntil) }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Validity">
-                {{ quotation.validity }} days
-              </el-descriptions-item>
-              <el-descriptions-item label="Sales Person">
-                {{ quotation.User?.name }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Request Type">
-                {{ quotation.requestType }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Customer">
-                {{ quotation.Customer?.name }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Address">
-                {{ quotation.customerAddress || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Contact Person">
-                {{ quotation.contactPerson || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Phone">
-                {{ quotation.contactPhone || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Email">
-                {{ quotation.contactEmail || "-" }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Currency">
-                {{ quotation.currency }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Payment Method">
-                {{ quotation.paymentMethod }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Term of Payment">
-                {{ quotation.termOfPayment }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Term of Delivery">
-                {{ quotation.termOfDelivery }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Description">
-                {{ quotation.description }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Terms & Conditions">
-                {{ quotation.termsAndConditions }}
-              </el-descriptions-item>
-              <el-descriptions-item label="Notes">
-                {{ quotation.notes }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-card>
-
-          <!-- Items Table -->
-          <el-card shadow="never" class="mt-2" body-style="padding: 0;">
-            <template #header>
-              <span class="font-semibold">
-                QUOTATION ITEMS ({{ quotation.QuotationItems.length }})
-              </span>
-            </template>
-            <el-table :data="quotation.QuotationItems" stripe border>
-              <el-table-column type="index" label="#" width="60" />
-              <el-table-column label="PN" prop="partNumber" width="120" />
-              <el-table-column label="Description" min-width="150">
-                <template #default="{ row }">
-                  <div class="font-medium">{{ row.name }}</div>
-                  <div
-                    v-if="row.model || row.description"
-                    class="text-sm text-gray-500"
-                  >
-                    {{ row.model }}
-                    {{ row.description }}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column label="Qty" width="80" align="center">
-                <template #default="{ row }">
-                  <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="Unit Price" width="120" align="right">
-                <template #default="{ row }">
-                  <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="Amount" width="120" align="right">
-                <template #default="{ row }">
-                  <span class="font-mono">{{
-                    toDecimal(calculateItemAmount(row))
-                  }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
-
-            <el-descriptions :column="1" border label-width="500">
-              <el-descriptions-item
-                label="Subtotal"
-                class-name="font-mono"
-                align="right"
-              >
-                {{ toDecimal(totals.subtotal) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="Discount"
-                align="right"
-                class-name="font-mono"
-              >
-                {{ toDecimal(quotation.discount) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="VAT (11%)"
-                align="right"
-                class-name="font-mono"
-              >
-                {{ toDecimal(totals.vat) }}
-              </el-descriptions-item>
-              <el-descriptions-item
-                label="Grand Total"
-                align="right"
-                class-name="font-semibold text-green-600! font-mono"
-              >
-                {{ toDecimal(totals.grandTotal) }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-card>
+          <el-tabs type="border-card">
+            <el-tab-pane label="QUOTATION INFORMATION">
+              <QuotationDetail :quotation="quotation" />
+            </el-tab-pane>
+            <el-tab-pane label="QUOTATION ITEMS">
+              <QuotationItems :quotation="quotation" />
+            </el-tab-pane>
+          </el-tabs>
         </div>
 
-        <div class="w-90 shrink-0 flex flex-col gap-2">
+        <div class="w-85 shrink-0 flex flex-col gap-2">
           <ApprovalList
             v-if="quotation.status !== 'Draft'"
             approvalType="QUOTATION"
             :moduleId="quotationId"
+            @update="() => refetch()"
           />
           <QuotationSummary :quotation="quotation" :totals="totals" />
         </div>
@@ -295,7 +173,11 @@ const sendForm = reactive({
 
 const quotationId = route.params.id;
 
-const { isPending, data: quotation } = useQuery({
+const {
+  isPending,
+  data: quotation,
+  refetch,
+} = useQuery({
   queryKey: ["quotation", quotationId],
   queryFn: () => request(`/api/quotations/${quotationId}`),
 });
