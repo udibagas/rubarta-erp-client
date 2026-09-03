@@ -62,6 +62,14 @@
                   </el-dropdown-item>
 
                   <el-dropdown-item
+                    :icon="ElIconShoppingTrolley"
+                    v-if="quotation?.status === 'Accepted'"
+                    class="text-green-500!"
+                  >
+                    Create Sales Order
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
                     :icon="ElIconPrinter"
                     @click="() => previewQuotation()"
                   >
