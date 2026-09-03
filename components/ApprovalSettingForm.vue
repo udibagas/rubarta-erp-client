@@ -38,7 +38,11 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Payment Target" :error="errors.paymentType">
+      <el-form-item
+        v-if="form.approvalType === 'NKP'"
+        label="Payment Target"
+        :error="errors.paymentType"
+      >
         <el-select
           v-model="form.paymentType"
           placeholder="Payment Target"
@@ -54,7 +58,11 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Payment Type" :error="errors.nkpType">
+      <el-form-item
+        v-if="form.approvalType === 'NKP'"
+        label="Payment Type"
+        :error="errors.nkpType"
+      >
         <el-select
           v-model="form.nkpType"
           placeholder="Payment Type"

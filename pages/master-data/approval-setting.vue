@@ -39,9 +39,10 @@
       </el-table-column>
       <el-table-column prop="approvalType" label="Approval Type" width="150" />
       <el-table-column prop="paymentType" label="Payment Target" width="220" />
+
       <el-table-column label="Payment Type" width="220">
         <template #default="{ row }">
-          {{ row.nkpType.replace("_", " ") }}
+          {{ row.nkpType?.replace("_", " ") ?? " " }}
         </template>
       </el-table-column>
 

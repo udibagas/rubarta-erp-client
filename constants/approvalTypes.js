@@ -1,1 +1,1 @@
-export const approvalTypes = ["NKP"];
+export const approvalTypes = ["NKP", "QUOTATION"];
