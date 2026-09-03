@@ -80,7 +80,7 @@
     <div v-if="quotation">
       <div class="flex gap-2">
         <div class="grow overflow-auto">
-          <el-tabs type="border-card">
+          <el-tabs type="card">
             <el-tab-pane label="QUOTATION INFORMATION">
               <QuotationDetail :quotation="quotation" />
             </el-tab-pane>
