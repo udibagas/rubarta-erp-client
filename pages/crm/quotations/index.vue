@@ -125,6 +125,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
 
@@ -139,7 +141,7 @@ const { fetchData, refreshData } = useCrud({
   queryKey: "quotations",
 });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 
 const openForm = (data = {}) => {
   quotationFormRef.value?.openForm(data);
