@@ -461,33 +461,10 @@
             </template>
           </el-table-column>
 
-          <!-- <el-table-column label="Discount %" width="120">
-            <template #default="{ row }">
-              <el-input-number
-                v-model="row.discount"
-                :min="0"
-                :max="100"
-                :precision="2"
-                style="width: 100%"
-                :controls="false"
-                @change="calculateTotals"
-              ></el-input-number>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="VAT" width="80" align="center">
-            <template #default="{ row }">
-              <el-checkbox
-                v-model="row.vat"
-                @change="calculateTotals"
-              ></el-checkbox>
-            </template>
-          </el-table-column> -->
-
           <el-table-column label="Amount" width="150" align="right">
             <template #default="{ row }">
               <span class="w-full font-mono">
-                {{ toDecimal(calculateItemAmount(row)) }}
+                {{ toDecimal(row.quantity * row.unitPrice) }}
               </span>
             </template>
           </el-table-column>
@@ -716,8 +693,6 @@ const openForm = (data = {}) => {
         description: "",
         quantity: 1,
         unitPrice: 0,
-        discount: 0,
-        vat: false,
       },
     ],
   };
@@ -783,22 +758,12 @@ function addItem() {
     description: "",
     quantity: 1,
     unitPrice: 0,
-    discount: 0,
-    vat: false,
   });
 }
 
 function removeItem(index) {
   form.value.items.splice(index, 1);
   calculateTotals();
-}
-
-function calculateItemAmount(item) {
-  const baseAmount = item.quantity * item.unitPrice;
-  const discountAmount = baseAmount * ((item.discount || 0) / 100);
-  const amountAfterDiscount = baseAmount - discountAmount;
-  const vatAmount = item.vat ? amountAfterDiscount * 0.11 : 0;
-  return amountAfterDiscount + vatAmount;
 }
 
 function calculateTotals() {
@@ -809,28 +774,13 @@ function calculateTotals() {
     return;
   }
 
-  let subtotal = 0;
-  let vatTotal = 0;
+  totals.subtotal = form.value.items.reduce(
+    (acc, item) => acc + item.quantity * item.unitPrice,
+    0,
+  );
 
-  form.value.items.forEach((item) => {
-    const baseAmount = item.quantity * item.unitPrice;
-    const discountAmount = baseAmount * ((item.discount || 0) / 100);
-    const amountAfterDiscount = baseAmount - discountAmount;
-
-    subtotal += amountAfterDiscount;
-
-    if (item.vat) {
-      vatTotal += amountAfterDiscount * 0.11;
-    }
-  });
-
-  // Apply quotation-level discount
-  const quotationDiscount = form.value.discount || 0;
-  subtotal -= quotationDiscount;
-
-  totals.subtotal = subtotal;
-  totals.vat = vatTotal;
-  totals.grandTotal = subtotal + vatTotal;
+  totals.vat = totals.subtotal * 0.11;
+  totals.grandTotal = totals.subtotal + totals.vat - (form.value.discount || 0);
 }
 
 // Watch items changes
@@ -950,8 +900,6 @@ async function handleImportItems(e) {
         description: material.description,
         quantity: quantity || 1,
         unitPrice: material.sellingPrice,
-        discount: 0,
-        vat: false,
       });
     });
 

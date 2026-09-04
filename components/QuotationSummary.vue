@@ -32,7 +32,9 @@
       <div class="rounded-lg bg-green-50 p-3">
         <div class="text-xs text-gray-500 uppercase">Total Amount</div>
         <div class="mt-1 font-semibold font-mono text-lg">
-          {{ toCurrency(quotationSummary.amount, quotationSummary.currency) }}
+          {{
+            toCurrency(quotationSummary.grandTotal, quotationSummary.currency)
+          }}
         </div>
       </div>
 
@@ -65,15 +67,15 @@
         <div class="text-xs text-gray-500 uppercase tracking-wide">
           Request Type
         </div>
-        <div class="mt-1 font-medium">{{ quotation.requestType }}</div>
+        <div class="mt-1 font-medium">{{ quotationSummary.requestType }}</div>
       </div>
 
       <div>
         <div class="text-xs text-gray-500 uppercase tracking-wide">Contact</div>
         <div class="mt-1 text-sm space-y-1">
-          <div>{{ quotation.contactPerson || "-" }}</div>
-          <div>{{ quotation.contactPhone || "-" }}</div>
-          <div>{{ quotation.contactEmail || "-" }}</div>
+          <div>{{ quotationSummary.contactPerson || "-" }}</div>
+          <div>{{ quotationSummary.contactPhone || "-" }}</div>
+          <div>{{ quotationSummary.contactEmail || "-" }}</div>
         </div>
       </div>
     </div>
@@ -97,10 +99,14 @@ const quotationSummary = computed(() => {
     return {
       number: "-",
       customer: "-",
-      amount: 0,
+      grandTotal: 0,
       totalItems: 0,
       salesPerson: "-",
       validUntil: null,
+      requestType: "-",
+      contactPerson: "-",
+      contactPhone: "-",
+      contactEmail: "-",
     };
   }
 
@@ -113,11 +119,15 @@ const quotationSummary = computed(() => {
   return {
     number: props.quotation.number || "-",
     customer: props.quotation.Customer?.name || "-",
-    amount: props.totals?.grandTotal || 0,
+    grandTotal: props.quotation.grandTotal || 0,
     currency: props.quotation.currency || "IDR",
     totalItems,
     salesPerson: props.quotation.User?.name || "-",
     validUntil: props.quotation.validUntil || null,
+    requestType: props.quotation.requestType || "-",
+    contactPerson: props.quotation.contactPerson || "-",
+    contactPhone: props.quotation.contactPhone || "-",
+    contactEmail: props.quotation.contactEmail || "-",
   };
 });
 </script>

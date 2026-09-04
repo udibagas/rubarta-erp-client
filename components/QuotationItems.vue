@@ -29,33 +29,33 @@
     </el-table-column>
     <el-table-column label="Amount" width="120" align="right">
       <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(calculateItemAmount(row)) }}</span>
+        <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
       </template>
     </el-table-column>
   </el-table>
 
   <el-descriptions :column="1" border label-width="500">
     <el-descriptions-item label="SUBTOTAL" class-name="font-mono" align="right">
-      {{ toCurrency(totals.subtotal, quotation.currency) }}
+      {{ toCurrency(quotation.totalAmount, quotation.currency) }}
     </el-descriptions-item>
     <el-descriptions-item label="DISCOUNT" align="right" class-name="font-mono">
       {{ toCurrency(quotation.discount, quotation.currency) }}
     </el-descriptions-item>
 
-    <!-- <el-descriptions-item
+    <el-descriptions-item
       label="VAT (11%)"
       align="right"
       class-name="font-mono"
     >
-      {{ toCurrency(totals.vat, quotation.currency) }}
-    </el-descriptions-item> -->
+      {{ toCurrency(quotation.vatAmount, quotation.currency) }}
+    </el-descriptions-item>
 
     <el-descriptions-item
       label="GRAND TOTAL"
       align="right"
       class-name="font-semibold text-green-600! font-mono"
     >
-      {{ toCurrency(totals.grandTotal, quotation.currency) }}
+      {{ toCurrency(quotation.grandTotal, quotation.currency) }}
     </el-descriptions-item>
   </el-descriptions>
 </template>
@@ -67,43 +67,4 @@ const { quotation } = defineProps({
     required: true,
   },
 });
-
-const totals = computed(() => {
-  if (!quotation || !quotation.QuotationItems) {
-    return { subtotal: 0, vat: 0, grandTotal: 0 };
-  }
-
-  let subtotal = 0;
-  let vatTotal = 0;
-
-  quotation.QuotationItems.forEach((item) => {
-    const baseAmount = item.quantity * item.unitPrice;
-    const discountAmount = baseAmount * ((item.discount || 0) / 100);
-    const amountAfterDiscount = baseAmount - discountAmount;
-
-    subtotal += amountAfterDiscount;
-
-    if (item.vat) {
-      vatTotal += amountAfterDiscount * 0.11;
-    }
-  });
-
-  // Apply quotation-level discount
-  const quotationDiscount = quotation.discount || 0;
-  subtotal -= quotationDiscount;
-
-  return {
-    subtotal,
-    vat: vatTotal,
-    grandTotal: subtotal + vatTotal,
-  };
-});
-
-function calculateItemAmount(item) {
-  const baseAmount = item.quantity * item.unitPrice;
-  const discountAmount = baseAmount * ((item.discount || 0) / 100);
-  const amountAfterDiscount = baseAmount - discountAmount;
-  const vatAmount = item.vat ? amountAfterDiscount * 0.11 : 0;
-  return amountAfterDiscount + vatAmount;
-}
 </script>
