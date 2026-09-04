@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="CRM / Quotations">
+      <el-page-header @back="goBack" content="Sales / Quotations">
         <template #extra>
           <div class="flex gap-2">
             <el-input
@@ -13,44 +13,69 @@
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+            <el-button
+              @click="refreshData()"
+              :icon="ElIconRefresh"
+              class="ml-0!"
+            />
           </div>
         </template>
       </el-page-header>
     </template>
 
-    <el-table
-      stripe
-      v-loading="isPending"
-      :data="data"
-      @row-click="(row) => viewQuotation(row)"
-      class="cursor-pointer"
-    >
-      <el-table-column label="Quotation #" prop="number" width="150">
+    <el-table stripe v-loading="isPending" :data="data">
+      <el-table-column label="Quotation #" prop="number" min-width="150">
         <template #default="{ row }">
-          <div class="font-mono font-semibold">{{ row.number }}</div>
-          <span class="text-xs text-gray-500">
+          <el-link
+            class="font-mono font-semibold!"
+            @click="viewQuotation(row)"
+            type="success"
+          >
+            {{ row.number }}
+          </el-link>
+          <div class="text-sm text-gray-500">
             {{ formatDate(row.createdAt) }}
-          </span>
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column label="Customer" min-width="200">
         <template #default="{ row }">
-          <div class="font-semibold">{{ row.Customer?.name || "-" }}</div>
-          <div class="font-xs text-gray-500">{{ row.title }}</div>
+          <div class="font-semibold line-clamp-1">
+            {{ row.Customer?.name || "-" }}
+          </div>
+          <div class="text-sm text-gray-500 line-clamp-1">
+            {{ row.contactPerson }}
+          </div>
+          <div class="text-xs text-gray-500 line-clamp-1">
+            {{ row.contactEmail }}
+          </div>
+          <div class="text-xs text-gray-500 line-clamp-1">
+            {{ row.contactPhone }}
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column label="Valid Until" width="120">
         <template #default="{ row }">
-          {{ formatDate(row.validUntil) }}
+          {{ formatDate(row.validUntil) }} <br />
+          <div class="text-xs text-gray-500">{{ row.validity }} days</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Created By" prop="User.name" width="150">
+      <el-table-column label="Sales Person" prop="User.name" min-width="150">
         <template #default="{ row }">
-          <div class="line-clamp-1">
-            {{ row.User?.name || "-" }}
+          <div class="flex items-center gap-2">
+            <el-avatar
+              :size="24"
+              :style="{ backgroundColor: getAvatarColor(row.User?.name || '') }"
+              class="shrink-0"
+            >
+              {{ row.User?.name?.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <div class="line-clamp-1 font-semibold">
+              {{ row.User?.name || "-" }}
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -61,18 +86,29 @@
         width="80"
         align="center"
         header-align="center"
-      />
+      >
+        <template #default="{ row }">
+          <el-tag class="font-mono" size="small" effect="plain" type="info">
+            {{ toDecimal(row._count.QuotationItems) }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
       <el-table-column
         label="Grand Total"
-        width="150"
+        min-width="150"
         align="right"
         header-align="right"
       >
         <template #default="{ row }">
-          <div class="text-green-600 font-mono font-semibold">
-            {{ toDecimal(row.grandTotal) }}
-          </div>
+          <el-tag
+            class="font-mono font-semibold"
+            size="small"
+            type="success"
+            effect="plain"
+          >
+            {{ toCurrency(row.grandTotal, row.currency) }}
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -85,87 +121,25 @@
         fixed="right"
       >
         <template #default="{ row }">
-          <StatusTag :status="row.status" effect="dark" />
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        width="60px"
-        align="center"
-        header-align="center"
-        fixed="right"
-      >
-        <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
-        </template>
-        <template #default="{ row }">
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-icon>
-                <ElIconMoreFilled />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :icon="ElIconView"
-                  @click.native.prevent="viewQuotation(row)"
-                >
-                  View
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconEdit"
-                  @click.native.prevent="openForm(row)"
-                >
-                  Edit
-                </el-dropdown-item>
-                <el-dropdown-item
-                  v-if="row.status === 'Draft'"
-                  @click.native.prevent="markAsSent(row.id)"
-                  :icon="ElIconMessage"
-                >
-                  Mark as Sent
-                </el-dropdown-item>
-                <el-dropdown-item
-                  v-if="row.status === 'Sent'"
-                  @click.native.prevent="markAsAccepted(row.id)"
-                >
-                  Mark as Accepted
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconDelete"
-                  @click.native.prevent="handleRemove(row.id, remove)"
-                >
-                  Delete
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <StatusTag :status="row.status" effect="light" style="width: 100%" />
         </template>
       </el-table-column>
     </el-table>
-
-    <QuotationForm ref="quotationFormRef" />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const quotationFormRef = ref(null);
 const keyword = ref("");
-const request = useRequest();
 
-const { removeMutation, fetchData, refreshData, handleRemove } = useCrud({
+const { fetchData, refreshData } = useCrud({
   url: "/api/quotations",
   queryKey: "quotations",
 });
 
 const { isPending, data } = fetchData();
-const { mutate: remove } = removeMutation();
 
 const openForm = (data = {}) => {
   quotationFormRef.value?.openForm(data);
@@ -173,35 +147,5 @@ const openForm = (data = {}) => {
 
 function viewQuotation(quotation) {
   navigateTo(`/crm/quotations/${quotation.id}`);
-}
-
-async function markAsSent(quotationId) {
-  try {
-    await request(`/api/quotations/${quotationId}`, {
-      method: "PATCH",
-      body: {
-        status: "Sent",
-      },
-    });
-    ElMessage.success("Quotation marked as sent");
-    refreshData();
-  } catch (error) {
-    ElMessage.error("Failed to update quotation status");
-  }
-}
-
-async function markAsAccepted(quotationId) {
-  try {
-    await request(`/api/quotations/${quotationId}`, {
-      method: "PATCH",
-      body: {
-        status: "Accepted",
-      },
-    });
-    ElMessage.success("Quotation marked as accepted");
-    refreshData();
-  } catch (error) {
-    ElMessage.error("Failed to update quotation status");
-  }
 }
 </script>
