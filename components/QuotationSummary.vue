@@ -39,7 +39,7 @@
       <div class="rounded-lg bg-green-50 p-3">
         <div class="text-xs text-gray-500 uppercase">Total Items</div>
         <div class="mt-1 font-semibold font-mono text-lg">
-          {{ toDecimal(quotation.totalItems) }}
+          {{ toDecimal(totalItems) }}
         </div>
       </div>
 
@@ -86,5 +86,15 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+});
+
+const totalItems = computed(() => {
+  if (!props.quotation || !props.quotation.QuotationItems) {
+    return 0;
+  }
+
+  return props.quotation.QuotationItems.reduce((sum, item) => {
+    return sum + (item.quantity || 0);
+  }, 0);
 });
 </script>
