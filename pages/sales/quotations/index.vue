@@ -28,7 +28,7 @@
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
-            @click="viewQuotation(row)"
+            @click="navigateTo(`/sales/quotations/${row.id}`)"
             type="success"
           >
             {{ row.number }}
@@ -146,8 +146,4 @@ const { isPending, data, refetch } = fetchData();
 const openForm = (data = {}) => {
   quotationFormRef.value?.openForm(data);
 };
-
-function viewQuotation(quotation) {
-  navigateTo(`/crm/quotations/${quotation.id}`);
-}
 </script>

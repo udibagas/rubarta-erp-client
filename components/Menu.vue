@@ -200,19 +200,19 @@ const menus = computed(() => [
     children: [
       {
         label: "Quotations",
-        path: "/crm/quotations",
+        path: "/sales/quotations",
         icon: ElIconDocument,
         visible: true,
       },
       {
-        label: "Orders",
-        path: "/crm/orders",
+        label: "Sales Orders",
+        path: "/sales/orders",
         icon: ElIconShoppingCart,
         visible: true,
       },
       {
         label: "Invoices",
-        path: "/crm/invoices",
+        path: "/sales/invoices",
         icon: ElIconDocument,
         visible: true,
       },

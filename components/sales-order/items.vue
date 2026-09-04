@@ -1,0 +1,70 @@
+<template>
+  <el-table :data="order.OrderItems" stripe border>
+    <el-table-column type="index" label="#" width="60" />
+    <el-table-column label="Part Number" prop="partNumber" width="130">
+      <template #default="{ row }">
+        <span class="font-mono font-semibold">
+          {{ row.partNumber }}
+        </span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Description" min-width="150">
+      <template #default="{ row }">
+        <div class="font-medium">{{ row.name }}</div>
+        <div v-if="row.model || row.description" class="text-sm text-gray-500">
+          {{ row.model }}
+          {{ row.description }}
+        </div>
+      </template>
+    </el-table-column>
+    <el-table-column label="Qty" width="80" align="center">
+      <template #default="{ row }">
+        <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Unit Price" width="120" align="right">
+      <template #default="{ row }">
+        <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="Amount" width="120" align="right">
+      <template #default="{ row }">
+        <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
+      </template>
+    </el-table-column>
+  </el-table>
+
+  <el-descriptions :column="1" border label-width="500">
+    <el-descriptions-item label="SUBTOTAL" class-name="font-mono" align="right">
+      {{ toCurrency(order.totalAmount, order.currency) }}
+    </el-descriptions-item>
+    <el-descriptions-item label="DISCOUNT" align="right" class-name="font-mono">
+      {{ toCurrency(order.discount, order.currency) }}
+    </el-descriptions-item>
+
+    <el-descriptions-item
+      label="VAT (11%)"
+      align="right"
+      class-name="font-mono"
+    >
+      {{ toCurrency(order.vatAmount, order.currency) }}
+    </el-descriptions-item>
+
+    <el-descriptions-item
+      label="GRAND TOTAL"
+      align="right"
+      class-name="font-semibold text-green-600! font-mono"
+    >
+      {{ toCurrency(order.grandTotal, order.currency) }}
+    </el-descriptions-item>
+  </el-descriptions>
+</template>
+
+<script setup>
+const { order } = defineProps({
+  order: {
+    type: Object,
+    required: true,
+  },
+});
+</script>
