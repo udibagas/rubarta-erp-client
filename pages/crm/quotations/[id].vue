@@ -105,7 +105,7 @@
             :moduleId="quotationId"
             @update="() => refetch()"
           />
-          <QuotationSummary :quotation="quotation" :totals="totals" />
+          <QuotationSummary :quotation="quotation" />
         </div>
       </div>
     </div>
@@ -205,37 +205,6 @@ const {
 } = useQuery({
   queryKey: ["quotation", quotationId],
   queryFn: () => request(`/api/quotations/${quotationId}`),
-});
-
-const totals = computed(() => {
-  if (!quotation.value || !quotation.value.QuotationItems) {
-    return { subtotal: 0, vat: 0, grandTotal: 0 };
-  }
-
-  let subtotal = 0;
-  let vatTotal = 0;
-
-  quotation.value.QuotationItems.forEach((item) => {
-    const baseAmount = item.quantity * item.unitPrice;
-    const discountAmount = baseAmount * ((item.discount || 0) / 100);
-    const amountAfterDiscount = baseAmount - discountAmount;
-
-    subtotal += amountAfterDiscount;
-
-    if (item.vat) {
-      vatTotal += amountAfterDiscount * 0.11;
-    }
-  });
-
-  // Apply quotation-level discount
-  const quotationDiscount = quotation.value.discount || 0;
-  subtotal -= quotationDiscount;
-
-  return {
-    subtotal,
-    vat: vatTotal,
-    grandTotal: subtotal + vatTotal,
-  };
 });
 
 function editQuotation() {

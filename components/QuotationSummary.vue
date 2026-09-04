@@ -16,7 +16,7 @@
       <div>
         <div class="text-xs text-gray-500 uppercase tracking-wide">Number</div>
         <div class="mt-1 font-semibold text-base">
-          {{ quotationSummary.number }}
+          {{ quotation.number }}
         </div>
       </div>
 
@@ -25,23 +25,21 @@
           Customer
         </div>
         <div class="mt-1 font-medium">
-          {{ quotationSummary.customer }}
+          {{ quotation.Customer.name }}
         </div>
       </div>
 
       <div class="rounded-lg bg-green-50 p-3">
         <div class="text-xs text-gray-500 uppercase">Total Amount</div>
         <div class="mt-1 font-semibold font-mono text-lg">
-          {{
-            toCurrency(quotationSummary.grandTotal, quotationSummary.currency)
-          }}
+          {{ toCurrency(quotation.grandTotal, quotation.currency) }}
         </div>
       </div>
 
       <div class="rounded-lg bg-green-50 p-3">
         <div class="text-xs text-gray-500 uppercase">Total Items</div>
         <div class="mt-1 font-semibold font-mono text-lg">
-          {{ toDecimal(quotationSummary.totalItems) }}
+          {{ toDecimal(quotation.totalItems) }}
         </div>
       </div>
 
@@ -50,7 +48,7 @@
           Sales Person
         </div>
         <div class="mt-1 font-medium">
-          {{ quotationSummary.salesPerson }}
+          {{ quotation.User.name }}
         </div>
       </div>
 
@@ -59,7 +57,7 @@
           Valid Until
         </div>
         <div class="mt-1 font-medium">
-          {{ formatDate(quotationSummary.validUntil) }}
+          {{ formatDate(quotation.validUntil) }}
         </div>
       </div>
 
@@ -67,15 +65,15 @@
         <div class="text-xs text-gray-500 uppercase tracking-wide">
           Request Type
         </div>
-        <div class="mt-1 font-medium">{{ quotationSummary.requestType }}</div>
+        <div class="mt-1 font-medium">{{ quotation.requestType }}</div>
       </div>
 
       <div>
         <div class="text-xs text-gray-500 uppercase tracking-wide">Contact</div>
         <div class="mt-1 text-sm space-y-1">
-          <div>{{ quotationSummary.contactPerson || "-" }}</div>
-          <div>{{ quotationSummary.contactPhone || "-" }}</div>
-          <div>{{ quotationSummary.contactEmail || "-" }}</div>
+          <div>{{ quotation.contactPerson || "-" }}</div>
+          <div>{{ quotation.contactPhone || "-" }}</div>
+          <div>{{ quotation.contactEmail || "-" }}</div>
         </div>
       </div>
     </div>
@@ -86,48 +84,7 @@
 const props = defineProps({
   quotation: {
     type: Object,
-    default: null,
+    required: true,
   },
-  totals: {
-    type: Object,
-    default: () => ({ subtotal: 0, vat: 0, grandTotal: 0 }),
-  },
-});
-
-const quotationSummary = computed(() => {
-  if (!props.quotation) {
-    return {
-      number: "-",
-      customer: "-",
-      grandTotal: 0,
-      totalItems: 0,
-      salesPerson: "-",
-      validUntil: null,
-      requestType: "-",
-      contactPerson: "-",
-      contactPhone: "-",
-      contactEmail: "-",
-    };
-  }
-
-  const totalItems =
-    props.quotation.QuotationItems?.reduce(
-      (sum, item) => sum + Number(item.quantity || 0),
-      0,
-    ) || 0;
-
-  return {
-    number: props.quotation.number || "-",
-    customer: props.quotation.Customer?.name || "-",
-    grandTotal: props.quotation.grandTotal || 0,
-    currency: props.quotation.currency || "IDR",
-    totalItems,
-    salesPerson: props.quotation.User?.name || "-",
-    validUntil: props.quotation.validUntil || null,
-    requestType: props.quotation.requestType || "-",
-    contactPerson: props.quotation.contactPerson || "-",
-    contactPhone: props.quotation.contactPhone || "-",
-    contactEmail: props.quotation.contactEmail || "-",
-  };
 });
 </script>
