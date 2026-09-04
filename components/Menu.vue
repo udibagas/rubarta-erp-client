@@ -82,7 +82,6 @@ const route = useRoute();
 
 // Get active menu based on current route
 const activeMenu = computed(() => {
-  console.log(route.path);
   return route.path;
 });
 

@@ -3,15 +3,6 @@
     <el-descriptions-item label="Date">
       {{ formatDate(order.date) }}
     </el-descriptions-item>
-    <el-descriptions-item label="Valid Until">
-      {{ formatDate(order.validUntil) }}
-    </el-descriptions-item>
-    <el-descriptions-item label="Validity">
-      {{ order.validity }} days
-    </el-descriptions-item>
-    <el-descriptions-item label="Sales Person">
-      {{ order.User?.name }}
-    </el-descriptions-item>
     <el-descriptions-item label="Request Type">
       {{ order.requestType }}
     </el-descriptions-item>
