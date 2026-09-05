@@ -569,7 +569,6 @@
 </template>
 
 <script setup>
-import { useQueryClient } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
 import { requestTypes } from "~/constants/requestTypes";
 import { termOfPayments } from "~/constants/termOfPayments";
@@ -580,9 +579,8 @@ import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";
 
 const emit = defineEmits(["saved"]);
-
+const route = useRoute();
 const request = useRequest();
-const queryClient = useQueryClient();
 
 const defaultValue = {
   status: "Draft",
@@ -724,15 +722,18 @@ const save = async () => {
       ? `/api/quotations/${form.value.id}`
       : "/api/quotations";
 
-    await request(url, {
+    const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: form.value,
+      body: { ...form.value, companyId: useCookie("companyId").value },
     });
 
     ElMessage.success("Quotation saved successfully");
     emit("saved");
     closeForm();
-    queryClient.invalidateQueries({ queryKey: ["quotations"] });
+
+    if (route.path === "/sales/quotations") {
+      navigateTo(`/sales/quotations/${res.id}`);
+    }
   } catch (error) {
     errors.value = parseError(error);
     ElMessage.error(error.message || "Failed to save quotation");
