@@ -38,7 +38,12 @@
         align="center"
       >
         <template #default="{ row }">
-          <el-tag :type="row.isDefault ? 'success' : 'info'">
+          <el-tag
+            :type="row.isDefault ? 'success' : 'info'"
+            round
+            style="width: 60px"
+            effect="dark"
+          >
             {{ row.isDefault ? "Yes" : "No" }}
           </el-tag>
         </template>
