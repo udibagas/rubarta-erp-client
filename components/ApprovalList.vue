@@ -1,5 +1,5 @@
 <template>
-  <el-card shadow="never">
+  <el-card shadow="never" body-style="padding: 8px;">
     <template #header>
       <div class="flex justify-between">
         <div class="font-semibold">APPROVAL</div>
@@ -7,6 +7,8 @@
           <status-tag
             v-if="data?.items?.length > 1"
             :status="data?.status ?? 'Pending'"
+            size="small"
+            effect="plain"
           />
           <el-button
             @click="() => refetch()"
@@ -17,44 +19,43 @@
         </div>
       </div>
     </template>
-    <div class="flex flex-col gap-4">
-      <div v-for="approval in data?.items ?? []" :key="approval.id">
-        <div class="flex items-center gap-2">
-          <el-avatar
-            :size="34"
-            :style="{ backgroundColor: getAvatarColor(user?.name || '') }"
+
+    <div class="flex flex-col gap-2">
+      <div
+        v-for="approval in data?.items ?? []"
+        :key="approval.id"
+        class="rounded-lg bg-gray-50 p-4"
+      >
+        <div class="font-semibold">
+          {{ approval.user?.name }}
+        </div>
+        <div>
+          <el-tag
+            :type="approval.status === null ? 'info' : 'success'"
+            effect="dark"
+            round
+            size="small"
           >
-            {{ approval.user?.name?.charAt(0).toUpperCase() }}
-          </el-avatar>
-          <div>
-            <div class="font-semibold">
-              {{ approval.user?.name }}
-            </div>
-            <div class="text-xs text-gray-500" v-if="approval.status">
-              {{ formatDate(approval.updatedAt) }}
-              {{ formatTime(approval.updatedAt) }}
-            </div>
-          </div>
+            {{ approval.status === null ? "PENDING" : "APPROVED" }}
+          </el-tag>
+          <span class="ml-2 text-xs text-gray-500" v-if="approval.status">
+            {{ formatDate(approval.updatedAt) }}
+            {{ formatTime(approval.updatedAt) }}
+          </span>
         </div>
 
         <div class="mt-4">
           <el-button
             v-if="user.id == approval.userId && approval.status === null"
-            type="success"
+            type="primary"
             :icon="ElIconStamp"
             @click="approve()"
           >
             APPROVE
           </el-button>
 
-          <div class="mb-4" v-else>
-            <el-tag
-              :type="approval.status === null ? 'info' : 'success'"
-              effect="dark"
-            >
-              {{ approval.status === null ? "PENDING" : "APPROVED" }}
-            </el-tag>
-            <div class="text-sm text-gray-500 mt-2">
+          <div v-else>
+            <div class="text-sm text-gray-600 mt-2">
               {{ approval.remarks }}
             </div>
           </div>
