@@ -16,17 +16,21 @@
       v-loading="isPending"
       height="calc(100vh - 155px)"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-      <el-table-column
-        min-width="100"
-        label="Code"
-        prop="code"
-      ></el-table-column>
-      <el-table-column
-        min-width="100"
-        label="Name"
-        prop="name"
-      ></el-table-column>
+      <el-table-column label="Name" min-width="150" prop="name">
+        <template #default="{ row }">
+          <div class="font-semibold">{{ row.code }}</div>
+          <div>{{ row.name }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column label="Address" prop="address" min-width="200">
+        <template #default="{ row }">
+          <span style="white-space: pre-line">
+            {{ row.address }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Phone" prop="phone" />
+
       <el-table-column
         min-width="100"
         label="Is Default"
