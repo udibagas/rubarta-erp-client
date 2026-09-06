@@ -7,74 +7,23 @@
     top="5vh"
   >
     <el-form label-width="160px" label-position="left">
-      <!-- Quotation Header -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">SALES ORDER INFORMATION</span>
-        </template>
+      <el-form-item label="Sales Order Date">
+        <el-date-picker
+          v-model="form.date"
+          type="date"
+          placeholder="Date of sales order"
+          format="DD-MMM-YYYY"
+          value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+          style="width: 100%"
+        />
+      </el-form-item>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Sales Order Date">
-              <el-date-picker
-                v-model="form.date"
-                type="date"
-                placeholder="Date of sales order"
-                format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
-                style="width: 100%"
-              />
-            </el-form-item>
-
-            <el-form-item label="Validity" :error="errors.validity">
-              <el-input-number
-                placeholder="e.g., 30 days"
-                v-model="form.validity"
-                class="w-full!"
-                :controls="false"
-                @change="
-                  (v) =>
-                    (form.validUntil = dayjs(form.date || undefined)
-                      .add(v, 'day')
-                      .format('YYYY-MM-DD'))
-                "
-              >
-                <template #suffix>
-                  <span>days</span>
-                </template>
-              </el-input-number>
-            </el-form-item>
-
-            <el-form-item label="Valid Until" :error="errors.validUntil">
-              <el-date-picker
-                v-model="form.validUntil"
-                type="date"
-                placeholder="Valid until date"
-                format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
-                style="width: 100%"
-                disabled
-              >
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="Title" :error="errors.title">
-              <el-input placeholder="Quotation title" v-model="form.title" />
-            </el-form-item>
-
-            <el-form-item label="Description" :error="errors.description">
-              <el-input
-                type="textarea"
-                :rows="4"
-                placeholder="Quotation description"
-                v-model="form.description"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-card>
+      <el-form-item label="Reference Number">
+        <el-input
+          placeholder="Reference number of sales order"
+          v-model="form.referenceNumber"
+        />
+      </el-form-item>
 
       <!-- Customer Information -->
       <el-card shadow="never" class="mb-4">
@@ -164,52 +113,6 @@
             </el-form-item>
           </div>
         </div>
-      </el-card>
-
-      <!-- Sales & Request Type -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">SALES & REQUEST TYPE</span>
-        </template>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Sales Person" :error="errors.userId">
-              <el-select
-                v-model="form.userId"
-                placeholder="Select user"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="user in users"
-                  :key="user.id"
-                  :value="user.id"
-                  :label="user.name"
-                />
-                <template #prefix>
-                  <el-icon><ElIconUser /></el-icon>
-                </template>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Request Type" :error="errors.requestType">
-              <el-select
-                v-model="form.requestType"
-                placeholder="Select request type"
-                default-first-option
-              >
-                <el-option
-                  v-for="type in requestTypes"
-                  :key="type.value"
-                  :value="type.value"
-                  :label="type.label"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
       </el-card>
 
       <!-- Payment & Delivery Terms -->
@@ -319,7 +222,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="Attachments">
+        <!-- <el-form-item label="Attachments">
           <el-upload
             v-model:file-list="fileList"
             :action="`${config.public.apiBase}/api/file`"
@@ -331,16 +234,14 @@
           >
             <el-button plain :icon="ElIconUpload"> Upload </el-button>
           </el-upload>
-        </el-form-item>
+        </el-form-item> -->
       </el-card>
 
-      <!-- Quotation Items -->
+      <!-- Order Items -->
       <el-card shadow="never" body-style="padding: 0">
         <template #header>
           <div class="flex items-center justify-between">
-            <span class="font-semibold">
-              QUOTATION ITEMS ({{ form.items.length }})
-            </span>
+            <span class="font-semibold">ITEMS ({{ form.items.length }}) </span>
             <div>
               <el-button
                 type="success"
@@ -571,7 +472,6 @@
 <script setup>
 import { useQueryClient } from "@tanstack/vue-query";
 import { currencies } from "~/constants/currencies";
-import { requestTypes } from "~/constants/requestTypes";
 import { termOfPayments } from "~/constants/termOfPayments";
 import { termOfDeliveries } from "~/constants/termOfDeliveries";
 import { paymentMethods } from "~/constants/paymentMethods";
@@ -589,8 +489,6 @@ const defaultValue = {
   discount: 0,
   items: [],
   date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-  validity: 30,
-  validUntil: dayjs().add(30, "day").format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
   currency: "IDR",
   termOfPayment: "30 Days",
   termOfDelivery: "FOB",
@@ -599,6 +497,8 @@ const defaultValue = {
   customerAddress: "",
   contactPerson: "",
   contactPhone: "",
+  contactEmail: "",
+  referenceNumber: "",
 };
 
 // Local state
@@ -610,7 +510,6 @@ const isSaving = ref(false);
 
 const customers = ref([]);
 const contacts = ref([]);
-const users = ref([]);
 const materials = ref([]);
 
 useGraphqlQuery(gql`
@@ -632,10 +531,6 @@ useGraphqlQuery(gql`
       email
       customerId
     }
-    users {
-      id
-      name
-    }
     materials {
       partNumber
       name
@@ -648,7 +543,6 @@ useGraphqlQuery(gql`
   .then((result) => {
     customers.value = result.data.customers;
     contacts.value = result.data.contacts;
-    users.value = result.data.users;
     materials.value = result.data.materials;
   })
   .catch((error) => {
@@ -670,17 +564,12 @@ const openForm = (data = {}) => {
   form.value = {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-    validity: data.validity || 30,
-    validUntil:
-      data.validUntil ||
-      dayjs().add(30, "day").format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     status: data.status || "Draft",
     discount: data.discount || 0,
     currency: data.currency || "IDR",
     termOfPayment: data.termOfPayment || "30 Days",
     termOfDelivery: data.termOfDelivery || "FOB",
     paymentMethod: data.paymentMethod || "Bank Transfer",
-    requestType: data.requestType || "Sales",
     customerAddress: data.customerAddress || "",
     contactPerson: data.contactPerson || "",
     contactPhone: data.contactPhone || "",
@@ -696,13 +585,6 @@ const openForm = (data = {}) => {
       },
     ],
   };
-
-  // Set valid until to 30 days from now if new quotation
-  if (!data.id) {
-    const validDate = new Date();
-    validDate.setDate(validDate.getDate() + 30);
-    form.value.validUntil = validDate.toISOString();
-  }
 
   errors.value = {};
   show.value = true;

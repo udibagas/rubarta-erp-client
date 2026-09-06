@@ -102,7 +102,7 @@
       </el-table-column>
     </el-table>
 
-    <OrderForm ref="orderFormRef" @saved="() => refetch()" />
+    <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
 
