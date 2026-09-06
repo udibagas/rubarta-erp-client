@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     port: 4000,
   },
 
-  modules: ["@element-plus/nuxt", "@pinia/nuxt", "dragon-editor"],
+  modules: ["@element-plus/nuxt", "@pinia/nuxt"],
   elementPlus: {},
 
   pinia: {

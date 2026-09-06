@@ -36,6 +36,15 @@
       </el-form-item>
     </el-form>
 
+    <!-- <QuillEditor
+      @ready="onEditorReady"
+      v-model="sendForm.body"
+      content-type="html"
+      theme="snow"
+      toolbar="minimal"
+      class="h-75"
+    /> -->
+
     <el-input
       type="textarea"
       v-model="sendForm.body"
@@ -59,6 +68,9 @@
 </template>
 
 <script setup>
+// import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
+
 const { quotation, onPreview } = defineProps({
   quotation: {
     type: Object,
@@ -98,9 +110,9 @@ function openSendDialog() {
 
   sendForm.subject = subject;
   sendForm.to = quotation.contactEmail || "";
-  sendForm.body = `Dear ${customerName},\n\nPlease find attached our quotation for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${
+  sendForm.body = `<p>Dear ${customerName},</p><p>Please find attached our quotation for your review.</p><p>If you have any questions or need adjustments, please let us know.</p><p>Best regards,<br>${
     quotation.User?.name || "Sales Team"
-  }`;
+  }</p>`;
   show.value = true;
 }
 
