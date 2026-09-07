@@ -28,6 +28,14 @@
                   </el-dropdown-item>
 
                   <el-dropdown-item
+                    :icon="ElIconDelete"
+                    @click="deleteQuotation"
+                    v-if="quotation?.status === 'Draft'"
+                  >
+                    Delete
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
                     :icon="ElIconCircleCheckFilled"
                     v-if="quotation?.status === 'Draft'"
                     @click="handleSubmitButton"
@@ -147,6 +155,42 @@ function editQuotation() {
     items: quotation.value.QuotationItems || [],
   };
   quotationFormRef.value?.openForm(formData);
+}
+
+function deleteQuotation() {
+  ElMessageBox.confirm(
+    "Are you sure you want to delete this quotation?",
+    "Confirm",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "warning",
+    },
+  )
+    .then(async () => {
+      try {
+        await request(`/api/quotations/${quotationId}`, {
+          method: "DELETE",
+        });
+
+        ElMessage({
+          type: "success",
+          message: "Quotation deleted successfully",
+        });
+
+        // Redirect to the quotations list page after deletion
+        navigateTo("/sales/quotations");
+      } catch (error) {
+        console.error("Delete quotation error:", error);
+        ElMessage.error("Failed to delete quotation");
+      }
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "Quotation deletion canceled",
+      });
+    });
 }
 
 async function updateQuotationStatus(status, successMessage) {
