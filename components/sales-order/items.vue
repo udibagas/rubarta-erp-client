@@ -1,6 +1,11 @@
 <template>
-  <el-table :data="order.OrderItems" stripe border>
-    <el-table-column type="index" label="#" width="60" />
+  <el-table :data="pagedItems" stripe border>
+    <el-table-column
+      type="index"
+      label="#"
+      width="60"
+      :index="(i) => (currentPage - 1) * pageSize + i + 1"
+    />
     <el-table-column label="Part Number" prop="partNumber" width="130">
       <template #default="{ row }">
         <span class="font-mono font-semibold">
@@ -34,6 +39,20 @@
     </el-table-column>
   </el-table>
 
+  <div
+    v-if="order.SalesOrderItems.length > pageSize"
+    class="flex justify-end p-3 my-2"
+  >
+    <el-pagination
+      v-model:current-page="currentPage"
+      :page-size="pageSize"
+      :total="order.SalesOrderItems.length"
+      layout="prev, pager, next, total"
+      background
+      size="small"
+    />
+  </div>
+
   <el-descriptions :column="1" border label-width="500">
     <el-descriptions-item label="SUBTOTAL" class-name="font-mono" align="right">
       {{ toCurrency(order.totalAmount, order.currency) }}
@@ -66,5 +85,13 @@ const { order } = defineProps({
     type: Object,
     required: true,
   },
+});
+
+const pageSize = 15;
+const currentPage = ref(1);
+
+const pagedItems = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return order.SalesOrderItems.slice(start, start + pageSize);
 });
 </script>

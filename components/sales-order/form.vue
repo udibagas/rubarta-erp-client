@@ -7,23 +7,51 @@
     top="5vh"
   >
     <el-form label-width="160px" label-position="left">
-      <el-form-item label="Sales Order Date">
-        <el-date-picker
-          v-model="form.date"
-          type="date"
-          placeholder="Date of sales order"
-          format="DD-MMM-YYYY"
-          value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
-          style="width: 100%"
-        />
-      </el-form-item>
+      <el-card shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">QUOTATION INFORMATION</span>
+        </template>
 
-      <el-form-item label="Reference Number">
-        <el-input
-          placeholder="Reference number of sales order"
-          v-model="form.referenceNumber"
-        />
-      </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="Sales Order Date">
+              <el-date-picker
+                v-model="form.date"
+                type="date"
+                placeholder="Date of quotation"
+                format="DD-MMM-YYYY"
+                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+                style="width: 100%"
+              />
+            </el-form-item>
+
+            <el-form-item
+              label="Reference Number"
+              :error="errors.referenceNumber"
+            >
+              <el-input
+                placeholder="Reference number"
+                v-model="form.referenceNumber"
+              />
+            </el-form-item>
+
+            <el-form-item label="Title" :error="errors.title">
+              <el-input placeholder="Sales order title" v-model="form.title" />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="Description" :error="errors.description">
+              <el-input
+                type="textarea"
+                :rows="4"
+                placeholder="Sales order description"
+                v-model="form.description"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-card>
 
       <!-- Customer Information -->
       <el-card shadow="never" class="mb-4">
@@ -336,16 +364,7 @@
 
           <el-table-column label="Description" min-width="200">
             <template #default="{ row }">
-              <div>
-                <strong>{{ row.name }}</strong>
-                <div
-                  v-if="row.model || row.description"
-                  class="text-xs text-gray-500"
-                >
-                  {{ row.model }}
-                  {{ row.description ? "- " + row.description : "" }}
-                </div>
-              </div>
+              {{ row.name || row.description }}
             </template>
           </el-table-column>
 
@@ -504,7 +523,7 @@
         @click="save"
         :loading="isSaving"
       >
-        SAVE QUOTATION
+        SAVE SALES ORDER
       </el-button>
     </template>
   </el-dialog>
@@ -617,8 +636,6 @@ const openForm = (data = {}) => {
     items: data.items || [
       {
         partNumber: "",
-        name: "",
-        model: "",
         description: "",
         quantity: 1,
         unitPrice: 0,
@@ -689,8 +706,6 @@ function addItem() {
   }
   form.value.items.push({
     partNumber: "",
-    name: "",
-    model: "",
     description: "",
     quantity: 1,
     unitPrice: 0,
@@ -835,8 +850,6 @@ async function handleImportItems(e) {
 
       imported.push({
         partNumber: material.partNumber,
-        name: material.name,
-        model: material.model,
         description: material.description,
         quantity: quantity || 1,
         unitPrice: material.sellingPrice,
@@ -888,9 +901,7 @@ async function handleImportItemsFromPo(e) {
 
     const items = result.items.map((i) => ({
       partNumber: i.vendorPartNo,
-      name: i.description,
-      model: "",
-      description: "",
+      description: i.description,
       quantity: i.quantity,
       unitPrice: i.netUnitPrice,
     }));
