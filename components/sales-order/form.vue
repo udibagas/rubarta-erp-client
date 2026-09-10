@@ -242,22 +242,37 @@
         <template #header>
           <div class="flex items-center justify-between">
             <span class="font-semibold">ITEMS ({{ form.items.length }}) </span>
-            <div>
-              <el-button
-                type="success"
-                link
-                :icon="ElIconUpload"
-                :loading="isImporting"
-                @click="triggerImportItems"
-              >
-                {{ isImporting ? "Importing..." : "Import Items" }}
-              </el-button>
+            <div class="flex items-center gap-2">
+              <el-dropdown>
+                <el-button :icon="ElIconUpload" link type="primary">
+                  {{ isImporting ? "Importing..." : "Import Items" }}
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item :icon="Table" @click="triggerImportItems">
+                      Import from Excel
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      :icon="FileText"
+                      @click="triggerImportItemsFromPo"
+                    >
+                      Import from PO
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+
               <el-button
                 v-if="form.items.length > 0"
                 :icon="ElIconDelete"
                 link
                 type="danger"
-                @click="form.items = []"
+                @click="
+                  () => {
+                    form.items = [];
+                    currentPage = 1;
+                  }
+                "
               >
                 Delete All Items
               </el-button>
@@ -268,12 +283,24 @@
                 class="hidden"
                 @change="handleImportItems"
               />
+              <input
+                ref="importFromPoInputRef"
+                type="file"
+                accept=".pdf"
+                class="hidden"
+                @change="handleImportItemsFromPo"
+              />
             </div>
           </div>
         </template>
 
-        <el-table :data="form.items" stripe v-loading="isImporting" border>
-          <el-table-column label="#" type="index" width="50" />
+        <el-table :data="pagedItems" stripe v-loading="isImporting" border>
+          <el-table-column
+            label="#"
+            width="60"
+            :index="(i) => (currentPage - 1) * pageSize + i + 1"
+            type="index"
+          />
 
           <el-table-column label="Part Number" min-width="160">
             <template #default="{ row }">
@@ -343,13 +370,13 @@
           </el-table-column>
 
           <el-table-column label="Unit Price" width="160">
-            <template #default="{ row, $index }">
+            <template #default="{ row }">
               <el-input
                 v-model="row.unitPrice"
                 class="font-mono w-full"
                 @change="calculateTotals"
                 :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
-                @keydown.tab="(e) => handleTab(e, $index)"
+                @keydown.tab="(e) => handleTab(e, row)"
                 :formatter="
                   (value) => {
                     if (!value) return '';
@@ -379,17 +406,31 @@
                 link
               />
             </template>
-            <template #default="{ $index }">
+            <template #default="{ row }">
               <el-button
                 tabindex="-1"
                 type="danger"
                 :icon="ElIconDelete"
-                @click="removeItem($index)"
+                @click="removeItem(row)"
                 link
               ></el-button>
             </template>
           </el-table-column>
         </el-table>
+
+        <div
+          v-if="form.items.length > pageSize"
+          class="flex justify-end p-3 border-t border-[#ebeef5]"
+        >
+          <el-pagination
+            v-model:current-page="currentPage"
+            :page-size="pageSize"
+            :total="form.items.length"
+            layout="prev, pager, next, total"
+            background
+            size="small"
+          />
+        </div>
       </el-card>
 
       <!-- Quotation Summary -->
@@ -478,6 +519,7 @@ import { paymentMethods } from "~/constants/paymentMethods";
 import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";
+import { FileText, Table } from "lucide-vue-next";
 
 const emit = defineEmits(["saved"]);
 
@@ -588,6 +630,7 @@ const openForm = (data = {}) => {
 
   errors.value = {};
   show.value = true;
+  currentPage.value = 1;
   calculateTotals();
 };
 
@@ -595,6 +638,7 @@ const closeForm = () => {
   show.value = false;
   form.value = { ...defaultValue };
   errors.value = {};
+  currentPage.value = 1;
 };
 
 const save = async () => {
@@ -629,6 +673,18 @@ const totals = reactive({
   grandTotal: 0,
 });
 
+const pageSize = 15;
+const currentPage = ref(1);
+
+const pagedItems = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return form.value.items.slice(start, start + pageSize);
+});
+
+function lastPage() {
+  return Math.max(1, Math.ceil(form.value.items.length / pageSize));
+}
+
 function addItem() {
   if (!form.value.items) {
     form.value.items = [];
@@ -641,10 +697,17 @@ function addItem() {
     quantity: 1,
     unitPrice: 0,
   });
+  currentPage.value = lastPage();
+  calculateTotals();
 }
 
-function removeItem(index) {
+function removeItem(row) {
+  const index = form.value.items.indexOf(row);
+  if (index === -1) return;
   form.value.items.splice(index, 1);
+  if (currentPage.value > lastPage()) {
+    currentPage.value = lastPage();
+  }
   calculateTotals();
 }
 
@@ -664,15 +727,6 @@ function calculateTotals() {
   totals.vat = totals.subtotal * 0.11;
   totals.grandTotal = totals.subtotal + totals.vat - (form.value.discount || 0);
 }
-
-// Watch items changes
-watch(
-  () => form.value.items,
-  () => {
-    calculateTotals();
-  },
-  { deep: true },
-);
 
 // UPLOAD RELATED
 const config = useRuntimeConfig();
@@ -730,7 +784,8 @@ function handleRemove(file) {
   });
 }
 
-function handleTab(e, index) {
+function handleTab(e, row) {
+  const index = form.value.items.indexOf(row);
   if (index == form.value.items.length - 1) {
     addItem();
   }
@@ -738,10 +793,15 @@ function handleTab(e, index) {
 
 // IMPORT ITEMS FROM EXCEL
 const importInputRef = ref(null);
+const importFromPoInputRef = ref(null);
 const isImporting = ref(false);
 
 function triggerImportItems() {
   importInputRef.value?.click();
+}
+
+function triggerImportItemsFromPo() {
+  importFromPoInputRef.value?.click();
 }
 
 async function handleImportItems(e) {
@@ -787,8 +847,10 @@ async function handleImportItems(e) {
 
     if (imported.length) {
       // Remove empty placeholder row before adding imported items
-      form.value.items = form.value.items.filter((item) => item.partNumber);
-      form.value.items.push(...imported);
+      form.value.items = form.value.items
+        .filter((item) => item.partNumber)
+        .concat(imported);
+      currentPage.value = 1;
       calculateTotals();
     }
 
@@ -803,6 +865,44 @@ async function handleImportItems(e) {
     }
   } catch (error) {
     ElMessage.error(error.message || "Failed to import items");
+  } finally {
+    isImporting.value = false;
+    e.target.value = "";
+  }
+}
+
+async function handleImportItemsFromPo(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    isImporting.value = true;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const result = await $fetch("/api/orders/parse-po", {
+      method: "POST",
+      body: formData,
+      baseURL: config.public.apiBase,
+      credentials: "include",
+    });
+
+    const items = result.items.map((i) => ({
+      partNumber: i.vendorPartNo,
+      name: i.description,
+      model: "",
+      description: "",
+      quantity: i.quantity,
+      unitPrice: i.netUnitPrice,
+    }));
+
+    form.value.items = items;
+    currentPage.value = 1;
+
+    calculateTotals();
+  } catch (error) {
+    ElMessage.error(error.message || "Failed to import items from PO");
   } finally {
     isImporting.value = false;
     e.target.value = "";
