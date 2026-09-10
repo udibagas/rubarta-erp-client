@@ -113,7 +113,7 @@ const orderFormRef = ref(null);
 const keyword = ref("");
 
 const { fetchData, refreshData } = useCrud({
-  url: "/api/orders",
+  url: "/api/sales-orders",
   queryKey: "orders",
 });
 

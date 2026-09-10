@@ -188,7 +188,7 @@ const soId = route.params.id;
 
 const { data: order, refetch } = useQuery({
   queryKey: ["order", soId],
-  queryFn: () => request(`/api/orders/${soId}`),
+  queryFn: () => request(`/api/sales-orders/${soId}`),
 });
 
 function editOrder() {
@@ -240,7 +240,7 @@ async function submitSendorder() {
   try {
     isSendingEmail.value = true;
 
-    await request(`/api/orders/${soId}/send`, {
+    await request(`/api/sales-orders/${soId}/send`, {
       method: "POST",
       body: {
         subject: trimmedSubject,
@@ -263,7 +263,7 @@ async function submitSendorder() {
 
 async function updateSalesOrderStatus(status, successMessage) {
   try {
-    await request(`/api/orders/${soId}`, {
+    await request(`/api/sales-orders/${soId}`, {
       method: "PATCH",
       body: { status },
     });
@@ -321,7 +321,7 @@ async function handleSubmitButton() {
     },
   )
     .then(async () => {
-      await request(`/api/orders/${soId}/submit`, {
+      await request(`/api/sales-orders/${soId}/submit`, {
         method: "POST",
       });
 
@@ -341,7 +341,7 @@ async function handleSubmitButton() {
 }
 
 function previeworder() {
-  const pdfUrl = `${config.public.apiBase}/api/orders/${soId}/preview`;
+  const pdfUrl = `${config.public.apiBase}/api/sales-orders/${soId}/preview`;
   window.open(pdfUrl, "_blank");
 }
 </script>

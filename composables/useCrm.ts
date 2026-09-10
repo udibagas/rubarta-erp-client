@@ -62,7 +62,7 @@ export const useCrmWorkflows = () => {
         `/api/opportunities/${opportunityId}`,
       );
 
-      const order = await request("/api/orders", {
+      const order = await request("/api/sales-orders", {
         method: "POST",
         body: {
           customerId: opportunity.customerId,
@@ -153,7 +153,7 @@ export const useCrmStats = () => {
         request<Customer[]>("/api/customers", { params }),
         request<Lead[]>("/api/leads", { params }),
         request<Opportunity[]>("/api/opportunities", { params }),
-        request<Order[]>("/api/orders", { params }),
+        request<Order[]>("/api/sales-orders", { params }),
       ]);
 
       return {

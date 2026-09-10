@@ -527,7 +527,6 @@ const request = useRequest();
 const queryClient = useQueryClient();
 
 const defaultValue = {
-  status: "Draft",
   discount: 0,
   items: [],
   date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
@@ -606,7 +605,6 @@ const openForm = (data = {}) => {
   form.value = {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-    status: data.status || "Draft",
     discount: data.discount || 0,
     currency: data.currency || "IDR",
     termOfPayment: data.termOfPayment || "30 Days",
@@ -647,8 +645,8 @@ const save = async () => {
     errors.value = {};
 
     const url = form.value.id
-      ? `/api/quotations/${form.value.id}`
-      : "/api/quotations";
+      ? `/api/sales-orders/${form.value.id}`
+      : "/api/sales-orders";
 
     await request(url, {
       method: form.value.id ? "PATCH" : "POST",
@@ -658,7 +656,7 @@ const save = async () => {
     ElMessage.success("Quotation saved successfully");
     emit("saved");
     closeForm();
-    queryClient.invalidateQueries({ queryKey: ["quotations"] });
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
   } catch (error) {
     errors.value = parseError(error);
     ElMessage.error(error.message || "Failed to save quotation");
@@ -881,7 +879,7 @@ async function handleImportItemsFromPo(e) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const result = await $fetch("/api/orders/parse-po", {
+    const result = await $fetch("/api/sales-orders/parse-po", {
       method: "POST",
       body: formData,
       baseURL: config.public.apiBase,

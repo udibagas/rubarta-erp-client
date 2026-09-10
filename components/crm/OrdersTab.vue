@@ -162,7 +162,7 @@ const { data, isPending } = useQuery({
     if (props.customerId) {
       params.append("customerId", props.customerId);
     }
-    const url = `/api/orders?${params.toString()}`;
+    const url = `/api/sales-orders?${params.toString()}`;
     return await request(url);
   },
 });
@@ -199,7 +199,7 @@ const handleEditOrder = (order) => {
 
 const { mutate: updateStatusMutation } = useMutation({
   mutationFn: ({ id, status }) => {
-    return request(`/api/orders/${id}`, {
+    return request(`/api/sales-orders/${id}`, {
       method: "PATCH",
       body: { status },
     });
@@ -243,7 +243,7 @@ const handleMarkAsDelivered = (id) => {
 
 const { mutate: deleteOrderMutation } = useMutation({
   mutationFn: (id) => {
-    return request(`/api/orders/${id}`, {
+    return request(`/api/sales-orders/${id}`, {
       method: "DELETE",
     });
   },
