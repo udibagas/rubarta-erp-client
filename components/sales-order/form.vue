@@ -14,7 +14,7 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="Quotation">
+            <el-form-item label="Quotation Number">
               <el-select
                 v-model="form.quotationId"
                 placeholder="Select quotation"
@@ -353,13 +353,13 @@
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item :icon="Table" @click="triggerImportItems">
-                      Import from Excel
+                      From Excel
                     </el-dropdown-item>
                     <el-dropdown-item
                       :icon="FileText"
                       @click="triggerImportItemsFromPo"
                     >
-                      Import from PO
+                      From Purchase Order
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
