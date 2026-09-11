@@ -20,60 +20,13 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
-                    :icon="ElIconEdit"
-                    @click="editOrder"
-                    v-if="order?.status === 'Draft'"
+                    v-for="m in menus.filter((m) => m.visible)"
+                    :key="m.name"
+                    :icon="m.icon"
+                    @click="m.action"
+                    :class="m.class || ''"
                   >
-                    Edit
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCheckFilled"
-                    v-if="order?.status === 'Draft'"
-                    @click="handleSubmitButton"
-                  >
-                    Submit
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconMessage"
-                    v-if="order?.status === 'Approved'"
-                    @click="sendDialogRef?.openSendDialog()"
-                  >
-                    Send
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCheckFilled"
-                    v-if="order?.status === 'Sent'"
-                    @click="handleSetToAccepted"
-                    class="text-green-500!"
-                  >
-                    Set To Accepted
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCloseFilled"
-                    v-if="order?.status === 'Sent'"
-                    @click="handleSetToRejected"
-                    class="text-red-500!"
-                  >
-                    Set To Rejected
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconShoppingTrolley"
-                    v-if="order?.status === 'Accepted'"
-                    class="text-green-500!"
-                  >
-                    Create Sales Order
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconPrinter"
-                    @click="() => previeworder()"
-                  >
-                    Print PDF
+                    {{ m.label }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -102,10 +55,16 @@
       </div>
     </div>
 
-    <SalesOrderSendDialog
-      ref="sendDialogRef"
-      :order="order"
-      :on-preview="previeworder"
+    <SendEmail
+      ref="sendEmailRef"
+      :on-preview="previewOrder"
+      :number="order.number"
+      type="sales-order"
+      :subject="order.title"
+      :to="order.contactEmail"
+      :recipient-name="order.contactPerson"
+      :cc="order.User?.email"
+      :from-name="order.User?.name"
     />
 
     <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
@@ -120,7 +79,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
 const orderFormRef = ref(null);
-const sendDialogRef = ref(null);
+const sendEmailRef = ref(null);
 
 const soId = route.params.id;
 
@@ -128,6 +87,76 @@ const { data: order, refetch } = useQuery({
   queryKey: ["order", soId],
   queryFn: () => request(`/api/sales-orders/${soId}`),
 });
+
+const menus = computed(() => [
+  {
+    label: "Edit",
+    action: editOrder,
+    icon: ElIconEdit,
+    visible: order.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    action: deleteOrder,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: order.value?.status === "Draft",
+  },
+  {
+    label: "Mark As Confirmed",
+    action: () => updateSalesOrderStatus("Confirmed"),
+    icon: ElIconCircleCheck,
+    class: "text-success!",
+    visible: order.value?.status === "Draft",
+  },
+  {
+    label: "Send",
+    action: () => sendEmailRef.value?.openDialog(),
+    icon: ElIconMessage,
+    visible: order.value?.status === "Confirmed",
+  },
+  {
+    label: "Mark As Sent",
+    action: () => updateSalesOrderStatus("Sent"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-warning!",
+    visible: order.value?.status === "Confirmed",
+  },
+  {
+    label: "Mark As Pending",
+    action: () => updateSalesOrderStatus("Pending"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-warning!",
+    visible: order.value?.status === "Sent",
+  },
+  {
+    label: "Set To Processing",
+    action: () => updateSalesOrderStatus("Processing"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-success!",
+    visible: order.value?.status === "Sent",
+  },
+  {
+    label: "Set To Completed",
+    action: () => updateSalesOrderStatus("Completed"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-success!",
+    visible: order.value?.status === "Sent",
+  },
+  {
+    label: "Set To Cancelled",
+    action: () => updateSalesOrderStatus("Cancelled"),
+    icon: ElIconCircleCloseFilled,
+    class: "text-error!",
+    visible: order.value?.status === "Confirmed",
+  },
+  {
+    label: "Print PDF",
+    action: previewOrder,
+    icon: ElIconPrinter,
+    visible: true,
+  },
+]);
 
 function editOrder() {
   const formData = {
@@ -138,59 +167,10 @@ function editOrder() {
   orderFormRef.value?.openForm(formData);
 }
 
-async function updateSalesOrderStatus(status, successMessage) {
-  try {
-    await request(`/api/sales-orders/${soId}`, {
-      method: "PATCH",
-      body: { status },
-    });
-
-    ElMessage.success(successMessage);
-    refetch();
-  } catch (error) {
-    console.error("Update sales order status error:", error);
-    ElMessage.error("Failed to update sales order status");
-  }
-}
-
-function handleSetToAccepted() {
-  ElMessageBox.confirm("Mark this sales order as accepted?", "Confirm", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "success",
-  })
-    .then(() => {
-      updateSalesOrderStatus("Accepted", "Sales order marked as accepted");
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "Sales order acceptance canceled",
-      });
-    });
-}
-
-function handleSetToRejected() {
-  ElMessageBox.confirm("Mark this sales order as rejected?", "Confirm", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "warning",
-  })
-    .then(() => {
-      updateSalesOrderStatus("Rejected", "Sales order marked as rejected");
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "Sales order rejection canceled",
-      });
-    });
-}
-
-async function handleSubmitButton() {
+function deleteOrder() {
   ElMessageBox.confirm(
-    "Are you sure you want to submit this sales order?",
-    "Warning",
+    "Are you sure you want to delete this sales order?",
+    "Confirm",
     {
       confirmButtonText: "OK",
       cancelButtonText: "Cancel",
@@ -198,26 +178,75 @@ async function handleSubmitButton() {
     },
   )
     .then(async () => {
-      await request(`/api/sales-orders/${soId}/submit`, {
-        method: "POST",
-      });
+      try {
+        await request(`/api/sales-orders/${soId}`, {
+          method: "DELETE",
+        });
 
-      ElMessage({
-        type: "success",
-        message: "Sales order submitted successfully",
-      });
+        ElMessage({
+          type: "success",
+          message: "Sales order deleted successfully",
+        });
 
-      refetch();
+        // Redirect to the sales orders list page after deletion
+        navigateTo("/sales/orders");
+      } catch (error) {
+        console.error("Delete sales order error:", error);
+        ElMessage.error("Failed to delete sales order");
+      }
     })
     .catch(() => {
       ElMessage({
         type: "info",
-        message: "Sales order submission canceled",
+        message: "Sales order deletion canceled",
       });
     });
 }
 
-function previeworder() {
+async function updateSalesOrderStatus(status) {
+  const successMessages = {
+    Sent: "Sales order marked as sent",
+    Processing: "Sales order marked as processing",
+    Completed: "Sales order marked as completed",
+    Cancelled: "Sales order marked as cancelled",
+    Pending: "Sales order marked as pending",
+  };
+
+  const successMessage =
+    successMessages[status] || "Sales order status updated";
+
+  ElMessageBox.confirm(
+    `Mark this sales order as ${status.toLowerCase()}?`,
+    "Confirm",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "success",
+    },
+  )
+    .then(async () => {
+      try {
+        await request(`/api/sales-orders/${soId}`, {
+          method: "PATCH",
+          body: { status },
+        });
+
+        ElMessage.success(successMessage);
+        refetch();
+      } catch (error) {
+        console.error("Update sales order status error:", error);
+        ElMessage.error("Failed to update sales order status");
+      }
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: `Sales order ${status.toLowerCase()} canceled`,
+      });
+    });
+}
+
+function previewOrder() {
   const pdfUrl = `${config.public.apiBase}/api/sales-orders/${soId}/preview`;
   window.open(pdfUrl, "_blank");
 }
