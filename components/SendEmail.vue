@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    title="Send Sales Order"
+    title="Send Email"
     width="700px"
     @closed="resetSendForm"
   >
@@ -121,7 +121,7 @@ function openDialog() {
     "purchase-order": `Dear ${recipientName},\n\nPlease find attached our purchase order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
   };
 
-  sendForm.subject = `${type.replace("-", " ").toUpperCase()} ${number} - ${subject}`;
+  sendForm.subject = `[${type.replace("-", " ").toUpperCase()}] #${number} - ${subject}`;
   sendForm.to = to;
   sendForm.cc = cc;
   sendForm.fromName = fromName;

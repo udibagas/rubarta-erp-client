@@ -63,11 +63,18 @@
       </div>
     </div>
 
-    <QuotationSendDialog
-      ref="sendDialogRef"
-      :quotation="quotation"
+    <SendEmail
+      ref="sendEmailRef"
       :on-preview="previewQuotation"
+      :number="quotation.number"
+      type="quotation"
+      :subject="quotation.title"
+      :to="quotation.contactEmail"
+      :recipient-name="quotation.contactPerson"
+      :cc="quotation.User?.email"
+      :from-name="quotation.User?.name"
     />
+
     <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
@@ -81,7 +88,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
 const quotationFormRef = ref(null);
-const sendDialogRef = ref(null);
+const sendEmailRef = ref(null);
 
 const quotationId = route.params.id;
 
@@ -113,7 +120,7 @@ const menus = computed(() => [
   },
   {
     label: "Send",
-    action: () => sendDialogRef.value?.openDialog(),
+    action: () => sendEmailRef.value?.openDialog(),
     icon: ElIconMessage,
     visible: quotation.value?.status === "Approved",
   },
