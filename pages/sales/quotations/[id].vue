@@ -65,14 +65,13 @@
 
     <SendEmail
       ref="sendEmailRef"
-      :on-preview="previewQuotation"
-      :number="quotation.number"
       type="quotation"
-      :subject="quotation.title"
-      :to="quotation.contactEmail"
-      :recipient-name="quotation.contactPerson"
-      :cc="quotation.User?.email"
-      :from-name="quotation.User?.name"
+      :data="quotation"
+      :on-preview="previewQuotation"
+      :to="quotation?.contactEmail ?? ''"
+      :recipient-name="quotation?.contactPerson ?? ''"
+      :cc="quotation?.User?.email ?? ''"
+      :from-name="quotation?.User?.name ?? ''"
     />
 
     <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />

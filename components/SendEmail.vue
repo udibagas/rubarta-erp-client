@@ -33,7 +33,7 @@
             <el-icon>
               <ElIconDocument />
             </el-icon>
-            {{ number }}.pdf
+            {{ data?.number }}.pdf
           </span>
         </el-tag>
       </el-form-item>
@@ -58,41 +58,41 @@
 </template>
 
 <script setup>
-const { onPreview, type, subject, to, recipientName, fromName, cc, number } =
-  defineProps({
-    onPreview: {
-      type: Function,
-      required: true,
-    },
-    type: {
-      type: String, // sales-order, purchase-order, quotation
-      required: true,
-    },
-    subject: {
-      type: String,
-      required: true,
-    },
-    to: {
-      type: String,
-      required: true,
-    },
-    recipientName: {
-      type: String,
-      required: true,
-    },
-    fromName: {
-      type: String,
-      default: "",
-    },
-    cc: {
-      type: String,
-      default: "",
-    },
-    number: {
-      type: String,
-      required: true,
-    },
-  });
+const { onPreview, type, to, recipientName, fromName, cc, data } = defineProps({
+  onPreview: {
+    type: Function,
+    required: true,
+  },
+  data: {
+    type: Object,
+    required: true,
+    default: () => ({
+      id: "",
+      number: "",
+      title: "",
+    }),
+  },
+  type: {
+    type: String, // sales-order, purchase-order, quotation
+    required: true,
+  },
+  to: {
+    type: String,
+    required: true,
+  },
+  recipientName: {
+    type: String,
+    required: true,
+  },
+  fromName: {
+    type: String,
+    default: "",
+  },
+  cc: {
+    type: String,
+    default: "",
+  },
+});
 
 const request = useRequest();
 const show = ref(false);
@@ -121,7 +121,7 @@ function openDialog() {
     "purchase-order": `Dear ${recipientName},\n\nPlease find attached our purchase order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
   };
 
-  sendForm.subject = `[${type.replace("-", " ").toUpperCase()}] #${number} - ${subject}`;
+  sendForm.subject = `[${type.replace("-", " ").toUpperCase()}] #${data.number} - ${data.title}`;
   sendForm.to = to;
   sendForm.cc = cc;
   sendForm.fromName = fromName;
@@ -130,8 +130,6 @@ function openDialog() {
 }
 
 async function send() {
-  if (!data) return;
-
   const trimmedSubject = sendForm.subject.trim();
   const trimmedBody = sendForm.body.trim();
 

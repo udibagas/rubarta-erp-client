@@ -57,14 +57,13 @@
 
     <SendEmail
       ref="sendEmailRef"
-      :on-preview="previewOrder"
-      :number="order.number"
       type="sales-order"
-      :subject="order.title"
-      :to="order.contactEmail"
-      :recipient-name="order.contactPerson"
-      :cc="order.User?.email"
-      :from-name="order.User?.name"
+      :data="order"
+      :on-preview="previewOrder"
+      :to="order?.contactEmail ?? ''"
+      :recipient-name="order?.contactPerson ?? ''"
+      :cc="order?.User?.email ?? ''"
+      :from-name="order?.User?.name ?? ''"
     />
 
     <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
