@@ -59,7 +59,7 @@
             <el-form-item label="Description" :error="errors.description">
               <el-input
                 type="textarea"
-                :rows="4"
+                :rows="3"
                 placeholder="Sales order description"
                 v-model="form.description"
               />
