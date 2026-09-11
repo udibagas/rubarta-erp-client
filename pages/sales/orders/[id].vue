@@ -21,7 +21,7 @@
                 <el-dropdown-menu>
                   <el-dropdown-item
                     :icon="ElIconEdit"
-                    @click="editorder"
+                    @click="editOrder"
                     v-if="order?.status === 'Draft'"
                   >
                     Edit
@@ -38,7 +38,7 @@
                   <el-dropdown-item
                     :icon="ElIconMessage"
                     v-if="order?.status === 'Approved'"
-                    @click="openSendDialog"
+                    @click="sendDialogRef?.openSendDialog()"
                   >
                     Send
                   </el-dropdown-item>
@@ -102,65 +102,11 @@
       </div>
     </div>
 
-    <el-dialog
-      v-model="sendDialogVisible"
-      title="Send order"
-      width="700px"
-      @closed="resetSendForm"
-    >
-      <el-form :model="sendForm" label-position="left" label-width="100px">
-        <el-form-item label="Subject">
-          <el-input v-model="sendForm.subject" placeholder="order subject" />
-        </el-form-item>
-
-        <el-form-item label="To">
-          <el-input v-model="sendForm.to" />
-        </el-form-item>
-
-        <el-form-item label="CC">
-          <el-input v-model="sendForm.cc" placeholder="CC recipients" />
-        </el-form-item>
-
-        <el-form-item label="Attachment">
-          <el-tag
-            effect="plain"
-            class="cursor-pointer"
-            type="success"
-            size="large"
-            @click="() => previeworder()"
-          >
-            <span class="flex items-center gap-1">
-              <el-icon>
-                <ElIconDocument />
-              </el-icon>
-              {{ order?.number }}.pdf
-            </span>
-          </el-tag>
-        </el-form-item>
-
-        <el-input
-          v-model="sendForm.body"
-          type="textarea"
-          :rows="10"
-          placeholder="Write your email message here"
-        />
-      </el-form>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="sendDialogVisible = false" plain type="info">
-            Cancel
-          </el-button>
-          <el-button
-            type="success"
-            :loading="isSendingEmail"
-            @click="submitSendorder"
-          >
-            {{ isSendingEmail ? "Sending..." : "Send Email" }}
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <SalesOrderSendDialog
+      ref="sendDialogRef"
+      :order="order"
+      :on-preview="previeworder"
+    />
 
     <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
   </nuxt-layout>
@@ -174,15 +120,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
 const orderFormRef = ref(null);
-const sendDialogVisible = ref(false);
-const isSendingEmail = ref(false);
-
-const sendForm = reactive({
-  subject: "",
-  body: "",
-  to: "",
-  cc: "",
-});
+const sendDialogRef = ref(null);
 
 const soId = route.params.id;
 
@@ -192,73 +130,12 @@ const { data: order, refetch } = useQuery({
 });
 
 function editOrder() {
-  // Transform OrderItems to items format for the form
   const formData = {
     ...order.value,
-    items: order.value.OrderItems || [],
+    items: order.value.SalesOrderItems || [],
   };
+
   orderFormRef.value?.openForm(formData);
-}
-
-function resetSendForm() {
-  sendForm.subject = "";
-  sendForm.body = "";
-  sendForm.to = "";
-  sendForm.cc = "";
-}
-
-function openSendDialog() {
-  if (!order.value) return;
-
-  const customerName = order.value.Customer?.name || "Customer";
-  const subject = `order ${order.value.number}${
-    order.value.title ? ` - ${order.value.title}` : ""
-  }`;
-
-  sendForm.subject = subject;
-  sendForm.to = order.value.contactEmail || "";
-  sendForm.body = `Dear ${customerName},\n\nPlease find attached our order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${order.value.User?.name || "Sales Team"}`;
-  sendDialogVisible.value = true;
-}
-
-async function submitSendorder() {
-  if (!order.value) return;
-
-  const trimmedSubject = sendForm.subject.trim();
-  const trimmedBody = sendForm.body.trim();
-
-  if (!trimmedSubject || !trimmedBody) {
-    ElMessage.warning("Please fill in the email subject and body.");
-    return;
-  }
-
-  const ccRecipients = sendForm.cc
-    .split(",")
-    .map((email) => email.trim())
-    .filter(Boolean);
-
-  try {
-    isSendingEmail.value = true;
-
-    await request(`/api/sales-orders/${soId}/send`, {
-      method: "POST",
-      body: {
-        subject: trimmedSubject,
-        to: order.value.contactEmail,
-        body: trimmedBody,
-        cc: ccRecipients,
-      },
-    });
-
-    ElMessage.success("order email sent successfully");
-    sendDialogVisible.value = false;
-    resetSendForm();
-  } catch (error) {
-    console.error("Send order error:", error);
-    ElMessage.error("Failed to send order email");
-  } finally {
-    isSendingEmail.value = false;
-  }
 }
 
 async function updateSalesOrderStatus(status, successMessage) {

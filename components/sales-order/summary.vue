@@ -48,15 +48,6 @@
 
       <div>
         <div class="text-xs text-gray-500 uppercase tracking-wide">
-          Valid Until
-        </div>
-        <div class="mt-1 font-medium">
-          {{ formatDate(order.validUntil) }}
-        </div>
-      </div>
-
-      <div>
-        <div class="text-xs text-gray-500 uppercase tracking-wide">
           Request Type
         </div>
         <div class="mt-1 font-medium">{{ order.requestType }}</div>
@@ -83,11 +74,11 @@ const props = defineProps({
 });
 
 const totalItems = computed(() => {
-  if (!props.order || !props.order.OrderItems) {
+  if (!props.order || !props.order.SalesOrderItems) {
     return 0;
   }
 
-  return props.order.OrderItems.reduce((sum, item) => {
+  return props.order.SalesOrderItems.reduce((sum, item) => {
     return sum + (item.quantity || 0);
   }, 0);
 });

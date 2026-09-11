@@ -569,11 +569,13 @@
 </template>
 
 <script setup>
-import { currencies } from "~/constants/currencies";
-import { requestTypes } from "~/constants/requestTypes";
-import { termOfPayments } from "~/constants/termOfPayments";
-import { termOfDeliveries } from "~/constants/termOfDeliveries";
-import { paymentMethods } from "~/constants/paymentMethods";
+import {
+  currencies,
+  requestTypes,
+  termOfPayments,
+  termOfDeliveries,
+  paymentMethods,
+} from "~/constants";
 import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";

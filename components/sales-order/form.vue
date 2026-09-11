@@ -41,6 +41,21 @@
           </el-col>
 
           <el-col :span="12">
+            <el-form-item label="Request Type" :error="errors.requestType">
+              <el-select
+                v-model="form.requestType"
+                placeholder="Select request type"
+                default-first-option
+              >
+                <el-option
+                  v-for="type in requestTypes"
+                  :key="type.value"
+                  :value="type.value"
+                  :label="type.label"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="Description" :error="errors.description">
               <el-input
                 type="textarea"
@@ -143,14 +158,14 @@
         </div>
       </el-card>
 
-      <!-- Payment & Delivery Terms -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">PAYMENT & DELIVERY TERMS</span>
-        </template>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <!-- Payment Terms -->
+          <el-card shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">PAYMENT TERMS</span>
+            </template>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
             <el-form-item label="Currency" :error="errors.currency">
               <el-select
                 v-model="form.currency"
@@ -165,8 +180,7 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
             <el-form-item label="Payment Method" :error="errors.paymentMethod">
               <el-select
                 v-model="form.paymentMethod"
@@ -181,11 +195,7 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
             <el-form-item label="Term of Payment" :error="errors.termOfPayment">
               <el-select
                 v-model="form.termOfPayment"
@@ -200,8 +210,28 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
+            <el-form-item
+              label="Billing Address"
+              :error="errors.billingAddress"
+            >
+              <el-input
+                type="textarea"
+                :rows="4"
+                v-model="form.billingAddress"
+                placeholder="Enter billing address"
+              />
+            </el-form-item>
+          </el-card>
+        </el-col>
+
+        <el-col :span="12">
+          <!-- Delivery Terms -->
+          <el-card shadow="never" class="mb-4">
+            <template #header>
+              <span class="font-semibold">DELIVERY TERMS</span>
+            </template>
+
             <el-form-item
               label="Term of Delivery"
               :error="errors.termOfDelivery"
@@ -219,9 +249,50 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-        </el-row>
-      </el-card>
+
+            <el-form-item
+              label="Delivery Method"
+              :error="errors.deliveryMethod"
+            >
+              <el-select
+                v-model="form.deliveryMethod"
+                placeholder="Select delivery method"
+                default-first-option
+              >
+                <el-option
+                  v-for="method in deliveryMethods"
+                  :key="method.value"
+                  :value="method.value"
+                  :label="method.label"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="Delivery Date" :error="errors.deliveryDate">
+              <el-date-picker
+                v-model="form.deliveryDate"
+                type="date"
+                placeholder="Select delivery date"
+                format="DD-MMM-YYYY"
+                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+                style="width: 100%"
+              />
+            </el-form-item>
+
+            <el-form-item
+              label="Shipping Address"
+              :error="errors.shippingAddress"
+            >
+              <el-input
+                type="textarea"
+                :rows="4"
+                v-model="form.shippingAddress"
+                placeholder="Enter shipping address"
+              />
+            </el-form-item>
+          </el-card>
+        </el-col>
+      </el-row>
 
       <!-- Terms & Conditions -->
       <el-card shadow="never" class="mb-4">
@@ -452,7 +523,7 @@
         </div>
       </el-card>
 
-      <!-- Quotation Summary -->
+      <!-- Sales Order Summary -->
       <el-card shadow="never" class="mt-4">
         <el-row :gutter="20">
           <el-col :span="12" :offset="12">
@@ -466,7 +537,7 @@
                 </div>
               </div>
               <div class="flex justify-between text-base">
-                <span>Quotation Discount:</span>
+                <span>Sales Order Discount:</span>
                 <el-input
                   v-model="form.discount"
                   @change="calculateTotals"
@@ -530,11 +601,15 @@
 </template>
 
 <script setup>
-import { useQueryClient } from "@tanstack/vue-query";
-import { currencies } from "~/constants/currencies";
-import { termOfPayments } from "~/constants/termOfPayments";
-import { termOfDeliveries } from "~/constants/termOfDeliveries";
-import { paymentMethods } from "~/constants/paymentMethods";
+import {
+  currencies,
+  requestTypes,
+  termOfPayments,
+  termOfDeliveries,
+  paymentMethods,
+  deliveryMethods,
+} from "~/constants";
+
 import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";
@@ -543,7 +618,6 @@ import { FileText, Table } from "lucide-vue-next";
 const emit = defineEmits(["saved"]);
 
 const request = useRequest();
-const queryClient = useQueryClient();
 
 const defaultValue = {
   discount: 0,
@@ -665,18 +739,21 @@ const save = async () => {
       ? `/api/sales-orders/${form.value.id}`
       : "/api/sales-orders";
 
-    await request(url, {
+    const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
       body: form.value,
     });
 
-    ElMessage.success("Quotation saved successfully");
+    ElMessage.success("Sales Order saved successfully");
     emit("saved");
     closeForm();
-    queryClient.invalidateQueries({ queryKey: ["orders"] });
+
+    if (useRoute().path === "/sales/order") {
+      navigateTo(`/sales/order/${res.id}`);
+    }
   } catch (error) {
     errors.value = parseError(error);
-    ElMessage.error(error.message || "Failed to save quotation");
+    ElMessage.error(error.message || "Failed to save Sales Order");
   } finally {
     isSaving.value = false;
   }
