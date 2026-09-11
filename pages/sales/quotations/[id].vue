@@ -20,77 +20,13 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
-                    :icon="ElIconEdit"
-                    @click="editQuotation"
-                    v-if="quotation?.status === 'Draft'"
+                    v-for="m in menus.filter((m) => m.visible)"
+                    :key="m.name"
+                    :icon="m.icon"
+                    @click="m.action"
+                    :class="m.class || ''"
                   >
-                    Edit
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconDelete"
-                    @click="deleteQuotation"
-                    v-if="quotation?.status === 'Draft'"
-                  >
-                    Delete
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCheckFilled"
-                    v-if="quotation?.status === 'Draft'"
-                    @click="handleSubmitButton"
-                  >
-                    Submit
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconMessage"
-                    v-if="quotation?.status === 'Approved'"
-                    @click="sendDialogRef?.openSendDialog()"
-                  >
-                    Send
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCheckFilled"
-                    v-if="quotation?.status === 'Sent'"
-                    @click="() => updateQuotationStatus('Accepted')"
-                    class="text-green-500!"
-                  >
-                    Set To Accepted
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCloseFilled"
-                    v-if="quotation?.status === 'Sent'"
-                    @click="() => updateQuotationStatus('Rejected')"
-                    class="text-red-500!"
-                  >
-                    Set To Rejected
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconCircleCheckFilled"
-                    v-if="quotation?.status === 'Approved'"
-                    @click="() => updateQuotationStatus('Sent')"
-                    class="text-yellow-500!"
-                  >
-                    Mark As Sent
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconShoppingTrolley"
-                    v-if="quotation?.status === 'Accepted'"
-                    class="text-green-500!"
-                  >
-                    Create Sales Order
-                  </el-dropdown-item>
-
-                  <el-dropdown-item
-                    :icon="ElIconPrinter"
-                    @click="() => previewQuotation()"
-                  >
-                    Print PDF
+                    {{ m.label }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -153,6 +89,62 @@ const { data: quotation, refetch } = useQuery({
   queryKey: ["quotation", quotationId],
   queryFn: () => request(`/api/quotations/${quotationId}`),
 });
+
+const menus = computed(() => [
+  {
+    label: "Edit",
+    action: editQuotation,
+    icon: ElIconEdit,
+    visible: quotation.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    action: deleteQuotation,
+    icon: ElIconDelete,
+    class: "text-danger!",
+    visible: quotation.value?.status === "Draft",
+  },
+  {
+    label: "Submit",
+    action: handleSubmitButton,
+    icon: ElIconCircleCheck,
+    class: "text-success!",
+    visible: quotation.value?.status === "Draft",
+  },
+  {
+    label: "Send",
+    action: () => sendDialogRef.value?.openDialog(),
+    icon: ElIconMessage,
+    visible: quotation.value?.status === "Approved",
+  },
+  {
+    label: "Mark As Sent",
+    action: () => updateQuotationStatus("Sent"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-warning!",
+    visible: quotation.value?.status === "Approved",
+  },
+  {
+    label: "Set To Accepted",
+    action: () => updateQuotationStatus("Accepted"),
+    icon: ElIconCircleCheckFilled,
+    class: "text-success!",
+    visible: quotation.value?.status === "Sent",
+  },
+  {
+    label: "Set To Rejected",
+    action: () => updateQuotationStatus("Rejected"),
+    icon: ElIconCircleCloseFilled,
+    class: "text-error!",
+    visible: quotation.value?.status === "Sent",
+  },
+  {
+    label: "Print PDF",
+    action: previewQuotation,
+    icon: ElIconPrinter,
+    visible: true,
+  },
+]);
 
 function editQuotation() {
   const formData = {
