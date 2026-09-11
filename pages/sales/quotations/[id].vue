@@ -54,7 +54,7 @@
                   <el-dropdown-item
                     :icon="ElIconCircleCheckFilled"
                     v-if="quotation?.status === 'Sent'"
-                    @click="handleSetToAccepted"
+                    @click="() => updateQuotationStatus('Accepted')"
                     class="text-green-500!"
                   >
                     Set To Accepted
@@ -63,10 +63,19 @@
                   <el-dropdown-item
                     :icon="ElIconCircleCloseFilled"
                     v-if="quotation?.status === 'Sent'"
-                    @click="handleSetToRejected"
+                    @click="() => updateQuotationStatus('Rejected')"
                     class="text-red-500!"
                   >
                     Set To Rejected
+                  </el-dropdown-item>
+
+                  <el-dropdown-item
+                    :icon="ElIconCircleCheckFilled"
+                    v-if="quotation?.status === 'Approved'"
+                    @click="() => updateQuotationStatus('Sent')"
+                    class="text-yellow-500!"
+                  >
+                    Mark As Sent
                   </el-dropdown-item>
 
                   <el-dropdown-item
@@ -140,11 +149,7 @@ const sendDialogRef = ref(null);
 
 const quotationId = route.params.id;
 
-const {
-  isPending,
-  data: quotation,
-  refetch,
-} = useQuery({
+const { data: quotation, refetch } = useQuery({
   queryKey: ["quotation", quotationId],
   queryFn: () => request(`/api/quotations/${quotationId}`),
 });
@@ -193,51 +198,42 @@ function deleteQuotation() {
     });
 }
 
-async function updateQuotationStatus(status, successMessage) {
-  try {
-    await request(`/api/quotations/${quotationId}`, {
-      method: "PATCH",
-      body: { status },
-    });
+async function updateQuotationStatus(status) {
+  const successMessages = {
+    Sent: "Quotation marked as sent",
+    Accepted: "Quotation marked as accepted",
+    Rejected: "Quotation marked as rejected",
+  };
 
-    ElMessage.success(successMessage);
-    refetch();
-  } catch (error) {
-    console.error("Update quotation status error:", error);
-    ElMessage.error("Failed to update quotation status");
-  }
-}
+  const successMessage = successMessages[status] || "Quotation status updated";
 
-function handleSetToAccepted() {
-  ElMessageBox.confirm("Mark this quotation as accepted?", "Confirm", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "success",
-  })
-    .then(() => {
-      updateQuotationStatus("Accepted", "Quotation marked as accepted");
+  ElMessageBox.confirm(
+    `Mark this quotation as ${status.toLowerCase()}?`,
+    "Confirm",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "success",
+    },
+  )
+    .then(async () => {
+      try {
+        await request(`/api/quotations/${quotationId}`, {
+          method: "PATCH",
+          body: { status },
+        });
+
+        ElMessage.success(successMessage);
+        refetch();
+      } catch (error) {
+        console.error("Update quotation status error:", error);
+        ElMessage.error("Failed to update quotation status");
+      }
     })
     .catch(() => {
       ElMessage({
         type: "info",
-        message: "Quotation acceptance canceled",
-      });
-    });
-}
-
-function handleSetToRejected() {
-  ElMessageBox.confirm("Mark this quotation as rejected?", "Confirm", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "warning",
-  })
-    .then(() => {
-      updateQuotationStatus("Rejected", "Quotation marked as rejected");
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "Quotation rejection canceled",
+        message: `Quotation ${status.toLowerCase()} canceled`,
       });
     });
 }
