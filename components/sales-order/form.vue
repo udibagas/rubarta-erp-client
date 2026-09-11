@@ -695,7 +695,6 @@ useGraphqlQuery(gql`
       contactPhone
       contactEmail
       customerId
-      status
       QuotationItems {
         sortOrder
         partNumber
