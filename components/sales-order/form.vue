@@ -9,11 +9,29 @@
     <el-form label-width="160px" label-position="left">
       <el-card shadow="never" class="mb-4">
         <template #header>
-          <span class="font-semibold">QUOTATION INFORMATION</span>
+          <span class="font-semibold">SALES ORDER INFORMATION</span>
         </template>
 
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="Quotation">
+              <el-select
+                v-model="form.quotationId"
+                placeholder="Select quotation"
+                filterable
+                default-first-option
+                @change="(v) => loadFormfromQuotation(v)"
+                clearable
+              >
+                <el-option
+                  v-for="quotation in quotations"
+                  :key="quotation.id"
+                  :value="quotation.id"
+                  :label="quotation.number"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="Sales Order Date">
               <el-date-picker
                 v-model="form.date"
@@ -30,7 +48,7 @@
               :error="errors.referenceNumber"
             >
               <el-input
-                placeholder="Reference number"
+                placeholder="Reference number / PO Number"
                 v-model="form.referenceNumber"
               />
             </el-form-item>
@@ -320,20 +338,6 @@
             v-model="form.notes"
           />
         </el-form-item>
-
-        <!-- <el-form-item label="Attachments">
-          <el-upload
-            v-model:file-list="fileList"
-            :action="`${config.public.apiBase}/api/file`"
-            :with-credentials="true"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :on-success="handleSuccess"
-            :multiple="true"
-          >
-            <el-button plain :icon="ElIconUpload"> Upload </el-button>
-          </el-upload>
-        </el-form-item> -->
       </el-card>
 
       <!-- Order Items -->
@@ -645,6 +649,7 @@ const isSaving = ref(false);
 const customers = ref([]);
 const contacts = ref([]);
 const materials = ref([]);
+const quotations = ref([]);
 
 useGraphqlQuery(gql`
   query {
@@ -672,12 +677,42 @@ useGraphqlQuery(gql`
       description
       sellingPrice
     }
+    quotations {
+      id
+      number
+      date
+      title
+      description
+      currency
+      notes
+      termOfPayment
+      termsAndConditions
+      termOfDelivery
+      paymentMethod
+      requestType
+      customerAddress
+      contactPerson
+      contactPhone
+      contactEmail
+      customerId
+      status
+      QuotationItems {
+        sortOrder
+        partNumber
+        name
+        model
+        description
+        quantity
+        unitPrice
+      }
+    }
   }
 `)
   .then((result) => {
     customers.value = result.data.customers;
     contacts.value = result.data.contacts;
     materials.value = result.data.materials;
+    quotations.value = result.data.quotations;
   })
   .catch((error) => {
     console.error("Failed to fetch GraphQL data:", error);
@@ -818,62 +853,6 @@ function calculateTotals() {
   totals.grandTotal = totals.subtotal + totals.vat - (form.value.discount || 0);
 }
 
-// UPLOAD RELATED
-const config = useRuntimeConfig();
-const fileList = ref([]);
-
-watch(
-  () => form.value.attachments,
-  async (value, oldValue) => {
-    if (!value) {
-      return (fileList.value = []);
-    }
-
-    fileList.value = form.value.attachments.map((el) => {
-      const { fileName: name, fileSize: size, filePath, fileType } = el;
-      return {
-        name,
-        size,
-        url: `${config.public.apiBase}/${filePath}`,
-        filePath,
-      };
-    });
-  },
-);
-
-function handleSuccess(file) {
-  if (!form.value.attachments) {
-    form.value.attachments = [];
-  }
-
-  form.value.attachments.push(file);
-}
-
-function handlePreview(file) {
-  const path = file.response?.filePath ?? file.filePath;
-  window.open(`${config.public.apiBase}/${path}`, "_blank");
-}
-
-function handleRemove(file) {
-  const path = file.response?.filePath ?? file.filePath;
-  const index = form.value.attachments.findIndex((f) => f.filePath == path);
-
-  if (index !== -1) {
-    form.value.attachments.splice(index, 1);
-  }
-
-  request(`/api/file`, {
-    method: "DELETE",
-    params: { path },
-  }).then((res) => {
-    ElMessage({
-      message: res.message,
-      type: "success",
-      showClose: true,
-    });
-  });
-}
-
 function handleTab(e, row) {
   const index = form.value.items.indexOf(row);
   if (index == form.value.items.length - 1) {
@@ -1006,6 +985,24 @@ function handleContactChange(contactName) {
   );
   form.value.contactPhone = contact?.phone || "";
   form.value.contactEmail = contact?.email || "";
+}
+
+function loadFormfromQuotation(quotationId) {
+  const quotation = quotations.value.find((q) => q.id === quotationId);
+  if (quotation) {
+    const { id, QuotationItems, ...rest } = quotation;
+    form.value = {
+      ...rest,
+      quotationId: id,
+      items: QuotationItems.map((i) => ({
+        partNumber: i.partNumber,
+        description: i.name || i.description,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+      })),
+    };
+    calculateTotals();
+  }
 }
 
 defineExpose({ openForm });

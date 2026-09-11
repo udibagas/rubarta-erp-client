@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="Sales / Orders">
+      <el-page-header @back="goBack" content="Sales Orders">
         <template #extra>
           <div class="flex gap-2">
             <el-input
