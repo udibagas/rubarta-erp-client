@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    title="Send sales order"
+    title="Send Sales Order"
     width="700px"
     @closed="resetSendForm"
   >
@@ -33,7 +33,7 @@
             <el-icon>
               <ElIconDocument />
             </el-icon>
-            {{ order?.number }}.pdf
+            {{ number }}.pdf
           </span>
         </el-tag>
       </el-form-item>
@@ -49,11 +49,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="show = false" plain type="info"> Cancel </el-button>
-        <el-button
-          type="success"
-          :loading="isSendingEmail"
-          @click="submitSendOrder"
-        >
+        <el-button type="success" :loading="isSendingEmail" @click="send">
           {{ isSendingEmail ? "Sending..." : "Send Email" }}
         </el-button>
       </span>
@@ -62,19 +58,43 @@
 </template>
 
 <script setup>
-const { order, onPreview } = defineProps({
-  order: {
-    type: Object,
-    default: null,
-  },
-  onPreview: {
-    type: Function,
-    required: true,
-  },
-});
+const { onPreview, type, subject, to, recipientName, fromName, cc, number } =
+  defineProps({
+    onPreview: {
+      type: Function,
+      required: true,
+    },
+    type: {
+      type: String, // sales-order, purchase-order, quotation
+      required: true,
+    },
+    subject: {
+      type: String,
+      required: true,
+    },
+    to: {
+      type: String,
+      required: true,
+    },
+    recipientName: {
+      type: String,
+      required: true,
+    },
+    fromName: {
+      type: String,
+      default: "",
+    },
+    cc: {
+      type: String,
+      default: "",
+    },
+    number: {
+      type: String,
+      required: true,
+    },
+  });
 
 const request = useRequest();
-
 const show = ref(false);
 const isSendingEmail = ref(false);
 
@@ -83,6 +103,7 @@ const sendForm = reactive({
   body: "",
   to: "",
   cc: "",
+  fromName: "",
 });
 
 function resetSendForm() {
@@ -90,22 +111,26 @@ function resetSendForm() {
   sendForm.body = "";
   sendForm.to = "";
   sendForm.cc = "";
+  sendForm.fromName = "";
 }
 
-function openSendDialog() {
-  if (!order) return;
+function openDialog() {
+  const bodies = {
+    quotation: `Dear ${recipientName},\n\nPlease find attached our quotation for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
+    "sales-order": `Dear ${recipientName},\n\nPlease find attached our sales order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
+    "purchase-order": `Dear ${recipientName},\n\nPlease find attached our purchase order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
+  };
 
-  const customerName = order.Customer?.name || "Customer";
-  const subject = `Order ${order.number}${order.title ? ` - ${order.title}` : ""}`;
-
-  sendForm.subject = subject;
-  sendForm.to = order.contactEmail || "";
-  sendForm.body = `Dear ${customerName},\n\nPlease find attached our sales order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${order.User?.name || "Sales Team"}`;
+  sendForm.subject = `${type.replace("-", " ").toUpperCase()} ${number} - ${subject}`;
+  sendForm.to = to;
+  sendForm.cc = cc;
+  sendForm.fromName = fromName;
+  sendForm.body = bodies[type];
   show.value = true;
 }
 
-async function submitSendOrder() {
-  if (!order) return;
+async function send() {
+  if (!data) return;
 
   const trimmedSubject = sendForm.subject.trim();
   const trimmedBody = sendForm.body.trim();
@@ -123,28 +148,28 @@ async function submitSendOrder() {
   try {
     isSendingEmail.value = true;
 
-    await request(`/api/sales-orders/${order.id}/send`, {
+    const url = `/api/${type}s/${data.id}/send`;
+
+    await request(url, {
       method: "POST",
       body: {
         subject: trimmedSubject,
-        to: order.contactEmail,
+        to: sendForm.to,
         body: trimmedBody,
         cc: ccRecipients,
       },
     });
 
-    ElMessage.success("Sales order email sent successfully");
+    ElMessage.success(`${type.replace("-", " ")} email sent successfully`);
     show.value = false;
     resetSendForm();
   } catch (error) {
-    console.error("Send sales order error:", error);
-    ElMessage.error("Failed to send sales order email");
+    console.error(`Send ${type.replace("-", " ")} error:`, error);
+    ElMessage.error(`Failed to send ${type.replace("-", " ")} email`);
   } finally {
     isSendingEmail.value = false;
   }
 }
 
-defineExpose({
-  openSendDialog,
-});
+defineExpose({ openDialog });
 </script>

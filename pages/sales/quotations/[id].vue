@@ -101,7 +101,7 @@ const menus = computed(() => [
     label: "Delete",
     action: deleteQuotation,
     icon: ElIconDelete,
-    class: "text-danger!",
+    class: "text-error!",
     visible: quotation.value?.status === "Draft",
   },
   {
