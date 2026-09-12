@@ -58,6 +58,8 @@
 </template>
 
 <script setup>
+defineEmits(["sent"]);
+
 const { onPreview, type, to, recipientName, fromName, cc, data } = defineProps({
   onPreview: {
     type: Function,

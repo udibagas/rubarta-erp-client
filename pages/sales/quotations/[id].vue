@@ -8,12 +8,16 @@
         </template>
         <template #extra>
           <div class="flex gap-2 items-center">
-            <StatusTag
+            <status-tag
               :status="quotation?.status || 'Draft'"
-              effect="dark"
+              effect="plain"
               size="large"
-              :round="false"
-            />
+              :round="true"
+            >
+              <template #icon>
+                <el-icon><Flag /></el-icon>
+              </template>
+            </status-tag>
 
             <el-dropdown>
               <el-button :icon="ElIconMore"></el-button>
@@ -72,6 +76,7 @@
       :recipient-name="quotation?.contactPerson ?? ''"
       :cc="quotation?.User?.email ?? ''"
       :from-name="quotation?.User?.name ?? ''"
+      @sent="() => refetch()"
     />
 
     <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
@@ -80,6 +85,7 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
 

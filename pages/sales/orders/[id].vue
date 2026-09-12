@@ -8,12 +8,16 @@
         </template>
         <template #extra>
           <div class="flex gap-2 items-center">
-            <StatusTag
+            <status-tag
               :status="order?.status || 'Draft'"
-              effect="dark"
+              effect="plain"
               size="large"
-              :round="false"
-            />
+              :round="true"
+            >
+              <template #icon>
+                <el-icon><Flag /></el-icon>
+              </template>
+            </status-tag>
 
             <el-dropdown>
               <el-button :icon="ElIconMore"></el-button>
@@ -64,6 +68,7 @@
       :recipient-name="order?.contactPerson ?? ''"
       :cc="order?.User?.email ?? ''"
       :from-name="order?.User?.name ?? ''"
+      @sent="() => refetch()"
     />
 
     <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
@@ -72,6 +77,7 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+import { Flag } from "lucide-vue-next";
 definePageMeta({ layout: false });
 
 const route = useRoute();
@@ -132,7 +138,7 @@ const menus = computed(() => [
     label: "Set To Processing",
     action: () => updateSalesOrderStatus("Processing"),
     icon: ElIconCircleCheckFilled,
-    class: "text-success!",
+    class: "text-primary!",
     visible: order.value?.status === "Sent",
   },
   {
