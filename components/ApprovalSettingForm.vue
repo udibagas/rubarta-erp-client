@@ -163,9 +163,7 @@
 </template>
 
 <script setup>
-import { approvalTypes } from "~/constants/approvalTypes";
-import { nkpTypes } from "~/constants/nkpTypes";
-import { approvalActionTypes } from "~/constants/approvalActionTypes";
+import { approvalTypes, nkpTypes, approvalActionTypes } from "~/constants";
 import { useQuery } from "@tanstack/vue-query";
 const request = useRequest();
 

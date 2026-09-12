@@ -15,6 +15,24 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="Sales Order Number">
+              <el-select
+                v-model="form.salesOrderId"
+                placeholder="Select sales order"
+                filterable
+                default-first-option
+                @change="(v) => loadFormfromSalesOrder(v)"
+                clearable
+              >
+                <el-option
+                  v-for="salesOrder in salesOrders"
+                  :key="salesOrder.id"
+                  :value="salesOrder.id"
+                  :label="salesOrder.number"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="Purchase Order Date">
               <el-date-picker
                 v-model="form.date"
@@ -78,70 +96,34 @@
           <span class="font-semibold">SUPPLIER INFORMATION</span>
         </template>
 
-        <div class="flex gap-4">
-          <div class="flex-1">
-            <el-form-item label="Supplier" :error="errors.supplierId">
-              <el-select
-                v-model="form.supplierId"
-                placeholder="Select supplier"
-                filterable
-                default-first-option
-                @change="(v) => handleChangeSupplier(v)"
-              >
-                <el-option
-                  v-for="supplier in suppliers"
-                  :key="supplier.id"
-                  :value="supplier.id"
-                  :label="supplier.name"
-                />
-                <template #prefix>
-                  <el-icon><ElIconOfficeBuilding /></el-icon>
-                </template>
-              </el-select>
-            </el-form-item>
+        <el-form-item label="Supplier" :error="errors.supplierId">
+          <el-select
+            v-model="form.supplierId"
+            placeholder="Select supplier"
+            filterable
+            default-first-option
+            @change="(v) => handleChangeSupplier(v)"
+          >
+            <el-option
+              v-for="supplier in suppliers"
+              :key="supplier.id"
+              :value="supplier.id"
+              :label="supplier.name"
+            />
+            <template #prefix>
+              <el-icon><ElIconOfficeBuilding /></el-icon>
+            </template>
+          </el-select>
+        </el-form-item>
 
-            <el-form-item label="Requested By" :error="errors.userId">
-              <el-select
-                v-model="form.userId"
-                placeholder="Select user"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="user in users"
-                  :key="user.id"
-                  :value="user.id"
-                  :label="user.name"
-                />
-                <template #prefix>
-                  <el-icon><ElIconUser /></el-icon>
-                </template>
-              </el-select>
-            </el-form-item>
-          </div>
-          <div class="flex-1">
-            <el-form-item
-              label="Supplier Address"
-              :error="errors.supplierAddress"
-            >
-              <el-input
-                type="textarea"
-                :rows="3"
-                placeholder="Supplier address"
-                v-model="form.supplierAddress"
-              />
-            </el-form-item>
-
-            <el-form-item label="Billing Address" :error="errors.billingAddress">
-              <el-input
-                type="textarea"
-                :rows="3"
-                placeholder="Billing address"
-                v-model="form.billingAddress"
-              />
-            </el-form-item>
-          </div>
-        </div>
+        <el-form-item label="Supplier Address" :error="errors.supplierAddress">
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="Supplier address"
+            v-model="form.supplierAddress"
+          />
+        </el-form-item>
       </el-card>
 
       <!-- Payment & Delivery Terms -->
@@ -170,9 +152,8 @@
           <el-col :span="12">
             <el-form-item label="Currency Rate" :error="errors.currencyRate">
               <el-input-number
+                type="number"
                 v-model="form.currencyRate"
-                class="w-full!"
-                :controls="false"
                 :min="0"
               />
             </el-form-item>
@@ -270,10 +251,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="Destination" :error="errors.destination">
-              <el-input
-                placeholder="Destination"
-                v-model="form.destination"
-              />
+              <el-input placeholder="Destination" v-model="form.destination" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -647,6 +625,7 @@ const isSaving = ref(false);
 const suppliers = ref([]);
 const users = ref([]);
 const materials = ref([]);
+const salesOrders = ref([]);
 
 useGraphqlQuery(gql`
   query {
@@ -666,12 +645,34 @@ useGraphqlQuery(gql`
       description
       purchasePrice
     }
+    salesOrders {
+      id
+      number
+      date
+      title
+      description
+      currency
+      notes
+      termOfPayment
+      termsAndConditions
+      termOfDelivery
+      paymentMethod
+      requestType
+      SalesOrderItems {
+        sortOrder
+        partNumber
+        description
+        quantity
+        unitPrice
+      }
+    }
   }
 `)
   .then((result) => {
     suppliers.value = result.data.suppliers;
     users.value = result.data.users;
     materials.value = result.data.materials;
+    salesOrders.value = result.data.salesOrders;
   })
   .catch((error) => {
     console.error("Failed to fetch GraphQL data:", error);
@@ -864,7 +865,9 @@ async function handleImportItems(e) {
 
       imported.push({
         partNumber: material.partNumber,
-        description: [material.name, material.model].filter(Boolean).join(" - "),
+        description: [material.name, material.model]
+          .filter(Boolean)
+          .join(" - "),
         quantity: quantity || 1,
         unitPrice: material.purchasePrice,
       });
@@ -898,6 +901,27 @@ async function handleImportItems(e) {
 function handleChangeSupplier(supplierId) {
   const supplier = suppliers.value.find((s) => s.id === supplierId);
   form.value.supplierAddress = supplier?.address || "";
+}
+
+function loadFormfromSalesOrder(salesOrderId) {
+  const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
+  if (salesOrder) {
+    const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
+    if (salesOrder) {
+      const { id, SalesOrderItems, ...rest } = salesOrder;
+      form.value = {
+        ...rest,
+        salesOrderId: id,
+        items: SalesOrderItems.map((i) => ({
+          partNumber: i.partNumber,
+          description: i.name || i.description,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+        })),
+      };
+      calculateTotals();
+    }
+  }
 }
 
 defineExpose({ openForm });

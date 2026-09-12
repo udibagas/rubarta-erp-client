@@ -1,1 +1,1 @@
-export const approvalTypes = ["NKP", "QUOTATION"];
+export const approvalTypes = ["NKP", "QUOTATION", "PURCHASE_ORDER"];

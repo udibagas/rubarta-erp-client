@@ -37,7 +37,21 @@
           {{ row.Company.name }}
         </template>
       </el-table-column>
-      <el-table-column prop="approvalType" label="Approval Type" width="150" />
+
+      <el-table-column
+        prop="approvalType"
+        label="Approval Type"
+        width="170"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          <el-tag effect="plain" size="small">
+            {{ row.approvalType.replaceAll("_", " ") }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="paymentType" label="Payment Target" width="220" />
 
       <el-table-column label="Payment Type" width="220">
