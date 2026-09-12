@@ -50,6 +50,9 @@ export const colors = {
   Accepted: "success",
   Rejected: "danger",
   Expired: "info",
+  // invoice status
+  Submitted: "warning",
+  Paid: "success",
   // order status
   Confirmed: "primary",
   Shipped: "primary",

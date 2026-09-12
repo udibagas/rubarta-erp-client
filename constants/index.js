@@ -5,6 +5,7 @@ export * from "./colors.js";
 export * from "./currencies.js";
 export * from "./deliveryMethods.js";
 export * from "./interactionTypes.js";
+export * from "./invoiceStatuses.js";
 export * from "./leadSources.js";
 export * from "./leadStatuses.js";
 export * from "./nkpTypes.js";

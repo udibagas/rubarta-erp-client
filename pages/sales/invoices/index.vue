@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="CRM / Invoices">
+      <el-page-header @back="goBack" content="Sales / Invoices">
         <template #extra>
           <div class="flex gap-2">
             <el-input
@@ -9,34 +9,50 @@
               placeholder="Search"
               @change="refreshData()"
               clearable
+              :prefix-icon="ElIconSearch"
             />
-            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            </el-button>
+
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+            <el-button
+              @click="refreshData()"
+              :icon="ElIconRefresh"
+              class="ml-0!"
+            />
           </div>
         </template>
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data?.data || []">
-      <el-table-column type="index" label="#" width="60"></el-table-column>
-
-      <el-table-column label="Invoice #" prop="number" width="150" />
-
-      <el-table-column
-        label="Status"
-        prop="status"
-        width="120"
-        align="center"
-        header-align="center"
-      >
+    <el-table stripe v-loading="isPending" :data="data">
+      <el-table-column label="Invoice #" prop="number" min-width="150">
         <template #default="{ row }">
-          <StatusTag :status="row.status" effect="dark" />
+          <el-link
+            class="font-mono font-semibold!"
+            @click="navigateTo(`/sales/invoices/${row.id}`)"
+            type="success"
+          >
+            {{ row.number }}
+          </el-link>
+          <div class="text-sm text-gray-500">
+            {{ formatDate(row.createdAt) }}
+          </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Issue Date" width="120">
+      <el-table-column label="Customer" min-width="200">
         <template #default="{ row }">
-          {{ formatDate(row.issueDate) }}
+          <div class="font-semibold line-clamp-1">
+            {{ row.Customer?.name || "-" }}
+          </div>
+          <div class="text-sm text-gray-500 line-clamp-1">
+            {{ row.contactPerson }}
+          </div>
+          <div class="text-xs text-gray-500 line-clamp-1">
+            {{ row.contactEmail }}
+          </div>
+          <div class="text-xs text-gray-500 line-clamp-1">
+            {{ row.contactPhone }}
+          </div>
         </template>
       </el-table-column>
 
@@ -46,119 +62,87 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Customer" prop="Customer.name" min-width="200" />
-
-      <el-table-column
-        label="Total Amount"
-        width="150"
-        align="right"
-        header-align="right"
-      >
+      <el-table-column label="Sales Person" prop="User.name" min-width="150">
         <template #default="{ row }">
-          {{ toDecimal(row.totalAmount) }}
+          <div class="flex items-center gap-2">
+            <el-avatar
+              :size="24"
+              :style="{ backgroundColor: getAvatarColor(row.User?.name || '') }"
+              class="shrink-0"
+            >
+              {{ row.User?.name?.charAt(0).toUpperCase() }}
+            </el-avatar>
+            <div class="line-clamp-1 font-semibold">
+              {{ row.User?.name || "-" }}
+            </div>
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column
-        label="Paid Amount"
-        width="150"
-        align="right"
-        header-align="right"
+        label="Items"
+        prop="_count.InvoiceItems"
+        width="80"
+        align="center"
+        header-align="center"
       >
         <template #default="{ row }">
-          {{ toDecimal(row.paidAmount) }}
+          <el-tag class="font-mono" size="small" effect="plain" type="info">
+            {{ toDecimal(row._count.InvoiceItems) }}
+          </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column
-        label="Balance"
-        width="150"
+        label="Grand Total"
+        min-width="150"
         align="right"
         header-align="right"
       >
         <template #default="{ row }">
-          <strong
-            :class="
-              row.totalAmount - row.paidAmount > 0
-                ? 'text-red-600'
-                : 'text-green-600'
-            "
+          <el-tag
+            class="font-mono font-semibold"
+            size="small"
+            type="success"
+            effect="plain"
           >
-            {{ toDecimal(row.totalAmount - row.paidAmount) }}
-          </strong>
+            {{ toDecimal(row.grandTotal) }}
+          </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column
-        width="60px"
+        label="Status"
+        prop="status"
+        width="120"
         align="center"
         header-align="center"
         fixed="right"
       >
-        <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
-        </template>
         <template #default="{ row }">
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-icon>
-                <ElIconMoreFilled />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :icon="ElIconView"
-                  @click.native.prevent="viewInvoice(row)"
-                >
-                  View
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconEdit"
-                  @click.native.prevent="openForm(row)"
-                >
-                  Edit
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconDelete"
-                  @click.native.prevent="handleRemove(row.id, remove)"
-                >
-                  Delete
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <StatusTag :status="row.status" effect="light" style="width: 100%" />
         </template>
       </el-table-column>
     </el-table>
 
-    <InvoiceForm ref="invoiceFormRef" />
+    <InvoiceForm ref="invoiceFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const invoiceFormRef = ref(null);
+const keyword = ref("");
 
-const { removeMutation, fetchData, refreshData, handleRemove, keyword } =
-  useCrud({
-    url: "/api/invoices",
-    queryKey: "invoices",
-  });
+const { fetchData, refreshData } = useCrud({
+  url: "/api/invoices",
+  queryKey: "invoices",
+});
 
-const { isPending, data } = fetchData();
-const { mutate: remove } = removeMutation();
+const { isPending, data, refetch } = fetchData();
 
-const openForm = (invoice = {}) => {
-  invoiceFormRef.value?.openForm(invoice);
+const openForm = (data = {}) => {
+  invoiceFormRef.value?.openForm(data);
 };
-
-function viewInvoice(invoice) {
-  // TODO: Implement invoice view/print
-  ElMessage.info(`View invoice ${invoice.number}`);
-}
 </script>
