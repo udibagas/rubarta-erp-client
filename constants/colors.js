@@ -54,6 +54,8 @@ export const colors = {
   Confirmed: "primary",
   Shipped: "primary",
   Delivered: "success",
+  // purchase order status
+  Processing: "warning",
   // visit plan status
   Planned: "warning",
 };
