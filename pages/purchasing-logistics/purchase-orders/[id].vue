@@ -69,7 +69,7 @@
 
     <SendEmail
       ref="sendEmailRef"
-      type="purchaseOrder"
+      type="purchase-order"
       :data="purchaseOrder"
       :on-preview="previewQuotation"
       :to="purchaseOrder?.Supplier?.email ?? ''"
