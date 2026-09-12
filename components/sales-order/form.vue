@@ -775,7 +775,7 @@ const save = async () => {
 
     const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: form.value,
+      body: { ...form.value, companyId: useCookie("companyId").value },
     });
 
     ElMessage.success("Sales Order saved successfully");
