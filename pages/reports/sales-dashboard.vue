@@ -131,6 +131,7 @@
         <el-row :gutter="16">
           <el-col :xs="24" :xl="16" class="mb-4 xl:mb-0">
             <SalesDashboardRecentOrders />
+            <br />
           </el-col>
           <el-col :xs="24" :xl="8">
             <SalesDashboardRecentActivities />

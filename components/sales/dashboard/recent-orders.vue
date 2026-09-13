@@ -103,7 +103,6 @@
               :type="getOrderStatusTag(row.status)"
               size="small"
               effect="light"
-              class="rounded-full font-medium"
             >
               {{ row.status }}
             </el-tag>
