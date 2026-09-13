@@ -57,6 +57,21 @@
               >
               </el-date-picker>
             </el-form-item>
+
+            <el-form-item label="Request Type" :error="errors.requestType">
+              <el-select
+                v-model="form.requestType"
+                placeholder="Select request type"
+                default-first-option
+              >
+                <el-option
+                  v-for="type in requestTypes"
+                  :key="type.value"
+                  :value="type.value"
+                  :label="type.label"
+                />
+              </el-select>
+            </el-form-item>
           </el-col>
 
           <el-col :span="12">
@@ -67,7 +82,7 @@
             <el-form-item label="Description" :error="errors.description">
               <el-input
                 type="textarea"
-                :rows="4"
+                :rows="5"
                 placeholder="Quotation description"
                 v-model="form.description"
               />
@@ -164,52 +179,6 @@
             </el-form-item>
           </div>
         </div>
-      </el-card>
-
-      <!-- Sales & Request Type -->
-      <el-card shadow="never" class="mb-4">
-        <template #header>
-          <span class="font-semibold">SALES & REQUEST TYPE</span>
-        </template>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Sales Person" :error="errors.userId">
-              <el-select
-                v-model="form.userId"
-                placeholder="Select user"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="user in users"
-                  :key="user.id"
-                  :value="user.id"
-                  :label="user.name"
-                />
-                <template #prefix>
-                  <el-icon><ElIconUser /></el-icon>
-                </template>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Request Type" :error="errors.requestType">
-              <el-select
-                v-model="form.requestType"
-                placeholder="Select request type"
-                default-first-option
-              >
-                <el-option
-                  v-for="type in requestTypes"
-                  :key="type.value"
-                  :value="type.value"
-                  :label="type.label"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
       </el-card>
 
       <!-- Payment & Delivery Terms -->

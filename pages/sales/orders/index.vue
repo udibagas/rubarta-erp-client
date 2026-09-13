@@ -44,7 +44,12 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Customer?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-500 line-clamp-1">
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Contact Person" min-width="200">
+        <template #default="{ row }">
+          <div class="font-semibold line-clamp-1">
             {{ row.contactPerson }}
           </div>
           <div class="text-xs text-gray-500 line-clamp-1">
@@ -52,6 +57,14 @@
           </div>
           <div class="text-xs text-gray-500 line-clamp-1">
             {{ row.contactPhone }}
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Created By" min-width="200">
+        <template #default="{ row }">
+          <div class="font-semibold line-clamp-1">
+            {{ row.User?.name || "-" }}
           </div>
         </template>
       </el-table-column>
