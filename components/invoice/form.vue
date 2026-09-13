@@ -457,7 +457,6 @@ import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 
 const emit = defineEmits(["saved"]);
-const route = useRoute();
 const request = useRequest();
 const config = useRuntimeConfig();
 
@@ -633,12 +632,11 @@ const save = async () => {
     emit("saved");
     closeForm();
 
-    if (route.path === "/sales/invoices") {
+    if (useRoute().path === "/sales/invoices") {
       navigateTo(`/sales/invoices/${res.id}`);
     }
   } catch (error) {
     errors.value = parseError(error);
-    ElMessage.error(error.message || "Failed to save invoice");
   } finally {
     isSaving.value = false;
   }

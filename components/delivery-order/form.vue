@@ -336,7 +336,7 @@ const save = async () => {
       ? `/api/delivery-orders/${form.value.id}`
       : "/api/delivery-orders";
 
-    await request(url, {
+    const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
       body: { ...form.value, companyId: useCookie("companyId").value },
     });
@@ -344,9 +344,12 @@ const save = async () => {
     ElMessage.success("Delivery order saved successfully");
     emit("saved");
     closeForm();
+
+    if (useRoute().path === "/purchasing-logistics/delivery-orders") {
+      navigateTo(`/purchasing-logistics/delivery-orders/${res.id}`);
+    }
   } catch (error) {
     errors.value = parseError(error);
-    ElMessage.error(error.message || "Failed to save delivery order");
   } finally {
     isSaving.value = false;
   }

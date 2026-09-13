@@ -575,7 +575,6 @@ import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";
 
 const emit = defineEmits(["saved"]);
-const route = useRoute();
 const request = useRequest();
 
 const defaultValue = {
@@ -730,7 +729,7 @@ const save = async () => {
     emit("saved");
     closeForm();
 
-    if (route.path === "/sales/quotations") {
+    if (useRoute().path === "/sales/quotations") {
       navigateTo(`/sales/quotations/${res.id}`);
     }
   } catch (error) {
