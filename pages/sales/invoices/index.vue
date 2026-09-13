@@ -23,7 +23,7 @@
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data">
+    <el-table stripe v-loading="isPending" :data="data?.data ?? []">
       <el-table-column label="Invoice #" prop="number" min-width="150">
         <template #default="{ row }">
           <el-link
@@ -125,6 +125,20 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <InvoiceForm ref="invoiceFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
@@ -140,7 +154,8 @@ const { fetchData, refreshData } = useCrud({
   queryKey: "invoices",
 });
 
-const { isPending, data, refetch } = fetchData();
+const { isPending, data, refetch, page, pageSize, currentChange, sizeChange } =
+  fetchData();
 
 const openForm = (data = {}) => {
   invoiceFormRef.value?.openForm(data);
