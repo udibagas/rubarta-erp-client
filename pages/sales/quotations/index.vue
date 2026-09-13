@@ -41,10 +41,15 @@
 
       <el-table-column label="Customer" min-width="200">
         <template #default="{ row }">
-          <div class="font-semibold line-clamp-1">
+          <div class="font-semibold line-clamp-2">
             {{ row.Customer?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-500 line-clamp-1">
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Contact" min-width="200">
+        <template #default="{ row }">
+          <div class="font-semibold line-clamp-1">
             {{ row.contactPerson }}
           </div>
           <div class="text-xs text-gray-500 line-clamp-1">
@@ -96,7 +101,7 @@
 
       <el-table-column
         label="Grand Total"
-        min-width="150"
+        min-width="170"
         align="right"
         header-align="right"
       >
@@ -115,7 +120,7 @@
       <el-table-column
         label="Status"
         prop="status"
-        width="120"
+        width="145"
         align="center"
         header-align="center"
         fixed="right"
