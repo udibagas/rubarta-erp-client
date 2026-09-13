@@ -787,7 +787,6 @@ const save = async () => {
     }
   } catch (error) {
     errors.value = parseError(error);
-    ElMessage.error(error.message || "Failed to save Sales Order");
   } finally {
     isSaving.value = false;
   }
