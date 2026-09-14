@@ -35,7 +35,7 @@
           >
             {{ row.number }}
           </el-link>
-          <div class="text-sm text-gray-500">
+          <div class="text-xs text-gray-400">
             {{ formatDate(row.createdAt) }}
           </div>
         </template>
@@ -46,11 +46,8 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Supplier?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-500 line-clamp-1">
-            {{ row.referenceNumber }}
-          </div>
-          <div class="text-xs text-gray-500 line-clamp-1">
-            {{ row.orderType }}
+          <div class="text-sm text-gray-400">
+            Ref No. {{ row.referenceNumber || "-" }}
           </div>
         </template>
       </el-table-column>
@@ -79,41 +76,25 @@
       </el-table-column>
 
       <el-table-column
-        label="Items"
-        prop="_count.PurchaseOrderItems"
-        width="80"
-        align="center"
-        header-align="center"
-      >
-        <template #default="{ row }">
-          <el-tag class="font-mono" size="small" effect="plain" type="info">
-            {{ toDecimal(row._count.PurchaseOrderItems) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column
         label="Grand Total"
         min-width="150"
         align="right"
         header-align="right"
       >
         <template #default="{ row }">
-          <el-tag
-            class="font-mono font-semibold"
-            size="small"
-            type="success"
-            effect="plain"
-          >
+          <div class="font-mono font-semibold">
             {{ toCurrency(row.grandTotal, row.currency) }}
-          </el-tag>
+          </div>
+          <span class="text-xs text-gray-400">
+            {{ toDecimal(row._count.PurchaseOrderItems) }} items
+          </span>
         </template>
       </el-table-column>
 
       <el-table-column
         label="Status"
         prop="status"
-        width="120"
+        width="150"
         align="center"
         header-align="center"
         fixed="right"

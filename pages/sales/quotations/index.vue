@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="Sales / Quotations">
+      <el-page-header @back="goBack" content="Quotations">
         <template #extra>
           <div class="flex gap-2">
             <el-input
@@ -33,7 +33,7 @@
           >
             {{ row.number }}
           </el-link>
-          <div class="text-sm text-gray-500">
+          <div class="text-xs text-gray-400">
             {{ formatDate(row.createdAt) }}
           </div>
         </template>
@@ -52,10 +52,10 @@
           <div class="font-semibold line-clamp-1">
             {{ row.contactPerson }}
           </div>
-          <div class="text-xs text-gray-500 line-clamp-1">
+          <div class="text-xs text-gray-400 line-clamp-1">
             {{ row.contactEmail }}
           </div>
-          <div class="text-xs text-gray-500 line-clamp-1">
+          <div class="text-xs text-gray-400 line-clamp-1">
             {{ row.contactPhone }}
           </div>
         </template>
@@ -64,7 +64,7 @@
       <el-table-column label="Valid Until" width="120">
         <template #default="{ row }">
           {{ formatDate(row.validUntil) }} <br />
-          <div class="text-xs text-gray-500">{{ row.validity }} days</div>
+          <div class="text-xs text-gray-400">{{ row.validity }} days</div>
         </template>
       </el-table-column>
 
@@ -86,34 +86,18 @@
       </el-table-column>
 
       <el-table-column
-        label="Items"
-        prop="_count.QuotationItems"
-        width="80"
-        align="center"
-        header-align="center"
-      >
-        <template #default="{ row }">
-          <el-tag class="font-mono" size="small" effect="plain" type="info">
-            {{ toDecimal(row._count.QuotationItems) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column
         label="Grand Total"
         min-width="170"
         align="right"
         header-align="right"
       >
         <template #default="{ row }">
-          <el-tag
-            class="font-mono font-semibold"
-            size="small"
-            type="success"
-            effect="plain"
-          >
+          <div class="font-mono font-semibold">
             {{ toCurrency(row.grandTotal, row.currency) }}
-          </el-tag>
+          </div>
+          <span class="text-xs text-gray-400">
+            {{ toDecimal(row._count.QuotationItems) }} items
+          </span>
         </template>
       </el-table-column>
 
