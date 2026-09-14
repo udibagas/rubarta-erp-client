@@ -620,7 +620,7 @@ import ExcelJS from "exceljs";
 import { FileText, Table } from "lucide-vue-next";
 
 const emit = defineEmits(["saved"]);
-
+const config = useRuntimeConfig();
 const request = useRequest();
 
 const defaultValue = {
