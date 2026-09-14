@@ -771,12 +771,11 @@ const save = async () => {
     emit("saved");
     closeForm();
 
-    if (route.path === "/sales/purchase-orders") {
-      navigateTo(`/sales/purchase-orders/${res.id}`);
+    if (route.path === "/purchasing-logistics/purchase-orders") {
+      navigateTo(`/purchasing-logistics/purchase-orders/${res.id}`);
     }
   } catch (error) {
     errors.value = parseError(error);
-    ElMessage.error(error.message || "Failed to save purchase order");
   } finally {
     isSaving.value = false;
   }
