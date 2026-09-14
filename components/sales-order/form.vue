@@ -782,8 +782,8 @@ const save = async () => {
     emit("saved");
     closeForm();
 
-    if (useRoute().path === "/sales/order") {
-      navigateTo(`/sales/order/${res.id}`);
+    if (useRoute().path === "/sales/orders") {
+      navigateTo(`/sales/orders/${res.id}`);
     }
   } catch (error) {
     errors.value = parseError(error);
