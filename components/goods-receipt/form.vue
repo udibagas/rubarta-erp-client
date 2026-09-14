@@ -15,7 +15,7 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="Purchase Order Number">
+            <el-form-item label="PO Number">
               <el-select
                 v-model="form.purchaseOrderId"
                 placeholder="Select purchase order"
@@ -33,7 +33,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Goods Receipt Date">
+            <el-form-item label="GR Date">
               <el-date-picker
                 v-model="form.date"
                 type="date"
@@ -62,6 +62,20 @@
                 </template>
               </el-select>
             </el-form-item>
+
+            <el-form-item label="Supporting Document">
+              <el-upload
+                v-model:file-list="fileList"
+                :action="`${config.public.apiBase}/api/file`"
+                :with-credentials="true"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :on-success="handleSuccess"
+                :multiple="true"
+              >
+                <el-button plain :icon="ElIconUpload"> Upload </el-button>
+              </el-upload>
+            </el-form-item>
           </el-col>
 
           <el-col :span="12">
@@ -83,20 +97,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-        <el-form-item label="Supporting Document">
-          <el-upload
-            v-model:file-list="fileList"
-            :action="`${config.public.apiBase}/api/file`"
-            :with-credentials="true"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :on-success="handleSuccess"
-            :multiple="true"
-          >
-            <el-button plain :icon="ElIconUpload"> Upload </el-button>
-          </el-upload>
-        </el-form-item>
       </el-card>
 
       <!-- Goods Receipt Items -->
@@ -309,8 +309,8 @@ const openForm = (data = {}) => {
         partNumber: "",
         partNumberSupplier: "",
         description: "",
-        quantityOrder: 1,
-        quantityReceived: 1,
+        quantityOrder: 0,
+        quantityReceived: 0,
       },
     ],
   };
