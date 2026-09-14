@@ -106,20 +106,40 @@
             <span class="font-semibold">
               GOODS RECEIPT ITEMS ({{ form.items.length }})
             </span>
-            <el-button
-              v-if="form.items.length > 0"
-              :icon="ElIconDelete"
-              link
-              type="danger"
-              @click="
-                () => {
-                  form.items = [];
-                  currentPage = 1;
-                }
-              "
-            >
-              Delete All Items
-            </el-button>
+            <div class="flex items-center gap-2">
+              <el-button
+                :icon="ElIconUpload"
+                link
+                type="primary"
+                @click="triggerImportItems"
+                :loading="isImporting"
+              >
+                {{ isImporting ? "Importing..." : "Import From Packing List" }}
+              </el-button>
+
+              <input
+                ref="importInputRef"
+                type="file"
+                accept=".pdf"
+                class="hidden"
+                @change="handleImportItems"
+              />
+
+              <el-button
+                v-if="form.items.length > 0"
+                :icon="ElIconDelete"
+                link
+                type="danger"
+                @click="
+                  () => {
+                    form.items = [];
+                    currentPage = 1;
+                  }
+                "
+              >
+                Delete All Items
+              </el-button>
+            </div>
           </div>
         </template>
 
@@ -259,10 +279,15 @@ const defaultValue = {
 
 // Local state
 const show = ref(false);
-
+const importInputRef = ref(null);
+const isImporting = ref(false);
 const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
+
+function triggerImportItems() {
+  importInputRef.value?.click();
+}
 
 const suppliers = ref([]);
 const purchaseOrders = ref([]);
@@ -398,12 +423,57 @@ function loadFormFromPurchaseOrder(purchaseOrderId) {
     form.value.supplierId = purchaseOrder.supplierId;
     form.value.items = purchaseOrder.PurchaseOrderItems.map((i) => ({
       partNumber: i.partNumber,
-      partNumberSupplier: i.partNumber,
+      partNumberSupplier: "",
       description: i.description,
       quantityOrder: i.quantity,
-      quantityReceived: i.quantity,
+      quantityReceived: 0,
     }));
     currentPage.value = 1;
+  }
+}
+
+async function handleImportItems(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    isImporting.value = true;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const result = await $fetch("/api/goods-receipts/parse-packing-list", {
+      method: "POST",
+      body: formData,
+      baseURL: config.public.apiBase,
+      credentials: "include",
+    });
+
+    const items = result.items.map((i) => ({
+      lineNo: i.lineNo,
+      partNumberSupplier: i.packedPartNo,
+      quantityReceived: i.packedQty,
+    }));
+
+    form.value.items = form.value.items.map((item, index) => {
+      // Find the matching item from the imported items based on the part number supplier
+      const matchItem = items.find(
+        (i) => i.partNumberSupplier === item.partNumber,
+      );
+
+      return {
+        ...item,
+        partNumberSupplier: matchItem?.partNumberSupplier ?? "",
+        quantityReceived: matchItem?.quantityReceived ?? 0,
+      };
+    });
+
+    currentPage.value = 1;
+  } catch (error) {
+    ElMessage.error(error.message || "Failed to import items from PO");
+  } finally {
+    isImporting.value = false;
+    e.target.value = "";
   }
 }
 
