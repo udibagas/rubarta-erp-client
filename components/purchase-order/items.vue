@@ -20,12 +20,16 @@
     </el-table-column>
     <el-table-column label="Unit Price" width="120" align="right">
       <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
+        <span class="font-mono">{{
+          toDecimal(row.unitPrice, purchaseOrder.currency, 2)
+        }}</span>
       </template>
     </el-table-column>
     <el-table-column label="Amount" width="120" align="right">
       <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
+        <span class="font-mono">
+          {{ toDecimal(row.totalPrice, purchaseOrder.currency, 2) }}
+        </span>
       </template>
     </el-table-column>
   </el-table>

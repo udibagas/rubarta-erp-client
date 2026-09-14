@@ -909,15 +909,22 @@ function loadFormfromSalesOrder(salesOrderId) {
     const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
     if (salesOrder) {
       const { id, SalesOrderItems, ...rest } = salesOrder;
-      form.value = {
-        ...rest,
-        salesOrderId: id,
-        items: SalesOrderItems.map((i) => ({
+      const items = [];
+      items.push(
+        ...SalesOrderItems.map((i) => ({
           partNumber: i.partNumber,
           description: i.name || i.description,
           quantity: i.quantity,
-          unitPrice: i.unitPrice,
+          unitPrice:
+            materials.value.find((m) => m.partNumber === i.partNumber)
+              ?.purchasePrice ?? 0,
         })),
+      );
+
+      form.value = {
+        ...rest,
+        salesOrderId: id,
+        items,
       };
       calculateTotals();
     }
