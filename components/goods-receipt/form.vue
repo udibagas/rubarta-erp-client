@@ -103,9 +103,25 @@
       <el-card shadow="never" body-style="padding: 0">
         <template #header>
           <div class="flex items-center justify-between">
-            <span class="font-semibold">
-              GOODS RECEIPT ITEMS ({{ form.items.length }})
-            </span>
+            <div>
+              <div class="font-semibold mb-1">
+                GOODS RECEIPT ITEMS ({{ form.items.length }})
+              </div>
+              <div class="flex gap-2">
+                <el-tag effect="plain">
+                  Total Ordered: {{ toDecimal(totalOrdered) }}
+                </el-tag>
+                <el-tag type="success" effect="plain">
+                  Total Received: {{ toDecimal(totalReceived) }}
+                </el-tag>
+                <el-tag
+                  :type="totalOutstanding > 0 ? 'error' : 'success'"
+                  effect="plain"
+                >
+                  Outstanding: {{ toDecimal(totalOutstanding) }}
+                </el-tag>
+              </div>
+            </div>
             <div class="flex items-center gap-2">
               <el-button
                 :icon="ElIconUpload"
@@ -143,7 +159,16 @@
           </div>
         </template>
 
-        <el-table :data="pagedItems" stripe border>
+        <el-table
+          :data="pagedItems"
+          border
+          :row-class-name="
+            ({ row }) =>
+              row.quantityReceived < row.quantityOrder
+                ? 'bg-red-200!'
+                : 'bg-green-200!'
+          "
+        >
           <el-table-column
             label="#"
             width="60"
@@ -533,6 +558,24 @@ function handleRemove(file) {
     });
   });
 }
+
+const totalOrdered = computed(() => {
+  return form.value.items.reduce(
+    (sum, item) => sum + (item.quantityOrder || 0),
+    0,
+  );
+});
+
+const totalReceived = computed(() => {
+  return form.value.items.reduce(
+    (sum, item) => sum + (item.quantityReceived || 0),
+    0,
+  );
+});
+
+const totalOutstanding = computed(() => {
+  return totalOrdered.value - totalReceived.value;
+});
 
 defineExpose({ openForm });
 </script>
