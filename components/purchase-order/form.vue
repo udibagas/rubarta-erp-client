@@ -462,7 +462,13 @@
           <el-table-column label="Amount" width="150" align="right">
             <template #default="{ row }">
               <span class="w-full font-mono">
-                {{ toDecimal(row.quantity * row.unitPrice) }}
+                {{
+                  toDecimal(
+                    row.quantity * row.unitPrice,
+                    form.currency,
+                    form.currency === "IDR" ? 0 : 2,
+                  )
+                }}
               </span>
             </template>
           </el-table-column>
@@ -513,7 +519,13 @@
                 <div
                   class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
-                  {{ toDecimal(totals.subtotal) }}
+                  {{
+                    toDecimal(
+                      totals.subtotal,
+                      form.currency,
+                      form.currency === "IDR" ? 0 : 2,
+                    )
+                  }}
                 </div>
               </div>
               <div class="flex justify-between text-base">
@@ -540,7 +552,13 @@
                 <div
                   class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
-                  {{ toDecimal(totals.vat) }}
+                  {{
+                    toDecimal(
+                      totals.vat,
+                      form.currency,
+                      form.currency === "IDR" ? 0 : 2,
+                    )
+                  }}
                 </div>
               </div>
               <div
@@ -550,7 +568,13 @@
                 <div
                   class="font-mono w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
-                  {{ toDecimal(totals.grandTotal) }}
+                  {{
+                    toDecimal(
+                      totals.grandTotal,
+                      form.currency,
+                      form.currency === "IDR" ? 0 : 2,
+                    )
+                  }}
                 </div>
               </div>
             </div>
