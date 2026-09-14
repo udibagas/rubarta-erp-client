@@ -71,38 +71,24 @@
       </el-form-item>
 
       <el-form-item label="Weight" :error="errors.weight">
-        <el-input
-          placeholder="0"
-          v-model="form.weight"
-          :formatter="
-            (value) => {
-              if (!value) return '';
-              const parts = value.toString().split('.');
-              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-              return parts.join(',');
-            }
-          "
-          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
-        >
-          <template #append>
-            <span>grams</span>
-          </template>
-        </el-input>
+        <div class="flex gap-4 w-full">
+          <el-input-number
+            v-model="form.weight"
+            placeholder="0"
+            controls-position="right"
+            class="grow!"
+          >
+          </el-input-number>
+          <span>Kg</span>
+        </div>
       </el-form-item>
 
       <el-form-item label="Purchase Price" :error="errors.purchasePrice">
         <el-input
           v-model="form.purchasePrice"
           placeholder="0"
-          :formatter="
-            (value) => {
-              if (!value) return '';
-              const parts = value.toString().split('.');
-              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-              return parts.join(',');
-            }
-          "
-          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+          :formatter="formatNumberInput"
+          :parser="parseNumberInput"
         >
           <template #prepend>
             <el-select
@@ -123,15 +109,8 @@
         <el-input
           v-model="form.sellingPrice"
           placeholder="0"
-          :formatter="
-            (value) => {
-              if (!value) return '';
-              const parts = value.toString().split('.');
-              parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-              return parts.join(',');
-            }
-          "
-          :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+          :formatter="formatNumberInput"
+          :parser="parseNumberInput"
         >
           <template #prepend>
             <el-select
@@ -141,8 +120,8 @@
               clearable
             >
               <el-option label="USD" value="USD"></el-option>
-              <el-option label="EUR" value="EUR"></el-option>
               <el-option label="IDR" value="IDR"></el-option>
+              <el-option label="EUR" value="EUR"></el-option>
             </el-select>
           </template>
         </el-input>
@@ -196,7 +175,11 @@
       >
         CANCEL
       </el-button>
-      <el-button :icon="ElIconSuccessFilled" type="success" @click="save(form)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="save({ ...form, weight: form.weight * 1000 })"
+      >
         SAVE
       </el-button>
     </template>
@@ -205,6 +188,55 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+
+const formatNumberInput = (value) => {
+  if (value === null || value === undefined || value === "") return "";
+
+  const raw = String(value).trim();
+  const negative = raw.startsWith("-");
+  const unsigned = raw.replace("-", "");
+
+  const hasComma = unsigned.includes(",");
+  const hasDot = unsigned.includes(".");
+  const decimalSeparator =
+    hasComma && hasDot
+      ? unsigned.lastIndexOf(",") > unsigned.lastIndexOf(".")
+        ? ","
+        : "."
+      : hasComma
+        ? ","
+        : hasDot
+          ? "."
+          : null;
+
+  let integerPart = unsigned;
+  let fractionPart = "";
+
+  if (decimalSeparator) {
+    const parts = unsigned.split(decimalSeparator);
+    integerPart = parts[0] || "0";
+    fractionPart = parts
+      .slice(1)
+      .join(decimalSeparator)
+      .replace(/[^0-9]/g, "");
+  }
+
+  const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const display = fractionPart
+    ? `${groupedInteger},${fractionPart}`
+    : groupedInteger;
+
+  return negative ? `-${display}` : display;
+};
+
+const parseNumberInput = (value) => {
+  if (value === null || value === undefined || value === "") return null;
+
+  const normalized = String(value).replace(/\./g, "").replace(",", ".");
+
+  const parsed = Number(normalized);
+  return Number.isNaN(parsed) ? null : parsed;
+};
 
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
   url: "/api/materials",

@@ -118,9 +118,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Weight" width="100" align="right">
+      <el-table-column label="Weight (Kg)" width="120" align="right">
         <template #default="{ row }">
-          <span v-if="row.weight"> {{ formatNumber(row.weight) }} g </span>
+          <span v-if="row.weight" class="text-right font-mono">
+            {{ formatNumber(row.weight / 1000) }}
+          </span>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -305,7 +307,7 @@
           <el-descriptions-item label="Weight">
             {{
               detailDialog.material.weight
-                ? `${formatNumber(detailDialog.material.weight)} g`
+                ? `${formatNumber(detailDialog.material.weight / 1000)} Kg`
                 : "-"
             }}
           </el-descriptions-item>
