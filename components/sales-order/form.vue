@@ -657,6 +657,8 @@ useGraphqlQuery(gql`
       id
       name
       address
+      phone
+      email
       Contacts {
         name
         phone
@@ -974,15 +976,21 @@ async function handleImportItemsFromPo(e) {
 
 function handleChangeCustomer(customerId) {
   const customer = customers.value.find((c) => c.id === customerId);
+  form.value.contactPerson = "";
   form.value.customerAddress = customer?.address || "";
+  form.value.contactPhone = customer?.phone || "";
+  form.value.contactEmail = customer?.email || "";
 }
 
 function handleContactChange(contactName) {
   const contact = contacts.value.find(
     (c) => c.name === contactName && c.customerId === form.value.customerId,
   );
-  form.value.contactPhone = contact?.phone || "";
-  form.value.contactEmail = contact?.email || "";
+
+  if (contact) {
+    form.value.contactPhone = contact.phone || "";
+    form.value.contactEmail = contact.email || "";
+  }
 }
 
 function loadFormfromQuotation(quotationId) {
