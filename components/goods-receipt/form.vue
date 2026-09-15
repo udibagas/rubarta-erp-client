@@ -239,6 +239,7 @@
                 <el-input-number
                   v-model="row.quantityReceived"
                   :min="0"
+                  :max="row.quantityOrder"
                   style="width: 100%"
                   controls-position="right"
                 />
@@ -336,37 +337,42 @@ function triggerImportItems() {
 const suppliers = ref([]);
 const purchaseOrders = ref([]);
 
-useGraphqlQuery(gql`
-  query {
-    suppliers {
-      id
-      name
-      address
-    }
-    purchaseOrders {
-      id
-      number
-      date
-      supplierId
-      PurchaseOrderItems {
-        partNumber
-        description
-        quantity
-        receivedQuantity
+function fetchGraphqlData() {
+  useGraphqlQuery(gql`
+    query {
+      suppliers {
+        id
+        name
+        address
+      }
+      purchaseOrders {
+        id
+        number
+        date
+        supplierId
+        PurchaseOrderItems {
+          partNumber
+          description
+          quantity
+          receivedQuantity
+        }
       }
     }
-  }
-`)
-  .then((result) => {
-    suppliers.value = result.data.suppliers;
-    purchaseOrders.value = result.data.purchaseOrders;
-  })
-  .catch((error) => {
-    console.error("Failed to fetch GraphQL data:", error);
-  });
+  `)
+    .then((result) => {
+      suppliers.value = result.data.suppliers;
+      purchaseOrders.value = result.data.purchaseOrders;
+    })
+    .catch((error) => {
+      console.error("Failed to fetch GraphQL data:", error);
+    });
+}
 
 // Expose method to open form from parent
 const openForm = (data = {}) => {
+  // Fetch the latest suppliers and purchase orders from the GraphQL API
+  fetchGraphqlData();
+
   form.value = {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
