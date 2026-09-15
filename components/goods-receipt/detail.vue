@@ -33,15 +33,18 @@
 
   <template v-if="goodsReceipt.supportingDocument?.length">
     <el-divider content-position="left">Supporting Document</el-divider>
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-2 items-start">
       <el-link
         v-for="(doc, i) in goodsReceipt.supportingDocument"
-        :key="i"
         type="primary"
+        :key="i"
         :href="`${config.public.apiBase}/${doc.filePath}`"
         target="_blank"
       >
-        {{ doc.fileName }}
+        <span class="flex items-center gap-1">
+          <el-icon><ElIconDocument /></el-icon>
+          {{ doc.fileName }}
+        </span>
       </el-link>
     </div>
   </template>
