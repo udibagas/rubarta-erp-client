@@ -8,7 +8,11 @@
       {{ formatDate(goodsReceipt.date) }}
     </el-descriptions-item>
     <el-descriptions-item label="Purchase Order">
-      {{ goodsReceipt.PurchaseOrder?.number || "-" }}
+      <nuxt-link
+        :to="`/purchasing-logistics/purchase-orders/${goodsReceipt.PurchaseOrder?.id}`"
+      >
+        {{ goodsReceipt.PurchaseOrder?.number || "-" }}
+      </nuxt-link>
     </el-descriptions-item>
     <el-descriptions-item label="Sender">
       {{ goodsReceipt.sender || "-" }}

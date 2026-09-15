@@ -34,15 +34,22 @@
 
       <el-table-column label="Received" width="105" align="center">
         <template #default="{ row }">
-          <span class="font-mono">{{ toDecimal(row.quantityReceived) }}</span>
+          <span class="font-mono">{{ toDecimal(row.receivedQuantity) }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Remaining" width="105" align="center">
         <template #default="{ row }">
-          <span class="font-mono">{{
-            toDecimal(row.quantity - row.quantityReceived)
-          }}</span>
+          <span
+            :class="[
+              'font-mono',
+              row.quantity - row.receivedQuantity === 0
+                ? 'text-green-600'
+                : 'text-red-600',
+            ]"
+          >
+            {{ toDecimal(row.quantity - row.receivedQuantity) }}
+          </span>
         </template>
       </el-table-column>
     </el-table-column>
