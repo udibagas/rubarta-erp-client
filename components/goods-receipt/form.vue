@@ -352,6 +352,7 @@ useGraphqlQuery(gql`
         partNumber
         description
         quantity
+        receivedQuantity
       }
     }
   }
@@ -457,13 +458,18 @@ function loadFormFromPurchaseOrder(purchaseOrderId) {
   );
   if (purchaseOrder) {
     form.value.supplierId = purchaseOrder.supplierId;
-    form.value.items = purchaseOrder.PurchaseOrderItems.map((i) => ({
+
+    // Only include items that have a remaining quantity to be received
+    form.value.items = purchaseOrder.PurchaseOrderItems.filter(
+      (i) => i.quantity - i.receivedQuantity > 0,
+    ).map((i) => ({
       partNumber: i.partNumber,
       partNumberSupplier: "",
       description: i.description,
-      quantityOrder: i.quantity,
+      quantityOrder: i.quantity - i.receivedQuantity,
       quantityReceived: 0,
     }));
+
     currentPage.value = 1;
   }
 }
