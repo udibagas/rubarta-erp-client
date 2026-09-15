@@ -15,15 +15,15 @@
       width="60"
       :index="(i) => (currentPage - 1) * pageSize + i + 1"
     />
-    <el-table-column label="Part Number" header-align="center">
-      <el-table-column label="Order" min-width="140" header-align="center">
+    <el-table-column label="Part Number" align="center">
+      <el-table-column label="Order" min-width="140" align="center">
         <template #default="{ row }">
           <span class="font-mono font-semibold">
             {{ row.partNumber }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="Supplied" min-width="140" header-align="center">
+      <el-table-column label="Supplied" min-width="140" align="center">
         <template #default="{ row }">
           <span class="font-mono font-semibold">
             {{ row.partNumberSupplier }}
@@ -32,13 +32,13 @@
       </el-table-column>
     </el-table-column>
 
-    <el-table-column label="Description" min-width="200">
+    <el-table-column label="Description" min-width="200" align="center">
       <template #default="{ row }">
         {{ row.description }}
       </template>
     </el-table-column>
 
-    <el-table-column label="Quantity" header-align="center">
+    <el-table-column label="Quantity" align="center">
       <el-table-column label="Ordered" width="100" align="center">
         <template #default="{ row }">
           <span class="font-mono">{{ toDecimal(row.quantityOrder) }}</span>
