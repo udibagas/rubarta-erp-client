@@ -76,7 +76,7 @@
 
       <el-table-column
         label="Grand Total"
-        min-width="150"
+        min-width="170"
         align="right"
         header-align="right"
       >
