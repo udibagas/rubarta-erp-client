@@ -10,22 +10,29 @@
         </template>
         <template #extra>
           <div class="flex gap-2 items-center">
+            <status-tag
+              :status="goodsReceipt?.status || 'Draft'"
+              effect="plain"
+              size="large"
+              :round="true"
+            >
+              <template #icon>
+                <el-icon><Flag /></el-icon>
+              </template>
+            </status-tag>
+
             <el-dropdown>
               <el-button :icon="ElIconMore"></el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
-                    :icon="ElIconEdit"
-                    @click="editGoodsReceipt"
+                    v-for="m in menus.filter((m) => m.visible)"
+                    :key="m.name"
+                    :icon="m.icon"
+                    @click="m.action"
+                    :class="m.class || ''"
                   >
-                    Edit
-                  </el-dropdown-item>
-                  <el-dropdown-item
-                    :icon="ElIconDelete"
-                    class="text-error!"
-                    @click="deleteGoodsReceipt"
-                  >
-                    Delete
+                    {{ m.label }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -60,10 +67,12 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const request = useRequest();
 const goodsReceiptFormRef = ref(null);
 
@@ -74,10 +83,39 @@ const { data: goodsReceipt, refetch } = useQuery({
   queryFn: () => request(`/api/goods-receipts/${grId}`),
 });
 
+const menus = computed(() => [
+  {
+    label: "Edit",
+    action: editGoodsReceipt,
+    icon: ElIconEdit,
+    visible: goodsReceipt.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    action: deleteGoodsReceipt,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: goodsReceipt.value?.status === "Draft",
+  },
+  {
+    label: "Mark As Confirmed",
+    action: markAsConfirmed,
+    icon: ElIconCircleCheck,
+    class: "text-success!",
+    visible: goodsReceipt.value?.status === "Draft",
+  },
+  {
+    label: "Print PDF",
+    action: previewGoodsReceipt,
+    icon: ElIconPrinter,
+    visible: true,
+  },
+]);
+
 function editGoodsReceipt() {
   const formData = {
     ...goodsReceipt.value,
-    items: goodsReceipt.value.GoodsReceiptItems || [],
+    items: [...(goodsReceipt.value.GoodsReceiptItems || [])],
   };
 
   goodsReceiptFormRef.value?.openForm(formData);
@@ -115,6 +153,38 @@ function deleteGoodsReceipt() {
         type: "info",
         message: "Goods receipt deletion canceled",
       });
+    });
+}
+
+function previewGoodsReceipt() {
+  const pdfUrl = `${config.public.apiBase}/api/goods-receipts/${grId}/preview`;
+  window.open(pdfUrl, "_blank");
+}
+
+function markAsConfirmed() {
+  ElMessageBox.confirm(
+    `Make sure all details are correct before marking this goods receipt as Confirmed. All changes will be final.`,
+    "Confirm",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "success",
+    },
+  )
+    .then(async () => {
+      await request(`/api/goods-receipts/${grId}`, {
+        method: "PATCH",
+        body: { status: "Confirmed" },
+      });
+      ElMessage({
+        type: "success",
+        message: `Goods receipt status updated to Confirmed`,
+      });
+      refetch();
+    })
+    .catch((error) => {
+      console.error("Update goods receipt status error:", error);
+      ElMessage.info("Action Canceled");
     });
 }
 </script>

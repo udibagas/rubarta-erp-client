@@ -72,6 +72,7 @@
                 :on-remove="handleRemove"
                 :on-success="handleSuccess"
                 :multiple="true"
+                class="w-full"
               >
                 <el-button plain :icon="ElIconUpload"> Upload </el-button>
               </el-upload>
@@ -124,13 +125,13 @@
             </div>
             <div class="flex items-center gap-2">
               <el-button
+                v-if="form.items.length > 0"
                 :icon="ElIconUpload"
-                link
-                type="primary"
+                plain
                 @click="triggerImportItems"
                 :loading="isImporting"
               >
-                {{ isImporting ? "Importing..." : "Import From Packing List" }}
+                {{ isImporting ? "Importing..." : "Import Packing List" }}
               </el-button>
 
               <input
@@ -140,21 +141,6 @@
                 class="hidden"
                 @change="handleImportItems"
               />
-
-              <el-button
-                v-if="form.items.length > 0"
-                :icon="ElIconDelete"
-                link
-                type="danger"
-                @click="
-                  () => {
-                    form.items = [];
-                    currentPage = 1;
-                  }
-                "
-              >
-                Delete All Items
-              </el-button>
             </div>
           </div>
         </template>
@@ -165,10 +151,13 @@
           :row-class-name="
             ({ row }) =>
               row.quantityReceived < row.quantityOrder
-                ? 'bg-red-200!'
-                : 'bg-green-200!'
+                ? 'bg-red-100!'
+                : 'bg-green-100!'
           "
         >
+          <template #empty>
+            <el-empty description="No Items"> </el-empty>
+          </template>
           <el-table-column
             label="#"
             width="60"
@@ -354,15 +343,7 @@ const openForm = (data = {}) => {
     recipient: data.recipient || "",
     notes: data.notes || "",
     supportingDocument: data.supportingDocument || [],
-    items: data.items || [
-      {
-        partNumber: "",
-        partNumberSupplier: "",
-        description: "",
-        quantityOrder: 0,
-        quantityReceived: 0,
-      },
-    ],
+    items: data.items || [],
   };
 
   errors.value = {};

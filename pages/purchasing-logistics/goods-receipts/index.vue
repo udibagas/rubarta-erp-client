@@ -23,7 +23,7 @@
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data">
+    <el-table v-loading="isPending" :data="data" stripe>
       <el-table-column label="GR Number" prop="number" min-width="150">
         <template #default="{ row }">
           <el-link
@@ -35,8 +35,8 @@
           >
             {{ row.number }}
           </el-link>
-          <div class="text-sm text-gray-500">
-            {{ formatDate(row.createdAt) }}
+          <div class="text-xs text-gray-400">
+            {{ formatDate(row.date) }}
           </div>
         </template>
       </el-table-column>
@@ -46,8 +46,8 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Supplier?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-500 line-clamp-1">
-            {{ row.PurchaseOrder?.number }}
+          <div class="text-xs text-gray-400 line-clamp-1">
+            PO No. {{ row.PurchaseOrder?.number }}
           </div>
         </template>
       </el-table-column>
@@ -61,12 +61,6 @@
       <el-table-column label="Recipient" prop="recipient" min-width="150">
         <template #default="{ row }">
           {{ row.recipient || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Date" width="150">
-        <template #default="{ row }">
-          {{ formatDate(row.date) }}
         </template>
       </el-table-column>
 
