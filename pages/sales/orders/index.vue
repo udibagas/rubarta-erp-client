@@ -7,17 +7,13 @@
             <el-input
               v-model="keyword"
               placeholder="Search"
-              @change="refreshData()"
+              @change="refetch()"
               clearable
               :prefix-icon="ElIconSearch"
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
-            <el-button
-              @click="refreshData()"
-              :icon="ElIconRefresh"
-              class="ml-0!"
-            />
+            <el-button @click="refetch()" :icon="ElIconRefresh" class="ml-0!" />
           </div>
         </template>
       </el-page-header>
@@ -119,9 +115,8 @@
 definePageMeta({ layout: false });
 
 const orderFormRef = ref(null);
-const keyword = ref("");
 
-const { fetchData, refreshData } = useCrud({
+const { fetchData, keyword } = useCrud({
   url: "/api/sales-orders",
   queryKey: "orders",
 });
