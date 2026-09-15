@@ -24,6 +24,9 @@
     </template>
 
     <el-table stripe v-loading="isPending" :data="data?.data ?? []">
+      <template #empty>
+        <el-empty description="No Items"> </el-empty>
+      </template>
       <el-table-column label="Invoice #" prop="number" min-width="150">
         <template #default="{ row }">
           <el-link

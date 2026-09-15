@@ -20,6 +20,9 @@
     </template>
 
     <el-table stripe v-loading="isPending" :data="data">
+      <template #empty>
+        <el-empty description="No Items"> </el-empty>
+      </template>
       <el-table-column label="Order No." prop="number" min-width="150">
         <template #default="{ row }">
           <el-link
