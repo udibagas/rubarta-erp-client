@@ -165,25 +165,27 @@
             type="index"
           />
 
-          <el-table-column label="Part Number (Order)" min-width="150">
-            <template #default="{ row }">
-              <el-input
-                v-model="row.partNumber"
-                placeholder="Part number ordered"
-              />
-            </template>
+          <el-table-column label="Part Number" align="center">
+            <el-table-column label="Order" min-width="150" align="center">
+              <template #default="{ row }">
+                <el-input
+                  v-model="row.partNumber"
+                  placeholder="Part number ordered"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="Supplier" min-width="150" align="center">
+              <template #default="{ row }">
+                <el-input
+                  v-model="row.partNumberSupplier"
+                  placeholder="Part number from supplier"
+                />
+              </template>
+            </el-table-column>
           </el-table-column>
 
-          <el-table-column label="Part Number (Supplier)" min-width="150">
-            <template #default="{ row }">
-              <el-input
-                v-model="row.partNumberSupplier"
-                placeholder="Part number from supplier"
-              />
-            </template>
-          </el-table-column>
-
-          <el-table-column label="Description" min-width="200">
+          <el-table-column label="Description" min-width="200" align="center">
             <template #default="{ row }">
               <el-input
                 v-model="row.description"
@@ -194,26 +196,28 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Qty Order" width="110" align="center">
-            <template #default="{ row }">
-              <el-input-number
-                v-model="row.quantityOrder"
-                :min="0"
-                style="width: 100%"
-                controls-position="right"
-              />
-            </template>
-          </el-table-column>
+          <el-table-column label="Quantity" align="center">
+            <el-table-column label="Ordered" width="110" align="center">
+              <template #default="{ row }">
+                <el-input-number
+                  v-model="row.quantityOrder"
+                  :min="0"
+                  style="width: 100%"
+                  controls-position="right"
+                />
+              </template>
+            </el-table-column>
 
-          <el-table-column label="Qty Received" width="120" align="center">
-            <template #default="{ row }">
-              <el-input-number
-                v-model="row.quantityReceived"
-                :min="0"
-                style="width: 100%"
-                controls-position="right"
-              />
-            </template>
+            <el-table-column label="Received" width="120" align="center">
+              <template #default="{ row }">
+                <el-input-number
+                  v-model="row.quantityReceived"
+                  :min="0"
+                  style="width: 100%"
+                  controls-position="right"
+                />
+              </template>
+            </el-table-column>
           </el-table-column>
 
           <el-table-column width="80" align="center">
