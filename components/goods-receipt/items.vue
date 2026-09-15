@@ -1,4 +1,16 @@
 <template>
+  <div class="flex gap-2 mb-4">
+    <el-tag effect="plain">
+      Total Ordered: {{ toDecimal(totalOrdered) }}
+    </el-tag>
+    <el-tag type="success" effect="plain">
+      Total Received: {{ toDecimal(totalReceived) }}
+    </el-tag>
+    <el-tag :type="totalOutstanding > 0 ? 'error' : 'success'" effect="plain">
+      Outstanding: {{ toDecimal(totalOutstanding) }}
+    </el-tag>
+  </div>
+
   <el-table
     :data="pagedItems"
     border
@@ -88,5 +100,23 @@ const currentPage = ref(1);
 const pagedItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return goodsReceipt.GoodsReceiptItems.slice(start, start + pageSize);
+});
+
+const totalOrdered = computed(() => {
+  return goodsReceipt.GoodsReceiptItems.reduce(
+    (sum, item) => sum + (item.quantityOrder || 0),
+    0,
+  );
+});
+
+const totalReceived = computed(() => {
+  return goodsReceipt.GoodsReceiptItems.reduce(
+    (sum, item) => sum + (item.quantityReceived || 0),
+    0,
+  );
+});
+
+const totalOutstanding = computed(() => {
+  return totalOrdered.value - totalReceived.value;
 });
 </script>
