@@ -165,8 +165,12 @@
             type="index"
           />
 
-          <el-table-column label="Part Number" align="center">
-            <el-table-column label="Order" min-width="150" align="center">
+          <el-table-column label="Part Number" header-align="center">
+            <el-table-column
+              label="Order"
+              min-width="150"
+              header-align="center"
+            >
               <template #default="{ row }">
                 <el-input
                   v-model="row.partNumber"
@@ -175,7 +179,11 @@
               </template>
             </el-table-column>
 
-            <el-table-column label="Supplier" min-width="150" align="center">
+            <el-table-column
+              label="Supplier"
+              min-width="150"
+              header-align="center"
+            >
               <template #default="{ row }">
                 <el-input
                   v-model="row.partNumberSupplier"
@@ -185,7 +193,11 @@
             </el-table-column>
           </el-table-column>
 
-          <el-table-column label="Description" min-width="200" align="center">
+          <el-table-column
+            label="Description"
+            min-width="200"
+            header-align="center"
+          >
             <template #default="{ row }">
               <el-input
                 v-model="row.description"
@@ -196,8 +208,17 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Quantity" align="center">
-            <el-table-column label="Ordered" width="110" align="center">
+          <el-table-column
+            label="Quantity"
+            header-align="center"
+            align="center"
+          >
+            <el-table-column
+              label="Ordered"
+              width="110"
+              header-align="center"
+              align="center"
+            >
               <template #default="{ row }">
                 <el-input-number
                   v-model="row.quantityOrder"
@@ -208,7 +229,12 @@
               </template>
             </el-table-column>
 
-            <el-table-column label="Received" width="120" align="center">
+            <el-table-column
+              label="Received"
+              width="120"
+              header-align="center"
+              align="center"
+            >
               <template #default="{ row }">
                 <el-input-number
                   v-model="row.quantityReceived"

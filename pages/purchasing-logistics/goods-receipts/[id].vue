@@ -118,7 +118,7 @@ function editGoodsReceipt() {
     items: [...(goodsReceipt.value.GoodsReceiptItems || [])],
   };
 
-  goodsReceiptFormRef.value?.openForm(formData);
+  goodsReceiptFormRef.value?.openForm({ ...formData });
 }
 
 function deleteGoodsReceipt() {
