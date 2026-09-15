@@ -24,6 +24,9 @@
     </template>
 
     <el-table v-loading="isPending" :data="data" stripe>
+      <template #empty>
+        <el-empty description="No Items"> </el-empty>
+      </template>
       <el-table-column label="GR Number" prop="number" min-width="150">
         <template #default="{ row }">
           <el-link
