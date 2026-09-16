@@ -30,41 +30,55 @@
       :data="data"
       height="calc(100vh - 155px)"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-
       <el-table-column label="Company" width="220">
         <template #default="{ row }">
           {{ row.Company.name }}
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="approvalType"
-        label="Approval Type"
-        width="170"
-        align="center"
-        header-align="center"
-      >
+      <el-table-column prop="approvalType" label="Approval Type">
         <template #default="{ row }">
-          <el-tag effect="plain" size="small">
+          <el-tag effect="plain" size="small" class="mb-1">
             {{ row.approvalType.replaceAll("_", " ") }}
           </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="paymentType" label="Payment Target" width="220" />
-
-      <el-table-column label="Payment Type" width="220">
-        <template #default="{ row }">
-          {{ row.nkpType?.replace("_", " ") ?? " " }}
+          <br />
+          <el-tag
+            effect="plain"
+            type="info"
+            size="small"
+            v-if="row.paymentType"
+            class="mr-1"
+          >
+            {{ row.paymentType }}
+          </el-tag>
+          <el-tag effect="plain" type="info" size="small" v-if="row.nkpType">
+            {{ row.nkpType?.replace("_", " ") ?? " " }}
+          </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column label="Approvals">
         <template #default="{ row }">
           <div v-for="(item, i) in row.ApprovalSettingItem" :key="i">
-            [{{ item.level }}] {{ item.approvalActionType }} -
-            {{ item.User?.name }}
+            <div class="flex justify-between">
+              <div class="flex items-center gap-2">
+                <el-avatar
+                  :size="20"
+                  :style="{ backgroundColor: getAvatarColor(item.User?.name) }"
+                >
+                  <span class="text-xs">
+                    {{ item.level }}
+                  </span>
+                </el-avatar>
+                <span class="line-clamp-1">
+                  {{ item.User?.name }}
+                </span>
+              </div>
+
+              <el-tag effect="plain" type="warning" size="small" round>
+                {{ item.approvalActionType }}
+              </el-tag>
+            </div>
           </div>
         </template>
       </el-table-column>
