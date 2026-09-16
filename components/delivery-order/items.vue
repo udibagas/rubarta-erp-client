@@ -3,37 +3,48 @@
     <el-table-column
       type="index"
       label="#"
-      width="60"
+      width="50"
       :index="(i) => (currentPage - 1) * pageSize + i + 1"
+      header-align="center"
+      align="center"
     />
-    <el-table-column label="Part Number (Order)" min-width="140">
-      <template #default="{ row }">
-        <span class="font-mono font-semibold">
-          {{ row.partNumber }}
-        </span>
-      </template>
+
+    <el-table-column label="Part Number" header-align="center">
+      <el-table-column label="Ordered" min-width="140" header-align="center">
+        <template #default="{ row }">
+          <span class="font-mono font-semibold">
+            {{ row.partNumber }}
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Supplied" min-width="140" header-align="center">
+        <template #default="{ row }">
+          <span class="font-mono font-semibold">
+            {{ row.partNumberSupply }}
+          </span>
+        </template>
+      </el-table-column>
     </el-table-column>
-    <el-table-column label="Part Number (Supply)" min-width="140">
-      <template #default="{ row }">
-        <span class="font-mono font-semibold">
-          {{ row.partNumberSupply }}
-        </span>
-      </template>
-    </el-table-column>
-    <el-table-column label="Description" min-width="200">
+
+    <el-table-column label="Description" min-width="200" header-align="center">
       <template #default="{ row }">
         {{ row.description }}
       </template>
     </el-table-column>
-    <el-table-column label="Qty Order" width="100" align="center">
-      <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(row.quantityOrder) }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="Qty Supply" width="100" align="center">
-      <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(row.quantitySupply) }}</span>
-      </template>
+
+    <el-table-column label="Quantity" header-align="center">
+      <el-table-column label="Ordered" width="100" align="center">
+        <template #default="{ row }">
+          <span class="font-mono">{{ toDecimal(row.quantityOrder) }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Supplied" width="100" align="center">
+        <template #default="{ row }">
+          <span class="font-mono">{{ toDecimal(row.quantitySupply) }}</span>
+        </template>
+      </el-table-column>
     </el-table-column>
   </el-table>
 

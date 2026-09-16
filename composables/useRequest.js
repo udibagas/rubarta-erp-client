@@ -11,16 +11,37 @@ export default () => {
     onResponseError: (error) => {
       if (error.response?.status === 400 && import.meta.client) {
         // Handle 400 bad request - show validation errors
-        const message =
-          error.response?._data?.errors
-            ?.map((e) => `<li class="text-red-500 list-disc">${e.error}</li>`)
-            .join("") ??
-          `<li class="text-red-500 list-disc">${error.message}</li>`;
+        const messages = [];
+
+        if (error.response?._data?.errors) {
+          error.response._data.errors.forEach((e) => {
+            if (e.error) {
+              messages.push(
+                `<li class="text-red-500 list-disc">${e.error}</li>`,
+              );
+            }
+
+            if (e.children) {
+              e.children.forEach((child) => {
+                for (let i = 0; i < child.children.length; i++) {
+                  const c = child.children[i];
+                  if (c.error) {
+                    messages.push(
+                      `<li class="text-red-500 list-disc">${c.error}</li>`,
+                    );
+                  }
+                }
+              });
+            }
+          });
+        }
+
+        const messageList = messages.join("");
 
         ElNotification.error({
           title: error.response?._data.message || "Error",
           dangerouslyUseHTMLString: true,
-          message: `<ul>${message}</ul>`,
+          message: `<ul>${messageList}</ul>`,
         });
       }
 

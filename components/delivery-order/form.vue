@@ -15,7 +15,10 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="Sales Order Number">
+            <el-form-item
+              label="Sales Order Number"
+              :error="errors.salesOrderId"
+            >
               <el-select
                 v-model="form.salesOrderId"
                 placeholder="Select sales order"
@@ -33,7 +36,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="GR Number">
+            <el-form-item label="GR Number" :error="errors.goodsReceiptId">
               <el-select
                 v-model="form.goodsReceiptId"
                 placeholder="Select goods receipt"
@@ -51,7 +54,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Delivery Date">
+            <el-form-item label="Delivery Date" :error="errors.date">
               <el-date-picker
                 v-model="form.date"
                 type="date"
@@ -148,7 +151,7 @@
               Total Delivered: {{ toDecimal(totalDelivered) }}
             </el-tag>
             <el-tag
-              :type="totalOutstanding > 0 ? 'error' : 'success'"
+              :type="totalOutstanding > 0 ? 'danger' : 'success'"
               effect="plain"
               size="large"
               class="font-semibold"
@@ -289,8 +292,9 @@ const config = useRuntimeConfig();
 const defaultValue = {
   date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
   sender: "",
-  goodsReceiptId: "",
-  salesOrderId: "",
+  goodsReceiptId: null,
+  salesOrderId: null,
+  customerId: null,
   pickUpBy: "",
   pickUpName: "",
   pickUpContact: "",
@@ -374,8 +378,9 @@ const openForm = (data = {}) => {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     sender: data.sender || "",
-    goodsReceiptId: data.goodsReceiptId || "",
-    salesOrderId: data.salesOrderId || "",
+    goodsReceiptId: data.goodsReceiptId || null,
+    salesOrderId: data.salesOrderId || null,
+    customerId: data.customerId || null,
     pickUpBy: data.pickUpBy || "",
     pickUpName: data.pickUpName || "",
     pickUpContact: data.pickUpContact || "",
@@ -456,7 +461,7 @@ function loadFormFromSalesOrder(salesOrderId) {
       partNumberSupply: "",
       description: i.description,
       quantityOrder: i.quantity,
-      quantitySupply: "",
+      quantitySupply: 0,
     }));
     currentPage.value = 1;
   }
@@ -464,18 +469,25 @@ function loadFormFromSalesOrder(salesOrderId) {
 
 function loadItemFromGoodsReceipt(goodsReceiptId) {
   const goodsReceipt = goodsReceipts.value.find((g) => g.id === goodsReceiptId);
-  if (goodsReceipt) {
-    // Todo, filter cuma yg ada di gr
-    form.value.items = goodsReceipt.GoodsReceiptItems.map((i) => ({
-      partNumber: i.partNumber,
-      partNumberSupply: "",
-      description: i.description,
-      quantityOrder: i.quantity,
-      quantitySupply: "",
-    }));
+  if (!goodsReceipt) return;
 
-    currentPage.value = 1;
-  }
+  const grItems = goodsReceipt.GoodsReceiptItems;
+
+  form.value.items = [...form.value.items]
+    .filter((item) =>
+      grItems.some((grItem) => grItem.partNumber === item.partNumber),
+    )
+    .map((item) => {
+      const grItem = grItems.find((gr) => gr.partNumber === item.partNumber);
+      return {
+        ...item,
+        partNumberSupply: grItem?.partNumberSupplier ?? item.partNumberSupply,
+        quantityOrder: grItem?.quantityOrder ?? item.quantityOrder,
+        quantitySupply: grItem?.quantityReceived ?? 0,
+      };
+    });
+
+  currentPage.value = 1;
 }
 
 // UPLOAD RELATED

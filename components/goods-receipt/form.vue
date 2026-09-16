@@ -121,7 +121,7 @@
                   Total Received: {{ toDecimal(totalReceived) }}
                 </el-tag>
                 <el-tag
-                  :type="totalOutstanding > 0 ? 'error' : 'success'"
+                  :type="totalOutstanding > 0 ? 'danger' : 'success'"
                   effect="plain"
                   size="large"
                   class="font-semibold"

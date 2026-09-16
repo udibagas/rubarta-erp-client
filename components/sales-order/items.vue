@@ -1,15 +1,16 @@
 <template>
   <div class="flex gap-2 mb-4">
-    <el-tag effect="plain" size="large">
+    <el-tag effect="plain" size="large" class="font-semibold">
       Total Ordered: {{ toDecimal(totalOrdered) }}
     </el-tag>
-    <el-tag type="success" effect="plain" size="large">
+    <el-tag type="success" effect="plain" size="large" class="font-semibold">
       Total Delivered: {{ toDecimal(totalDelivered) }}
     </el-tag>
     <el-tag
-      :type="totalOutstanding > 0 ? 'error' : 'success'"
+      :type="totalOutstanding > 0 ? 'danger' : 'success'"
       effect="plain"
       size="large"
+      class="font-semibold"
     >
       Outstanding: {{ toDecimal(totalOutstanding) }}
     </el-tag>
