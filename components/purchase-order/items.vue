@@ -1,12 +1,16 @@
 <template>
   <div class="flex gap-2 mb-4">
-    <el-tag effect="plain">
+    <el-tag effect="plain" size="large">
       Total Ordered: {{ toDecimal(totalOrdered) }}
     </el-tag>
-    <el-tag type="success" effect="plain">
+    <el-tag type="success" effect="plain" size="large">
       Total Received: {{ toDecimal(totalReceived) }}
     </el-tag>
-    <el-tag :type="totalOutstanding > 0 ? 'error' : 'success'" effect="plain">
+    <el-tag
+      :type="totalOutstanding > 0 ? 'error' : 'success'"
+      effect="plain"
+      size="large"
+    >
       Outstanding: {{ toDecimal(totalOutstanding) }}
     </el-tag>
   </div>
@@ -15,25 +19,25 @@
     <el-table-column
       type="index"
       label="#"
-      width="60"
+      width="50"
       :index="indexOffset"
       fixed="left"
+      header-align="center"
+      align="center"
     />
     <el-table-column
       label="Part Number"
       prop="partNumber"
-      width="130"
+      min-width="160"
       fixed="left"
     >
       <template #default="{ row }">
-        <span class="font-mono font-semibold">
+        <div class="font-mono font-semibold">
           {{ row.partNumber }}
-        </span>
-      </template>
-    </el-table-column>
-    <el-table-column label="Description" min-width="180">
-      <template #default="{ row }">
-        <div>{{ row.description }}</div>
+        </div>
+        <div class="text-xs text-gray-500 line-clamp-1">
+          {{ row.description }}
+        </div>
       </template>
     </el-table-column>
 

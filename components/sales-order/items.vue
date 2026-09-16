@@ -1,38 +1,83 @@
 <template>
+  <div class="flex gap-2 mb-4">
+    <el-tag effect="plain" size="large">
+      Total Ordered: {{ toDecimal(totalOrdered) }}
+    </el-tag>
+    <el-tag type="success" effect="plain" size="large">
+      Total Received: {{ toDecimal(totalReceived) }}
+    </el-tag>
+    <el-tag
+      :type="totalOutstanding > 0 ? 'error' : 'success'"
+      effect="plain"
+      size="large"
+    >
+      Outstanding: {{ toDecimal(totalOutstanding) }}
+    </el-tag>
+  </div>
+
   <el-table :data="pagedItems" stripe border>
     <el-table-column
       type="index"
       label="#"
-      width="60"
+      width="50"
       :index="(i) => (currentPage - 1) * pageSize + i + 1"
+      header-align="center"
+      align="center"
     />
-    <el-table-column label="Part Number" prop="partNumber" width="130">
+    <el-table-column label="Part Number" prop="partNumber" min-width="150">
       <template #default="{ row }">
-        <span class="font-mono font-semibold">
+        <div class="font-mono font-semibold">
           {{ row.partNumber }}
-        </span>
-      </template>
-    </el-table-column>
-    <el-table-column label="Description" min-width="150">
-      <template #default="{ row }">
-        <div class="font-medium">{{ row.name }}</div>
-        <div v-if="row.model || row.description" class="text-sm text-gray-500">
-          {{ row.model }}
+        </div>
+        <div class="text-xs text-gray-500 line-clamp-1">
           {{ row.description }}
         </div>
       </template>
     </el-table-column>
-    <el-table-column label="Qty" width="80" align="center">
-      <template #default="{ row }">
-        <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
-      </template>
+
+    <el-table-column label="Quantity" header-align="center">
+      <el-table-column label="Ordered" width="105" align="center">
+        <template #default="{ row }">
+          <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Delivered" width="105" align="center">
+        <template #default="{ row }">
+          <span class="font-mono">{{ toDecimal(row.deliveredQuantity) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Remaining" width="105" align="center">
+        <template #default="{ row }">
+          <span
+            class="font-mono"
+            :class="{
+              'text-red-600': row.quantity - row.deliveredQuantity > 0,
+            }"
+          >
+            {{ toDecimal(row.quantity - row.deliveredQuantity) }}
+          </span>
+        </template>
+      </el-table-column>
     </el-table-column>
-    <el-table-column label="Unit Price" width="120" align="right">
+
+    <el-table-column
+      label="Unit Price"
+      width="140"
+      align="right"
+      header-align="center"
+    >
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="Amount" width="120" align="right">
+
+    <el-table-column
+      label="Amount"
+      width="160"
+      align="right"
+      header-align="center"
+    >
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
       </template>
@@ -93,5 +138,20 @@ const currentPage = ref(1);
 const pagedItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return order.SalesOrderItems.slice(start, start + pageSize);
+});
+
+const totalOrdered = computed(() => {
+  return order.SalesOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+});
+
+const totalReceived = computed(() => {
+  return order.SalesOrderItems.reduce(
+    (sum, item) => sum + item.deliveredQuantity,
+    0,
+  );
+});
+
+const totalOutstanding = computed(() => {
+  return totalOrdered.value - totalReceived.value;
 });
 </script>
