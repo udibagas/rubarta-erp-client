@@ -33,6 +33,24 @@
               </el-select>
             </el-form-item>
 
+            <el-form-item label="GR Number">
+              <el-select
+                v-model="form.goodsReceiptId"
+                placeholder="Select goods receipt"
+                filterable
+                default-first-option
+                @change="(v) => loadItemFromGoodsReceipt(v)"
+                clearable
+              >
+                <el-option
+                  v-for="goodsReceipt in goodsReceipts"
+                  :key="goodsReceipt.id"
+                  :value="goodsReceipt.id"
+                  :label="goodsReceipt.number"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="Delivery Order Date">
               <el-date-picker
                 v-model="form.date"
@@ -45,22 +63,11 @@
             </el-form-item>
 
             <el-form-item label="Customer" :error="errors.customerId">
-              <el-select
-                v-model="form.customerId"
-                placeholder="Select customer"
-                filterable
-                default-first-option
-              >
-                <el-option
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                  :label="customer.name"
-                />
-                <template #prefix>
-                  <el-icon><ElIconOfficeBuilding /></el-icon>
-                </template>
-              </el-select>
+              <el-input
+                placeholder="Customer name"
+                :model-value="form.Customer?.name"
+                readonly
+              />
             </el-form-item>
           </el-col>
 
@@ -98,126 +105,127 @@
           </el-upload>
         </el-form-item>
       </el-card>
+    </el-form>
 
-      <!-- Delivery Order Items -->
-      <el-card shadow="never" body-style="padding: 0">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <span class="font-semibold">
-              DELIVERY ORDER ITEMS ({{ form.items.length }})
-            </span>
-            <el-button
-              v-if="form.items.length > 0"
-              :icon="ElIconDelete"
-              link
-              type="danger"
-              @click="
-                () => {
-                  form.items = [];
-                  currentPage = 1;
-                }
-              "
+    <!-- Delivery Order Items -->
+    <el-card shadow="never" body-style="padding: 0">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <span class="font-semibold">
+            DELIVERY ORDER ITEMS ({{ form.items.length }})
+          </span>
+
+          <div class="flex gap-2">
+            <el-tag effect="plain" size="large">
+              Total Ordered: {{ toDecimal(totalOrdered) }}
+            </el-tag>
+            <el-tag type="success" effect="plain" size="large">
+              Total Received: {{ toDecimal(totalDelivered) }}
+            </el-tag>
+            <el-tag
+              :type="totalOutstanding > 0 ? 'error' : 'success'"
+              effect="plain"
+              size="large"
             >
-              Delete All Items
-            </el-button>
+              Outstanding: {{ toDecimal(totalOutstanding) }}
+            </el-tag>
           </div>
-        </template>
+        </div>
+      </template>
 
-        <el-table :data="pagedItems" stripe border>
-          <el-table-column
-            label="#"
-            width="60"
-            :index="(i) => (currentPage - 1) * pageSize + i + 1"
-            type="index"
-          />
+      <el-table
+        :data="pagedItems"
+        border
+        :row-class-name="
+          ({ row }) =>
+            row.quantityOrder === row.quantitySupply
+              ? 'bg-green-100!'
+              : 'bg-red-100!'
+        "
+      >
+        <el-table-column
+          label="#"
+          width="50"
+          :index="(i) => (currentPage - 1) * pageSize + i + 1"
+          type="index"
+          header-align="center"
+          align="center"
+        />
 
-          <el-table-column label="Part Number (Order)" min-width="150">
+        <el-table-column label="Part Number" header-align="center">
+          <el-table-column label="Ordered" width="140" header-align="center">
             <template #default="{ row }">
-              <el-input
-                v-model="row.partNumber"
-                placeholder="Part number ordered"
-              />
+              <div class="font-mono font-semibold">
+                {{ row.partNumber }}
+              </div>
             </template>
           </el-table-column>
 
-          <el-table-column label="Part Number (Supply)" min-width="150">
+          <el-table-column label="Supply" width="140" header-align="center">
             <template #default="{ row }">
               <el-input
                 v-model="row.partNumberSupply"
-                placeholder="Part number supplied"
+                placeholder="P/N supplied"
               />
             </template>
           </el-table-column>
+        </el-table-column>
 
-          <el-table-column label="Description" min-width="200">
+        <el-table-column label="Description" header-align="center">
+          <template #default="{ row }">
+            <div class="text-clamp-1">{{ row.description }}</div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Quantity" header-align="center">
+          <el-table-column label="Ordered" width="110" align="center">
             <template #default="{ row }">
-              <el-input
-                v-model="row.description"
-                type="textarea"
-                :rows="1"
-                placeholder="Item description"
-              />
+              <div class="font-mono">
+                {{ row.quantityOrder }}
+              </div>
             </template>
           </el-table-column>
 
-          <el-table-column label="Qty Order" width="110" align="center">
-            <template #default="{ row }">
-              <el-input-number
-                v-model="row.quantityOrder"
-                :min="0"
-                style="width: 100%"
-                controls-position="right"
-              />
-            </template>
-          </el-table-column>
-
-          <el-table-column label="Qty Supply" width="110" align="center">
+          <el-table-column label="Supplied" width="110" align="center">
             <template #default="{ row }">
               <el-input-number
                 v-model="row.quantitySupply"
                 :min="0"
+                :max="row.quantityOrder"
                 style="width: 100%"
                 controls-position="right"
               />
             </template>
           </el-table-column>
+        </el-table-column>
 
-          <el-table-column width="80" align="center">
-            <template #header>
-              <el-button
-                type="success"
-                :icon="ElIconPlus"
-                @click="addItem"
-                link
-              />
-            </template>
-            <template #default="{ row }">
-              <el-button
-                tabindex="-1"
-                type="danger"
-                :icon="ElIconDelete"
-                @click="removeItem(row)"
-                link
-              ></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <el-table-column width="50" align="center">
+          <template #default="{ row }">
+            <el-button
+              tabindex="-1"
+              type="danger"
+              :icon="ElIconDelete"
+              @click="removeItem(row)"
+              link
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-        <div
-          v-if="form.items.length > pageSize"
-          class="flex justify-end p-3 border-t border-[#ebeef5]"
-        >
-          <el-pagination
-            v-model:current-page="currentPage"
-            :page-size="pageSize"
-            :total="form.items.length"
-            layout="prev, pager, next, total"
-            background
-            size="small"
-          />
-        </div>
-      </el-card>
-    </el-form>
+      <div
+        v-if="form.items.length > pageSize"
+        class="flex justify-end p-3 border-t border-[#ebeef5]"
+      >
+        <el-pagination
+          v-model:current-page="currentPage"
+          :page-size="pageSize"
+          :total="form.items.length"
+          layout="prev, pager, next, total"
+          background
+          size="small"
+        />
+      </div>
+    </el-card>
 
     <template #footer>
       <el-button
@@ -265,6 +273,7 @@ const errors = ref({});
 const isSaving = ref(false);
 
 const customers = ref([]);
+const goodsReceipts = ref([]);
 const salesOrders = ref([]);
 
 useGraphqlQuery(gql`
@@ -277,18 +286,36 @@ useGraphqlQuery(gql`
     salesOrders {
       id
       number
-      date
       customerId
       SalesOrderItems {
         partNumber
         description
         quantity
+        deliveredQuantity
+      }
+    }
+    goodsReceipts {
+      id
+      number
+      date
+      purchaseOrderId
+      PurchaseOrder {
+        id
+        number
+      }
+      GoodsReceiptItems {
+        partNumber
+        partNumberSupplier
+        description
+        quantityOrder
+        quantityReceived
       }
     }
   }
 `)
   .then((result) => {
     customers.value = result.data.customers;
+    goodsReceipts.value = result.data.goodsReceipts;
     salesOrders.value = result.data.salesOrders;
   })
   .catch((error) => {
@@ -304,15 +331,7 @@ const openForm = (data = {}) => {
     recipient: data.recipient || "",
     notes: data.notes || "",
     supportingDocument: data.supportingDocument || [],
-    items: data.items || [
-      {
-        partNumber: "",
-        partNumberSupply: "",
-        description: "",
-        quantityOrder: 1,
-        quantitySupply: 1,
-      },
-    ],
+    items: data.items || [],
   };
 
   errors.value = {};
@@ -367,20 +386,6 @@ function lastPage() {
   return Math.max(1, Math.ceil(form.value.items.length / pageSize));
 }
 
-function addItem() {
-  if (!form.value.items) {
-    form.value.items = [];
-  }
-  form.value.items.push({
-    partNumber: "",
-    partNumberSupply: "",
-    description: "",
-    quantityOrder: 1,
-    quantitySupply: 1,
-  });
-  currentPage.value = lastPage();
-}
-
 function removeItem(row) {
   const index = form.value.items.indexOf(row);
   if (index === -1) return;
@@ -396,10 +401,25 @@ function loadFormFromSalesOrder(salesOrderId) {
     form.value.customerId = salesOrder.customerId;
     form.value.items = salesOrder.SalesOrderItems.map((i) => ({
       partNumber: i.partNumber,
-      partNumberSupply: i.partNumber,
+      partNumberSupply: "",
       description: i.description,
       quantityOrder: i.quantity,
-      quantitySupply: i.quantity,
+      quantitySupply: "",
+    }));
+    currentPage.value = 1;
+  }
+}
+
+function loadItemFromGoodsReceipt(goodsReceiptId) {
+  const goodsReceipt = goodsReceipts.value.find((g) => g.id === goodsReceiptId);
+  if (goodsReceipt) {
+    // Todo, filter cuma yg ada di gr
+    form.value.items = goodsReceipt.GoodsReceiptItems.map((i) => ({
+      partNumber: i.partNumber,
+      partNumberSupply: "",
+      description: i.description,
+      quantityOrder: i.quantity,
+      quantitySupply: "",
     }));
     currentPage.value = 1;
   }
@@ -461,6 +481,24 @@ function handleRemove(file) {
     });
   });
 }
+
+const totalOrdered = computed(() =>
+  form.value.items.reduce(
+    (sum, item) => sum + Number(item.quantityOrder || 0),
+    0,
+  ),
+);
+
+const totalDelivered = computed(() =>
+  form.value.items.reduce(
+    (sum, item) => sum + Number(item.quantitySupply || 0),
+    0,
+  ),
+);
+
+const totalOutstanding = computed(
+  () => totalOrdered.value - totalDelivered.value,
+);
 
 defineExpose({ openForm });
 </script>

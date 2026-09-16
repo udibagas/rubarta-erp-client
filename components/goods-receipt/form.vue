@@ -109,15 +109,16 @@
                 GOODS RECEIPT ITEMS ({{ form.items.length }})
               </div>
               <div class="flex gap-2">
-                <el-tag effect="plain">
+                <el-tag effect="plain" size="large">
                   Total Ordered: {{ toDecimal(totalOrdered) }}
                 </el-tag>
-                <el-tag type="success" effect="plain">
+                <el-tag type="success" effect="plain" size="large">
                   Total Received: {{ toDecimal(totalReceived) }}
                 </el-tag>
                 <el-tag
                   :type="totalOutstanding > 0 ? 'error' : 'success'"
                   effect="plain"
+                  size="large"
                 >
                   Outstanding: {{ toDecimal(totalOutstanding) }}
                 </el-tag>
