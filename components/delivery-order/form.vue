@@ -51,7 +51,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Delivery Order Date">
+            <el-form-item label="Delivery Date">
               <el-date-picker
                 v-model="form.date"
                 type="date"
@@ -69,6 +69,22 @@
                 readonly
               />
             </el-form-item>
+
+            <el-form-item label="Supporting Document">
+              <div class="w-full">
+                <el-upload
+                  v-model:file-list="fileList"
+                  :action="`${config.public.apiBase}/api/file`"
+                  :with-credentials="true"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :on-success="handleSuccess"
+                  :multiple="true"
+                >
+                  <el-button plain :icon="ElIconUpload"> Upload </el-button>
+                </el-upload>
+              </div>
+            </el-form-item>
           </el-col>
 
           <el-col :span="12">
@@ -76,8 +92,26 @@
               <el-input placeholder="Sender name" v-model="form.sender" />
             </el-form-item>
 
-            <el-form-item label="Recipient" :error="errors.recipient">
-              <el-input placeholder="Recipient name" v-model="form.recipient" />
+            <el-form-item label="Receipt Number" :error="errors.receiptNumber">
+              <el-input
+                placeholder="Receipt number"
+                v-model="form.receiptNumber"
+              />
+            </el-form-item>
+
+            <el-form-item label="Pick Up By" :error="errors.pickUpBy">
+              <el-input placeholder="Pick up by" v-model="form.pickUpBy" />
+            </el-form-item>
+
+            <el-form-item label="Pick Up Name" :error="errors.pickUpName">
+              <el-input placeholder="Pick up name" v-model="form.pickUpName" />
+            </el-form-item>
+
+            <el-form-item label="Pick Up Contact" :error="errors.pickUpContact">
+              <el-input
+                placeholder="Pick up contact"
+                v-model="form.pickUpContact"
+              />
             </el-form-item>
 
             <el-form-item label="Notes" :error="errors.notes">
@@ -90,20 +124,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-        <el-form-item label="Supporting Document">
-          <el-upload
-            v-model:file-list="fileList"
-            :action="`${config.public.apiBase}/api/file`"
-            :with-credentials="true"
-            :on-preview="handlePreview"
-            :on-remove="handleRemove"
-            :on-success="handleSuccess"
-            :multiple="true"
-          >
-            <el-button plain :icon="ElIconUpload"> Upload </el-button>
-          </el-upload>
-        </el-form-item>
       </el-card>
     </el-form>
 
@@ -116,16 +136,22 @@
           </span>
 
           <div class="flex gap-2">
-            <el-tag effect="plain" size="large">
+            <el-tag effect="plain" size="large" class="font-semibold">
               Total Ordered: {{ toDecimal(totalOrdered) }}
             </el-tag>
-            <el-tag type="success" effect="plain" size="large">
-              Total Received: {{ toDecimal(totalDelivered) }}
+            <el-tag
+              type="success"
+              effect="plain"
+              size="large"
+              class="font-semibold"
+            >
+              Total Delivered: {{ toDecimal(totalDelivered) }}
             </el-tag>
             <el-tag
               :type="totalOutstanding > 0 ? 'error' : 'success'"
               effect="plain"
               size="large"
+              class="font-semibold"
             >
               Outstanding: {{ toDecimal(totalOutstanding) }}
             </el-tag>
@@ -287,6 +313,10 @@ useGraphqlQuery(gql`
       id
       number
       customerId
+      Customer {
+        id
+        name
+      }
       SalesOrderItems {
         partNumber
         description
@@ -399,6 +429,7 @@ function loadFormFromSalesOrder(salesOrderId) {
   const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
   if (salesOrder) {
     form.value.customerId = salesOrder.customerId;
+    form.value.Customer = salesOrder.Customer;
     form.value.items = salesOrder.SalesOrderItems.map((i) => ({
       partNumber: i.partNumber,
       partNumberSupply: "",
