@@ -169,6 +169,9 @@
               : 'bg-red-100!'
         "
       >
+        <template #empty>
+          <el-empty description="No items available" />
+        </template>
         <el-table-column
           label="#"
           width="50"
@@ -279,86 +282,103 @@ import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 
 const emit = defineEmits(["saved"]);
+const { companyId } = storeToRefs(useSharedStore());
 const request = useRequest();
 const config = useRuntimeConfig();
 
 const defaultValue = {
-  items: [],
   date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
   sender: "",
-  recipient: "",
+  goodsReceiptId: "",
+  salesOrderId: "",
+  pickUpBy: "",
+  pickUpName: "",
+  pickUpContact: "",
   notes: "",
   supportingDocument: [],
+  items: [],
 };
 
 // Local state
 const show = ref(false);
-
 const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
 
-const customers = ref([]);
 const goodsReceipts = ref([]);
 const salesOrders = ref([]);
 
-useGraphqlQuery(gql`
-  query {
-    customers {
-      id
-      name
-      address
-    }
-    salesOrders {
-      id
-      number
-      customerId
-      Customer {
-        id
-        name
-      }
-      SalesOrderItems {
-        partNumber
-        description
-        quantity
-        deliveredQuantity
-      }
-    }
-    goodsReceipts {
-      id
-      number
-      date
-      purchaseOrderId
-      PurchaseOrder {
+function fetchSalesOrders() {
+  useGraphqlQuery(gql`
+    query {
+      salesOrders {
         id
         number
-      }
-      GoodsReceiptItems {
-        partNumber
-        partNumberSupplier
-        description
-        quantityOrder
-        quantityReceived
+        customerId
+        Customer {
+          id
+          name
+        }
+        SalesOrderItems {
+          partNumber
+          description
+          quantity
+          deliveredQuantity
+        }
       }
     }
-  }
-`)
-  .then((result) => {
-    customers.value = result.data.customers;
-    goodsReceipts.value = result.data.goodsReceipts;
-    salesOrders.value = result.data.salesOrders;
-  })
-  .catch((error) => {
-    console.error("Failed to fetch GraphQL data:", error);
-  });
+  `)
+    .then((result) => {
+      salesOrders.value = result.data.salesOrders;
+    })
+    .catch((error) => {
+      console.error("Failed to fetch GraphQL data:", error);
+    });
+}
+
+function getGrBySoId(salesOrderId) {
+  useGraphqlQuery(gql`
+    query {
+      goodsReceipts(salesOrderId: ${salesOrderId}) {
+        id
+        number
+        date
+        purchaseOrderId
+        PurchaseOrder {
+          id
+          number
+        }
+        GoodsReceiptItems {
+          partNumber
+          partNumberSupplier
+          description
+          quantityOrder
+          quantityReceived
+        }
+      }
+    }
+  `)
+    .then((result) => {
+      goodsReceipts.value = result.data.goodsReceipts;
+    })
+    .catch((error) => {
+      console.error("Failed to fetch GraphQL data:", error);
+    });
+}
 
 // Expose method to open form from parent
 const openForm = (data = {}) => {
+  fetchSalesOrders();
+
   form.value = {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     sender: data.sender || "",
-    recipient: data.recipient || "",
+    goodsReceiptId: data.goodsReceiptId || "",
+    salesOrderId: data.salesOrderId || "",
+    pickUpBy: data.pickUpBy || "",
+    pickUpName: data.pickUpName || "",
+    pickUpContact: data.pickUpContact || "",
     notes: data.notes || "",
     supportingDocument: data.supportingDocument || [],
     items: data.items || [],
@@ -387,7 +407,7 @@ const save = async () => {
 
     const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: { ...form.value, companyId: useCookie("companyId").value },
+      body: { ...form.value, companyId: companyId.value },
     });
 
     ElMessage.success("Delivery order saved successfully");
@@ -426,6 +446,7 @@ function removeItem(row) {
 }
 
 function loadFormFromSalesOrder(salesOrderId) {
+  getGrBySoId(salesOrderId);
   const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
   if (salesOrder) {
     form.value.customerId = salesOrder.customerId;
@@ -452,6 +473,7 @@ function loadItemFromGoodsReceipt(goodsReceiptId) {
       quantityOrder: i.quantity,
       quantitySupply: "",
     }));
+
     currentPage.value = 1;
   }
 }
@@ -504,13 +526,21 @@ function handleRemove(file) {
   request(`/api/file`, {
     method: "DELETE",
     params: { path },
-  }).then((res) => {
-    ElMessage({
-      message: res.message,
-      type: "success",
-      showClose: true,
+  })
+    .then((res) => {
+      ElMessage({
+        message: res.message,
+        type: "success",
+        showClose: true,
+      });
+    })
+    .catch((error) => {
+      ElMessage({
+        message: error.message,
+        type: "error",
+        showClose: true,
+      });
     });
-  });
 }
 
 const totalOrdered = computed(() =>

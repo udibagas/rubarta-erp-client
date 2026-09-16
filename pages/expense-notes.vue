@@ -148,7 +148,7 @@ import { openDetail } from "~/stores/detail";
 
 const { user } = useAuth();
 const config = useRuntimeConfig();
-const companyId = ref(useCookie("companyId"));
+const { companyId } = storeToRefs(useSharedStore());
 const claimForm = ref({});
 const showClaimForm = ref(false);
 

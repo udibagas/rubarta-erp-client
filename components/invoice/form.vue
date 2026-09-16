@@ -457,6 +457,7 @@ import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 
 const emit = defineEmits(["saved"]);
+const { companyId } = storeToRefs(useSharedStore());
 const request = useRequest();
 const config = useRuntimeConfig();
 
@@ -625,7 +626,7 @@ const save = async () => {
 
     const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: { ...form.value, companyId: useCookie("companyId").value },
+      body: { ...form.value, companyId: companyId.value },
     });
 
     ElMessage.success("Invoice saved successfully");

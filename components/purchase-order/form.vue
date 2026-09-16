@@ -617,7 +617,7 @@ import { gql } from "@apollo/client";
 import ExcelJS from "exceljs";
 
 const emit = defineEmits(["saved"]);
-const route = useRoute();
+const { companyId } = storeToRefs(useSharedStore());
 const request = useRequest();
 
 const orderTypes = ["Stock Order", "Delivery", "Emergency Order"];
@@ -764,14 +764,14 @@ const save = async () => {
 
     const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: { ...form.value, companyId: useCookie("companyId").value },
+      body: { ...form.value, companyId: companyId.value },
     });
 
     ElMessage.success("Purchase order saved successfully");
     emit("saved");
     closeForm();
 
-    if (route.path === "/purchasing-logistics/purchase-orders") {
+    if (useRoute().path === "/purchasing-logistics/purchase-orders") {
       navigateTo(`/purchasing-logistics/purchase-orders/${res.id}`);
     }
   } catch (error) {

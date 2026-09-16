@@ -620,6 +620,7 @@ import ExcelJS from "exceljs";
 import { FileText, Table } from "lucide-vue-next";
 
 const emit = defineEmits(["saved"]);
+const { companyId } = storeToRefs(useSharedStore());
 const config = useRuntimeConfig();
 const request = useRequest();
 
@@ -777,7 +778,7 @@ const save = async () => {
 
     const res = await request(url, {
       method: form.value.id ? "PATCH" : "POST",
-      body: { ...form.value, companyId: useCookie("companyId").value },
+      body: { ...form.value, companyId: companyId.value },
     });
 
     ElMessage.success("Sales Order saved successfully");
