@@ -1,5 +1,5 @@
 <template>
-  <el-card v-if="quotation" shadow="never" class="sticky top-4">
+  <el-card v-if="quotation" shadow="never" class="sticky top-4 w-80">
     <template #header>
       <div class="flex items-center justify-between w-full">
         <span class="font-semibold">QUOTATION SUMMARY</span>

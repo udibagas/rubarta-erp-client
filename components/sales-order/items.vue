@@ -4,7 +4,7 @@
       Total Ordered: {{ toDecimal(totalOrdered) }}
     </el-tag>
     <el-tag type="success" effect="plain" size="large">
-      Total Received: {{ toDecimal(totalReceived) }}
+      Total Delivered: {{ toDecimal(totalDelivered) }}
     </el-tag>
     <el-tag
       :type="totalOutstanding > 0 ? 'error' : 'success'"
@@ -144,7 +144,7 @@ const totalOrdered = computed(() => {
   return order.SalesOrderItems.reduce((sum, item) => sum + item.quantity, 0);
 });
 
-const totalReceived = computed(() => {
+const totalDelivered = computed(() => {
   return order.SalesOrderItems.reduce(
     (sum, item) => sum + item.deliveredQuantity,
     0,
@@ -152,6 +152,6 @@ const totalReceived = computed(() => {
 });
 
 const totalOutstanding = computed(() => {
-  return totalOrdered.value - totalReceived.value;
+  return totalOrdered.value - totalDelivered.value;
 });
 </script>

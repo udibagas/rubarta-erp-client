@@ -1,9 +1,5 @@
 <template>
-  <el-card
-    v-if="goodsReceipt"
-    shadow="never"
-    class="sticky top-4 w-85 shrink-0"
-  >
+  <el-card v-if="goodsReceipt" shadow="never" class="sticky top-4 w-80">
     <template #header>
       <div class="flex items-center justify-between w-full">
         <span class="font-semibold">GOODS RECEIPT SUMMARY</span>
