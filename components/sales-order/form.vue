@@ -725,7 +725,7 @@ function setMaterial(partNumber, item) {
   if (material) {
     item.name = material.name;
     item.model = material.model;
-    item.description = material.description;
+    item.description = material.description || material.name;
     item.unitPrice = material.sellingPrice;
   }
 }
