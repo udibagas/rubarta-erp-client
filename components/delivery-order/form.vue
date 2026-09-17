@@ -15,6 +15,24 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="Customer" :error="errors.customerId">
+              <el-select
+                v-model="form.customerId"
+                placeholder="Select customer"
+                filterable
+                default-first-option
+                @change="(v) => fetchSoByCustomerId(v)"
+                clearable
+              >
+                <el-option
+                  v-for="customer in customers"
+                  :key="customer.id"
+                  :value="customer.id"
+                  :label="customer.name"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item
               label="Sales Order Number"
               :error="errors.salesOrderId"
@@ -62,14 +80,6 @@
                 format="DD-MMM-YYYY"
                 value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
                 style="width: 100%"
-              />
-            </el-form-item>
-
-            <el-form-item label="Customer" :error="errors.customerId">
-              <el-input
-                placeholder="Customer name"
-                :model-value="form.Customer?.name"
-                readonly
               />
             </el-form-item>
 
@@ -210,7 +220,7 @@
         </el-table-column>
 
         <el-table-column label="Quantity" header-align="center">
-          <el-table-column label="Ordered" width="110" align="center">
+          <el-table-column label="Ordered" width="130" align="center">
             <template #default="{ row }">
               <div class="font-mono">
                 {{ row.quantityOrder }}
@@ -218,7 +228,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Supplied" width="110" align="center">
+          <el-table-column label="Supplied" width="130" align="center">
             <template #default="{ row }">
               <el-input-number
                 v-model="row.quantitySupply"
@@ -227,6 +237,14 @@
                 style="width: 100%"
                 controls-position="right"
               />
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Outstanding" width="130" align="center">
+            <template #default="{ row }">
+              <div class="font-mono">
+                {{ row.quantityOrder - row.quantitySupply }}
+              </div>
             </template>
           </el-table-column>
         </el-table-column>
@@ -309,13 +327,30 @@ const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
 
-const goodsReceipts = ref([]);
+const customers = ref([]);
 const salesOrders = ref([]);
+const goodsReceipts = ref([]);
 
-function fetchSalesOrders() {
-  useGraphqlQuery(gql`
-    query {
-      salesOrders {
+async function fetchCustomers() {
+  try {
+    const { data } = await useGraphqlQuery(gql`
+      query {
+        customers {
+          id
+          name
+        }
+      }
+    `);
+    customers.value = data.customers;
+  } catch (e) {
+    console.error("Failed to fetch customers:", e);
+  }
+}
+
+async function fetchSoByCustomerId(customerId) {
+  const GET_SO_BY_CUSTOMER_ID = gql`
+    query SalesOrders($customerId: Int, $status: [SalesOrderStatus!]) {
+      salesOrders(customerId: $customerId, status: $status) {
         id
         number
         customerId
@@ -331,19 +366,26 @@ function fetchSalesOrders() {
         }
       }
     }
-  `)
-    .then((result) => {
-      salesOrders.value = result.data.salesOrders;
-    })
-    .catch((error) => {
-      console.error("Failed to fetch GraphQL data:", error);
+  `;
+
+  try {
+    const { data } = await useGraphqlQuery(GET_SO_BY_CUSTOMER_ID, {
+      variables: {
+        customerId,
+        status: ["Confirmed", "Sent", "PartiallyDelivered", "Completed"],
+      },
     });
+
+    salesOrders.value = data.salesOrders;
+  } catch (e) {
+    console.error("Failed to fetch sales orders by customer ID:", e);
+  }
 }
 
-function getGrBySoId(salesOrderId) {
-  useGraphqlQuery(gql`
-    query {
-      goodsReceipts(salesOrderId: ${salesOrderId}) {
+async function getGrBySoId(salesOrderId) {
+  const GET_GR = gql`
+    query GoodsReceipts($salesOrderId: Int) {
+      goodsReceipts(salesOrderId: $salesOrderId) {
         id
         number
         date
@@ -361,18 +403,23 @@ function getGrBySoId(salesOrderId) {
         }
       }
     }
-  `)
-    .then((result) => {
-      goodsReceipts.value = result.data.goodsReceipts;
-    })
-    .catch((error) => {
-      console.error("Failed to fetch GraphQL data:", error);
+  `;
+
+  try {
+    const { data } = await useGraphqlQuery(GET_GR, {
+      variables: {
+        salesOrderId,
+      },
     });
+    goodsReceipts.value = data.goodsReceipts;
+  } catch (e) {
+    console.error("Failed to get goods receipts by sales order ID:", e);
+  }
 }
 
 // Expose method to open form from parent
 const openForm = (data = {}) => {
-  fetchSalesOrders();
+  fetchCustomers();
 
   form.value = {
     ...data,
@@ -454,8 +501,6 @@ function loadFormFromSalesOrder(salesOrderId) {
   getGrBySoId(salesOrderId);
   const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
   if (salesOrder) {
-    form.value.customerId = salesOrder.customerId;
-    form.value.Customer = salesOrder.Customer;
     form.value.items = salesOrder.SalesOrderItems.map((i) => ({
       partNumber: i.partNumber,
       partNumberSupply: "",
@@ -463,6 +508,7 @@ function loadFormFromSalesOrder(salesOrderId) {
       quantityOrder: i.quantity,
       quantitySupply: 0,
     }));
+
     currentPage.value = 1;
   }
 }
