@@ -651,47 +651,52 @@ const users = ref([]);
 const materials = ref([]);
 const salesOrders = ref([]);
 
-useGraphqlQuery(gql`
-  query {
-    suppliers {
-      id
-      name
-      address
-    }
-    users {
-      id
-      name
-    }
-    materials {
-      partNumber
-      name
-      model
-      description
-      purchasePrice
-    }
-    salesOrders {
-      id
-      number
-      date
-      title
-      description
-      currency
-      notes
-      termOfPayment
-      termsAndConditions
-      termOfDelivery
-      paymentMethod
-      requestType
-      SalesOrderItems {
-        sortOrder
+useGraphqlQuery(
+  gql`
+    query ($status: [SalesOrderStatus!]) {
+      suppliers {
+        id
+        name
+        address
+      }
+      users {
+        id
+        name
+      }
+      materials {
         partNumber
+        name
+        model
         description
-        quantity
-        unitPrice
+        purchasePrice
+      }
+      salesOrders(status: $status) {
+        id
+        number
+        date
+        title
+        description
+        currency
+        notes
+        termOfPayment
+        termsAndConditions
+        termOfDelivery
+        paymentMethod
+        requestType
+        SalesOrderItems {
+          sortOrder
+          partNumber
+          description
+          quantity
+          unitPrice
+        }
       }
     }
-  }
-`)
+  `,
+  {
+    status: ["Confirmed", "Sent"],
+  },
+)
   .then((result) => {
     suppliers.value = result.data.suppliers;
     users.value = result.data.users;
