@@ -101,6 +101,19 @@
           </el-tag>
         </template>
       </el-table-column>
+
+      <el-table-column
+        label="Status"
+        prop="status"
+        width="120"
+        align="center"
+        header-align="center"
+        fixed="right"
+      >
+        <template #default="{ row }">
+          <StatusTag :status="row.status" effect="light" style="width: 100%" />
+        </template>
+      </el-table-column>
     </el-table>
 
     <DeliveryOrderForm ref="deliveryOrderFormRef" @saved="() => refetch()" />

@@ -16,7 +16,14 @@
     </el-tag>
   </div>
 
-  <el-table :data="pagedItems" stripe border>
+  <el-table
+    :data="pagedItems"
+    stripe
+    border
+    :row-class-name="
+      ({ row }) => (row.quantity > row.deliveredQuantity ? 'text-red-500!' : '')
+    "
+  >
     <el-table-column
       type="index"
       label="#"
@@ -50,12 +57,7 @@
       </el-table-column>
       <el-table-column label="Remaining" width="105" align="center">
         <template #default="{ row }">
-          <span
-            class="font-mono"
-            :class="{
-              'text-red-600': row.quantity - row.deliveredQuantity > 0,
-            }"
-          >
+          <span class="font-mono">
             {{ toDecimal(row.quantity - row.deliveredQuantity) }}
           </span>
         </template>

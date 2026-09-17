@@ -19,11 +19,10 @@
   <el-table
     :data="pagedItems"
     border
+    stripe
     :row-class-name="
       ({ row }) =>
-        row.quantityReceived < row.quantityOrder
-          ? 'bg-red-100!'
-          : 'bg-green-100!'
+        row.quantityReceived < row.quantityOrder ? 'text-red-500!' : ''
     "
   >
     <el-table-column
