@@ -348,6 +348,11 @@ async function fetchCustomers() {
 }
 
 async function fetchSoByCustomerId(customerId) {
+  if (!customerId) {
+    salesOrders.value = [];
+    return;
+  }
+
   const GET_SO_BY_CUSTOMER_ID = gql`
     query SalesOrders($customerId: Int, $status: [SalesOrderStatus!]) {
       salesOrders(customerId: $customerId, status: $status) {
@@ -383,8 +388,13 @@ async function fetchSoByCustomerId(customerId) {
 }
 
 async function getGrBySoId(salesOrderId) {
+  if (!salesOrderId) {
+    goodsReceipts.value = [];
+    return;
+  }
+
   const GET_GR = gql`
-    query GoodsReceipts($salesOrderId: Int, status: GoodsReceiptStatus!) {
+    query GoodsReceipts($salesOrderId: Int, $status: GoodsReceiptStatus!) {
       goodsReceipts(salesOrderId: $salesOrderId, status: $status) {
         id
         number
