@@ -72,6 +72,7 @@ import { Flag } from "lucide-vue-next";
 definePageMeta({ layout: false });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const request = useRequest();
 const deliveryOrderFormRef = ref(null);
 
