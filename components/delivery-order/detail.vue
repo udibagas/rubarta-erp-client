@@ -4,7 +4,7 @@
     <el-descriptions-item label="Sales Order Number">
       <nuxt-link
         v-if="deliveryOrder.SalesOrder?.id"
-        :to="`/sales/sales-orders/${deliveryOrder.SalesOrder.id}`"
+        :to="`/sales/orders/${deliveryOrder.SalesOrder.id}`"
       >
         {{ deliveryOrder.SalesOrder.number || "-" }}
       </nuxt-link>
