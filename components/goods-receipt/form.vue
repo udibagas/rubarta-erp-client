@@ -174,20 +174,19 @@
 
           <el-table-column label="Part Number" header-align="center">
             <el-table-column
-              label="Order"
+              label="Ordered"
               min-width="150"
               header-align="center"
             >
               <template #default="{ row }">
-                <el-input
-                  v-model="row.partNumber"
-                  placeholder="Part number ordered"
-                />
+                <span class="font-mono font-semibold">
+                  {{ row.partNumber }}
+                </span>
               </template>
             </el-table-column>
 
             <el-table-column
-              label="Supplier"
+              label="Supplied"
               min-width="150"
               header-align="center"
             >
@@ -206,12 +205,7 @@
             header-align="center"
           >
             <template #default="{ row }">
-              <el-input
-                v-model="row.description"
-                type="textarea"
-                :rows="1"
-                placeholder="Item description"
-              />
+              {{ row.description }}
             </template>
           </el-table-column>
 
@@ -227,12 +221,7 @@
               align="center"
             >
               <template #default="{ row }">
-                <el-input-number
-                  v-model="row.quantityOrder"
-                  :min="0"
-                  style="width: 100%"
-                  controls-position="right"
-                />
+                <span class="font-mono">{{ row.quantityOrder }}</span>
               </template>
             </el-table-column>
 
@@ -346,27 +335,32 @@ const suppliers = ref([]);
 const purchaseOrders = ref([]);
 
 function fetchGraphqlData() {
-  useGraphqlQuery(gql`
-    query {
-      suppliers {
-        id
-        name
-        address
-      }
-      purchaseOrders {
-        id
-        number
-        date
-        supplierId
-        PurchaseOrderItems {
-          partNumber
-          description
-          quantity
-          receivedQuantity
+  useGraphqlQuery(
+    gql`
+      query ($status: [PurchaseOrderStatus!]) {
+        suppliers {
+          id
+          name
+          address
+        }
+        purchaseOrders(status: $status) {
+          id
+          number
+          date
+          supplierId
+          PurchaseOrderItems {
+            partNumber
+            description
+            quantity
+            receivedQuantity
+          }
         }
       }
-    }
-  `)
+    `,
+    {
+      status: ["Confirmed", "PartiallyReceived"],
+    },
+  )
     .then((result) => {
       suppliers.value = result.data.suppliers;
       purchaseOrders.value = result.data.purchaseOrders;
