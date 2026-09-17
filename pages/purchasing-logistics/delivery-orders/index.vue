@@ -55,21 +55,36 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Sender" prop="sender" min-width="150">
+      <el-table-column label="Prepared By" min-width="170">
+        <template #default="{ row }">
+          <div class="flex items-center gap-2">
+            <el-avatar
+              size="small"
+              :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
+              class="shrink-0"
+            >
+              {{ row.User?.name?.charAt(0) || "?" }}
+            </el-avatar>
+            <span class="line-clamp-1">
+              {{ row.User?.name || "-" }}
+            </span>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Sender" prop="sender">
         <template #default="{ row }">
           {{ row.sender || "-" }}
         </template>
       </el-table-column>
 
-      <el-table-column label="Recipient" prop="recipient" min-width="150">
+      <el-table-column
+        label="Receipt Number"
+        prop="receiptNumber"
+        min-width="150"
+      >
         <template #default="{ row }">
-          {{ row.recipient || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Date" width="150">
-        <template #default="{ row }">
-          {{ formatDate(row.date) }}
+          {{ row.receiptNumber || "-" }}
         </template>
       </el-table-column>
 

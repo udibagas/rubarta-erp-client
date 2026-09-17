@@ -384,8 +384,8 @@ async function fetchSoByCustomerId(customerId) {
 
 async function getGrBySoId(salesOrderId) {
   const GET_GR = gql`
-    query GoodsReceipts($salesOrderId: Int) {
-      goodsReceipts(salesOrderId: $salesOrderId) {
+    query GoodsReceipts($salesOrderId: Int, status: GoodsReceiptStatus!) {
+      goodsReceipts(salesOrderId: $salesOrderId, status: $status) {
         id
         number
         date
@@ -409,6 +409,7 @@ async function getGrBySoId(salesOrderId) {
     const { data } = await useGraphqlQuery(GET_GR, {
       variables: {
         salesOrderId,
+        status: "Confirmed",
       },
     });
     goodsReceipts.value = data.goodsReceipts;
