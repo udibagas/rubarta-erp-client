@@ -83,20 +83,6 @@
       </el-table-column>
 
       <el-table-column
-        label="Items"
-        prop="_count.InvoiceItems"
-        width="80"
-        align="center"
-        header-align="center"
-      >
-        <template #default="{ row }">
-          <el-tag class="font-mono" size="small" effect="plain" type="info">
-            {{ toDecimal(row._count.InvoiceItems) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column
         label="Grand Total"
         min-width="150"
         align="right"
@@ -109,7 +95,7 @@
             type="success"
             effect="plain"
           >
-            {{ toDecimal(row.grandTotal) }}
+            {{ toCurrency(row.grandTotal, row.currency) }}
           </el-tag>
         </template>
       </el-table-column>
