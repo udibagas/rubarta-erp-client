@@ -121,9 +121,10 @@ function openDialog() {
     quotation: `Dear ${recipientName},\n\nPlease find attached our quotation for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
     "sales-order": `Dear ${recipientName},\n\nPlease find attached our sales order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
     "purchase-order": `Dear ${recipientName},\n\nPlease find attached our purchase order for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
+    invoice: `Dear ${recipientName},\n\nPlease find attached our invoice for your review.\n\nIf you have any questions or need adjustments, please let us know.\n\nBest regards,\n${fromName}`,
   };
 
-  sendForm.subject = `[${type.replace("-", " ").toUpperCase()}] #${data.number} - ${data.title}`;
+  sendForm.subject = `[${type.replace("-", " ").toUpperCase()}] #${data.number} - ${data.title || data.referenceNumber}`;
   sendForm.to = to;
   sendForm.cc = cc;
   sendForm.fromName = fromName;
@@ -136,7 +137,11 @@ async function send() {
   const trimmedBody = sendForm.body.trim();
 
   if (!trimmedSubject || !trimmedBody) {
-    ElMessage.warning("Please fill in the email subject and body.");
+    ElNotification.warning({
+      title: "Warning",
+      message: "Please fill in the email subject and body.",
+    });
+
     return;
   }
 
@@ -160,12 +165,18 @@ async function send() {
       },
     });
 
-    ElMessage.success(`${type.replace("-", " ")} email sent successfully`);
+    ElNotification.success({
+      title: "Success",
+      message: `${type.replace("-", " ")} email sent successfully`,
+    });
+
     show.value = false;
     resetSendForm();
   } catch (error) {
-    console.error(`Send ${type.replace("-", " ")} error:`, error);
-    ElMessage.error(`Failed to send ${type.replace("-", " ")} email`);
+    ElNotification.error({
+      title: "Error",
+      message: `Failed to send ${type.replace("-", " ")} email`,
+    });
   } finally {
     isSendingEmail.value = false;
   }
