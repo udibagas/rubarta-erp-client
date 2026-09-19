@@ -10,6 +10,7 @@
               @change="refreshData()"
               clearable
               :prefix-icon="ElIconSearch"
+              class="w-50!"
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
@@ -23,11 +24,21 @@
       </el-page-header>
     </template>
 
-    <el-table v-loading="isPending" :data="data" stripe>
+    <el-table
+      v-loading="isPending"
+      :data="data?.data ?? []"
+      stripe
+      height="calc(100vh - 195px)"
+    >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
-      <el-table-column label="GR Number" prop="number" min-width="150">
+      <el-table-column
+        label="GR Number"
+        prop="number"
+        min-width="150"
+        fixed="left"
+      >
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
@@ -95,6 +106,20 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <GoodsReceiptForm ref="goodsReceiptFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
@@ -103,14 +128,14 @@
 definePageMeta({ layout: false });
 
 const goodsReceiptFormRef = ref(null);
-const keyword = ref("");
 
-const { fetchData, refreshData } = useCrud({
+const { fetchData, refreshData, keyword } = useCrud({
   url: "/api/goods-receipts",
   queryKey: "goods-receipts",
 });
 
-const { isPending, data, refetch } = fetchData();
+const { isPending, data, refetch, page, pageSize, currentChange, sizeChange } =
+  fetchData();
 
 const openForm = (data = {}) => {
   goodsReceiptFormRef.value?.openForm(data);
