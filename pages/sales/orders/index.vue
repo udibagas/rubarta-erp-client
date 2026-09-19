@@ -10,6 +10,7 @@
               @change="refetch()"
               clearable
               :prefix-icon="ElIconSearch"
+              class="w-50!"
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
