@@ -33,7 +33,12 @@
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
-      <el-table-column label="Quotation #" prop="number" min-width="150">
+      <el-table-column
+        label="Number"
+        prop="number"
+        min-width="150"
+        fixed="left"
+      >
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
@@ -50,9 +55,12 @@
 
       <el-table-column label="Customer" min-width="200">
         <template #default="{ row }">
-          <div class="font-semibold line-clamp-2">
+          <div class="font-semibold line-clamp-1">
             {{ row.Customer?.name || "-" }}
           </div>
+          <span class="text-xs text-gray-400 line-clamp-1">
+            {{ row.title }}
+          </span>
         </template>
       </el-table-column>
 
