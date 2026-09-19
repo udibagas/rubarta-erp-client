@@ -57,15 +57,7 @@
           </el-tabs>
         </div>
 
-        <div class="w-85 shrink-0 flex flex-col gap-2">
-          <ApprovalList
-            v-if="invoice.status !== 'Draft'"
-            approvalType="INVOICE"
-            :moduleId="invoiceId"
-            @update="() => refetch()"
-          />
-          <InvoiceSummary :invoice="invoice" />
-        </div>
+        <InvoiceSummary :invoice="invoice" />
       </div>
     </div>
 
@@ -145,7 +137,7 @@ const menus = computed(() => [
     action: () => updateInvoiceStatus("Paid"),
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
-    visible: invoice.value?.status === "Confirmed",
+    visible: invoice.value?.status === "Sent",
   },
   {
     label: "Print PDF",
