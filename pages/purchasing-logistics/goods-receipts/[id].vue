@@ -61,12 +61,20 @@
       </div>
     </div>
 
-    <GoodsReceiptForm ref="goodsReceiptFormRef" @saved="() => refetch()" />
+    <GoodsReceiptForm
+      ref="goodsReceiptFormRef"
+      @saved="
+        () => {
+          refetch();
+          queryClient.invalidateQueries({ queryKey: ['goods-receipts'] });
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, queryClient } from "@tanstack/vue-query";
 import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
