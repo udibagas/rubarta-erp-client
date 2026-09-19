@@ -6,7 +6,7 @@
       :xs="24"
       :sm="12"
       :md="8"
-      :lg="4"
+      :lg="8"
       class="mb-4"
     >
       <el-card
@@ -106,28 +106,6 @@ const kpiList = computed(() => [
     subvalue: "142 / 36 orders",
   },
   {
-    id: "conversion",
-    title: "Quote Conversion",
-    value: "68.5%",
-    change: "+4.3%",
-    trend: "up",
-    icon: FileCheck,
-    color: "#8E44AD",
-    sublabel: "Converted Quotes",
-    subvalue: "113 of 165 quotes",
-  },
-  {
-    id: "aov",
-    title: "Avg. Order Value",
-    value: toRupiah("20896700"),
-    change: "+6.1%",
-    trend: "up",
-    icon: CheckCircle2,
-    color: "#E6A23C",
-    sublabel: "Highest Single Order",
-    subvalue: "Rp 320.000.000",
-  },
-  {
     id: "invoices",
     title: "Pending Invoices",
     value: toRupiah("524600000"),
@@ -137,17 +115,6 @@ const kpiList = computed(() => [
     color: "#F56C6C",
     sublabel: "Overdue Receivables",
     subvalue: "4 Invoices (Rp 98.2M)",
-  },
-  {
-    id: "fulfillment",
-    title: "On-Time Fulfillment",
-    value: "95.4%",
-    change: "+1.8%",
-    trend: "up",
-    icon: Truck,
-    color: "#00A896",
-    sublabel: "Avg. Lead Time",
-    subvalue: "3.2 Days",
   },
 ]);
 </script>
