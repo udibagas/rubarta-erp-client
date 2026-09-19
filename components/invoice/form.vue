@@ -434,9 +434,7 @@ const defaultValue = {
   deliveryOrderId: null,
 };
 
-// Local state
 const show = ref(false);
-
 const form = ref({ ...defaultValue });
 const errors = ref({});
 const isSaving = ref(false);
@@ -613,6 +611,15 @@ function loadItemsFromDeliveryOrder(deliveryOrderId) {
 // Expose method to open form from parent
 const openForm = (data = {}) => {
   fetchCustomersAndContacts();
+
+  if (form.value.customerId) {
+    fetchSoByCustomerId(form.value.customerId);
+  }
+
+  if (form.value.salesOrderId) {
+    getDeliveryOrdersBySoId(form.value.salesOrderId);
+  }
+
   form.value = {
     ...data,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
