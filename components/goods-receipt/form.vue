@@ -412,12 +412,8 @@ const save = async () => {
     });
 
     ElMessage.success("Goods receipt saved successfully");
-    emit("saved");
+    emit("saved", res);
     closeForm();
-
-    if (useRoute().path === "/purchasing-logistics/goods-receipts") {
-      navigateTo(`/purchasing-logistics/goods-receipts/${res.id}`);
-    }
   } catch (error) {
     errors.value = parseError(error);
   } finally {

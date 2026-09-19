@@ -120,7 +120,15 @@
       @size-change="sizeChange"
     />
 
-    <GoodsReceiptForm ref="goodsReceiptFormRef" @saved="() => refetch()" />
+    <GoodsReceiptForm
+      ref="goodsReceiptFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/purchasing-logistics/goods-receipts/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
