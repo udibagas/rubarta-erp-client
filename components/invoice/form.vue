@@ -276,6 +276,9 @@
         </template>
 
         <el-table :data="pagedItems" stripe border>
+          <template #empty>
+            <el-empty description="No Items"> </el-empty>
+          </template>
           <el-table-column
             label="#"
             width="60"

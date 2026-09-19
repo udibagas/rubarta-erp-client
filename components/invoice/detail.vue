@@ -14,11 +14,22 @@
       {{ formatDate(invoice.dueDate) }}
     </el-descriptions-item>
     <el-descriptions-item label="Sales Order">
-      {{ invoice.SalesOrder?.number || "-" }}
+      <nuxt-link
+        :to="`/sales/orders/${invoice.salesOrderId}`"
+        class="hover:underline text-green-500"
+      >
+        {{ invoice.SalesOrder?.number || "-" }}
+      </nuxt-link>
     </el-descriptions-item>
     <el-descriptions-item label="Delivery Order">
-      {{ invoice.DeliveryOrder?.number || "-" }}
+      <nuxt-link
+        :to="`/purchasing-logistics/delivery-orders/${invoice.deliveryOrderId}`"
+        class="hover:underline text-green-500"
+      >
+        {{ invoice.DeliveryOrder?.number || "-" }}
+      </nuxt-link>
     </el-descriptions-item>
+
     <el-descriptions-item label="Sales Person">
       {{ invoice.User?.name || "-" }}
     </el-descriptions-item>

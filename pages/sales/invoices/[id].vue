@@ -4,9 +4,9 @@
       <el-page-header @back="goBack">
         <template #content>
           <span class="font-medium mr-2"> #{{ invoice?.number }} </span>
-          <span class="text-sm text-gray-500">{{
-            invoice?.referenceNumber
-          }}</span>
+          <span class="text-sm text-gray-500">
+            {{ invoice?.referenceNumber }}
+          </span>
         </template>
         <template #extra>
           <div class="flex gap-2 items-center">
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
@@ -94,6 +94,8 @@ definePageMeta({ layout: false });
 const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
+const queryClient = useQueryClient();
+
 const invoiceFormRef = ref(null);
 const sendEmailRef = ref(null);
 
@@ -119,8 +121,8 @@ const menus = computed(() => [
     visible: invoice.value?.status === "Draft",
   },
   {
-    label: "Submit",
-    action: handleSubmitButton,
+    label: "Mark As Confirmed",
+    action: () => updateInvoiceStatus("Confirmed"),
     icon: ElIconCircleCheck,
     class: "text-success!",
     visible: invoice.value?.status === "Draft",
@@ -129,35 +131,21 @@ const menus = computed(() => [
     label: "Send",
     action: () => sendEmailRef.value?.openDialog(),
     icon: ElIconMessage,
-    visible: invoice.value?.status === "Approved",
+    visible: invoice.value?.status === "Confirmed",
   },
   {
     label: "Mark As Sent",
     action: () => updateInvoiceStatus("Sent"),
     icon: ElIconCircleCheckFilled,
     class: "text-warning!",
-    visible: invoice.value?.status === "Approved",
-  },
-  {
-    label: "Set To Pending",
-    action: () => updateInvoiceStatus("Pending"),
-    icon: ElIconCircleCheckFilled,
-    class: "text-warning!",
-    visible: invoice.value?.status === "Sent",
+    visible: invoice.value?.status === "Confirmed",
   },
   {
     label: "Set To Paid",
     action: () => updateInvoiceStatus("Paid"),
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
-    visible: invoice.value?.status === "Pending",
-  },
-  {
-    label: "Set To Overdue",
-    action: () => updateInvoiceStatus("Overdue"),
-    icon: ElIconCircleCloseFilled,
-    class: "text-error!",
-    visible: invoice.value?.status === "Pending",
+    visible: invoice.value?.status === "Confirmed",
   },
   {
     label: "Print PDF",
@@ -170,8 +158,9 @@ const menus = computed(() => [
 function editInvoice() {
   const formData = {
     ...invoice.value,
-    items: invoice.value.InvoiceItems || [],
+    items: [...invoice.value.InvoiceItems] || [],
   };
+
   invoiceFormRef.value?.openForm(formData);
 }
 
@@ -191,21 +180,24 @@ function deleteInvoice() {
           method: "DELETE",
         });
 
-        ElMessage({
+        ElNotification.success({
           type: "success",
           message: "Invoice deleted successfully",
         });
 
-        // Redirect to the invoices list page after deletion
         navigateTo("/sales/invoices");
+        queryClient.invalidateQueries("invoices");
       } catch (error) {
         console.error("Delete invoice error:", error);
-        ElMessage.error("Failed to delete invoice");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to delete invoice",
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Invoice deletion canceled",
       });
     });
@@ -213,10 +205,9 @@ function deleteInvoice() {
 
 async function updateInvoiceStatus(status) {
   const successMessages = {
+    Confirmed: "Invoice marked as confirmed",
     Sent: "Invoice marked as sent",
-    Pending: "Invoice marked as pending",
     Paid: "Invoice marked as paid",
-    Overdue: "Invoice marked as overdue",
   };
 
   const successMessage = successMessages[status] || "Invoice status updated";
@@ -232,50 +223,29 @@ async function updateInvoiceStatus(status) {
   )
     .then(async () => {
       try {
-        await request(`/api/invoices/${invoiceId}`, {
+        await request(`/api/invoices/${invoiceId}/status`, {
           method: "PATCH",
           body: { status },
         });
 
-        ElMessage.success(successMessage);
-        refetch();
-      } catch (error) {
-        console.error("Update invoice status error:", error);
-        ElMessage.error("Failed to update invoice status");
-      }
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: `Invoice ${status.toLowerCase()} canceled`,
-      });
-    });
-}
-
-function handleSubmitButton() {
-  ElMessageBox.confirm("Submit this invoice for approval?", "Confirm", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "success",
-  })
-    .then(async () => {
-      try {
-        await request(`/api/invoices/${invoiceId}`, {
-          method: "PATCH",
-          body: { status: "Submitted" },
+        ElNotification.success({
+          title: "Success",
+          message: successMessage,
         });
 
-        ElMessage.success("Invoice submitted for approval");
         refetch();
+        queryClient.invalidateQueries("invoices");
       } catch (error) {
-        console.error("Submit invoice error:", error);
-        ElMessage.error("Failed to submit invoice");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to update invoice status",
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "Invoice submission canceled",
+      ElNotification.info({
+        title: "Info",
+        message: `Invoice ${status.toLowerCase()} canceled`,
       });
     });
 }

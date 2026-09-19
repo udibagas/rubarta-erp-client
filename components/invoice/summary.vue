@@ -30,13 +30,6 @@
         </div>
       </div>
 
-      <div class="rounded-lg bg-red-50 p-3">
-        <div class="text-xs text-gray-500 uppercase">Balance Due</div>
-        <div class="mt-1 font-semibold font-mono text-lg">
-          {{ toDecimal(balanceDue) }}
-        </div>
-      </div>
-
       <div class="rounded-lg bg-green-50 p-3">
         <div class="text-xs text-gray-500 uppercase">Total Items</div>
         <div class="mt-1 font-semibold font-mono text-lg">
@@ -97,19 +90,5 @@ const totalItems = computed(() => {
   return props.invoice.InvoiceItems.reduce((sum, item) => {
     return sum + (item.quantity || 0);
   }, 0);
-});
-
-const paidAmount = computed(() => {
-  if (!props.invoice || !props.invoice.Payments) {
-    return 0;
-  }
-
-  return props.invoice.Payments.reduce((sum, payment) => {
-    return sum + (payment.amount || 0);
-  }, 0);
-});
-
-const balanceDue = computed(() => {
-  return (props.invoice.grandTotal || 0) - paidAmount.value;
 });
 </script>

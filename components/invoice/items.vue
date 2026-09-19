@@ -1,18 +1,18 @@
 <template>
   <el-table :data="paginatedItems" stripe border>
     <el-table-column type="index" label="#" width="60" :index="indexOffset" />
-    <el-table-column label="Part Number" prop="partNumber" width="130">
+
+    <el-table-column label="Part Number" prop="partNumber">
       <template #default="{ row }">
-        <span class="font-mono font-semibold">
+        <div class="font-mono font-semibold">
           {{ row.partNumber }}
+        </div>
+        <span class="text-xs text-gray-400 line-clamp-1">
+          {{ row.description }}
         </span>
       </template>
     </el-table-column>
-    <el-table-column label="Description" min-width="200">
-      <template #default="{ row }">
-        {{ row.description }}
-      </template>
-    </el-table-column>
+
     <el-table-column label="Qty" width="80" align="center">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
