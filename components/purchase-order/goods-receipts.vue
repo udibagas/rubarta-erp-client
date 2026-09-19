@@ -1,5 +1,11 @@
 <template>
-  <el-button :icon="ElIconPlus" type="success" @click="openForm()" class="mb-4">
+  <el-button
+    v-if="purchaseOrder.status !== 'Completed'"
+    :icon="ElIconPlus"
+    type="success"
+    @click="openForm()"
+    class="mb-4"
+  >
     Add Goods Receipt
   </el-button>
 
