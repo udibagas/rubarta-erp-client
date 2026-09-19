@@ -10,6 +10,7 @@
               @change="refetch()"
               clearable
               :prefix-icon="ElIconSearch"
+              class="w-50!"
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
@@ -91,6 +92,9 @@
           <div class="font-mono font-semibold">
             {{ toCurrency(row.grandTotal, row.currency) }}
           </div>
+          <span class="text-xs text-gray-400">
+            {{ toDecimal(row._count.InvoiceItems) }} items
+          </span>
         </template>
       </el-table-column>
 
