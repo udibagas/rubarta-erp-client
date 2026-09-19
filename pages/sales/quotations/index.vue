@@ -10,6 +10,7 @@
               @change="refreshData()"
               clearable
               :prefix-icon="ElIconSearch"
+              class="w-50!"
             />
 
             <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
@@ -32,7 +33,12 @@
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
-      <el-table-column label="Quotation #" prop="number" min-width="150">
+      <el-table-column
+        label="Quotation #"
+        prop="number"
+        min-width="150"
+        fixed="left"
+      >
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
@@ -136,26 +142,24 @@
       @current-change="currentChange"
       @size-change="sizeChange"
     />
-
-    <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
 
 <script setup>
 definePageMeta({ layout: false });
 
-const quotationFormRef = ref(null);
-const keyword = ref("");
-
-const { fetchData, refreshData, page, pageSize, currentChange, sizeChange } =
-  useCrud({
-    url: "/api/quotations",
-    queryKey: "quotations",
-  });
+const {
+  fetchData,
+  refreshData,
+  page,
+  pageSize,
+  currentChange,
+  sizeChange,
+  keyword,
+} = useCrud({
+  url: "/api/quotations",
+  queryKey: "quotations",
+});
 
 const { isPending, data, refetch } = fetchData();
-
-const openForm = (data = {}) => {
-  quotationFormRef.value?.openForm(data);
-};
 </script>
