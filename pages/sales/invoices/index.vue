@@ -23,7 +23,12 @@
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data?.data ?? []">
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data ?? []"
+      height="calc(100vh - 200px)"
+    >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
@@ -36,8 +41,8 @@
           >
             {{ row.number }}
           </el-link>
-          <div class="text-sm text-gray-500">
-            {{ formatDate(row.createdAt) }}
+          <div class="text-xs text-gray-400">
+            {{ formatDate(row.date) }}
           </div>
         </template>
       </el-table-column>
@@ -47,37 +52,30 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Customer?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-500 line-clamp-1">
-            {{ row.contactPerson }}
+          <div class="text-xs text-gray-400 line-clamp-1">
+            Ref No. {{ row.referenceNumber }}
           </div>
-          <div class="text-xs text-gray-500 line-clamp-1">
-            {{ row.contactEmail }}
+        </template>
+      </el-table-column>
+
+      <el-table-column label="SO / DO" min-width="200">
+        <template #default="{ row }">
+          <div>
+            {{ row.SalesOrder?.number || "-" }}
           </div>
-          <div class="text-xs text-gray-500 line-clamp-1">
-            {{ row.contactPhone }}
+          <div>
+            {{ row.DeliveryOrder?.number }}
           </div>
         </template>
       </el-table-column>
 
       <el-table-column label="Due Date" width="120">
         <template #default="{ row }">
-          {{ formatDate(row.dueDate) }}
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Sales Person" prop="User.name" min-width="150">
-        <template #default="{ row }">
-          <div class="flex items-center gap-2">
-            <el-avatar
-              :size="24"
-              :style="{ backgroundColor: getAvatarColor(row.User?.name || '') }"
-              class="shrink-0"
-            >
-              {{ row.User?.name?.charAt(0).toUpperCase() }}
-            </el-avatar>
-            <div class="line-clamp-1 font-semibold">
-              {{ row.User?.name || "-" }}
-            </div>
+          <div>
+            {{ formatDate(row.dueDate) }}
+          </div>
+          <div class="text-xs text-gray-400">
+            {{ dayjs(row.dueDate).fromNow() }}
           </div>
         </template>
       </el-table-column>
@@ -89,14 +87,9 @@
         header-align="right"
       >
         <template #default="{ row }">
-          <el-tag
-            class="font-mono font-semibold"
-            size="small"
-            type="success"
-            effect="plain"
-          >
+          <div class="font-mono font-semibold">
             {{ toCurrency(row.grandTotal, row.currency) }}
-          </el-tag>
+          </div>
         </template>
       </el-table-column>
 
@@ -133,6 +126,10 @@
 </template>
 
 <script setup>
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 definePageMeta({ layout: false });
 
 const invoiceFormRef = ref(null);

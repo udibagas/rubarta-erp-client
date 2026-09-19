@@ -52,7 +52,7 @@
 
   <template v-if="invoice.attachments?.length">
     <el-divider content-position="left">Attachments</el-divider>
-    <div class="flex flex-col gap-1">
+    <div class="flex gap-2">
       <el-link
         v-for="(doc, i) in invoice.attachments"
         :key="i"
