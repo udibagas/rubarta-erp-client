@@ -23,12 +23,17 @@
       stripe
       v-loading="isPending"
       :data="data?.data ?? []"
-      height="calc(100vh - 200px)"
+      height="calc(100vh - 195px)"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
-      <el-table-column label="Invoice #" prop="number" min-width="150">
+      <el-table-column
+        label="Invoice #"
+        prop="number"
+        min-width="150"
+        fixed="left"
+      >
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
