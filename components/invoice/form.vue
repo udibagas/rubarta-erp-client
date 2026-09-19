@@ -58,9 +58,7 @@
                 </template>
               </el-select>
             </el-form-item>
-          </el-col>
 
-          <el-col :span="12">
             <el-form-item label="Contact Phone" :error="errors.contactPhone">
               <el-input
                 placeholder="Contact phone number"
@@ -81,6 +79,32 @@
                   <el-icon><ElIconMessage /></el-icon>
                 </template>
               </el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item
+              label="Billing Address"
+              :error="errors.billingAddress"
+            >
+              <el-input
+                placeholder="Billing address"
+                v-model="form.billingAddress"
+                type="textarea"
+                :rows="3"
+              />
+            </el-form-item>
+
+            <el-form-item
+              label="Shipping Address"
+              :error="errors.shippingAddress"
+            >
+              <el-input
+                placeholder="Shipping address"
+                v-model="form.shippingAddress"
+                type="textarea"
+                :rows="3"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -194,23 +218,6 @@
                 />
               </el-select>
             </el-form-item>
-
-            <el-form-item label="Attachments">
-              <el-upload
-                v-model:file-list="fileList"
-                :action="`${config.public.apiBase}/api/file`"
-                :with-credentials="true"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :on-success="handleSuccess"
-                :multiple="true"
-                class="w-full"
-              >
-                <el-button plain :icon="ElIconUpload"> Upload </el-button>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="Term of Payment" :error="errors.termOfPayment">
               <el-select
                 v-model="form.termOfPayment"
@@ -224,6 +231,35 @@
                   :label="term.label"
                 />
               </el-select>
+            </el-form-item>
+
+            <el-form-item label="Currency" :error="errors.currency">
+              <el-radio-group v-model="form.currency">
+                <el-radio
+                  v-for="currency in currencies"
+                  :key="currency"
+                  :value="currency"
+                >
+                  {{ currency }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="Attachments">
+              <el-upload
+                v-model:file-list="fileList"
+                :action="`${config.public.apiBase}/api/file`"
+                :with-credentials="true"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :on-success="handleSuccess"
+                :multiple="true"
+                class="w-full"
+              >
+                <el-button plain :icon="ElIconUpload"> Upload </el-button>
+              </el-upload>
             </el-form-item>
           </el-col>
         </el-row>
@@ -316,11 +352,9 @@
               </div>
               <div class="flex justify-between text-base">
                 <span>Discount:</span>
-                <el-input-number
-                  v-model="form.discount"
-                  :min="0"
-                  :precision="2"
-                  controls-position="right"
+                <el-input
+                  v-model.number="form.discount"
+                  type="number"
                   @change="calculateTotals"
                   class="font-mono font-bold w-[200px]!"
                 />
@@ -371,7 +405,7 @@
 </template>
 
 <script setup>
-import { paymentMethods, termOfPayments } from "~/constants";
+import { paymentMethods, termOfPayments, currencies } from "~/constants";
 import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 
@@ -381,7 +415,6 @@ const request = useRequest();
 const config = useRuntimeConfig();
 
 const defaultValue = {
-  status: "Draft",
   discount: 0,
   items: [],
   date: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
@@ -391,6 +424,11 @@ const defaultValue = {
   contactPerson: "",
   contactPhone: "",
   contactEmail: "",
+  billingAddress: "",
+  shippingAddress: "",
+  customerId: null,
+  salesOrderId: null,
+  deliveryOrderId: null,
 };
 
 // Local state
@@ -495,6 +533,34 @@ async function getDeliveryOrdersBySoId(salesOrderId) {
   } catch (e) {
     console.error("Failed to get delivery orders by sales order ID:", e);
   }
+}
+
+function handleChangeCustomer(customerId) {
+  fetchSoByCustomerId(customerId);
+  const customer = customers.value.find((c) => c.id === customerId);
+  if (!customer) return;
+
+  form.value.billingAddress = customer.address || "";
+  form.value.shippingAddress = customer.address || "";
+
+  contacts.value = customer.Contacts || [];
+  const contact = customer.Contacts?.[0];
+
+  if (contact) {
+    form.value.contactPerson = contact.name || "";
+    form.value.contactPhone = contact.phone || "";
+    form.value.contactEmail = contact.email || "";
+  } else {
+    form.value.contactPerson = "";
+    form.value.contactPhone = customer.phone || "";
+    form.value.contactEmail = customer.email || "";
+  }
+}
+
+function handleContactChange(contactName) {
+  const contact = contacts.value.find((c) => c.name === contactName);
+  form.value.contactPhone = contact?.phone || "";
+  form.value.contactEmail = contact?.email || "";
 }
 
 function loadFormFromSalesOrder(salesOrderId) {
@@ -685,27 +751,6 @@ function handleRemove(file) {
       showClose: true,
     });
   });
-}
-
-function handleChangeCustomer(customerId) {
-  fetchSoByCustomerId(customerId);
-  const customer = customers.value.find((c) => c.id === customerId);
-  if (!customer) return;
-
-  contacts.value = customer.Contacts || [];
-  const contact = customer.Contacts?.[0];
-
-  if (contact) {
-    form.value.contactPerson = contact.name || "";
-    form.value.contactPhone = contact.phone || "";
-    form.value.contactEmail = contact.email || "";
-  }
-}
-
-function handleContactChange(contactName) {
-  const contact = contacts.value.find((c) => c.name === contactName);
-  form.value.contactPhone = contact?.phone || "";
-  form.value.contactEmail = contact?.email || "";
 }
 
 defineExpose({ openForm });
