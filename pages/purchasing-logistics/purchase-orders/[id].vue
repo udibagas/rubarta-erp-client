@@ -52,6 +52,9 @@
             <el-tab-pane label="PURCHASE ORDER ITEMS">
               <PurchaseOrderItems :purchaseOrder="purchaseOrder" />
             </el-tab-pane>
+            <el-tab-pane label="GOODS RECEIPTS">
+              <PurchaseOrderGoodsReceipts :purchaseOrder="purchaseOrder" />
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -71,7 +74,7 @@
       ref="sendEmailRef"
       type="purchase-order"
       :data="purchaseOrder"
-      :on-preview="previewQuotation"
+      :on-preview="previewPurchaseOrder"
       :to="purchaseOrder?.Supplier?.email ?? ''"
       :recipient-name="purchaseOrder?.Supplier?.name ?? ''"
       :cc="purchaseOrder?.User?.email ?? ''"
