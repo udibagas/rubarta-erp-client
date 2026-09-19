@@ -23,7 +23,12 @@
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data">
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
+    >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
@@ -118,6 +123,20 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
@@ -128,10 +147,11 @@ definePageMeta({ layout: false });
 const quotationFormRef = ref(null);
 const keyword = ref("");
 
-const { fetchData, refreshData } = useCrud({
-  url: "/api/quotations",
-  queryKey: "quotations",
-});
+const { fetchData, refreshData, page, pageSize, currentChange, sizeChange } =
+  useCrud({
+    url: "/api/quotations",
+    queryKey: "quotations",
+  });
 
 const { isPending, data, refetch } = fetchData();
 
