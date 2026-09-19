@@ -141,7 +141,7 @@ const menus = computed(() => [
     visible: invoice.value?.status === "Confirmed",
   },
   {
-    label: "Set To Paid",
+    label: "Mark As Paid",
     action: () => updateInvoiceStatus("Paid"),
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
