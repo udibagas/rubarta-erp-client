@@ -19,11 +19,21 @@
       </el-page-header>
     </template>
 
-    <el-table stripe v-loading="isPending" :data="data">
+    <el-table
+      stripe
+      v-loading="isPending"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
+    >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
       </template>
-      <el-table-column label="Order No." prop="number" min-width="150">
+      <el-table-column
+        label="Order No."
+        prop="number"
+        min-width="150"
+        fixed="left"
+      >
         <template #default="{ row }">
           <el-link
             class="font-mono font-semibold!"
@@ -110,6 +120,20 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
   </nuxt-layout>
 </template>
@@ -119,10 +143,11 @@ definePageMeta({ layout: false });
 
 const orderFormRef = ref(null);
 
-const { fetchData, keyword } = useCrud({
-  url: "/api/sales-orders",
-  queryKey: "orders",
-});
+const { fetchData, keyword, page, pageSize, currentChange, sizeChange } =
+  useCrud({
+    url: "/api/sales-orders",
+    queryKey: "orders",
+  });
 
 const { isPending, data, refetch } = fetchData();
 
