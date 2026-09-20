@@ -535,7 +535,7 @@
               <div class="flex justify-between text-base">
                 <span>Subtotal:</span>
                 <div
-                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.subtotal) }}
                 </div>
@@ -545,7 +545,7 @@
                 <el-input
                   v-model="form.discount"
                   @change="calculateTotals"
-                  class="font-mono font-bold w-[200px]!"
+                  class="font-mono font-bold w-50!"
                   :parser="
                     (v) => Number(v.replace(/\./g, '').replace(',', '.'))
                   "
@@ -562,7 +562,7 @@
               <div class="flex justify-between text-base">
                 <span class="flex-1">VAT (11%):</span>
                 <div
-                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.vat) }}
                 </div>
@@ -572,7 +572,7 @@
               >
                 <span>Grand Total:</span>
                 <div
-                  class="font-mono w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.grandTotal) }}
                 </div>
@@ -782,12 +782,8 @@ const save = async () => {
     });
 
     ElMessage.success("Sales Order saved successfully");
-    emit("saved");
+    emit("saved", res);
     closeForm();
-
-    if (useRoute().path === "/sales/orders") {
-      navigateTo(`/sales/orders/${res.id}`);
-    }
   } catch (error) {
     errors.value = parseError(error);
   } finally {

@@ -135,7 +135,15 @@
       @size-change="sizeChange"
     />
 
-    <SalesOrderForm ref="orderFormRef" @saved="() => refetch()" />
+    <SalesOrderForm
+      ref="orderFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/sales/orders/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
