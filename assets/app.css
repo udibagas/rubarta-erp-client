@@ -21,3 +21,7 @@
 .el-dialog__body {
   word-break: normal;
 }
+
+.el-page-header__title {
+  color: gray;
+}

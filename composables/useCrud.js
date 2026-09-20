@@ -11,14 +11,26 @@ export default ({ url, queryKey, defaultQuery }) => {
 
   const queryClient = useQueryClient();
   const request = useRequest();
-  const params = computed(() => ({
-    page: page.value,
-    pageSize: pageSize.value,
-    keyword: keyword.value,
-    companyId: companyId.value,
-    ...defaultQuery,
-    ...filters.value,
-  }));
+  const params = computed(() => {
+    const cleanFilters = Object.fromEntries(
+      Object.entries(filters.value).filter(
+        ([, value]) =>
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0),
+      ),
+    );
+
+    return {
+      page: page.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value,
+      companyId: companyId.value,
+      ...defaultQuery,
+      ...cleanFilters,
+    };
+  });
 
   function fetchData() {
     return useQuery({
