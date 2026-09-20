@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 
   compatibilityDate: "2024-07-21",
 
-  alias: {
-    dayjs: "dayjs",
-  },
+  // alias: {
+  //   dayjs: "dayjs",
+  // },
 });

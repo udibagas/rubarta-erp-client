@@ -14,7 +14,7 @@
               Recent Sales Activities
             </div>
             <div class="text-xs text-gray-500">
-              Real-time audit of sales orders, quotes & deliveries
+              Real-time feed of quotations, orders, deliveries & invoices
             </div>
           </div>
         </div>
@@ -23,22 +23,31 @@
           v-model="selectedType"
           size="small"
           placeholder="Filter Type"
-          style="width: 130px"
+          style="width: 150px"
         >
           <el-option label="All Types" value="ALL" />
-          <el-option label="Sales Orders" value="ORDER" />
-          <el-option label="Quotations" value="QUOTATION" />
-          <el-option label="Invoices" value="INVOICE" />
-          <el-option label="Deliveries" value="DELIVERY" />
+          <el-option
+            v-for="type in typeOptions"
+            :key="type.value"
+            :label="type.label"
+            :value="type.value"
+          />
         </el-select>
       </div>
     </template>
 
-    <div class="flow-root">
+    <div
+      v-if="!filteredActivities.length"
+      class="py-8 text-center text-sm text-gray-400"
+    >
+      No recent activity
+    </div>
+
+    <div v-else class="flow-root">
       <ul role="list" class="-mb-8">
         <li
           v-for="(act, actIdx) in filteredActivities"
-          :key="act.id"
+          :key="`${act.type}-${act.id}`"
           class="relative pb-6"
         >
           <span
@@ -50,10 +59,10 @@
             <div>
               <span
                 class="h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-white shadow-sm"
-                :class="act.iconBg"
+                :style="{ backgroundColor: act.meta.color }"
               >
                 <component
-                  :is="act.icon"
+                  :is="act.meta.icon"
                   class="h-4 w-4 text-white"
                   aria-hidden="true"
                 />
@@ -66,33 +75,26 @@
                     class="hover:text-emerald-600 transition-colors cursor-pointer"
                     @click="handleAction(act)"
                   >
-                    {{ act.title }}
+                    {{ act.meta.label }} {{ act.number }}
                   </span>
                 </div>
                 <div class="text-[11px] text-gray-400 whitespace-nowrap">
-                  {{ act.timeAgo }}
+                  {{ dayjs(act.date).fromNow() }}
                 </div>
               </div>
 
               <div class="mt-0.5 text-xs text-gray-600">
-                {{ act.description }}
+                Status: {{ act.status }}
               </div>
 
-              <div class="mt-1.5 flex items-center gap-2 flex-wrap text-[11px]">
+              <div
+                v-if="act.amount != null"
+                class="mt-1.5 flex items-center gap-2 flex-wrap text-[11px]"
+              >
                 <span
-                  v-if="act.customer"
-                  class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium"
-                >
-                  🏢 {{ act.customer }}
-                </span>
-                <span
-                  v-if="act.amount"
                   class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold font-mono"
                 >
-                  {{ act.amount }}
-                </span>
-                <span class="text-gray-400">
-                  by <span class="text-gray-600">{{ act.user }}</span>
+                  {{ toRupiah(String(act.amount)) }}
                 </span>
               </div>
             </div>
@@ -105,94 +107,40 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import {
-  Activity,
-  ShoppingCart,
-  FileText,
-  Receipt,
-  Truck,
-  CheckCircle2,
-} from "lucide-vue-next";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { Activity } from "lucide-vue-next";
 import { toRupiah } from "@/utils/number";
+import { documentTypeMeta, getDocumentTypeMeta } from "@/utils/documentType";
+import type { SalesDashboardData } from "@/types/salesDashboard.types";
+
+dayjs.extend(relativeTime);
+
+const props = defineProps<{
+  data?: SalesDashboardData | null;
+}>();
 
 const selectedType = ref("ALL");
 
-const activities = [
-  {
-    id: 1,
-    type: "ORDER",
-    title: "New Sales Order Confirmed (#SO-2026-0184)",
-    description: "Order confirmed and approved for production dispatch",
-    customer: "PT Petrokimia Nusantara",
-    amount: toRupiah("345000000"),
-    user: "Budi Santoso",
-    timeAgo: "12 mins ago",
-    link: "/sales/orders",
-    icon: ShoppingCart,
-    iconBg: "bg-emerald-600",
-  },
-  {
-    id: 2,
-    type: "INVOICE",
-    title: "Invoice Paid in Full (#INV-2026-0092)",
-    description: "Payment received via Mandiri Virtual Account",
-    customer: "PT Wijaya Karya Industri",
-    amount: toRupiah("128500000"),
-    user: "Finance Dept",
-    timeAgo: "45 mins ago",
-    link: "/sales/invoices",
-    icon: CheckCircle2,
-    iconBg: "bg-green-600",
-  },
-  {
-    id: 3,
-    type: "QUOTATION",
-    title: "Quotation Sent to Client (#SQ-2026-0245)",
-    description: "Proposal for High Pressure Pipe fittings submitted",
-    customer: "PT Astra Heavy Industries",
-    amount: toRupiah("520000000"),
-    user: "Siti Rahmawati",
-    timeAgo: "2 hours ago",
-    link: "/sales/quotations",
-    icon: FileText,
-    iconBg: "bg-blue-500",
-  },
-  {
-    id: 4,
-    type: "DELIVERY",
-    title: "Delivery Order Dispatched (#DO-2026-0078)",
-    description: "Batch shipment dispatched from Cikarang Warehouse",
-    customer: "PT Trias Sentosa Tbk",
-    amount: null,
-    user: "Logistics Team",
-    timeAgo: "3 hours ago",
-    link: "/purchasing-logistics/delivery-orders",
-    icon: Truck,
-    iconBg: "bg-teal-600",
-  },
-  {
-    id: 5,
-    type: "QUOTATION",
-    title: "Quotation Approved (#SQ-2026-0239)",
-    description: "Special pricing discount approved by Director",
-    customer: "PT Indofood CBP Sukses",
-    amount: toRupiah("88400000"),
-    user: "Dewi Lestari",
-    timeAgo: "5 hours ago",
-    link: "/sales/quotations",
-    icon: Receipt,
-    iconBg: "bg-purple-500",
-  },
-];
+const typeOptions = Object.entries(documentTypeMeta).map(([value, meta]) => ({
+  value,
+  label: meta.label,
+}));
+
+const activities = computed(
+  () =>
+    props.data?.recent?.map((item) => ({
+      ...item,
+      meta: getDocumentTypeMeta(item.type),
+    })) ?? [],
+);
 
 const filteredActivities = computed(() => {
-  if (selectedType.value === "ALL") return activities;
-  return activities.filter((act) => act.type === selectedType.value);
+  if (selectedType.value === "ALL") return activities.value;
+  return activities.value.filter((act) => act.type === selectedType.value);
 });
 
-const handleAction = (act: any) => {
-  if (act.link) {
-    navigateTo(act.link);
-  }
+const handleAction = (act: { meta: { route: string }; id: number }) => {
+  navigateTo(`${act.meta.route}/${act.id}`);
 };
 </script>

@@ -30,26 +30,13 @@
 
         <!-- Filters & Actions Header Bar -->
         <div class="flex items-center gap-2 flex-wrap">
-          <el-select
-            v-model="selectedBranch"
-            size="default"
-            placeholder="All Branches"
-            style="width: 140px"
-            @change="handleFilterChange"
-          >
-            <el-option label="All Branches" value="ALL" />
-            <el-option label="Jakarta HQ" value="JKT" />
-            <el-option label="Surabaya Branch" value="SBY" />
-            <el-option label="Medan Branch" value="MDN" />
-          </el-select>
-
           <el-date-picker
             v-model="dateRange"
             type="daterange"
             range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
-            format="DD/MM/YYYY"
+            format="DD-MMM-YYYY"
             value-format="YYYY-MM-DD"
             size="default"
             style="width: 250px"
@@ -66,40 +53,15 @@
             </template>
             Refresh
           </el-button>
-
-          <el-dropdown trigger="click" @command="handleExport">
-            <el-button type="default">
-              <Download :size="15" class="mr-1" />
-              Export
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="pdf"
-                  >Export PDF Report</el-dropdown-item
-                >
-                <el-dropdown-item command="excel"
-                  >Export Excel Spreadsheet</el-dropdown-item
-                >
-                <el-dropdown-item command="csv"
-                  >Export CSV Raw Data</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-
-          <el-button type="success" @click="navigateTo('/sales/orders')">
-            <Plus :size="15" class="mr-1" />
-            New Order
-          </el-button>
         </div>
       </div>
     </template>
 
     <!-- Main Dashboard Container -->
-    <div class="p-2 space-y-6" v-loading="isRefreshing">
+    <div class="p-2 space-y-6" v-loading="isRefreshing || isPending">
       <!-- 1. KPI Statistic Cards -->
       <section>
-        <SalesDashboardKpi :period="selectedPeriod" />
+        <SalesDashboardKpi :data="data" />
       </section>
 
       <!-- 2. Revenue Chart & Order Status Distribution -->
@@ -109,7 +71,7 @@
             <SalesDashboardRevenueTrend />
           </el-col>
           <el-col :xs="24" :lg="9">
-            <SalesDashboardOrderStatus />
+            <SalesDashboardOrderStatus :data="data" />
           </el-col>
         </el-row>
       </section>
@@ -118,10 +80,10 @@
       <section>
         <el-row :gutter="16">
           <el-col :xs="24" :lg="12" class="mb-4 lg:mb-0">
-            <SalesDashboardTopProducts />
+            <SalesDashboardTopProducts :data="data" />
           </el-col>
           <el-col :xs="24" :lg="12">
-            <SalesDashboardSalesPerformance />
+            <SalesDashboardSalesPerformance :data="data" />
           </el-col>
         </el-row>
       </section>
@@ -130,11 +92,11 @@
       <section>
         <el-row :gutter="16">
           <el-col :xs="24" :xl="16" class="mb-4 xl:mb-0">
-            <SalesDashboardRecentOrders />
+            <SalesDashboardRecentOrders :data="data" />
             <br />
           </el-col>
           <el-col :xs="24" :xl="8">
-            <SalesDashboardRecentActivities />
+            <SalesDashboardRecentActivities :data="data" />
           </el-col>
         </el-row>
       </section>
@@ -146,11 +108,15 @@
 import { ref, onMounted } from "vue";
 import { RefreshCw, Download, Plus } from "lucide-vue-next";
 import { ElMessage } from "element-plus";
+import { useQuery } from "@tanstack/vue-query";
+import type { SalesDashboardData } from "@/types/salesDashboard.types";
 
 // Define page layout
 definePageMeta({
   layout: false,
 });
+
+const request = useRequest();
 
 // State
 const selectedBranch = ref("ALL");
@@ -158,9 +124,10 @@ const selectedPeriod = ref("this-month");
 const dateRange = ref<string[]>([]);
 const isRefreshing = ref(false);
 
-const goBack = () => {
-  navigateTo("/reports");
-};
+const { data, isPending } = useQuery<SalesDashboardData>({
+  queryKey: ["sales-dashboard", selectedBranch.value, selectedPeriod.value],
+  queryFn: () => request(`/api/sales-dashboard/summary`),
+});
 
 const handleFilterChange = () => {
   refreshDashboard();

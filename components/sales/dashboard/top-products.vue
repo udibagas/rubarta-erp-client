@@ -11,25 +11,32 @@
           </div>
           <div>
             <div class="font-semibold text-gray-800 text-base">
-              Top Selling Products
+              Quotation Status Breakdown
             </div>
             <div class="text-xs text-gray-500">
-              Highest grossing inventory items & materials
+              Quotation value ranked by current status
             </div>
           </div>
         </div>
 
         <el-radio-group v-model="viewMode" size="small">
-          <el-radio-button value="revenue">Revenue</el-radio-button>
-          <el-radio-button value="quantity">Units Sold</el-radio-button>
+          <el-radio-button value="amount">Amount</el-radio-button>
+          <el-radio-button value="count">Docs</el-radio-button>
         </el-radio-group>
       </div>
     </template>
 
-    <div class="space-y-3.5">
+    <div
+      v-if="!rankedStatuses.length"
+      class="py-8 text-center text-sm text-gray-400"
+    >
+      No quotation data available
+    </div>
+
+    <div v-else class="space-y-3.5">
       <div
-        v-for="(product, index) in topProducts"
-        :key="product.sku"
+        v-for="(item, index) in rankedStatuses"
+        :key="item.status"
         class="group p-2.5 rounded-lg border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all duration-200"
       >
         <div class="flex items-center justify-between gap-2 mb-1.5">
@@ -52,12 +59,10 @@
               <div
                 class="text-xs font-semibold text-gray-800 truncate group-hover:text-emerald-700"
               >
-                {{ product.name }}
+                {{ item.status }}
               </div>
-              <div class="text-[11px] text-gray-400 flex items-center gap-2">
-                <span>SKU: {{ product.sku }}</span>
-                <span>&bull;</span>
-                <span class="text-gray-500">{{ product.category }}</span>
+              <div class="text-[11px] text-gray-400">
+                {{ item.count }} Quotation{{ item.count === 1 ? "" : "s" }}
               </div>
             </div>
           </div>
@@ -65,13 +70,10 @@
           <div class="text-right shrink-0">
             <div class="text-xs font-bold text-gray-800">
               {{
-                viewMode === "revenue"
-                  ? product.formattedRevenue
-                  : `${product.quantity} ${product.unit}`
+                viewMode === "amount"
+                  ? item.formattedAmount
+                  : `${item.count} Docs`
               }}
-            </div>
-            <div class="text-[11px] text-emerald-600 font-medium">
-              {{ product.growth }}
             </div>
           </div>
         </div>
@@ -80,7 +82,7 @@
         <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
           <div
             class="h-full rounded-full bg-emerald-500 transition-all duration-500"
-            :style="{ width: `${product.share}%` }"
+            :style="{ width: `${item.share}%` }"
           ></div>
         </div>
       </div>
@@ -89,67 +91,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { Package } from "lucide-vue-next";
 import { toRupiah } from "@/utils/number";
+import type { SalesDashboardData } from "@/types/salesDashboard.types";
 
-const viewMode = ref<"revenue" | "quantity">("revenue");
+const props = defineProps<{
+  data?: SalesDashboardData | null;
+}>();
 
-const topProducts = [
-  {
-    sku: "MAT-SS-304-01",
-    name: "Stainless Steel Plate 304 2B 1.2mm x 4' x 8'",
-    category: "Sheet & Plates",
-    revenue: "645000000",
-    formattedRevenue: toRupiah("645000000"),
-    quantity: 420,
-    unit: "Sheets",
-    share: 88,
-    growth: "+18.2%",
-  },
-  {
-    sku: "MAT-CS-PIPE-04",
-    name: 'Seamless Carbon Steel Pipe ASTM A106 Gr.B 4" Sch 40',
-    category: "Pipes & Tubes",
-    revenue: "512000000",
-    formattedRevenue: toRupiah("512000000"),
-    quantity: 680,
-    unit: "Mtr",
-    share: 72,
-    growth: "+12.5%",
-  },
-  {
-    sku: "MAT-FLG-WN-06",
-    name: "Flange ANSI 150# RF WNRF 6 inch A105",
-    category: "Flanges & Fittings",
-    revenue: "389000000",
-    formattedRevenue: toRupiah("389000000"),
-    quantity: 340,
-    unit: "Pcs",
-    share: 56,
-    growth: "+9.4%",
-  },
-  {
-    sku: "MAT-VLV-BALL-02",
-    name: "Cast Steel Ball Valve Class 300 2 inch Flanged",
-    category: "Valves",
-    revenue: "275000000",
-    formattedRevenue: toRupiah("275000000"),
-    quantity: 115,
-    unit: "Pcs",
-    share: 42,
-    growth: "+15.0%",
-  },
-  {
-    sku: "MAT-ELB-90-03",
-    name: 'Elbow 90 Deg Long Radius Sch 40 Carbon Steel 3"',
-    category: "Flanges & Fittings",
-    revenue: "198000000",
-    formattedRevenue: toRupiah("198000000"),
-    quantity: 520,
-    unit: "Pcs",
-    share: 32,
-    growth: "+7.8%",
-  },
-];
+const viewMode = ref<"amount" | "count">("amount");
+
+const rankedStatuses = computed(() => {
+  const items = props.data?.statusBreakdown?.quotations ?? [];
+  const maxValue = Math.max(
+    ...items.map((item) =>
+      viewMode.value === "amount" ? item.amount : item.count,
+    ),
+    1,
+  );
+
+  return [...items]
+    .sort((a, b) =>
+      viewMode.value === "amount" ? b.amount - a.amount : b.count - a.count,
+    )
+    .map((item) => ({
+      status: item.status,
+      count: item.count,
+      formattedAmount: toRupiah(String(item.amount)),
+      share:
+        ((viewMode.value === "amount" ? item.amount : item.count) / maxValue) *
+        100,
+    }));
+});
 </script>

@@ -82,54 +82,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, computed } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  computed,
+  watch,
+} from "vue";
 import * as echarts from "echarts";
 import { PieChart } from "lucide-vue-next";
 import { toRupiah } from "@/utils/number";
+import type { SalesDashboardData } from "@/types/salesDashboard.types";
+
+const props = defineProps<{
+  data?: SalesDashboardData | null;
+}>();
 
 const chartRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
 
-const statusData = [
-  {
-    name: "Completed",
-    value: 122,
-    amount: "2680000000",
-    formattedAmount: toRupiah("2680000000"),
-    color: "#019932",
-  },
-  {
-    name: "Processing / In Production",
-    value: 36,
-    amount: "765000000",
-    formattedAmount: toRupiah("765000000"),
-    color: "#3b82f6",
-  },
-  {
-    name: "Ready for Delivery",
-    value: 14,
-    amount: "285000000",
-    formattedAmount: toRupiah("285000000"),
-    color: "#06b6d4",
-  },
-  {
-    name: "Pending Approval",
-    value: 8,
-    amount: "95000000",
-    formattedAmount: toRupiah("95000000"),
-    color: "#f59e0b",
-  },
-  {
-    name: "Cancelled",
-    value: 4,
-    amount: "20000000",
-    formattedAmount: toRupiah("20000000"),
-    color: "#ef4444",
-  },
+const palette = [
+  "#019932",
+  "#3b82f6",
+  "#06b6d4",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#64748b",
 ];
 
+const statusData = computed(() =>
+  (props.data?.statusBreakdown?.salesOrders ?? []).map((item, index) => ({
+    name: item.status,
+    value: item.count,
+    formattedAmount: toRupiah(String(item.amount)),
+    color: palette[index % palette.length],
+  })),
+);
+
 const totalOrders = computed(() =>
-  statusData.reduce((acc, curr) => acc + curr.value, 0),
+  statusData.value.reduce((acc, curr) => acc + curr.value, 0),
 );
 
 const calculatePercentage = (value: number) => {
@@ -151,7 +145,7 @@ const updateChart = () => {
         fontSize: 12,
       },
       formatter: (params: any) => {
-        const item = statusData.find((s) => s.name === params.name);
+        const item = statusData.value.find((s) => s.name === params.name);
         return `
           <div style="font-weight: 600; margin-bottom: 4px;">${params.name}</div>
           <div>Count: <b>${params.value}</b> (${params.percent}%)</div>
@@ -189,7 +183,7 @@ const updateChart = () => {
         labelLine: {
           show: false,
         },
-        data: statusData.map((item) => ({
+        data: statusData.value.map((item) => ({
           value: item.value,
           name: item.name,
           itemStyle: { color: item.color },
@@ -198,12 +192,14 @@ const updateChart = () => {
     ],
   };
 
-  chartInstance.setOption(option);
+  chartInstance.setOption(option, true);
 };
 
 const resizeHandler = () => {
   chartInstance?.resize();
 };
+
+watch(statusData, () => updateChart());
 
 onMounted(async () => {
   await nextTick();
