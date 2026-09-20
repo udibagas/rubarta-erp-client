@@ -79,16 +79,27 @@
       @sent="() => refetch()"
     />
 
-    <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
+    <QuotationForm
+      ref="quotationFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['quotations'],
+          });
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
 
+const queryClient = useQueryClient();
 const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
@@ -189,6 +200,9 @@ function deleteQuotation() {
 
         // Redirect to the quotations list page after deletion
         navigateTo("/sales/quotations");
+        queryClient.invalidateQueries({
+          queryKey: ["quotations"],
+        });
       } catch (error) {
         console.error("Delete quotation error:", error);
         ElMessage.error("Failed to delete quotation");

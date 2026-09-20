@@ -146,7 +146,15 @@
       @size-change="sizeChange"
     />
 
-    <QuotationForm ref="quotationFormRef" @saved="() => refetch()" />
+    <QuotationForm
+      ref="quotationFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/sales/quotations/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
