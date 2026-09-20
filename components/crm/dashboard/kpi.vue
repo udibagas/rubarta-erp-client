@@ -16,7 +16,7 @@
           </div>
           <div class="flex-1">
             <div class="text-sm text-gray-500 mb-1">{{ kpi.title }}</div>
-            <div class="text-3xl font-bold text-gray-800 mb-1">
+            <div class="text-xl font-bold text-gray-800 mb-1">
               {{ kpi.value }}
             </div>
             <div

@@ -37,17 +37,7 @@
     <CrmDashboardKpi />
 
     <!-- Main Charts Section -->
-    <el-row :gutter="20">
-      <!-- Sales Pipeline -->
-      <el-col :xs="24" :lg="12">
-        <CrmDashboardSalesPipeline />
-      </el-col>
-
-      <!-- Revenue Trend -->
-      <el-col :xs="24" :lg="12">
-        <CrmDashboardRevenueTrend />
-      </el-col>
-    </el-row>
+    <CrmDashboardSalesPipeline />
 
     <!-- Secondary Charts Section -->
     <el-row :gutter="20">
