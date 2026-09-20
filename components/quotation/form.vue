@@ -493,7 +493,7 @@
               <div class="flex justify-between text-base">
                 <span>Subtotal:</span>
                 <div
-                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.subtotal) }}
                 </div>
@@ -503,7 +503,7 @@
                 <el-input
                   v-model="form.discount"
                   @change="calculateTotals"
-                  class="font-mono font-bold w-[200px]!"
+                  class="font-mono font-bold w-50!"
                   :parser="
                     (v) => Number(v.replace(/\./g, '').replace(',', '.'))
                   "
