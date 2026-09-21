@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="CRM / Customers">
+      <el-page-header @back="goBack" content="Customers">
         <template #extra>
           <div class="flex gap-2">
             <el-input
@@ -21,20 +21,26 @@
     <el-table
       stripe
       v-loading="isPending"
-      :data="data"
-      height="calc(100vh - 155px)"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-
-      <el-table-column label="Name" prop="name" min-width="150">
+      <el-table-column label="Name" prop="name" min-width="200">
         <template #default="{ row }">
           <el-link
             @click="navigateTo(`/crm/customers/${row.id}`)"
             type="success"
+            class="line-clamp-1!"
           >
             {{ row.name }}
           </el-link>
+          <el-link :href="row.website" target="_blank" class="text-xs!">
+            {{ row.website }}
+          </el-link>
+        </template>
+      </el-table-column>
 
+      <el-table-column label="Industry" prop="industry" min-width="200">
+        <template #default="{ row }">
           <div
             v-if="row.industry || row.tags?.length > 0"
             class="flex gap-1 flex-wrap mt-1"
@@ -54,53 +60,19 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="Contact" prop="email" min-width="150">
+
+      <el-table-column label="Contact" prop="email" min-width="200">
         <template #default="{ row }">
-          <div class="flex items-center gap-1" v-if="row.email">
-            <el-icon><ElIconMessage /></el-icon>
-            <el-link :href="`mailto:${row.email}`">
-              {{ row.email }}
-            </el-link>
-          </div>
-
-          <div class="flex items-center gap-1" v-if="row.phone">
-            <el-icon><ElIconPhone /></el-icon>
-            <span>
-              {{ row.phone }}
-            </span>
-          </div>
-
-          <div class="flex items-center gap-1" v-if="row.website">
-            <el-icon><ElIconLink /></el-icon>
-            <el-link :href="row.website" target="_blank">
-              {{ row.website }}
-            </el-link>
+          <el-link :href="`mailto:${row.email}`">
+            {{ row.email }}
+          </el-link>
+          <div class="text-xs text-gray-400">
+            {{ row.phone }}
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Address" prop="address" min-width="200">
-        <template #default="{ row }">
-          <div class="whitespace-pre-line">
-            {{ row.address }}
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="Revenue"
-        prop="revenue"
-        align="right"
-        min-width="180"
-      >
-        <template #default="{ row }">
-          <el-tag type="success" effect="plain" size="large" class="font-mono">
-            {{ toCurrency(row.revenue) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Account Manager" min-width="200">
+      <el-table-column label="Account Manager" width="180">
         <template #default="{ row }">
           <div class="flex items-center gap-2" v-if="row.accountManagerId">
             <el-avatar
@@ -176,6 +148,20 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <CustomerForm />
   </nuxt-layout>
 </template>
@@ -192,6 +178,10 @@ const {
   refreshData,
   handleRemove,
   keyword,
+  page,
+  pageSize,
+  currentChange,
+  sizeChange,
 } = useCrud({
   url: "/api/customers",
   queryKey: "customers",
