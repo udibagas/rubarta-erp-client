@@ -87,7 +87,7 @@ const menus = computed(() => [
   {
     label: "Dashboard",
     path: "/",
-    icon: ElIconDataLine,
+    icon: ElIconOdometer,
     visible: true,
   },
   {
@@ -118,7 +118,7 @@ const menus = computed(() => [
   },
   {
     label: "Master Data",
-    icon: ElIconCoin,
+    icon: ElIconGrid,
     path: "/master-data",
     visible: hasRole(["ADMIN"]),
     children: [
@@ -131,19 +131,19 @@ const menus = computed(() => [
       {
         label: "Departments",
         path: "/master-data/departments",
-        icon: ElIconMenu,
+        icon: ElIconSetUp,
         visible: true,
       },
       {
         label: "Banks",
         path: "/master-data/banks",
-        icon: ElIconMoney,
+        icon: ElIconWallet,
         visible: true,
       },
       {
         label: "Vendors",
         path: "/master-data/suppliers",
-        icon: ElIconConnection,
+        icon: ElIconShop,
         visible: true,
       },
       {
@@ -161,7 +161,7 @@ const menus = computed(() => [
       {
         label: "Approval Setting",
         path: "/master-data/approval-setting",
-        icon: ElIconOperation,
+        icon: ElIconCircleCheck,
         visible: true,
       },
     ],
@@ -169,7 +169,7 @@ const menus = computed(() => [
   {
     label: "CRM",
     path: "/crm",
-    icon: ElIconCopyDocument,
+    icon: ElIconService,
     visible: hasRole(["SALES_REP", "ADMIN"]),
     children: [
       {
@@ -189,7 +189,7 @@ const menus = computed(() => [
       {
         label: "Prospects",
         path: "/crm/leads",
-        icon: ElIconFilter,
+        icon: ElIconAim,
         visible: true,
       },
       {
@@ -207,13 +207,13 @@ const menus = computed(() => [
       {
         label: "Interactions",
         path: "/crm/interactions",
-        icon: ElIconSwitch,
+        icon: ElIconChatDotRound,
         visible: true,
       },
       {
         label: "Customers",
         path: "/crm/customers",
-        icon: ElIconConnection,
+        icon: ElIconAvatar,
         visible: true,
       },
       {
@@ -245,14 +245,14 @@ const menus = computed(() => [
       {
         label: "Invoices",
         path: "/sales/invoices",
-        icon: ElIconDocument,
+        icon: ElIconCreditCard,
         visible: true,
       },
     ],
   },
   {
     label: "Purchase Orders",
-    icon: ElIconCoin,
+    icon: ElIconShoppingTrolley,
     path: "/purchasing-logistics",
     visible: hasRole(["ADMIN"]),
     children: [
@@ -265,13 +265,13 @@ const menus = computed(() => [
       {
         label: "Goods Receipts",
         path: "/purchasing-logistics/goods-receipts",
-        icon: ElIconDocument,
+        icon: ElIconGoods,
         visible: true,
       },
       {
         label: "Delivery Orders",
         path: "/purchasing-logistics/delivery-orders",
-        icon: ElIconDocument,
+        icon: ElIconVan,
         visible: true,
       },
     ],
@@ -279,43 +279,43 @@ const menus = computed(() => [
   {
     label: "Reports",
     path: "/reports",
-    icon: ElIconDocument,
+    icon: ElIconHistogram,
     visible: true,
     children: [
       {
         label: "Sales Dashboard",
         path: "/reports/sales-dashboard",
-        icon: ElIconDocument,
+        icon: ElIconOdometer,
         visible: true,
       },
       {
         label: "Sales Report",
         path: "/reports/sales-report",
-        icon: ElIconDocument,
+        icon: ElIconTrendCharts,
         visible: true,
       },
       {
         label: "Aging Report",
         path: "/reports/aging-report",
-        icon: ElIconDocument,
+        icon: ElIconTimer,
         visible: true,
       },
       {
         label: "Purchase Report",
         path: "/reports/purchase-report",
-        icon: ElIconDocument,
+        icon: ElIconPieChart,
         visible: true,
       },
       {
         label: "Outstanding Purchase Order",
         path: "/reports/outstanding-purchase-order",
-        icon: ElIconDocument,
+        icon: ElIconWarning,
         visible: true,
       },
       {
         label: "Outstanding Back Order",
         path: "/reports/outstanding-back-order",
-        icon: ElIconDocument,
+        icon: ElIconWarningFilled,
         visible: true,
       },
     ],
