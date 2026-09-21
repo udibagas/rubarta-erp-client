@@ -376,7 +376,7 @@
               <div class="flex justify-between text-base">
                 <span>Total Amount:</span>
                 <div
-                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.totalAmount) }}
                 </div>
@@ -387,13 +387,13 @@
                   v-model.number="form.discount"
                   type="number"
                   @change="calculateTotals"
-                  class="font-mono font-bold w-[200px]!"
+                  class="font-mono font-bold w-50!"
                 />
               </div>
               <div class="flex justify-between text-base">
                 <span class="flex-1">VAT (11%):</span>
                 <div
-                  class="font-mono font-semibold w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.vatAmount) }}
                 </div>
@@ -403,7 +403,7 @@
               >
                 <span>Grand Total:</span>
                 <div
-                  class="font-mono w-[200px]! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
+                  class="font-mono w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
                 >
                   {{ toDecimal(totals.grandTotal) }}
                 </div>
