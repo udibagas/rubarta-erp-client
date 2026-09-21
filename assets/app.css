@@ -25,3 +25,7 @@
 .el-page-header__title {
   color: gray;
 }
+
+.el-page-header__content {
+  font-weight: 600;
+}

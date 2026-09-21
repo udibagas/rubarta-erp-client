@@ -1,10 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack">
-        <template #content>
-          <span class="font-semibold"> Sales Orders </span>
-        </template>
+      <el-page-header @back="goBack" content="Sales Orders">
         <template #extra>
           <div class="flex gap-2">
             <el-button @click="refetch()" :icon="ElIconRefresh" />
@@ -206,11 +203,12 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { gql } from "@apollo/client";
 
 definePageMeta({ layout: false });
 
 const orderFormRef = ref(null);
+const customers = ref([]);
 
 const {
   fetchData,
@@ -220,7 +218,6 @@ const {
   pageSize,
   currentChange,
   sizeChange,
-  request,
 } = useCrud({
   url: "/api/sales-orders",
   queryKey: "orders",
@@ -228,9 +225,15 @@ const {
 
 const { isPending, data, refetch } = fetchData();
 
-const { data: customers } = useQuery({
-  queryKey: ["customers"],
-  queryFn: () => request("/api/customers"),
+useGraphqlQuery(gql`
+  query {
+    customers {
+      id
+      name
+    }
+  }
+`).then((result) => {
+  customers.value = result.data.customers;
 });
 
 const openForm = (data = {}) => {
