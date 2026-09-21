@@ -1,7 +1,10 @@
 <template>
-  <div class="h-[calc(100dvh-133px)] flex flex-col overflow-auto">
+  <div
+    ref="menuContainer"
+    class="h-[calc(100dvh-133px)] flex flex-col overflow-auto"
+  >
     <ul class="menu bg-[#1F2836] text-gray-200 w-full">
-      <template v-for="m in menus" :key="m.path">
+      <template v-for="m in visibleMenus" :key="m.path">
         <li v-if="!m.children">
           <nuxt-link
             :to="m.path"
@@ -18,7 +21,10 @@
           {{ collapse ? "--" : m.label }}
         </li>
 
-        <li v-for="ch in m.children" :key="ch.path">
+        <li
+          v-for="ch in m.children?.filter((c) => c.visible) ?? []"
+          :key="ch.path"
+        >
           <nuxt-link
             :to="ch.path"
             active-class="menu-active"
@@ -71,22 +77,6 @@
 const { user } = useAuth();
 const { collapse } = defineProps(["collapse"]);
 const emit = defineEmits(["toggle-collapse"]);
-const route = useRoute();
-
-// Get active menu based on current route
-const activeMenu = computed(() => {
-  return route.path;
-});
-
-// Default opened submenus (open first submenu by default when not collapsed)
-const defaultOpeneds = computed(() => {
-  if (collapse) return [];
-  const menusWithChildren =
-    menus.value?.filter((m) => m.children && m.visible) || [];
-  return menusWithChildren.length > 0 && menusWithChildren[0]?.path
-    ? [menusWithChildren[0].path]
-    : [];
-});
 
 // Filter visible menus based on user roles
 const visibleMenus = computed(() => {
