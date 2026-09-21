@@ -247,6 +247,23 @@
           </el-col>
 
           <el-col :span="12">
+            <el-form-item
+              label="With Tax Invoice"
+              :error="errors.withTaxInvoice"
+            >
+              <el-switch
+                v-model="form.withTaxInvoice"
+                inline-prompt
+                style="
+                  --el-switch-on-color: #13ce66;
+                  --el-switch-off-color: #ff4949;
+                "
+                active-text="Yes"
+                inactive-text="No"
+                width="50"
+              />
+            </el-form-item>
+
             <el-form-item label="Attachments">
               <el-upload
                 v-model:file-list="fileList"
