@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    width="1100px"
+    width="1000px"
     :title="!!form?.id ? 'EDIT INVOICE' : 'CREATE NEW INVOICE'"
     :close-on-click-modal="false"
     top="5vh"
@@ -281,9 +281,10 @@
           </template>
           <el-table-column
             label="#"
-            width="60"
+            width="50"
             :index="(i) => (currentPage - 1) * pageSize + i + 1"
             type="index"
+            align="center"
           />
 
           <el-table-column label="Part Number" min-width="160">
@@ -308,7 +309,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Unit Price" width="150">
+          <el-table-column label="Unit Price" width="150" align="right">
             <template #default="{ row }">
               <span class="font-mono">
                 {{ toDecimal(row.unitPrice) }}
