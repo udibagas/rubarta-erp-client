@@ -264,6 +264,16 @@
               />
             </el-form-item>
 
+            <el-form-item
+              label="Tax Invoice Number"
+              :error="errors.taxInvoiceNumber"
+            >
+              <el-input
+                v-model="form.taxInvoiceNumber"
+                placeholder="Enter tax invoice number"
+              />
+            </el-form-item>
+
             <el-form-item label="Attachments">
               <el-upload
                 v-model:file-list="fileList"
