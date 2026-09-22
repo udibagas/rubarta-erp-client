@@ -193,8 +193,8 @@ function deleteQuotation() {
           method: "DELETE",
         });
 
-        ElMessage({
-          type: "success",
+        ElNotification.success({
+          title: "Success",
           message: "Quotation deleted successfully",
         });
 
@@ -205,12 +205,15 @@ function deleteQuotation() {
         });
       } catch (error) {
         console.error("Delete quotation error:", error);
-        ElMessage.error("Failed to delete quotation");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to delete quotation",
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Quotation deletion canceled",
       });
     });
@@ -241,16 +244,24 @@ async function updateQuotationStatus(status) {
           body: { status },
         });
 
-        ElMessage.success(successMessage);
+        ElNotification.success({
+          title: "Success",
+          message: successMessage,
+        });
         refetch();
+        queryClient.invalidateQueries({
+          queryKey: ["quotations"],
+        });
       } catch (error) {
-        console.error("Update quotation status error:", error);
-        ElMessage.error("Failed to update quotation status");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to update quotation status. " + error.message,
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: `Quotation ${status.toLowerCase()} canceled`,
       });
     });
@@ -267,20 +278,30 @@ async function handleSubmitButton() {
     },
   )
     .then(async () => {
-      await request(`/api/quotations/${quotationId}/submit`, {
-        method: "POST",
-      });
+      try {
+        await request(`/api/quotations/${quotationId}/submit`, {
+          method: "POST",
+        });
 
-      ElMessage({
-        type: "success",
-        message: "Quotation submitted successfully",
-      });
+        ElNotification.success({
+          title: "Success",
+          message: "Quotation submitted successfully",
+        });
 
-      refetch();
+        refetch();
+        queryClient.invalidateQueries({
+          queryKey: ["quotations"],
+        });
+      } catch (error) {
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to submit quotation. " + error.message,
+        });
+      }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Quotation submission canceled",
       });
     });
