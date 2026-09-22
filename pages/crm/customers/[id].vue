@@ -3,7 +3,7 @@
     <template #header>
       <el-page-header
         @back="goBack"
-        :content="`CRM / Customers / ${customer?.name || ''}`"
+        :content="`Customers &raquo; ${customer?.name || ''}`"
       >
         <template #extra>
           <el-button
