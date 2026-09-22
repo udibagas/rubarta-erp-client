@@ -29,10 +29,10 @@
           <el-link
             @click="navigateTo(`/crm/customers/${row.id}`)"
             type="success"
-            class="line-clamp-1!"
           >
             {{ row.name }}
           </el-link>
+          <br />
           <el-link :href="row.website" target="_blank" class="text-xs!">
             {{ row.website }}
           </el-link>

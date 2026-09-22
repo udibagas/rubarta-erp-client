@@ -119,65 +119,7 @@
 
     <el-tabs v-if="customer">
       <el-tab-pane label="CONTACTS">
-        <el-table :data="customer?.Contacts ?? []" stripe>
-          <template #empty>
-            <el-empty description="No Items"> </el-empty>
-          </template>
-          <el-table-column label="Name" prop="name" min-width="150">
-            <template #default="{ row }">
-              <div class="flex items-center gap-2">
-                <el-avatar
-                  class="shrink-0"
-                  :style="{ backgroundColor: getAvatarColor(row.name) }"
-                  :size="30"
-                >
-                  {{ row.name?.charAt(0).toUpperCase() }}
-                </el-avatar>
-                <div>
-                  <span class="font-semibold text-sm line-clamp-1">
-                    {{ row.name }}
-                  </span>
-                  <span class="text-xs text-gray-400 line-clamp-1">
-                    {{ row.position }}
-                  </span>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="Contact" prop="phone" min-width="150">
-            <template #default="{ row }">
-              <el-link :href="`mailto:${row.email}`">
-                {{ row.email }}
-              </el-link>
-              <br />
-              <el-link
-                v-if="row.phone"
-                :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
-                target="_blank"
-                class="text-gray-400!"
-              >
-                {{ row.phone }}
-              </el-link>
-              <span v-else>-</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="Notes" prop="notes" />
-
-          <el-table-column
-            label="Is Primary"
-            prop="isPrimary"
-            min-width="100"
-            align="center"
-          >
-            <template #default="{ row }">
-              <el-tag effect="plain" :type="row.isPrimary ? 'success' : 'info'">
-                {{ row.isPrimary ? "Yes" : "No" }}
-              </el-tag>
-            </template>
-          </el-table-column>
-        </el-table>
+        <CustomerContacts :customer="customer" />
       </el-tab-pane>
 
       <el-tab-pane label="LEADS">
@@ -219,141 +161,20 @@
         <CrmOpportunitiesTab :customer-id="customer.id" />
       </el-tab-pane>
 
-      <el-tab-pane label="ORDERS">
-        <el-table :data="customer?.Orders ?? []" stripe>
-          <el-table-column type="index" label="#" width="60" />
-          <el-table-column
-            label="Order Number"
-            prop="orderNumber"
-            width="150"
-          />
-          <el-table-column
-            label="Description"
-            prop="description"
-            min-width="200"
-          />
-          <el-table-column label="Status" width="120">
-            <template #default="{ row }">
-              <StatusTag :status="row.status" />
-            </template>
-          </el-table-column>
-          <el-table-column label="Total Amount" width="150" align="right">
-            <template #default="{ row }">
-              <strong>{{ toCurrency(row.totalAmount.toString()) }}</strong>
-            </template>
-          </el-table-column>
-          <el-table-column label="Order Date" width="120">
-            <template #default="{ row }">
-              {{ formatDate(row.orderDate) }}
-            </template>
-          </el-table-column>
-          <el-table-column width="80" align="center">
-            <template #default="{ row }">
-              <el-button
-                link
-                type="primary"
-                @click="navigateTo(`/crm/orders?id=${row.id}`)"
-              >
-                View
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-empty
-          v-if="!customer?.Orders?.length"
-          description="No orders found"
-        />
-      </el-tab-pane>
-
       <el-tab-pane label="INTERACTIONS">
-        <CrmInteractionsTab :customer-id="customer.id" />
+        <CustomerInteractions :customer-id="customer.id" />
       </el-tab-pane>
 
       <el-tab-pane label="QUOTATIONS">
-        <el-table :data="customer?.Quotations ?? []" stripe>
-          <el-table-column type="index" label="#" width="60" />
-          <el-table-column label="Number" prop="number" width="120" />
-          <el-table-column label="Title" prop="title" min-width="200" />
-          <el-table-column label="Status" width="120">
-            <template #default="{ row }">
-              <StatusTag :status="row.status" />
-            </template>
-          </el-table-column>
-          <el-table-column label="Grand Total" width="150" align="right">
-            <template #default="{ row }">
-              <strong>{{ toCurrency(row.grandTotal.toString()) }}</strong>
-            </template>
-          </el-table-column>
-          <el-table-column label="Valid Until" width="120">
-            <template #default="{ row }">
-              {{ formatDate(row.validUntil) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="User" prop="User.name" width="150" />
-          <el-table-column width="80" align="center">
-            <template #default="{ row }">
-              <el-button
-                link
-                type="primary"
-                @click="navigateTo(`/crm/quotations?id=${row.id}`)"
-              >
-                View
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-empty
-          v-if="!customer?.Quotations?.length"
-          description="No quotations found"
-        />
+        <CustomerQuotations :customer-id="customer.id" />
+      </el-tab-pane>
+
+      <el-tab-pane label="ORDERS">
+        <CustomerSalesOrders :customer-id="customer.id" />
       </el-tab-pane>
 
       <el-tab-pane label="INVOICES">
-        <el-table :data="customer?.Invoices ?? []" stripe>
-          <el-table-column type="index" label="#" width="60" />
-          <el-table-column label="Number" prop="number" />
-          <el-table-column label="Order Number">
-            <template #default="{ row }">
-              {{ row.Order?.number || "-" }}
-            </template>
-          </el-table-column>
-          <el-table-column label="Issue Date">
-            <template #default="{ row }">
-              {{ formatDate(row.issueDate) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="Due Date">
-            <template #default="{ row }">
-              {{ formatDate(row.dueDate) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="Status">
-            <template #default="{ row }">
-              <StatusTag :status="row.status" />
-            </template>
-          </el-table-column>
-          <el-table-column label="Total Amount" width="150" align="right">
-            <template #default="{ row }">
-              <strong>{{ toCurrency(row.totalAmount.toString()) }}</strong>
-            </template>
-          </el-table-column>
-          <el-table-column label="Paid Amount" width="150" align="right">
-            <template #default="{ row }">
-              {{ toCurrency(row.paidAmount.toString()) }}
-            </template>
-          </el-table-column>
-          <el-table-column width="80" align="center">
-            <template #default="{ row }">
-              <el-button
-                link
-                type="primary"
-                @click="navigateTo(`/crm/invoices/${row.id}`)"
-              >
-                View
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <CustomerInvoices :customer-id="customer.id" />
       </el-tab-pane>
     </el-tabs>
 
@@ -362,24 +183,19 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
 import { useQuery } from "@tanstack/vue-query";
+
+definePageMeta({ layout: false });
 
 const route = useRoute();
 const request = useRequest();
 const customerId = computed(() => route.params.id);
 
 // Fetch customer data
-const {
-  data: customer,
-  isPending: isLoading,
-  refetch,
-} = useQuery({
+const { data: customer, refetch } = useQuery({
   queryKey: ["customer", customerId],
   queryFn: async () => {
-    return await request(`/api/customers/${customerId.value}`);
+    return request(`/api/customers/${customerId.value}`);
   },
   enabled: computed(() => !!customerId.value),
 });
@@ -394,9 +210,5 @@ const openEditForm = () => {
   if (customer.value) {
     openForm(customer.value);
   }
-};
-
-const goBack = () => {
-  navigateTo("/crm/customers");
 };
 </script>
