@@ -1,21 +1,4 @@
 <template>
-  <div class="flex gap-2 mb-4">
-    <el-tag effect="plain" size="large" class="font-semibold">
-      Total Ordered: {{ toDecimal(totalOrdered) }}
-    </el-tag>
-    <el-tag type="success" effect="plain" size="large" class="font-semibold">
-      Total Delivered: {{ toDecimal(totalDelivered) }}
-    </el-tag>
-    <el-tag
-      :type="totalOutstanding > 0 ? 'danger' : 'success'"
-      effect="plain"
-      size="large"
-      class="font-semibold"
-    >
-      Outstanding: {{ toDecimal(totalOutstanding) }}
-    </el-tag>
-  </div>
-
   <el-table
     :data="pagedItems"
     stripe
@@ -141,20 +124,5 @@ const currentPage = ref(1);
 const pagedItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return order.SalesOrderItems.slice(start, start + pageSize);
-});
-
-const totalOrdered = computed(() => {
-  return order.SalesOrderItems.reduce((sum, item) => sum + item.quantity, 0);
-});
-
-const totalDelivered = computed(() => {
-  return order.SalesOrderItems.reduce(
-    (sum, item) => sum + item.deliveredQuantity,
-    0,
-  );
-});
-
-const totalOutstanding = computed(() => {
-  return totalOrdered.value - totalDelivered.value;
 });
 </script>

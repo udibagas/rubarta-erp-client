@@ -1,5 +1,5 @@
 <template>
-  <el-table stripe v-loading="isPending" :data="data">
+  <el-table stripe :data="invoices || []">
     <template #empty>
       <el-empty description="No Items"> </el-empty>
     </template>
@@ -66,19 +66,9 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-const { orderId } = defineProps(["orderId"]);
-const request = useRequest();
-
-const { data = [], isPending } = useQuery({
-  queryKey: ["invoices", orderId],
-  queryFn: () =>
-    request("/api/invoices", {
-      params: { salesOrderId: orderId },
-    }),
-});
+const { invoices } = defineProps(["invoices"]);
 </script>

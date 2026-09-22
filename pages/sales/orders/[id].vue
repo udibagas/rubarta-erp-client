@@ -42,27 +42,107 @@
       </el-page-header>
     </template>
 
-    <div v-if="order">
-      <div class="flex gap-2">
-        <div class="grow overflow-auto">
-          <el-tabs type="card">
-            <el-tab-pane label="SALES ORDER INFORMATION">
-              <SalesOrderDetail :order="order" />
-            </el-tab-pane>
-            <el-tab-pane label="SALES ORDER ITEMS">
-              <SalesOrderItems :order="order" />
-            </el-tab-pane>
-            <el-tab-pane label="DELIVERY ORDERS">
-              <SalesOrderDeliveries :order-id="order.id" />
-            </el-tab-pane>
-            <el-tab-pane label="INVOICES">
-              <SalesOrderInvoices :order-id="order.id" />
-            </el-tab-pane>
-          </el-tabs>
+    <div v-if="order" class="flex gap-2">
+      <div class="grow overflow-auto">
+        <div class="flex gap-4 mb-4">
+          <el-card class="flex-1" shadow="hover">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="text-gray-500 text-xl flex gap-2 items-center">
+                <el-icon :size="24"> <Truck /> </el-icon>
+                Delivery
+              </div>
+
+              <el-progress
+                striped
+                :striped-flow="deliveryProgress < 100"
+                :percentage="deliveryProgress"
+                color="#67C23A"
+              />
+
+              <div class="flex gap-2">
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">ORDERED</div>
+                  {{ totalOrdered }}
+                </div>
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">DELIVERED</div>
+                  {{ totalDelivered }}
+                </div>
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">OUTSTANDING</div>
+                  <span
+                    :class="
+                      totalOutstanding > 0 ? 'text-error' : 'text-success'
+                    "
+                  >
+                    {{ totalOutstanding }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </el-card>
+
+          <el-card class="flex-1" shadow="hover">
+            <div class="flex-1 flex flex-col gap-4">
+              <div class="text-gray-500 text-xl flex gap-2 items-center">
+                <el-icon :size="24"> <Money /> </el-icon>
+                Invoice
+              </div>
+
+              <el-progress
+                striped
+                :striped-flow="invoiceProgress < 100"
+                :percentage="invoiceProgress"
+                color="#67C23A"
+              />
+
+              <div class="flex gap-2">
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">TOTAL</div>
+                  <span class="text-sm font-semibold">
+                    {{ toCurrency(order.grandTotal, order.currency) }}
+                  </span>
+                </div>
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">PAID</div>
+                  <span class="text-sm font-semibold">
+                    {{ toCurrency(totalPaid, order.currency) }}
+                  </span>
+                </div>
+                <div class="flex-1">
+                  <div class="text-gray-400 text-xs">OUTSTANDING</div>
+                  <span
+                    :class="[
+                      outstandingInvoice > 0 ? 'text-error' : 'text-success',
+                      'text-sm',
+                      'font-semibold',
+                    ]"
+                  >
+                    {{ toCurrency(outstandingInvoice, order.currency) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </el-card>
         </div>
 
-        <SalesOrderSummary :order="order" />
+        <el-tabs>
+          <el-tab-pane label="SALES ORDER INFORMATION">
+            <SalesOrderDetail :order="order" />
+          </el-tab-pane>
+          <el-tab-pane label="SALES ORDER ITEMS">
+            <SalesOrderItems :order="order" />
+          </el-tab-pane>
+          <el-tab-pane label="DELIVERY ORDERS">
+            <SalesOrderDeliveries :deliveries="order.DeliveryOrders" />
+          </el-tab-pane>
+          <el-tab-pane label="INVOICES">
+            <SalesOrderInvoices :invoices="order.Invoices" />
+          </el-tab-pane>
+        </el-tabs>
       </div>
+
+      <SalesOrderSummary :order="order" />
     </div>
 
     <SendEmail
@@ -90,8 +170,9 @@
 </template>
 
 <script setup>
+import { Money } from "@element-plus/icons-vue";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import { Flag } from "lucide-vue-next";
+import { Flag, Truck } from "lucide-vue-next";
 definePageMeta({ layout: false });
 
 const route = useRoute();
@@ -106,6 +187,43 @@ const soId = route.params.id;
 const { data: order, refetch } = useQuery({
   queryKey: ["order", soId],
   queryFn: () => request(`/api/sales-orders/${soId}`),
+});
+
+const totalOrdered = computed(() => {
+  return order.value.SalesOrderItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
+});
+
+const totalDelivered = computed(() => {
+  return order.value.SalesOrderItems.reduce(
+    (sum, item) => sum + item.deliveredQuantity,
+    0,
+  );
+});
+
+const totalOutstanding = computed(() => {
+  return totalOrdered.value - totalDelivered.value;
+});
+
+const deliveryProgress = computed(() => {
+  return (totalDelivered.value / totalOrdered.value) * 100;
+});
+
+const totalPaid = computed(() => {
+  return order.value.Invoices.filter((i) => i.status === "Paid").reduce(
+    (p, c) => p + c.grandTotal,
+    0,
+  );
+});
+
+const outstandingInvoice = computed(() => {
+  return order.value.grandTotal - totalPaid.value;
+});
+
+const invoiceProgress = computed(() => {
+  return ((totalPaid.value / order.value.grandTotal) * 100).toFixed(2);
 });
 
 const menus = computed(() => [

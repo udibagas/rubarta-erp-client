@@ -1,5 +1,5 @@
 <template>
-  <el-table stripe v-loading="isPending" :data="data">
+  <el-table stripe :data="deliveries">
     <template #empty>
       <el-empty description="No Items"> </el-empty>
     </template>
@@ -19,23 +19,6 @@
         </el-link>
         <div class="text-sm text-gray-500">
           {{ formatDate(row.date) }}
-        </div>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="Prepared By" min-width="170">
-      <template #default="{ row }">
-        <div class="flex items-center gap-2">
-          <el-avatar
-            size="small"
-            :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
-            class="shrink-0"
-          >
-            {{ row.User?.name?.charAt(0) || "?" }}
-          </el-avatar>
-          <span class="line-clamp-1">
-            {{ row.User?.name || "-" }}
-          </span>
         </div>
       </template>
     </el-table-column>
@@ -86,16 +69,5 @@
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
-
-const { orderId } = defineProps(["orderId"]);
-const request = useRequest();
-
-const { data = [], isPending } = useQuery({
-  queryKey: ["delivery-orders", orderId],
-  queryFn: () =>
-    request("/api/delivery-orders", {
-      params: { salesOrderId: orderId },
-    }),
-});
+const { deliveries } = defineProps(["deliveries"]);
 </script>
