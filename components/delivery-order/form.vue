@@ -102,7 +102,14 @@
 
           <el-col :span="12">
             <el-form-item label="Sender" :error="errors.sender">
-              <el-select v-model="form.sender" placeholder="Select sender">
+              <el-select
+                v-model="form.sender"
+                placeholder="Select sender"
+                filterable
+                clearable
+                default-first-option
+                allow-create
+              >
                 <el-option
                   v-for="u in users"
                   :label="u.name"
