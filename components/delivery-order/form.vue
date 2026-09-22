@@ -487,12 +487,8 @@ const save = async () => {
     });
 
     ElMessage.success("Delivery order saved successfully");
-    emit("saved");
+    emit("saved", res);
     closeForm();
-
-    if (useRoute().path === "/purchasing-logistics/delivery-orders") {
-      navigateTo(`/purchasing-logistics/delivery-orders/${res.id}`);
-    }
   } catch (error) {
     errors.value = parseError(error);
   } finally {

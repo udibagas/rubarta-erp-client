@@ -61,12 +61,22 @@
       </div>
     </div>
 
-    <DeliveryOrderForm ref="deliveryOrderFormRef" @saved="() => refetch()" />
+    <DeliveryOrderForm
+      ref="deliveryOrderFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['delivery-orders'],
+          });
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
@@ -74,6 +84,7 @@ definePageMeta({ layout: false });
 const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
+const queryClient = useQueryClient();
 const deliveryOrderFormRef = ref(null);
 
 const doId = route.params.id;
@@ -137,20 +148,25 @@ function deleteDeliveryOrder() {
           method: "DELETE",
         });
 
-        ElMessage({
-          type: "success",
+        ElNotification.success({
+          title: "Success",
           message: "Delivery order deleted successfully",
         });
 
         navigateTo("/purchasing-logistics/delivery-orders");
+        queryClient.invalidateQueries({
+          queryKey: ["delivery-orders"],
+        });
       } catch (error) {
-        console.error("Delete delivery order error:", error);
-        ElMessage.error("Failed to delete delivery order");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to delete delivery order",
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Delivery order deletion canceled",
       });
     });
@@ -172,19 +188,33 @@ function markAsConfirmed() {
     },
   )
     .then(async () => {
-      await request(`/api/delivery-orders/${doId}`, {
-        method: "PATCH",
-        body: { status: "Confirmed" },
-      });
-      ElMessage({
-        type: "success",
-        message: `Delivery order status updated to Confirmed`,
-      });
-      refetch();
+      try {
+        await request(`/api/delivery-orders/${doId}`, {
+          method: "PATCH",
+          body: { status: "Confirmed" },
+        });
+
+        ElNotification.success({
+          title: "Success",
+          message: `Delivery order status updated to Confirmed`,
+        });
+
+        refetch();
+        queryClient.invalidateQueries({
+          queryKey: ["delivery-orders"],
+        });
+      } catch (error) {
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to update delivery order status. " + error.message,
+        });
+      }
     })
     .catch((error) => {
-      console.error("Update delivery order status error:", error);
-      ElMessage.info("Action Canceled");
+      ElNotification.info({
+        title: "Info",
+        message: "Action Canceled",
+      });
     });
 }
 </script>

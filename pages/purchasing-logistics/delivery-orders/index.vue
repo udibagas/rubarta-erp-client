@@ -141,7 +141,15 @@
       @size-change="sizeChange"
     />
 
-    <DeliveryOrderForm ref="deliveryOrderFormRef" @saved="() => refetch()" />
+    <DeliveryOrderForm
+      ref="deliveryOrderFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/purchasing-logistics/delivery-orders/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
