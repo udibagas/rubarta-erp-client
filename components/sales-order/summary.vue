@@ -19,7 +19,12 @@
           Customer
         </div>
         <div class="mt-1 font-medium">
-          {{ order.Customer?.name }}
+          <nuxt-link
+            class="font-medium hover:underline"
+            :to="`/crm/customers/${order.customerId}`"
+          >
+            {{ order.Customer?.name }}
+          </nuxt-link>
         </div>
       </div>
 
