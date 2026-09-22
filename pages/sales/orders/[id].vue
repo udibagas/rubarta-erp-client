@@ -44,7 +44,7 @@
 
     <div v-if="order" class="flex gap-2">
       <div class="grow overflow-auto">
-        <div class="flex gap-4 mb-4">
+        <div class="flex gap-2 mb-4">
           <el-card class="flex-1" shadow="hover">
             <div class="flex-1 flex flex-col gap-4">
               <div class="text-gray-500 text-xl flex gap-2 items-center">
@@ -62,11 +62,11 @@
               <div class="flex gap-2">
                 <div class="flex-1">
                   <div class="text-gray-400 text-xs">ORDERED</div>
-                  {{ totalOrdered }}
+                  {{ toDecimal(totalOrdered) }}
                 </div>
                 <div class="flex-1">
                   <div class="text-gray-400 text-xs">DELIVERED</div>
-                  {{ totalDelivered }}
+                  {{ toDecimal(totalDelivered) }}
                 </div>
                 <div class="flex-1">
                   <div class="text-gray-400 text-xs">OUTSTANDING</div>
@@ -75,7 +75,7 @@
                       totalOutstanding > 0 ? 'text-error' : 'text-success'
                     "
                   >
-                    {{ totalOutstanding }}
+                    {{ toDecimal(totalOutstanding) }}
                   </span>
                 </div>
               </div>
