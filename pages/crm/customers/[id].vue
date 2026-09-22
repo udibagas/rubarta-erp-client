@@ -118,6 +118,68 @@
     <br />
 
     <el-tabs v-if="customer">
+      <el-tab-pane label="CONTACTS">
+        <el-table :data="customer?.Contacts ?? []" stripe>
+          <template #empty>
+            <el-empty description="No Items"> </el-empty>
+          </template>
+          <el-table-column label="Name" prop="name" min-width="150">
+            <template #default="{ row }">
+              <div class="flex items-center gap-2">
+                <el-avatar
+                  class="shrink-0"
+                  :style="{ backgroundColor: getAvatarColor(row.name) }"
+                  :size="30"
+                >
+                  {{ row.name?.charAt(0).toUpperCase() }}
+                </el-avatar>
+                <div>
+                  <span class="font-semibold text-sm line-clamp-1">
+                    {{ row.name }}
+                  </span>
+                  <span class="text-xs text-gray-400 line-clamp-1">
+                    {{ row.position }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Contact" prop="phone" min-width="150">
+            <template #default="{ row }">
+              <el-link :href="`mailto:${row.email}`">
+                {{ row.email }}
+              </el-link>
+              <br />
+              <el-link
+                v-if="row.phone"
+                :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
+                target="_blank"
+                class="text-gray-400!"
+              >
+                {{ row.phone }}
+              </el-link>
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="Notes" prop="notes" />
+
+          <el-table-column
+            label="Is Primary"
+            prop="isPrimary"
+            min-width="100"
+            align="center"
+          >
+            <template #default="{ row }">
+              <el-tag effect="plain" :type="row.isPrimary ? 'success' : 'info'">
+                {{ row.isPrimary ? "Yes" : "No" }}
+              </el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+
       <el-tab-pane label="LEADS">
         <el-table :data="customer?.Leads ?? []" stripe>
           <el-table-column type="index" label="#"></el-table-column>
@@ -200,65 +262,6 @@
         <el-empty
           v-if="!customer?.Orders?.length"
           description="No orders found"
-        />
-      </el-tab-pane>
-
-      <el-tab-pane label="CONTACTS">
-        <el-table :data="customer?.Contacts ?? []" stripe>
-          <el-table-column label="Name" prop="name" min-width="150">
-            <template #default="{ row }">
-              <div class="flex items-center gap-2">
-                <el-avatar
-                  class="shrink-0"
-                  size="small"
-                  :style="{ backgroundColor: getAvatarColor(row.name) }"
-                >
-                  {{ row.name?.charAt(0).toUpperCase() }}
-                </el-avatar>
-                <span class="font-semibold text-sm line-clamp-1">{{
-                  row.name
-                }}</span>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="Email" prop="email" min-width="200">
-            <template #default="{ row }">
-              <el-link :href="`mailto:${row.email}`">
-                {{ row.email }}
-              </el-link>
-            </template>
-          </el-table-column>
-          <el-table-column label="Phone" prop="phone" min-width="150">
-            <template #default="{ row }">
-              <el-link
-                v-if="row.phone"
-                :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
-                target="_blank"
-              >
-                {{ row.phone }}
-              </el-link>
-              <span v-else>-</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Position" prop="position" min-width="150" />
-          <el-table-column label="Note" prop="note" width="150" />
-
-          <el-table-column
-            label="Is Primary"
-            prop="isPrimary"
-            min-width="100"
-            align="center"
-          >
-            <template #default="{ row }">
-              <el-tag effect="plain" :type="row.isPrimary ? 'success' : 'info'">
-                {{ row.isPrimary ? "Yes" : "No" }}
-              </el-tag>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-empty
-          v-if="!customer?.Contacts?.length"
-          description="No contacts found"
         />
       </el-tab-pane>
 

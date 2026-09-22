@@ -80,7 +80,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Note" prop="notes" />
+      <el-table-column label="Notes" prop="notes" />
 
       <el-table-column
         label="Is Primary"
