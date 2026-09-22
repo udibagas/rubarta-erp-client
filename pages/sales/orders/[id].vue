@@ -321,21 +321,23 @@ function deleteOrder() {
           method: "DELETE",
         });
 
-        ElMessage({
-          type: "success",
+        ElNotification.success({
+          title: "Success",
           message: "Sales order deleted successfully",
         });
 
-        // Redirect to the sales orders list page after deletion
         navigateTo("/sales/orders");
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
       } catch (error) {
-        console.error("Delete sales order error:", error);
-        ElMessage.error("Failed to delete sales order");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to delete sales order. " + error.message,
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Sales order deletion canceled",
       });
     });
@@ -369,16 +371,22 @@ async function updateSalesOrderStatus(status) {
           body: { status },
         });
 
-        ElMessage.success(successMessage);
+        ElNotification.success({
+          title: "Success",
+          message: successMessage,
+        });
         refetch();
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
       } catch (error) {
-        console.error("Update sales order status error:", error);
-        ElMessage.error("Failed to update sales order status");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to update sales order status. " + error.message,
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: `Sales order ${status.toLowerCase()} canceled`,
       });
     });
