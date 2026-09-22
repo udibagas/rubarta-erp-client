@@ -181,7 +181,15 @@
       @size-change="sizeChange"
     />
 
-    <InvoiceForm ref="invoiceFormRef" @saved="() => refetch()" />
+    <InvoiceForm
+      ref="invoiceFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/sales/invoices/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 

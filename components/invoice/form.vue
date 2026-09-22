@@ -691,12 +691,8 @@ const save = async () => {
     });
 
     ElMessage.success("Invoice saved successfully");
-    emit("saved");
+    emit("saved", res);
     closeForm();
-
-    if (useRoute().path === "/sales/invoices") {
-      navigateTo(`/sales/invoices/${res.id}`);
-    }
   } catch (error) {
     errors.value = parseError(error);
   } finally {

@@ -73,7 +73,15 @@
       @sent="() => refetch()"
     />
 
-    <InvoiceForm ref="invoiceFormRef" @saved="() => refetch()" />
+    <InvoiceForm
+      ref="invoiceFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          queryClient.invalidateQueries({ queryKey: ['invoices'] });
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
@@ -178,12 +186,14 @@ function deleteInvoice() {
         });
 
         navigateTo("/sales/invoices");
-        queryClient.invalidateQueries("invoices");
+        queryClient.invalidateQueries({
+          queryKey: ["invoices"],
+        });
       } catch (error) {
         console.error("Delete invoice error:", error);
         ElNotification.error({
           title: "Error",
-          message: "Failed to delete invoice",
+          message: "Failed to delete invoice. " + error.message,
         });
       }
     })
@@ -226,11 +236,13 @@ async function updateInvoiceStatus(status) {
         });
 
         refetch();
-        queryClient.invalidateQueries("invoices");
+        queryClient.invalidateQueries({
+          queryKey: ["invoices"],
+        });
       } catch (error) {
         ElNotification.error({
           title: "Error",
-          message: "Failed to update invoice status",
+          message: "Failed to update invoice status. " + error.message,
         });
       }
     })
