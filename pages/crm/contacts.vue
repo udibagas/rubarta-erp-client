@@ -21,8 +21,8 @@
     <el-table
       stripe
       v-loading="isPending"
-      :data="data"
-      height="calc(100vh - 155px)"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -80,7 +80,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Note" prop="note" />
+      <el-table-column label="Note" prop="notes" />
 
       <el-table-column
         label="Is Primary"
@@ -102,8 +102,7 @@
         fixed="right"
       >
         <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
+          <el-button link @click="refetch()" :icon="ElIconRefresh"> </el-button>
         </template>
         <template #default="{ row }">
           <el-dropdown>
@@ -133,27 +132,42 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <ContactForm />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const {
   openForm,
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
+  page,
+  pageSize,
   keyword,
+  sizeChange,
+  currentChange,
 } = useCrud({
   url: "/api/contacts",
   queryKey: "contacts",
 });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 const { mutate: remove } = removeMutation();
 </script>
