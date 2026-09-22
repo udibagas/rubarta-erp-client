@@ -26,6 +26,7 @@
   color: gray;
 }
 
-.el-page-header__content {
+.el-page-header__content,
+.el-card__header {
   font-weight: 600;
 }
