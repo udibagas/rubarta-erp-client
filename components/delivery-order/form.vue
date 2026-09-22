@@ -102,7 +102,14 @@
 
           <el-col :span="12">
             <el-form-item label="Sender" :error="errors.sender">
-              <el-input placeholder="Sender name" v-model="form.sender" />
+              <el-select v-model="form.sender" placeholder="Select sender">
+                <el-option
+                  v-for="u in users"
+                  :label="u.name"
+                  :key="u.id"
+                  :value="u.name"
+                />
+              </el-select>
             </el-form-item>
 
             <el-form-item label="Receipt Number" :error="errors.receiptNumber">
@@ -328,10 +335,11 @@ const errors = ref({});
 const isSaving = ref(false);
 
 const customers = ref([]);
+const users = ref([]);
 const salesOrders = ref([]);
 const goodsReceipts = ref([]);
 
-async function fetchCustomers() {
+async function fetchCustomersAndUsers() {
   try {
     const { data } = await useGraphqlQuery(gql`
       query {
@@ -339,9 +347,14 @@ async function fetchCustomers() {
           id
           name
         }
+        users {
+          id
+          name
+        }
       }
     `);
     customers.value = data.customers;
+    users.value = data.users;
   } catch (e) {
     console.error("Failed to fetch customers:", e);
   }
@@ -430,7 +443,7 @@ async function getGrBySoId(salesOrderId) {
 
 // Expose method to open form from parent
 const openForm = (data = {}) => {
-  fetchCustomers();
+  fetchCustomersAndUsers();
 
   form.value = {
     ...data,
