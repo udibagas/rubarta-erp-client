@@ -1,5 +1,5 @@
 <template>
-  <el-card v-if="purchaseOrder" shadow="never" class="sticky top-4 w-80">
+  <el-card v-if="purchaseOrder" shadow="never" class="sticky top-4 w-85">
     <template #header>
       <div class="flex items-center justify-between w-full">
         <span class="font-semibold">PURCHASE ORDER SUMMARY</span>
