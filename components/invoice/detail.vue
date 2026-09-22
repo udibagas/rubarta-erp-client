@@ -59,6 +59,9 @@
     <el-descriptions-item label="Term of Payment">
       {{ invoice.termOfPayment || "-" }}
     </el-descriptions-item>
+    <el-descriptions-item label="Invoice Tax Number">
+      {{ invoice.taxInvoiceNumber || "-" }}
+    </el-descriptions-item>
   </el-descriptions>
 
   <template v-if="invoice.attachments?.length">
