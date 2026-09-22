@@ -129,7 +129,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Created By" min-width="200">
+      <el-table-column label="Created By" min-width="180">
         <template #default="{ row }">
           <div class="flex items-center gap-2">
             <el-avatar
@@ -148,7 +148,7 @@
 
       <el-table-column
         label="Grand Total"
-        min-width="180"
+        width="180"
         align="right"
         header-align="right"
       >
@@ -158,30 +158,39 @@
           </div>
           <span class="text-xs text-gray-400">
             {{ toDecimal(row._count.SalesOrderItems) }} parts &bull;
-            {{
-              toDecimal(
-                row.SalesOrderItems.reduce(
-                  (sum, item) => sum + item.quantity,
-                  0,
-                ),
-              )
-            }}
+            {{ toDecimal(calculateItems(row)) }}
             items
           </span>
         </template>
       </el-table-column>
 
-      <!-- <el-table-column label="Delivery Progress" min-width="200">
+      <el-table-column label="Delivery Progress" width="190">
         <template #default="{ row }">
-          <el-progress :percentage="80" stroke-width="8" color="#67C23A" />
+          <el-progress
+            :percentage="calculateDeliveryProgress(row)"
+            :stroke-width="8"
+            color="#67C23A"
+            striped
+          />
+          <span class="text-xs text-gray-400">
+            {{ toDecimal(calculateDeliveredItems(row)) }} items
+          </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Invoice Progress" min-width="200">
+      <el-table-column label="Invoice Progress" width="190">
         <template #default="{ row }">
-          <el-progress :percentage="80" stroke-width="8" />
+          <el-progress
+            :percentage="calculateInvoiceProgress(row)"
+            :stroke-width="8"
+            color="#67C23A"
+            striped
+          />
+          <span class="text-xs text-gray-400">
+            {{ toCurrency(calculatePaidInvoice(row), row.currency) }}
+          </span>
         </template>
-      </el-table-column> -->
+      </el-table-column>
 
       <el-table-column
         label="Status"
@@ -266,4 +275,33 @@ const handleExport = (format) => {
   const url = `${config.public.apiBase}/api/sales-orders/export/${format}`;
   window.open(url, "_blank");
 };
+
+function calculateItems(row) {
+  return row.SalesOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+function calculateDeliveredItems(row) {
+  return row.SalesOrderItems.reduce(
+    (sum, item) => sum + item.deliveredQuantity,
+    0,
+  );
+}
+
+function calculateDeliveryProgress(row) {
+  const totalItems = calculateItems(row);
+  const deliveredItems = calculateDeliveredItems(row);
+  return totalItems === 0 ? 0 : Math.round((deliveredItems / totalItems) * 100);
+}
+
+function calculatePaidInvoice(row) {
+  return row.Invoices.reduce((sum, invoice) => sum + invoice.grandTotal, 0);
+}
+
+function calculateInvoiceProgress(row) {
+  const paidInvoice = calculatePaidInvoice(row);
+
+  return paidInvoice === 0
+    ? 0
+    : Math.round((paidInvoice / row.grandTotal) * 100);
+}
 </script>
