@@ -109,7 +109,7 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Customer?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-400">
+          <div class="text-xs text-gray-400">
             Ref No. {{ row.referenceNumber }}
           </div>
         </template>
@@ -157,10 +157,31 @@
             {{ toCurrency(row.grandTotal, row.currency) }}
           </div>
           <span class="text-xs text-gray-400">
-            {{ toDecimal(row._count.SalesOrderItems) }} items
+            {{ toDecimal(row._count.SalesOrderItems) }} parts &bull;
+            {{
+              toDecimal(
+                row.SalesOrderItems.reduce(
+                  (sum, item) => sum + item.quantity,
+                  0,
+                ),
+              )
+            }}
+            items
           </span>
         </template>
       </el-table-column>
+
+      <!-- <el-table-column label="Delivery Progress" min-width="200">
+        <template #default="{ row }">
+          <el-progress :percentage="80" stroke-width="8" color="#67C23A" />
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Invoice Progress" min-width="200">
+        <template #default="{ row }">
+          <el-progress :percentage="80" stroke-width="8" />
+        </template>
+      </el-table-column> -->
 
       <el-table-column
         label="Status"
