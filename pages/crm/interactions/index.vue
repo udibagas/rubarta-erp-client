@@ -8,7 +8,7 @@
             @submit.prevent="
               () => {
                 page = 1;
-                refreshData();
+                refetch();
               }
             "
           >
@@ -21,13 +21,12 @@
               @clear="
                 () => {
                   page = 1;
-                  refreshData();
+                  refetch();
                 }
               "
             />
 
-            <el-button @click="refreshData()" :icon="ElIconRefresh">
-            </el-button>
+            <el-button @click="refetch()" :icon="ElIconRefresh"> </el-button>
           </form>
         </template>
       </el-page-header>
@@ -148,9 +147,7 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -158,21 +155,11 @@ import { getAvatarColor } from "~/utils/avatar";
 
 dayjs.extend(relativeTime);
 
-const {
-  fetchData,
-  refreshData,
-  keyword,
-  page,
-  pageSize,
-  sizeChange,
-  currentChange,
-} = useCrud({
-  url: "/api/interactions",
-  queryKey: "interactions",
-  defaultQuery: {
-    isPaginated: true,
-  },
-});
+const { fetchData, keyword, page, pageSize, sizeChange, currentChange } =
+  useCrud({
+    url: "/api/interactions",
+    queryKey: "interactions",
+  });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 </script>
