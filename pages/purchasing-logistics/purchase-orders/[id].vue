@@ -82,12 +82,22 @@
       @sent="() => refetch()"
     />
 
-    <PurchaseOrderForm ref="purchaseOrderFormRef" @saved="() => refetch()" />
+    <PurchaseOrderForm
+      ref="purchaseOrderFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['purchase-orders'],
+          });
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
 <script setup>
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { Flag } from "lucide-vue-next";
 
 definePageMeta({ layout: false });
@@ -95,6 +105,7 @@ definePageMeta({ layout: false });
 const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
+const queryClient = useQueryClient();
 const purchaseOrderFormRef = ref(null);
 const sendEmailRef = ref(null);
 

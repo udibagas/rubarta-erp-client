@@ -129,7 +129,15 @@
       @size-change="sizeChange"
     />
 
-    <PurchaseOrderForm ref="purchaseOrderFormRef" @saved="() => refetch()" />
+    <PurchaseOrderForm
+      ref="purchaseOrderFormRef"
+      @saved="
+        (res) => {
+          refetch();
+          navigateTo(`/purchasing-logistics/purchase-orders/${res.id}`);
+        }
+      "
+    />
   </nuxt-layout>
 </template>
 
