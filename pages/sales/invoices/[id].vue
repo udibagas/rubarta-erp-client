@@ -70,7 +70,14 @@
       :recipient-name="invoice?.contactPerson ?? ''"
       :cc="invoice?.User?.email ?? ''"
       :from-name="invoice?.User?.name ?? ''"
-      @sent="() => refetch()"
+      @sent="
+        () => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['invoices'],
+          });
+        }
+      "
     />
 
     <InvoiceForm
@@ -78,7 +85,9 @@
       @saved="
         (res) => {
           refetch();
-          queryClient.invalidateQueries({ queryKey: ['invoices'] });
+          queryClient.invalidateQueries({
+            queryKey: ['invoices'],
+          });
         }
       "
     />

@@ -79,7 +79,14 @@
       :recipient-name="purchaseOrder?.Supplier?.name ?? ''"
       :cc="purchaseOrder?.User?.email ?? ''"
       :from-name="purchaseOrder?.User?.name ?? ''"
-      @sent="() => refetch()"
+      @sent="
+        () => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['purchase-orders'],
+          });
+        }
+      "
     />
 
     <PurchaseOrderForm
@@ -212,21 +219,25 @@ function deletePurchaseOrder() {
           method: "DELETE",
         });
 
-        ElMessage({
-          type: "success",
+        ElNotification.success({
+          title: "Success",
           message: "Purchase Order deleted successfully",
         });
 
-        // Redirect to the purchase orders list page after deletion
         navigateTo("/sales/purchase-orders");
+        queryClient.invalidateQueries({
+          queryKey: ["purchase-orders"],
+        });
       } catch (error) {
-        console.error("Delete purchase order error:", error);
-        ElMessage.error("Failed to delete purchase order");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to delete purchase order. " + error.message,
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Purchase Order deletion canceled",
       });
     });
@@ -260,16 +271,24 @@ async function updatePurchaseOrderStatus(status) {
           body: { status },
         });
 
-        ElMessage.success(successMessage);
+        ElNotification.success({
+          title: "Success",
+          message: successMessage,
+        });
         refetch();
+        queryClient.invalidateQueries({
+          queryKey: ["purchase-orders"],
+        });
       } catch (error) {
-        console.error("Update purchase order status error:", error);
-        ElMessage.error("Failed to update purchase order status");
+        ElNotification.error({
+          title: "Error",
+          message: "Failed to update purchase order status. " + error.message,
+        });
       }
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: `Purchase order ${status.toLowerCase()} canceled`,
       });
     });
@@ -290,16 +309,19 @@ async function handleSubmitButton() {
         method: "POST",
       });
 
-      ElMessage({
-        type: "success",
+      ElNotification.success({
+        title: "Success",
         message: "Purchase order submitted successfully",
       });
 
       refetch();
+      queryClient.invalidateQueries({
+        queryKey: ["purchase-orders"],
+      });
     })
     .catch(() => {
-      ElMessage({
-        type: "info",
+      ElNotification.info({
+        title: "Info",
         message: "Purchase order submission canceled",
       });
     });

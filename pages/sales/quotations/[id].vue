@@ -76,7 +76,14 @@
       :recipient-name="quotation?.contactPerson ?? ''"
       :cc="quotation?.User?.email ?? ''"
       :from-name="quotation?.User?.name ?? ''"
-      @sent="() => refetch()"
+      @sent="
+        () => {
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ['quotations'],
+          });
+        }
+      "
     />
 
     <QuotationForm
@@ -198,7 +205,6 @@ function deleteQuotation() {
           message: "Quotation deleted successfully",
         });
 
-        // Redirect to the quotations list page after deletion
         navigateTo("/sales/quotations");
         queryClient.invalidateQueries({
           queryKey: ["quotations"],
