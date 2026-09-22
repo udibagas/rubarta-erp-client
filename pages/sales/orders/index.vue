@@ -228,6 +228,7 @@ import { gql } from "@apollo/client";
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const orderFormRef = ref(null);
 const customers = ref([]);
 
@@ -262,6 +263,7 @@ const openForm = (data = {}) => {
 };
 
 const handleExport = (format) => {
-  // TODO: implement export to excel/pdf
+  const url = `${config.public.apiBase}/api/sales-orders/export/${format}`;
+  window.open(url, "_blank");
 };
 </script>
