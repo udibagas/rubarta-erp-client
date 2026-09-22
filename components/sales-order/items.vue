@@ -2,7 +2,6 @@
   <el-table
     :data="pagedItems"
     stripe
-    border
     :row-class-name="
       ({ row }) => (row.quantity > row.deliveredQuantity ? 'text-red-500!' : '')
     "
@@ -14,15 +13,26 @@
       :index="(i) => (currentPage - 1) * pageSize + i + 1"
       header-align="center"
       align="center"
+      fixed="left"
     />
-    <el-table-column label="Part Number" prop="partNumber" min-width="150">
+    <el-table-column
+      label="Part Number"
+      prop="partNumber"
+      width="150"
+      fixed="left"
+    >
       <template #default="{ row }">
         <div class="font-mono font-semibold">
           {{ row.partNumber }}
         </div>
-        <div class="text-xs text-gray-500 line-clamp-1">
+      </template>
+    </el-table-column>
+
+    <el-table-column label="Description" prop="description" min-width="150">
+      <template #default="{ row }">
+        <span class="line-clamp-1">
           {{ row.description }}
-        </div>
+        </span>
       </template>
     </el-table-column>
 
