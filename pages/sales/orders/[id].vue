@@ -154,7 +154,12 @@
       :recipient-name="order?.contactPerson ?? ''"
       :cc="order?.User?.email ?? ''"
       :from-name="order?.User?.name ?? ''"
-      @sent="() => refetch()"
+      @sent="
+        () => {
+          refetch();
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
+        }
+      "
     />
 
     <SalesOrderForm

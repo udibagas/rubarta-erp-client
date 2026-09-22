@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-defineEmits(["sent"]);
+const emit = defineEmits(["sent"]);
 
 const { onPreview, type, to, recipientName, fromName, cc, data } = defineProps({
   onPreview: {
@@ -170,6 +170,7 @@ async function send() {
       message: `${type.replace("-", " ")} email sent successfully`,
     });
 
+    emit("sent");
     show.value = false;
     resetSendForm();
   } catch (error) {
