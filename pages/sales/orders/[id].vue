@@ -52,6 +52,12 @@
             <el-tab-pane label="SALES ORDER ITEMS">
               <SalesOrderItems :order="order" />
             </el-tab-pane>
+            <el-tab-pane label="DELIVERY ORDERS">
+              <SalesOrderDeliveries :order-id="order.id" />
+            </el-tab-pane>
+            <el-tab-pane label="INVOICES">
+              <SalesOrderInvoices :order-id="order.id" />
+            </el-tab-pane>
           </el-tabs>
         </div>
 
