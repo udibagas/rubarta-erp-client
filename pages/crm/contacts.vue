@@ -7,7 +7,7 @@
             <el-input
               v-model="keyword"
               placeholder="Search"
-              @change="refreshData()"
+              @change="refetch()"
               clearable
               :prefix-icon="ElIconSearch"
               style="width: 200px"
