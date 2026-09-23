@@ -201,6 +201,7 @@ dayjs.extend(relativeTime);
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const invoiceFormRef = ref(null);
 const customers = ref([]);
 
@@ -235,6 +236,7 @@ const openForm = (data = {}) => {
 };
 
 const handleExport = (format) => {
-  // TODO: implement export to excel/pdf
+  const url = `${config.public.apiBase}/api/invoices/export/${format}`;
+  window.open(url, "_blank");
 };
 </script>
