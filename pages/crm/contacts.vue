@@ -55,7 +55,7 @@
             <el-icon>
               <ElIconOfficeBuilding />
             </el-icon>
-            <span class="ml-1">
+            <span class="ml-1 line-clamp-1">
               {{ row.Customer?.name }}
             </span>
           </el-link>
@@ -72,7 +72,7 @@
             v-if="row.phone"
             :href="`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`"
             target="_blank"
-            class="text-gray-400!"
+            class="text-xs! text-gray-400!"
           >
             {{ row.phone }}
           </el-link>
