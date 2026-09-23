@@ -218,10 +218,10 @@ const quotationFormRef = ref(null);
 
 const {
   fetchData,
-  page,
-  pageSize,
   currentChange,
   sizeChange,
+  page,
+  pageSize,
   keyword,
   filters,
 } = useCrud({
