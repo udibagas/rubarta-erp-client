@@ -70,10 +70,13 @@
       <el-link
         v-for="(doc, i) in invoice.attachments"
         :key="i"
-        type="primary"
+        type="success"
         :href="`${config.public.apiBase}/${doc.filePath}`"
         target="_blank"
+        :underline="false"
+        class="border border-green-500 px-2! py-1! rounded"
       >
+        <el-icon class="mr-1"><ElIconDocument /></el-icon>
         {{ doc.fileName }}
       </el-link>
     </div>

@@ -23,7 +23,6 @@
 
       <el-form-item label="Attachment">
         <el-tag
-          effect="plain"
           class="cursor-pointer"
           type="success"
           size="large"
@@ -36,6 +35,24 @@
             {{ data?.number }}.pdf
           </span>
         </el-tag>
+
+        <div class="flex gap-2 ml-2" v-if="data?.attachments?.length">
+          <el-tag
+            v-for="(doc, i) in data?.attachments ?? []"
+            :key="i"
+            class="cursor-pointer"
+            type="success"
+            size="large"
+            @click="openAttachment(doc.filePath)"
+          >
+            <span class="flex items-center gap-1">
+              <el-icon>
+                <ElIconDocument />
+              </el-icon>
+              {{ doc.fileName }}
+            </span>
+          </el-tag>
+        </div>
       </el-form-item>
     </el-form>
 
@@ -96,6 +113,7 @@ const { onPreview, type, to, recipientName, fromName, cc, data } = defineProps({
   },
 });
 
+const config = useRuntimeConfig();
 const request = useRequest();
 const show = ref(false);
 const isSendingEmail = ref(false);
@@ -181,6 +199,11 @@ async function send() {
   } finally {
     isSendingEmail.value = false;
   }
+}
+
+function openAttachment(filePath) {
+  const url = `${config.public.apiBase}/${filePath}`;
+  window.open(url, "_blank");
 }
 
 defineExpose({ openDialog });
