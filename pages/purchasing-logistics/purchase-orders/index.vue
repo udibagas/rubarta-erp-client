@@ -67,7 +67,7 @@
 
       <el-input
         v-model="keyword"
-        placeholder="Search by number or customer"
+        placeholder="Search by number or supplier"
         @change="refetch()"
         clearable
         :prefix-icon="ElIconSearch"
