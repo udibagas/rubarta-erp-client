@@ -34,18 +34,18 @@
     >
       <div class="flex items-center gap-2">
         <el-select
-          v-model="filters.customerId"
-          placeholder="Customer"
+          v-model="filters.supplierId"
+          placeholder="Supplier"
           filterable
           clearable
           class="w-52!"
           @change="refetch()"
         >
           <el-option
-            v-for="customer in customers"
-            :key="customer.id"
-            :value="customer.id"
-            :label="customer.name"
+            v-for="supplier in suppliers"
+            :key="supplier.id"
+            :value="supplier.id"
+            :label="supplier.name"
           />
           <template #prefix>
             <el-icon><ElIconOfficeBuilding /></el-icon>
@@ -203,6 +203,7 @@ definePageMeta({ layout: false });
 
 const config = useRuntimeConfig();
 const purchaseOrderFormRef = ref(null);
+const suppliers = ref([]);
 
 const {
   fetchData,
@@ -219,17 +220,15 @@ const {
 
 const { isPending, data, refetch } = fetchData();
 
-const customers = ref([]);
-
 useGraphqlQuery(gql`
   query {
-    customers {
+    suppliers {
       id
       name
     }
   }
 `).then((result) => {
-  customers.value = result.data.customers;
+  suppliers.value = result.data.suppliers;
 });
 
 const openForm = (data = {}) => {
