@@ -60,7 +60,7 @@ const collapse = ref(false);
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :deep(.el-header) {

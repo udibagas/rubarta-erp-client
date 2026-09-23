@@ -70,9 +70,7 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({

@@ -1,75 +1,80 @@
 <template>
-  <div
-    ref="menuContainer"
-    class="h-[calc(100dvh-133px)] flex flex-col overflow-auto"
-  >
-    <ul class="menu bg-[#1F2836] text-gray-200 w-full">
-      <template v-for="m in visibleMenus" :key="m.path">
-        <li v-if="!m.children">
-          <nuxt-link
-            :to="m.path"
-            active-class="menu-active"
-            :class="{ 'tooltip tooltip-right': collapse }"
-            :data-tip="m.label"
-          >
-            <component :is="m.icon" class="h-5 w-5 mr-1" />
-            <span v-if="!collapse">{{ m.label }}</span>
-          </nuxt-link>
-        </li>
-
-        <li v-else class="menu-title uppercase text-gray-500">
-          {{ collapse ? "--" : m.label }}
-        </li>
-
-        <li
-          v-for="ch in m.children?.filter((c) => c.visible) ?? []"
-          :key="ch.path"
-        >
-          <nuxt-link
-            :to="ch.path"
-            active-class="menu-active"
-            :class="{ 'tooltip tooltip-right': collapse }"
-            :data-tip="ch.label"
-          >
-            <component :is="ch.icon" class="h-5 w-5 mr-1" />
-            <span v-if="!collapse">{{ ch.label }}</span>
-          </nuxt-link>
-        </li>
-      </template>
-    </ul>
-  </div>
-
-  <!-- User Info at Bottom -->
-  <div
-    class="flex items-center gap-3 p-4 bg-gray-900 border-t border-white/10 mt-auto"
-    :class="{ 'justify-center py-4 px-2': collapse }"
-  >
-    <el-avatar
-      v-if="!collapse"
-      :size="40"
-      :style="{ backgroundColor: getAvatarColor(user?.name || '') }"
+  <div class="sidebar">
+    <el-menu
+      :default-active="$route.path"
+      :collapse="collapse"
+      unique-opened
+      router
+      :hide-timeout="1"
+      :show-timeout="1"
+      :collapse-transition="false"
     >
-      {{ user?.name?.charAt(0).toUpperCase() }}
-    </el-avatar>
-    <div v-if="!collapse" class="flex-1 min-w-0">
-      <div
-        class="font-semibold text-gray-100 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
-      >
-        {{ user?.name }}
-      </div>
-      <div
-        class="text-xs text-gray-400 capitalize whitespace-nowrap overflow-hidden text-ellipsis"
-      >
-        {{ user?.roles?.[0] || "User" }}
-      </div>
-    </div>
+      <template v-for="menu in visibleMenus" :key="menu.label">
+        <!-- Menu without children -->
+        <el-menu-item v-if="!menu.children" :index="menu.path">
+          <el-icon>
+            <component :is="menu.icon" />
+          </el-icon>
+          <template #title>{{ menu.label }}</template>
+        </el-menu-item>
 
-    <el-button
-      :icon="collapse ? ElIconArrowRight : ElIconArrowLeft"
-      circle
-      @click="$emit('toggle-collapse')"
-      class="collapse-btn"
-    />
+        <!-- Menu with children -->
+        <el-sub-menu v-else :index="menu.path">
+          <template #title>
+            <el-icon>
+              <component :is="menu.icon" />
+            </el-icon>
+            <span>{{ menu.label }}</span>
+          </template>
+          <el-menu-item
+            v-for="child in menu.children"
+            v-show="child.visible"
+            :key="child.label"
+            :index="child.path"
+          >
+            <el-icon>
+              <component :is="child.icon" />
+            </el-icon>
+            <template #title>{{ child.label }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+      </template>
+    </el-menu>
+
+    <!-- User Info at Bottom -->
+    <div
+      class="flex items-center gap-3 p-2 bg-gray-900 border-t border-white/10 mt-auto rounded-2xl"
+      :class="{ 'justify-center py-4 px-2': collapse }"
+    >
+      <el-avatar
+        v-if="!collapse"
+        :size="40"
+        :style="{ backgroundColor: getAvatarColor(user?.name || '') }"
+      >
+        <span class="text-lg">
+          {{ user?.name?.charAt(0).toUpperCase() }}
+        </span>
+      </el-avatar>
+      <div v-if="!collapse" class="flex-1 min-w-0">
+        <div
+          class="font-semibold text-gray-100 text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+        >
+          {{ user?.name }}
+        </div>
+        <div
+          class="text-xs text-gray-400 capitalize whitespace-nowrap overflow-hidden text-ellipsis"
+        >
+          {{ user?.roles?.[0] || "User" }}
+        </div>
+      </div>
+
+      <el-button
+        :icon="collapse ? ElIconArrowRight : ElIconArrowLeft"
+        circle
+        @click="$emit('toggle-collapse')"
+        class="collapse-btn"
+      />
+    </div>
   </div>
 </template>
 
@@ -328,6 +333,16 @@ function hasRole(roles: string[]): boolean {
 </script>
 
 <style scoped>
+.sidebar {
+  height: calc(100dvh - 60px);
+  /* overflow lives on the inner .el-menu only, avoid nested scroll containers */
+  overflow: hidden;
+  background-color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
 .collapse-btn-wrapper {
   padding: 1rem;
   display: flex;
@@ -358,28 +373,23 @@ function hasRole(roles: string[]): boolean {
 :deep(.el-menu-item),
 :deep(.el-sub-menu__title) {
   color: #d1d5db;
+  height: 40px;
+  border-radius: 8px;
 }
 
-:deep(.el-menu-item.is-active) {
-  background-color: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-}
+/* :deep(.el-menu-item.is-active) {
+  background-color: rgba(34, 197, 94, 0.8) !important;
+  color: #ffffff;
+} */
 
 :deep(.el-menu-item:hover),
-:deep(.el-sub-menu__title:hover) {
+:deep(.el-sub-menu__title:hover),
+:deep(.el-menu-item.is-active) {
   background-color: rgba(55, 65, 81, 0.8);
   color: #f3f4f6;
 }
 
-:deep(.el-sub-menu .el-menu) {
-  background-color: #111827;
-}
-
-:deep(.el-sub-menu .el-menu-item) {
-  background-color: #111827;
-}
-
 :deep(.el-sub-menu .el-menu-item:hover) {
-  background-color: rgba(55, 65, 81, 0.6);
+  background-color: rgba(55, 65, 81, 0.8);
 }
 </style>
