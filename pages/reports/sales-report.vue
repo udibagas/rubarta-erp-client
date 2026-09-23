@@ -6,7 +6,7 @@
           <div class="flex items-center gap-2">
             <el-select
               v-model="filters.customerId"
-              placeholder="Customer"
+              placeholder="All Customer"
               filterable
               clearable
               class="w-52!"
@@ -39,26 +39,24 @@
       </el-page-header>
     </template>
 
-    <div class="flex flex-col gap-4">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <el-card shadow="never">
-          <template #header>
-            <div class="font-semibold text-gray-800 text-base">
-              Revenue per Month
-            </div>
-          </template>
-          <div ref="columnChartRef" class="h-96 w-full"></div>
-        </el-card>
+    <div class="flex flex-col gap-2">
+      <el-card shadow="never">
+        <template #header>
+          <div class="font-semibold text-gray-800 text-base">
+            Revenue per Month
+          </div>
+        </template>
+        <div ref="columnChartRef" class="h-96 w-full"></div>
+      </el-card>
 
-        <el-card shadow="never">
-          <template #header>
-            <div class="font-semibold text-gray-800 text-base">
-              Revenue by Customer
-            </div>
-          </template>
-          <div ref="pieChartRef" class="h-96 w-full"></div>
-        </el-card>
-      </div>
+      <el-card shadow="never">
+        <template #header>
+          <div class="font-semibold text-gray-800 text-base">
+            Revenue by Customer
+          </div>
+        </template>
+        <div ref="pieChartRef" class="h-96 w-full"></div>
+      </el-card>
     </div>
   </nuxt-layout>
 </template>
