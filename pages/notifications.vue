@@ -1,159 +1,152 @@
 <template>
-  <el-page-header @back="goBack">
-    <template #content>
-      <span class="text-large font-600"> NOTIFICATIONS </span>
+  <nuxt-layout name="default">
+    <template #header>
+      <el-page-header @back="goBack">
+        <template #content>
+          <span>Notifications</span>
+        </template>
+        <template #extra>
+          <form @submit.prevent="refresh()">
+            <el-button
+              v-if="data?.data?.length"
+              type="danger"
+              @click="handleRemoveAll(removeAll)"
+              :icon="ElIconDelete"
+              class="mr-2"
+            >
+              Delete All
+            </el-button>
+
+            <el-input
+              v-model="keyword"
+              placeholder="Cari"
+              style="width: 180px; margin-right: 5px"
+              :prefix-icon="ElIconSearch"
+              :clearable="true"
+              @clear="refresh()"
+            >
+            </el-input>
+
+            <el-button @click="refresh()" :icon="ElIconRefresh"> </el-button>
+          </form>
+        </template>
+      </el-page-header>
     </template>
-    <template #extra>
-      <form @submit.prevent="refresh()">
-        <el-button
-          v-if="data?.data?.length"
-          size="small"
-          type="danger"
-          @click="handleRemoveAll(removeAll)"
-          :icon="ElIconDelete"
-          class="mr-2"
+
+    <div class="flex">
+      <div>
+        <el-table
+          v-loading="isPending"
+          :data="data?.data"
+          style="width: 300px; margin-right: 20px; height: calc(100vh - 200px)"
+          @row-click="(row) => read(row)"
+          :highlight-current-row="true"
+          ref="notificationTable"
         >
-          Delete All
-        </el-button>
+          <el-table-column :label="`${unread} Unread Messages`" min-width="150">
+            <template #default="{ row }">
+              <div class="cursor-pointer">
+                <span class="text-xs! text-gray-400">
+                  {{ formatDate(row.date) }}
+                  {{ formatTime(row.date) }}
+                </span>
+                <div
+                  :class="['line-clamp-1', !row.readAt ? 'font-semibold' : '']"
+                >
+                  {{ row.title }}
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
 
-        <el-input
+        <el-pagination
+          v-if="data?.total"
           size="small"
-          v-model="keyword"
-          placeholder="Cari"
-          style="width: 180px; margin-right: 5px"
-          :prefix-icon="ElIconSearch"
-          :clearable="true"
-          @clear="refresh()"
-        >
-        </el-input>
+          background
+          layout="sizes, prev, next, total"
+          :current-page="page"
+          :page-size="pageSize"
+          :page-sizes="[10, 25, 50, 100]"
+          :total="data?.total"
+          @current-change="currentChange"
+          @size-change="sizeChange"
+          class="mt-2"
+        />
+      </div>
 
-        <el-button
-          size="small"
-          type="success"
-          @click="refresh()"
-          :icon="ElIconRefresh"
-        >
-        </el-button>
-      </form>
-    </template>
-  </el-page-header>
-
-  <br />
-
-  <div class="flex">
-    <div>
-      <el-table
-        v-loading="isPending"
-        :data="data?.data"
-        style="width: 300px; margin-right: 20px; height: calc(100vh - 200px)"
-        @row-click="(row) => read(row)"
-        :highlight-current-row="true"
-        ref="notificationTable"
-      >
-        <el-table-column :label="`${unread} Unread Messages`" min-width="150">
-          <template #default="{ row }">
-            <div :class="!row.readAt ? 'strong' : ''">
-              <small>
-                {{ formatDateLong(row.date) }}
-                {{ formatTime(row.date) }}
-              </small>
-              <br />
-              <div>{{ row.title }}</div>
+      <el-card class="grow" shadow="never" v-if="selected.id">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
+              <h3>{{ selected.title }}</h3>
+              <span class="text-xs! text-gray-400 font-normal!">
+                {{ formatDateLong(selected.date) }}
+                {{ formatTime(selected.date) }}
+              </span>
             </div>
-          </template>
-        </el-table-column>
-      </el-table>
 
-      <br />
-      <el-pagination
-        v-if="data?.total"
-        size="small"
-        background
-        layout="sizes, prev, next, total,"
-        :page-size="pageSize"
-        :page-sizes="[10, 25, 50, 100]"
-        :total="data?.total"
-        @current-change="currentChange"
-        @size-change="sizeChange"
-      ></el-pagination>
-    </div>
-
-    <el-card class="grow" shadow="hover" v-if="selected.id">
-      <template #header>
-        <div class="card-header flex">
-          <div class="grow">
-            <h3 style="margin-bottom: 5px">{{ selected.title }}</h3>
-            <small>
-              {{ formatDateLong(selected.date) }}
-              {{ formatTime(selected.date) }}
-            </small>
+            <el-button
+              type="danger"
+              plain
+              size="small"
+              @click="handleRemove(selected.id, remove)"
+              :icon="ElIconDelete"
+            >
+              Delete
+            </el-button>
           </div>
+        </template>
 
-          <el-button
-            type="danger"
-            @click="handleRemove(selected.id, remove)"
-            :icon="ElIconDelete"
-            circle
+        <div class="flex flex-col gap-4">
+          <div class="font-semibold">Dear {{ selected.User?.name }},</div>
+
+          <p>{{ selected.message }}</p>
+
+          <p v-if="selected.redirectUrl">
+            Silakan klik link di bawah ini untuk melihat detail:
+          </p>
+
+          <a
+            :href="selected.redirectUrl"
+            class="btn btn-outline btn-primary btn-sm"
           >
-          </el-button>
+            LIHAT DETAIL
+          </a>
+
+          <p>
+            Regards,
+            <br /><br />
+            <span class="font-semibold"> Rubarta ERP System </span>
+          </p>
         </div>
-      </template>
+      </el-card>
 
-      <strong>Dear {{ selected.User?.name }},</strong>
-
-      <br />
-
-      <p>{{ selected.message }}</p>
-
-      <p v-if="selected.redirectUrl">
-        Silakan klik link di bawah ini untuk melihat detail:
-        <br />
-        <br />
-        <a :href="selected.redirectUrl">LIHAT DETAIL</a>
-      </p>
-
-      <p>
-        Regards,
-        <br /><br />
-        Rubarta ERP System
-      </p>
-    </el-card>
-
-    <el-card class="grow" shadow="hover" v-else>
-      <el-empty description="No message" />
-    </el-card>
-  </div>
+      <el-card class="grow" shadow="hover" v-else>
+        <el-empty description="No message" />
+      </el-card>
+    </div>
+  </nuxt-layout>
 </template>
 
 <script setup>
+definePageMeta({ layout: false });
 import { useQuery, useMutation } from "@tanstack/vue-query";
 const url = "/api/notifications";
 const selected = ref({});
-const notificationTable = ref("");
 
 const {
-  removeMutation,
-  refreshData,
   handleRemove,
   sizeChange,
   currentChange,
+  fetchData,
   request,
   page,
   pageSize,
   keyword,
 } = useCrud({ url, queryKey: "notifications" });
 
-const { isPending, data } = useQuery({
-  queryKey: ["notifications"],
-  queryFn: () =>
-    request(url, {
-      params: {
-        page: page.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value,
-      },
-    }),
-});
+const { isPending, data, refetch } = fetchData();
 
 const { data: unread } = useQuery({
   queryKey: ["unread-notifications"],
@@ -201,14 +194,12 @@ async function read(row) {
 
   if (!row.readAt) {
     await request(`/api/notifications/${row.id}`, { method: "PATCH" });
-    refreshData();
-    refreshData("unread-notifications");
+    refetch();
   }
 }
 
 function refresh() {
   selected.value = {};
-  refreshData();
-  refreshData("unread-notifications");
+  refetch();
 }
 </script>
