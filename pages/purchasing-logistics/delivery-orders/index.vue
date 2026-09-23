@@ -209,6 +209,7 @@ import { gql } from "@apollo/client";
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const deliveryOrderFormRef = ref(null);
 
 const {
