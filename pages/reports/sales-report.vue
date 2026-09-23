@@ -1,8 +1,41 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="Reports / Sales Report">
-        <template #extra> </template>
+      <el-page-header @back="goBack" content="Sales Report">
+        <template #extra>
+          <div class="flex items-center gap-2">
+            <el-select
+              v-model="filters.customerId"
+              placeholder="Customer"
+              filterable
+              clearable
+              class="w-52!"
+              @change="refetch()"
+            >
+              <el-option
+                v-for="customer in customers"
+                :key="customer.id"
+                :value="customer.id"
+                :label="customer.name"
+              />
+              <template #prefix>
+                <el-icon><ElIconOfficeBuilding /></el-icon>
+              </template>
+            </el-select>
+
+            <el-date-picker
+              v-model="filters.dateRange"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="Start"
+              end-placeholder="End"
+              value-format="YYYY-MM-DD"
+              format="DD-MMM-YYYY"
+              class="w-70!"
+              @change="refetch()"
+            />
+          </div>
+        </template>
       </el-page-header>
     </template>
 
@@ -42,6 +75,7 @@ import {
 import { useQuery } from "@tanstack/vue-query";
 import * as echarts from "echarts";
 import { toRupiah } from "@/utils/number";
+import { gql } from "@apollo/client";
 
 interface CustomerMonthlyRevenue {
   customerId: number;
@@ -52,13 +86,39 @@ interface CustomerMonthlyRevenue {
 
 definePageMeta({ layout: false });
 const request = useRequest();
+const customers = ref<{ id: number; name: string }[]>([]);
+const filters = ref({
+  customerId: null,
+  dateRange: [] as string[],
+});
 
-const { data } = useQuery<{ data: CustomerMonthlyRevenue[]; total: number }>({
+const { data, refetch } = useQuery<{
+  data: CustomerMonthlyRevenue[];
+  total: number;
+}>({
   queryKey: ["sales-report"],
-  queryFn: () => request("/api/report/customer-monthly-revenue"),
+  queryFn: () => {
+    return request("/api/report/customer-monthly-revenue", {
+      params: {
+        customerId: filters.value.customerId,
+        dateRange: filters.value.dateRange,
+      },
+    });
+  },
 });
 
 const rows = computed(() => data.value?.data ?? []);
+
+useGraphqlQuery<{ customers: { id: number; name: string }[] }>(gql`
+  query {
+    customers {
+      id
+      name
+    }
+  }
+`).then((result) => {
+  customers.value = result.data?.customers ?? [];
+});
 
 const columnChartRef = ref<HTMLElement | null>(null);
 const pieChartRef = ref<HTMLElement | null>(null);
