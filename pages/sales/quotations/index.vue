@@ -80,6 +80,7 @@
       v-loading="isPending"
       :data="data?.data ?? []"
       height="calc(100vh - 254px)"
+      @filter-change="filterChange"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -164,7 +165,7 @@
             {{ toCurrency(row.grandTotal, row.currency) }}
           </div>
           <span class="text-xs text-gray-400">
-            {{ toDecimal(row._count.QuotationItems) }} items
+            {{ toDecimal(row._count.QuotationItems) }} parts
           </span>
         </template>
       </el-table-column>
@@ -176,6 +177,8 @@
         align="center"
         header-align="center"
         fixed="right"
+        column-key="status"
+        :filters="quotationStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
@@ -212,6 +215,7 @@
 <script setup>
 definePageMeta({ layout: false });
 import { gql } from "@apollo/client";
+import { quotationStatuses } from "~/constants";
 
 const config = useRuntimeConfig();
 const quotationFormRef = ref(null);
@@ -220,6 +224,7 @@ const {
   fetchData,
   currentChange,
   sizeChange,
+  filterChange,
   page,
   pageSize,
   keyword,
