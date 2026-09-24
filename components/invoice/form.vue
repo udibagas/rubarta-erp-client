@@ -314,7 +314,7 @@
             align="center"
           />
 
-          <el-table-column label="Part Number" min-width="160">
+          <el-table-column label="Part Number" min-width="120">
             <template #default="{ row }">
               <span class="font-mono font-semibold">
                 {{ row.partNumber }}
@@ -324,7 +324,9 @@
 
           <el-table-column label="Description" min-width="200">
             <template #default="{ row }">
-              {{ row.description }}
+              <span class="line-clamp-1">
+                {{ row.description }}
+              </span>
             </template>
           </el-table-column>
 
