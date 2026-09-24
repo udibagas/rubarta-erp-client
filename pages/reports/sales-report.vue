@@ -5,12 +5,17 @@
         <template #extra>
           <div class="flex items-center gap-2">
             <el-select
-              v-model="filters.customerId"
+              v-model="(filters as Record<string, any>).customerId"
               placeholder="All Customer"
               filterable
               clearable
               class="w-52!"
-              @change="refetch()"
+              @change="
+                {
+                  refetch();
+                  refreshTable();
+                }
+              "
             >
               <el-option
                 v-for="customer in customers"
@@ -24,7 +29,7 @@
             </el-select>
 
             <el-date-picker
-              v-model="filters.dateRange"
+              v-model="(filters as Record<string, any>).dateRange"
               type="daterange"
               range-separator="-"
               start-placeholder="Start"
@@ -32,32 +37,143 @@
               value-format="YYYY-MM-DD"
               format="DD-MMM-YYYY"
               class="w-70!"
-              @change="refetch()"
+              @change="
+                {
+                  refetch();
+                  refreshTable();
+                }
+              "
             />
           </div>
         </template>
       </el-page-header>
     </template>
 
-    <div class="flex flex-col gap-2">
-      <el-card shadow="never">
+    <div class="flex gap-2 mb-2">
+      <el-card shadow="never" class="flex-1">
         <template #header>
           <div class="font-semibold text-gray-800 text-base">
             Revenue per Month
           </div>
         </template>
-        <div ref="columnChartRef" class="h-96 w-full"></div>
+        <div ref="columnChartRef" class="h-60 w-full"></div>
       </el-card>
 
-      <el-card shadow="never">
+      <el-card shadow="never" class="flex-1">
         <template #header>
           <div class="font-semibold text-gray-800 text-base">
             Revenue by Customer
           </div>
         </template>
-        <div ref="pieChartRef" class="h-96 w-full"></div>
+        <div ref="pieChartRef" class="h-60 w-full"></div>
       </el-card>
     </div>
+
+    <el-card shadow="never" body-class="p-0!">
+      <template #header>
+        <div class="flex gap-4 items-center justify-between">
+          <span> Sales Orders </span>
+
+          <div class="flex items-center gap-2">
+            <el-dropdown split-button @command="handleExport">
+              <el-icon class="mr-1"><ElIconDownload /></el-icon>
+              Export
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="excel" :icon="ElIconMemo">
+                    Excel
+                  </el-dropdown-item>
+                  <el-dropdown-item command="pdf" :icon="ElIconDocument">
+                    PDF
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </div>
+      </template>
+
+      <el-table stripe v-loading="isPending" :data="sales?.data ?? []">
+        <template #empty>
+          <el-empty description="No Items"> </el-empty>
+        </template>
+        <el-table-column label="Order Date" prop="date" min-width="120">
+          <template #default="{ row }">
+            {{ formatDate(row.createdAt) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Order No." prop="number" min-width="120">
+          <template #default="{ row }">
+            <el-link
+              class="font-mono font-semibold!"
+              @click="navigateTo(`/sales/orders/${row.id}`)"
+              type="success"
+            >
+              {{ row.number }}
+            </el-link>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Customer" min-width="200">
+          <template #default="{ row }">
+            <div class="line-clamp-1">
+              {{ row.Customer?.name || "-" }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="Reference No." min-width="140">
+          <template #default="{ row }">
+            <div class="font-mono">{{ row.referenceNumber }}</div>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Grand Total"
+          width="180"
+          align="right"
+          header-align="right"
+        >
+          <template #default="{ row }">
+            <div class="font-mono font-semibold">
+              {{ toCurrency(row.grandTotal, row.currency) }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Status"
+          prop="status"
+          width="120"
+          align="center"
+          header-align="center"
+          fixed="right"
+        >
+          <template #default="{ row }">
+            <StatusTag
+              :status="row.status"
+              effect="light"
+              style="width: 100%"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-pagination
+        class="p-2 bg-slate-100"
+        v-if="sales?.total"
+        :current-page="page"
+        size="small"
+        background
+        layout="total, sizes, prev, pager, next"
+        :page-size="pageSize"
+        :page-sizes="[10, 25, 50, 100]"
+        :total="sales?.total"
+        @current-change="currentChange"
+        @size-change="sizeChange"
+      />
+    </el-card>
   </nuxt-layout>
 </template>
 
@@ -72,7 +188,6 @@ import {
 } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import * as echarts from "echarts";
-import { toRupiah } from "@/utils/number";
 import { gql } from "@apollo/client";
 
 interface CustomerMonthlyRevenue {
@@ -83,12 +198,19 @@ interface CustomerMonthlyRevenue {
 }
 
 definePageMeta({ layout: false });
+
 const request = useRequest();
+const config = useRuntimeConfig();
 const customers = ref<{ id: number; name: string }[]>([]);
-const filters = ref({
-  customerId: null,
-  dateRange: [] as string[],
-});
+
+const { fetchData, page, pageSize, filters, currentChange, sizeChange } =
+  useCrud({
+    url: "/api/sales-orders",
+    queryKey: "orders",
+    defaultQuery: {},
+  });
+
+const { isPending, data: sales, refetch: refreshTable } = fetchData();
 
 const { data, refetch } = useQuery<{
   data: CustomerMonthlyRevenue[];
@@ -98,8 +220,8 @@ const { data, refetch } = useQuery<{
   queryFn: () => {
     return request("/api/report/customer-monthly-revenue", {
       params: {
-        customerId: filters.value.customerId,
-        dateRange: filters.value.dateRange,
+        customerId: (filters.value as Record<string, any>).customerId,
+        dateRange: (filters.value as Record<string, any>).dateRange,
       },
     });
   },
@@ -117,6 +239,11 @@ useGraphqlQuery<{ customers: { id: number; name: string }[] }>(gql`
 `).then((result) => {
   customers.value = result.data?.customers ?? [];
 });
+
+const handleExport = (format: "excel" | "pdf") => {
+  const url = `${config.public.apiBase}/api/sales-orders/export/${format}`;
+  window.open(url, "_blank");
+};
 
 const columnChartRef = ref<HTMLElement | null>(null);
 const pieChartRef = ref<HTMLElement | null>(null);
