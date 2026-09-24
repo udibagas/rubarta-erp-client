@@ -28,7 +28,7 @@
     </template>
 
     <div class="flex gap-2 mb-2">
-      <el-card shadow="never" class="w-64!" v-loading="isPending">
+      <el-card shadow="never" class="flex-1" v-loading="isPending">
         <div class="text-gray-500 text-sm">Total Outstanding Items</div>
         <div class="text-2xl font-semibold font-mono mt-1">
           {{ data?.totalOutstandingItemCount ?? 0 }}
@@ -38,29 +38,11 @@
         </div>
       </el-card>
 
-      <el-card shadow="never" class="w-64!" v-loading="isPending">
+      <el-card shadow="never" class="flex-1" v-loading="isPending">
         <div class="text-gray-500 text-sm">Total Outstanding Quantity</div>
         <div class="text-2xl font-semibold font-mono mt-1">
           {{ data?.totalOutstandingQuantity ?? 0 }}
         </div>
-      </el-card>
-
-      <el-card shadow="never" class="flex-1">
-        <template #header>
-          <div class="font-semibold text-gray-800 text-base">
-            Top Suppliers by Outstanding Quantity
-          </div>
-        </template>
-        <div ref="barChartRef" class="h-60 w-full"></div>
-      </el-card>
-
-      <el-card shadow="never" class="flex-1">
-        <template #header>
-          <div class="font-semibold text-gray-800 text-base">
-            Outstanding Item Share by Supplier
-          </div>
-        </template>
-        <div ref="pieChartRef" class="h-60 w-full"></div>
       </el-card>
     </div>
 
@@ -204,17 +186,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  nextTick,
-} from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import * as echarts from "echarts";
-import { formatDate } from "@/utils/date";
 import { gql } from "@apollo/client";
 
 interface OutstandingPurchaseOrderItem {
@@ -275,119 +247,5 @@ const filteredSuppliers = computed(() => {
   return suppliers.value.filter((s) =>
     s.supplierName.toLowerCase().includes(keyword),
   );
-});
-
-const barChartRef = ref<HTMLElement | null>(null);
-const pieChartRef = ref<HTMLElement | null>(null);
-let barChartInstance: echarts.ECharts | null = null;
-let pieChartInstance: echarts.ECharts | null = null;
-
-const topSuppliers = computed(() =>
-  [...suppliers.value]
-    .sort((a, b) => b.outstandingQuantity - a.outstandingQuantity)
-    .slice(0, 10),
-);
-
-const updateBarChart = () => {
-  if (!barChartInstance) return;
-
-  const items = topSuppliers.value;
-
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: "axis",
-      axisPointer: { type: "shadow" },
-    },
-    grid: {
-      left: "2%",
-      right: "2%",
-      bottom: "3%",
-      top: "8%",
-      containLabel: true,
-    },
-    xAxis: {
-      type: "category",
-      data: items.map((item) => item.supplierName),
-      axisLabel: { color: "#6b7280", fontSize: 11, interval: 0, rotate: 30 },
-    },
-    yAxis: {
-      type: "value",
-      axisLabel: { color: "#9ca3af", fontSize: 11 },
-      splitLine: { lineStyle: { color: "#f3f4f6", type: "dashed" } },
-    },
-    series: [
-      {
-        name: "Outstanding Quantity",
-        type: "bar",
-        barMaxWidth: 40,
-        itemStyle: { color: "#019932", borderRadius: [4, 4, 0, 0] },
-        data: items.map((item) => item.outstandingQuantity),
-      },
-    ],
-  };
-
-  barChartInstance.setOption(option, true);
-};
-
-const updatePieChart = () => {
-  if (!pieChartInstance) return;
-
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: "item",
-      formatter: (params: any) =>
-        `${params.name}<br/>${params.value} item(s) (${params.percent}%)`,
-    },
-    legend: {
-      orient: "vertical",
-      left: "left",
-      textStyle: { fontSize: 11 },
-    },
-    series: [
-      {
-        name: "Outstanding Items",
-        type: "pie",
-        radius: ["40%", "70%"],
-        avoidLabelOverlap: true,
-        itemStyle: { borderRadius: 6, borderColor: "#fff", borderWidth: 2 },
-        label: { formatter: "{b}: {d}%" },
-        data: suppliers.value.map((s) => ({
-          name: s.supplierName,
-          value: s.outstandingItemCount,
-        })),
-      },
-    ],
-  };
-
-  pieChartInstance.setOption(option, true);
-};
-
-watch(topSuppliers, () => updateBarChart());
-watch(suppliers, () => updatePieChart());
-
-const resizeHandler = () => {
-  barChartInstance?.resize();
-  pieChartInstance?.resize();
-};
-
-onMounted(async () => {
-  await nextTick();
-  if (barChartRef.value) {
-    barChartInstance = echarts.init(barChartRef.value);
-    updateBarChart();
-  }
-  if (pieChartRef.value) {
-    pieChartInstance = echarts.init(pieChartRef.value);
-    updatePieChart();
-  }
-  window.addEventListener("resize", resizeHandler);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", resizeHandler);
-  barChartInstance?.dispose();
-  pieChartInstance?.dispose();
-  barChartInstance = null;
-  pieChartInstance = null;
 });
 </script>
