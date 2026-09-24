@@ -14,6 +14,7 @@ export * from "./orderStatuses.js";
 export * from "./paymentMethods.js";
 export * from "./paymentStatuses.js";
 export * from "./paymentTargets.js";
+export * from "./purchaseOrderStatuses.js";
 export * from "./quotationStatuses.js";
 export * from "./requestTypes.js";
 export * from "./roles.js";

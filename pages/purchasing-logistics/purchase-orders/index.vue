@@ -80,6 +80,7 @@
       v-loading="isPending"
       :data="data?.data ?? []"
       height="calc(100vh - 254px)"
+      @filter-change="filterChange"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -111,7 +112,7 @@
           <div class="font-semibold line-clamp-1">
             {{ row.Supplier?.name || "-" }}
           </div>
-          <div class="text-sm text-gray-400">
+          <div class="text-xs text-gray-400">
             Ref No. {{ row.referenceNumber || "-" }}
           </div>
         </template>
@@ -151,7 +152,7 @@
             {{ toCurrency(row.grandTotal, row.currency) }}
           </div>
           <span class="text-xs text-gray-400">
-            {{ toDecimal(row._count.PurchaseOrderItems) }} items
+            {{ toDecimal(row._count.PurchaseOrderItems) }} parts
           </span>
         </template>
       </el-table-column>
@@ -163,6 +164,8 @@
         align="center"
         header-align="center"
         fixed="right"
+        column-key="status"
+        :filters="purchaseOrderStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
@@ -198,6 +201,7 @@
 
 <script setup>
 import { gql } from "@apollo/client";
+import { purchaseOrderStatuses } from "~/constants";
 
 definePageMeta({ layout: false });
 
@@ -209,6 +213,7 @@ const {
   fetchData,
   currentChange,
   sizeChange,
+  filterChange,
   keyword,
   page,
   pageSize,
