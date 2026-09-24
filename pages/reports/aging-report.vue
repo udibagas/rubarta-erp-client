@@ -270,7 +270,7 @@ const invoices = computed(() =>
 );
 
 const handleExport = (format) => {
-  const url = `${config.public.apiBase}/api/invoices/export/${format}`;
+  const url = `${config.public.apiBase}/api/report/export/aging-report/${format}`;
   window.open(url, "_blank");
 };
 
