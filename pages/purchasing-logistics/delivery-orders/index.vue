@@ -80,6 +80,7 @@
       v-loading="isPending"
       :data="data?.data ?? []"
       height="calc(100vh - 254px)"
+      @filter-change="filterChange"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -171,6 +172,8 @@
         align="center"
         header-align="center"
         fixed="right"
+        column-key="status"
+        :filters="deliveryOrderStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
@@ -206,6 +209,7 @@
 
 <script setup>
 import { gql } from "@apollo/client";
+import { deliveryOrderStatuses } from "~/constants";
 
 definePageMeta({ layout: false });
 
@@ -213,13 +217,14 @@ const config = useRuntimeConfig();
 const deliveryOrderFormRef = ref(null);
 
 const {
-  fetchData,
   keyword,
   page,
   filters,
   pageSize,
+  fetchData,
   currentChange,
   sizeChange,
+  filterChange,
 } = useCrud({
   url: "/api/delivery-orders",
   queryKey: "delivery-orders",
