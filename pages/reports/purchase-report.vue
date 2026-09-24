@@ -3,15 +3,42 @@
     <template #header>
       <el-page-header @back="goBack" content="Purchase Orders Report">
         <template #extra>
-          <form class="flex gap-2" @submit.prevent>
-            <el-input
-              v-model="search"
-              placeholder="Cari supplier"
-              style="width: 220px"
-              :prefix-icon="ElIconSearch"
-              :clearable="true"
+          <div class="flex gap-2">
+            <el-select
+              v-model="supplierId"
+              placeholder="All Vendors"
+              filterable
+              clearable
+              class="w-52!"
+              @change="refetch()"
+            >
+              <el-option
+                v-for="supplier in supplierList"
+                :key="supplier.id"
+                :value="supplier.id"
+                :label="supplier.name"
+              />
+              <template #prefix>
+                <el-icon><ElIconOfficeBuilding /></el-icon>
+              </template>
+            </el-select>
+
+            <el-date-picker
+              v-model="dateRange"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="Start"
+              end-placeholder="End"
+              value-format="YYYY-MM-DD"
+              format="DD-MMM-YYYY"
+              class="w-70!"
+              @change="
+                {
+                  refetch();
+                }
+              "
             />
-          </form>
+          </div>
         </template>
       </el-page-header>
     </template>
@@ -160,6 +187,7 @@ import {
 } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import * as echarts from "echarts";
+import { gql } from "@apollo/client";
 
 interface PurchaseOrderRow {
   id: number;
@@ -179,13 +207,30 @@ interface SupplierPurchase {
 definePageMeta({ layout: false });
 const request = useRequest();
 const search = ref("");
+const supplierId = ref(null);
+const dateRange = ref<[string, string] | null>(null);
+const supplierList = ref<{ id: number; name: string }[]>([]);
 
 const { data, isPending, refetch } = useQuery<{
   data: SupplierPurchase[];
   total: number;
 }>({
-  queryKey: ["purchase-report"],
-  queryFn: () => request("/api/report/purchase-orders"),
+  queryKey: ["purchase-report", supplierId.value, dateRange.value],
+  queryFn: () =>
+    request("/api/report/purchase-orders", {
+      params: { supplierId: supplierId.value, dateRange: dateRange.value },
+    }),
+});
+
+useGraphqlQuery<{ suppliers: { id: number; name: string }[] }>(gql`
+  query {
+    suppliers {
+      id
+      name
+    }
+  }
+`).then((result) => {
+  supplierList.value = result.data?.suppliers ?? [];
 });
 
 const suppliers = computed(() => data.value?.data ?? []);
