@@ -80,6 +80,7 @@
       v-loading="isPending"
       :data="data?.data ?? []"
       height="calc(100vh - 254px)"
+      @filter-change="filterChange"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -160,6 +161,8 @@
         align="center"
         header-align="center"
         fixed="right"
+        column-key="status"
+        :filters="invoiceStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
@@ -197,6 +200,7 @@
 import { gql } from "@apollo/client";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { invoiceStatuses } from "~/constants";
 dayjs.extend(relativeTime);
 
 definePageMeta({ layout: false });
@@ -206,13 +210,14 @@ const invoiceFormRef = ref(null);
 const customers = ref([]);
 
 const {
-  fetchData,
   keyword,
   filters,
   page,
   pageSize,
+  fetchData,
   currentChange,
   sizeChange,
+  filterChange,
 } = useCrud({
   url: "/api/invoices",
   queryKey: "invoices",

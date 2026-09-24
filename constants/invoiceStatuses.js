@@ -1,7 +1,6 @@
 export const invoiceStatuses = [
   "Draft",
-  "Submitted",
-  "Approved",
+  "Confirmed",
   "Sent",
   "Pending",
   "Paid",
