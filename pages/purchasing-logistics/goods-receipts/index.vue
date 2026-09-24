@@ -80,6 +80,7 @@
       :data="data?.data ?? []"
       stripe
       height="calc(100vh - 254px)"
+      @filter-change="filterChange"
     >
       <template #empty>
         <el-empty description="No Items"> </el-empty>
@@ -130,7 +131,7 @@
       </el-table-column>
 
       <el-table-column
-        label="Items"
+        label="Parts"
         prop="_count.GoodsReceiptItems"
         width="80"
         align="center"
@@ -150,6 +151,8 @@
         align="center"
         header-align="center"
         fixed="right"
+        column-key="status"
+        :filters="goodsReceiptStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
@@ -184,6 +187,7 @@
 </template>
 
 <script setup>
+import { goodsReceiptStatuses } from "~/constants";
 import { gql } from "@apollo/client";
 
 definePageMeta({ layout: false });
@@ -196,6 +200,7 @@ const {
   fetchData,
   currentChange,
   sizeChange,
+  filterChange,
   keyword,
   filters,
   page,

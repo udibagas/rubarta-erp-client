@@ -4,6 +4,7 @@ export * from "./claimStatuses.js";
 export * from "./colors.js";
 export * from "./currencies.js";
 export * from "./deliveryMethods.js";
+export * from "./goodsReceiptStatuses.js";
 export * from "./interactionTypes.js";
 export * from "./invoiceStatuses.js";
 export * from "./leadSources.js";
