@@ -118,6 +118,16 @@
         </template>
       </el-table-column>
 
+      <el-table-column
+        label="Reference No."
+        prop="referenceNumber"
+        min-width="150"
+      >
+        <template #default="{ row }">
+          {{ row.referenceNumber || "-" }}
+        </template>
+      </el-table-column>
+
       <el-table-column label="Prepared By" min-width="170">
         <template #default="{ row }">
           <div class="flex items-center gap-2">
@@ -138,16 +148,6 @@
       <el-table-column label="Sender" prop="sender" min-width="150">
         <template #default="{ row }">
           {{ row.sender || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="Receipt Number"
-        prop="receiptNumber"
-        min-width="150"
-      >
-        <template #default="{ row }">
-          {{ row.receiptNumber || "-" }}
         </template>
       </el-table-column>
 
