@@ -252,6 +252,9 @@ const topSuppliers = computed(() =>
   [...suppliers.value].sort((a, b) => b.total - a.total).slice(0, 10),
 );
 
+const truncate = (name: string, length = 15) =>
+  name.length > length ? `${name.slice(0, length)}...` : name;
+
 const updateBarChart = () => {
   if (!barChartInstance) return;
 
@@ -264,7 +267,8 @@ const updateBarChart = () => {
       formatter: (params: any) => {
         if (!Array.isArray(params) || params.length === 0) return "";
         const item = params[0];
-        return `${item.name}<br/>${toRupiah(String(item.value))}`;
+        const supplierName = items[item.dataIndex]?.supplierName ?? item.name;
+        return `${supplierName}<br/>${toRupiah(String(item.value))}`;
       },
     },
     grid: {
@@ -276,7 +280,7 @@ const updateBarChart = () => {
     },
     xAxis: {
       type: "category",
-      data: items.map((item) => item.supplierName),
+      data: items.map((item) => truncate(item.supplierName)),
       axisLabel: { color: "#6b7280", fontSize: 11, interval: 0, rotate: 30 },
     },
     yAxis: {
@@ -326,7 +330,7 @@ const updatePieChart = () => {
         itemStyle: { borderRadius: 6, borderColor: "#fff", borderWidth: 2 },
         label: { formatter: "{b}: {d}%" },
         data: suppliers.value.map((s) => ({
-          name: s.supplierName,
+          name: truncate(s.supplierName),
           value: s.total,
         })),
       },
