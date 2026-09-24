@@ -162,14 +162,17 @@
       @size-change="sizeChange"
     />
 
-    <CustomerForm />
+    <CustomerForm
+      @saved="queryClient.invalidateQueries({ queryKey: ['contacts'] })"
+    />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
+
+import { useQueryClient } from "@tanstack/vue-query";
+const queryClient = useQueryClient();
 
 const {
   openForm,

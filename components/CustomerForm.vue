@@ -260,7 +260,11 @@
       >
         CANCEL
       </el-button>
-      <el-button :icon="ElIconSuccessFilled" type="success" @click="save(form)">
+      <el-button
+        :icon="ElIconSuccessFilled"
+        type="success"
+        @click="save(form, { onSuccess: () => emit('saved') })"
+      >
         SAVE
       </el-button>
     </template>
@@ -269,6 +273,7 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+const emit = defineEmits(["saved"]);
 
 const { errors, form, show, closeForm, saveMutation } = useCrud({
   url: "/api/customers",

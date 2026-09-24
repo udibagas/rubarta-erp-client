@@ -12,7 +12,9 @@
               :prefix-icon="ElIconSearch"
               style="width: 200px"
             />
-            <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+              Add New Contact
+            </el-button>
           </div>
         </template>
       </el-page-header>
