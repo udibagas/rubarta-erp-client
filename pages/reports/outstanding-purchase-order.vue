@@ -4,13 +4,24 @@
       <el-page-header @back="goBack" content="Outstanding Purchase Order">
         <template #extra>
           <form class="flex gap-2" @submit.prevent>
-            <el-input
-              v-model="search"
-              placeholder="Cari Supplier"
-              style="width: 220px"
-              :prefix-icon="ElIconSearch"
-              :clearable="true"
-            />
+            <el-select
+              v-model="supplierId"
+              placeholder="All Vendors"
+              filterable
+              clearable
+              class="w-52!"
+              @change="refetch()"
+            >
+              <el-option
+                v-for="supplier in supplierList"
+                :key="supplier.id"
+                :value="supplier.id"
+                :label="supplier.name"
+              />
+              <template #prefix>
+                <el-icon><ElIconOfficeBuilding /></el-icon>
+              </template>
+            </el-select>
           </form>
         </template>
       </el-page-header>
@@ -204,6 +215,7 @@ import {
 import { useQuery } from "@tanstack/vue-query";
 import * as echarts from "echarts";
 import { formatDate } from "@/utils/date";
+import { gql } from "@apollo/client";
 
 interface OutstandingPurchaseOrderItem {
   purchaseOrderId: number;
@@ -236,10 +248,23 @@ definePageMeta({ layout: false });
 
 const request = useRequest();
 const search = ref("");
+const supplierList = ref<{ id: number; name: string }[]>([]);
+const supplierId = ref<number | null>(null);
 
 const { data, isPending, refetch } = useQuery<OutstandingPurchaseOrderReport>({
   queryKey: ["outstanding-purchase-order"],
   queryFn: () => request("/api/report/outstanding-purchase-orders"),
+});
+
+useGraphqlQuery<{ suppliers: { id: number; name: string }[] }>(gql`
+  query {
+    suppliers {
+      id
+      name
+    }
+  }
+`).then((result) => {
+  supplierList.value = result.data?.suppliers ?? [];
 });
 
 const suppliers = computed(() => data.value?.data ?? []);
