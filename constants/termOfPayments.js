@@ -1,4 +1,5 @@
 export const termOfPayments = [
+  { label: "Cash Before Delivery", value: "CBD" },
   { label: "15 Days", value: "15 Days" },
   { label: "30 Days", value: "30 Days" },
   { label: "45 Days", value: "45 Days" },
