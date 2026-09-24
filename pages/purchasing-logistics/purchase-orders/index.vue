@@ -167,9 +167,9 @@
             color="#67C23A"
             striped
           />
-          <span class="text-xs text-gray-400">
+          <div class="text-xs text-gray-400" style="margin-top: 11px">
             {{ toDecimal(calculateReceivedItems(row)) }} items
-          </span>
+          </div>
         </template>
       </el-table-column>
 
