@@ -594,22 +594,21 @@ function handleContactChange(contactName) {
 
 function loadFormFromSalesOrder(salesOrderId) {
   const salesOrder = salesOrders.value.find((so) => so.id === salesOrderId);
+  if (!salesOrder) return;
 
-  if (salesOrder) {
-    form.value.referenceNumber = salesOrder.referenceNumber;
-    form.value.currency = salesOrder.currency;
-    form.value.items = salesOrder.SalesOrderItems.map((i) => {
-      return {
-        partNumber: i.partNumber,
-        description: i.description,
-        quantity: 0,
-        unitPrice: i.unitPrice,
-      };
-    });
+  form.value.referenceNumber = salesOrder.referenceNumber;
+  form.value.currency = salesOrder.currency;
+  form.value.items = salesOrder.SalesOrderItems.map((i) => {
+    return {
+      partNumber: i.partNumber,
+      description: i.description,
+      quantity: 0,
+      unitPrice: i.unitPrice,
+    };
+  });
 
-    currentPage.value = 1;
-    calculateTotals();
-  }
+  currentPage.value = 1;
+  calculateTotals();
 }
 
 function loadItemsFromDeliveryOrder(deliveryOrderId) {
