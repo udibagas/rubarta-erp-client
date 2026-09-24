@@ -675,6 +675,7 @@ useGraphqlQuery(
         number
         date
         title
+        referenceNumber
         description
         currency
         notes
@@ -929,30 +930,27 @@ function handleChangeSupplier(supplierId) {
 
 function loadFormfromSalesOrder(salesOrderId) {
   const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
-  if (salesOrder) {
-    const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
-    if (salesOrder) {
-      const { id, SalesOrderItems, ...rest } = salesOrder;
-      const items = [];
-      items.push(
-        ...SalesOrderItems.map((i) => ({
-          partNumber: i.partNumber,
-          description: i.name || i.description,
-          quantity: i.quantity,
-          unitPrice:
-            materials.value.find((m) => m.partNumber === i.partNumber)
-              ?.purchasePrice ?? 0,
-        })),
-      );
+  if (!salesOrder) return;
 
-      form.value = {
-        ...rest,
-        salesOrderId: id,
-        items,
-      };
-      calculateTotals();
-    }
-  }
+  const { id, SalesOrderItems, ...rest } = salesOrder;
+  const items = [];
+  items.push(
+    ...SalesOrderItems.map((i) => ({
+      partNumber: i.partNumber,
+      description: i.name || i.description,
+      quantity: i.quantity,
+      unitPrice:
+        materials.value.find((m) => m.partNumber === i.partNumber)
+          ?.purchasePrice ?? 0,
+    })),
+  );
+
+  form.value = {
+    ...rest,
+    salesOrderId: id,
+    items,
+  };
+  calculateTotals();
 }
 
 defineExpose({ openForm });
