@@ -318,8 +318,8 @@ const menus = computed(() => [
         visible: true,
       },
       {
-        label: "Outstanding Back Order",
-        path: "/reports/outstanding-back-order",
+        label: "Outstanding Sales Order",
+        path: "/reports/outstanding-sales-order",
         icon: ElIconWarningFilled,
         visible: true,
       },
