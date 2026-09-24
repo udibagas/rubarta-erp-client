@@ -91,8 +91,8 @@
 
               <el-progress
                 striped
-                :striped-flow="invoiceProgress < 100"
-                :percentage="invoiceProgress"
+                :striped-flow="Number(invoiceProgress) < 100"
+                :percentage="Number(invoiceProgress)"
                 color="#67C23A"
               />
 
