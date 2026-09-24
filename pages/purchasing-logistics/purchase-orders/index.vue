@@ -118,11 +118,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Delivery Date" width="150">
+      <!-- <el-table-column label="Delivery Date" width="150">
         <template #default="{ row }">
           {{ row.deliveryDate ? formatDate(row.deliveryDate) : "-" }}
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <el-table-column label="Requested By" prop="User.name" min-width="150">
         <template #default="{ row }">
@@ -152,7 +152,23 @@
             {{ toCurrency(row.grandTotal, row.currency) }}
           </div>
           <span class="text-xs text-gray-400">
-            {{ toDecimal(row._count.PurchaseOrderItems) }} parts
+            {{ toDecimal(row._count.PurchaseOrderItems) }} parts &bull;
+            {{ toDecimal(calculateItems(row)) }}
+            items
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Delivery Progress" width="190">
+        <template #default="{ row }">
+          <el-progress
+            :percentage="calculateDeliveryProgress(row)"
+            :stroke-width="8"
+            color="#67C23A"
+            striped
+          />
+          <span class="text-xs text-gray-400">
+            {{ toDecimal(calculateReceivedItems(row)) }} items
           </span>
         </template>
       </el-table-column>
@@ -235,6 +251,23 @@ useGraphqlQuery(gql`
 `).then((result) => {
   suppliers.value = result.data.suppliers;
 });
+
+function calculateItems(row) {
+  return row.PurchaseOrderItems.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+function calculateReceivedItems(row) {
+  return row.PurchaseOrderItems.reduce(
+    (sum, item) => sum + item.receivedQuantity,
+    0,
+  );
+}
+
+function calculateDeliveryProgress(row) {
+  const totalItems = calculateItems(row);
+  const receivedItems = calculateReceivedItems(row);
+  return totalItems === 0 ? 0 : Math.round((receivedItems / totalItems) * 100);
+}
 
 const openForm = (data = {}) => {
   purchaseOrderFormRef.value?.openForm(data);
