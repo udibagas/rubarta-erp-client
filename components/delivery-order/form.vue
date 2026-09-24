@@ -54,6 +54,16 @@
               </el-select>
             </el-form-item>
 
+            <el-form-item
+              label="Reference Number"
+              :error="errors.referenceNumber"
+            >
+              <el-input
+                v-model="form.referenceNumber"
+                placeholder="Enter reference number"
+              />
+            </el-form-item>
+
             <el-form-item label="GR Number" :error="errors.goodsReceiptId">
               <el-select
                 v-model="form.goodsReceiptId"
@@ -378,6 +388,7 @@ async function fetchSoByCustomerId(customerId) {
       salesOrders(customerId: $customerId, status: $status) {
         id
         number
+        referenceNumber
         customerId
         Customer {
           id
@@ -527,17 +538,19 @@ function removeItem(row) {
 function loadFormFromSalesOrder(salesOrderId) {
   getGrBySoId(salesOrderId);
   const salesOrder = salesOrders.value.find((s) => s.id === salesOrderId);
-  if (salesOrder) {
-    form.value.items = salesOrder.SalesOrderItems.map((i) => ({
-      partNumber: i.partNumber,
-      partNumberSupply: "",
-      description: i.description,
-      quantityOrder: i.quantity,
-      quantitySupply: 0,
-    }));
+  if (!salesOrder) return;
 
-    currentPage.value = 1;
-  }
+  form.value.referenceNumber = salesOrder.referenceNumber;
+
+  form.value.items = salesOrder.SalesOrderItems.map((i) => ({
+    partNumber: i.partNumber,
+    partNumberSupply: "",
+    description: i.description,
+    quantityOrder: i.quantity,
+    quantitySupply: 0,
+  }));
+
+  currentPage.value = 1;
 }
 
 function loadItemFromGoodsReceipt(goodsReceiptId) {
