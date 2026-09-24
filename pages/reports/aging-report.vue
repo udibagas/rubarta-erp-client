@@ -137,7 +137,7 @@
       </el-table-column>
 
       <el-table-column
-        label="Outstanding"
+        label="Total Amount"
         prop="outstanding"
         min-width="150"
         align="right"
