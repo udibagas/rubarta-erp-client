@@ -4,23 +4,23 @@
       <el-page-header @back="goBack" content="Employees">
         <template #extra>
           <div class="flex gap-2">
-            <el-button
-              @click="openForm({ roles: ['USER'], password: '' })"
-              type="success"
-              :icon="ElIconPlus"
-            >
-              ADD NEW EMPLOYEE
-            </el-button>
-
             <el-input
               placeholder="Seach Employee"
               v-model="keyword"
               clearable
               class="w-48!"
               :prefix-icon="ElIconSearch"
-              @change="() => refreshData()"
-              @clear="() => refreshData()"
+              @change="() => refetch()"
+              @clear="() => refetch()"
             />
+
+            <el-button
+              @click="openForm({ roles: ['USER'], password: '' })"
+              type="success"
+              :icon="ElIconPlus"
+            >
+              Add New Employee
+            </el-button>
           </div>
         </template>
       </el-page-header>
@@ -28,28 +28,32 @@
     <el-table
       stripe
       v-loading="isPending"
-      :data="data"
-      height="calc(100vh - 155px)"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-
       <el-table-column label="Name" min-width="150">
         <template #default="{ row }">
-          <strong>{{ row.name }}</strong>
-          <br />
-          {{ row.email }}
+          <div class="font-semibold">{{ row.name }}</div>
+          <div class="text-xs text-gray-400">{{ row.email }}</div>
         </template>
       </el-table-column>
 
       <el-table-column label="Department" min-width="150">
         <template #default="{ row }">
-          {{ row.Department?.name }} <br />
+          <div class="line-clamp-1">
+            {{ row.Department?.name }}
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Roles" min-width="150">
+        <template #default="{ row }">
           <el-tag
             v-for="role in row.roles"
             :key="role"
-            type="info"
+            type="success"
             size="small"
-            effect="dark"
+            effect="plain"
             class="mr-1"
           >
             {{ role }}
@@ -59,8 +63,10 @@
 
       <el-table-column label="Bank" min-width="150">
         <template #default="{ row }">
-          {{ row.Bank?.name }} <br />
-          {{ row.bankAccount }} ({{ row.currency }})
+          {{ row.Bank?.name }}
+          <div class="text-xs text-gray-400">
+            {{ row.bankAccount }} ({{ row.currency }})
+          </div>
         </template>
       </el-table-column>
 
@@ -76,7 +82,7 @@
             :type="row.active ? 'success' : 'danger'"
             size="small"
             style="width: 100%"
-            effect="dark"
+            effect="plain"
           >
             {{ row.active ? "Aktif" : "Nonaktif" }}
           </el-tag>
@@ -90,8 +96,7 @@
         fixed="right"
       >
         <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
+          <el-button link @click="refetch()" :icon="ElIconRefresh"> </el-button>
         </template>
         <template #default="{ row }">
           <el-dropdown>
@@ -121,27 +126,42 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <UserForm />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const {
   openForm,
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
   keyword,
+  page,
+  pageSize,
+  currentChange,
+  sizeChange,
 } = useCrud({
   url: "/api/users",
   queryKey: "users",
 });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 const { mutate: remove } = removeMutation();
 </script>
