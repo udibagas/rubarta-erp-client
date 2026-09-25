@@ -28,7 +28,10 @@
     >
       <el-table-column label="Name" prop="name">
         <template #default="{ row }">
-          <div class="line-clamp-1 font-semibold" @click="openForm(row)">
+          <div
+            class="line-clamp-1 font-semibold cursor-pointer hover:underline"
+            @click="openForm(row)"
+          >
             {{ row.name }}
           </div>
           <div class="text-xs text-gray-500">
