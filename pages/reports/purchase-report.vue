@@ -90,7 +90,7 @@
 
         <el-table-column type="expand">
           <template #default="{ row }">
-            <el-table :data="row.orders" class="ml-8" size="small">
+            <el-table :data="row.orders" class="ml-8 w-200!" border>
               <el-table-column label="Order Date" min-width="120">
                 <template #default="{ row: order }">
                   {{ formatDate(order.date) }}
