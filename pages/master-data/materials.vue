@@ -51,7 +51,7 @@
       :data="data?.data ?? []"
       height="calc(100vh - 198px)"
     >
-      <el-table-column label="Part Number" width="150">
+      <el-table-column label="Part Number" width="150" fixed="left">
         <template #default="{ row }">
           <div class="font-semibold font-mono">{{ row.partNumber }}</div>
         </template>
@@ -59,7 +59,7 @@
 
       <el-table-column label="Material" min-width="150">
         <template #default="{ row }">
-          <strong class="line-clamp-1">{{ row.name }}</strong>
+          <div class="line-clamp-1">{{ row.name }}</div>
           <div v-if="row.model" class="text-xs text-gray-600">
             Model: {{ row.model }}
           </div>
