@@ -3,14 +3,14 @@
     <template #header>
       <el-page-header @back="goBack" content="Vendors">
         <template #extra>
-          <form @submit.prevent="refreshData()" class="flex gap-2">
+          <form @submit.prevent="refetch()" class="flex gap-2">
             <el-input
               v-model="keyword"
               placeholder="Search by name, code, or address..."
               clearable
               style="width: 300px"
               :prefix-icon="ElIconSearch"
-              @clear="refreshData()"
+              @clear="refetch()"
             />
             <el-button :icon="ElIconPlus" type="success" @click="openForm()">
               ADD NEW VENDOR
@@ -23,48 +23,52 @@
     <el-table
       stripe
       v-loading="isPending"
-      :data="data"
-      height="calc(100vh - 155px)"
-      @row-click="(row) => openForm(row)"
+      :data="data?.data ?? []"
+      height="calc(100vh - 195px)"
     >
-      <el-table-column type="index" label="#"></el-table-column>
-
-      <el-table-column label="Name" min-width="250px">
+      <el-table-column label="Name" prop="name">
         <template #default="{ row }">
-          <div class="line-clamp-1 font-semibold">{{ row.name }}</div>
-          {{ row.code }}
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Contact" width="250px">
-        <template #default="{ row }">
-          <div class="flex gap-2 items-center">
-            <el-icon><ElIconPhone /></el-icon> {{ row.phone || "-" }}
+          <div
+            class="line-clamp-1 font-semibold cursor-pointer hover:underline"
+            @click="openForm(row)"
+          >
+            {{ row.name }}
           </div>
-          <div class="flex gap-2 items-center">
-            <el-icon><ElIconMessage /></el-icon>
-            <el-link
-              type="success"
-              :href="`mailto:${row.email}`"
-              target="_blank"
-              class="line-clamp-1"
-            >
-              {{ row.email || "-" }}
-            </el-link>
+          <span class="text-xs text-gray-500">
+            {{ row.code }}
+          </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Contact" prop="email">
+        <template #default="{ row }">
+          <el-link
+            :href="`mailto:${row.email}`"
+            target="_blank"
+            class="line-clamp-1"
+          >
+            {{ row.email || "-" }}
+          </el-link>
+          <div class="text-xs text-gray-400">
+            {{ row.phone || "-" }}
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Address" min-width="300px">
+      <el-table-column label="Address">
         <template #default="{ row }">
-          {{ row.address }}
+          <div class="whitespace-pre-line line-clamp-3 text-xs">
+            {{ row.address }}
+          </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Bank" min-width="250px">
+      <el-table-column label="Bank" prop="Bank?.name">
         <template #default="{ row }">
-          <strong>{{ row.Bank?.name }}</strong> <br />
-          {{ row.bankAccount }} ({{ row.currency }})
+          <div class="line-clamp-1">{{ row.Bank?.name }}</div>
+          <div class="text-xs text-gray-400">
+            {{ row.bankAccount }} ({{ row.currency }})
+          </div>
         </template>
       </el-table-column>
 
@@ -75,8 +79,7 @@
         fixed="right"
       >
         <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
+          <el-button link @click="refetch()" :icon="ElIconRefresh"> </el-button>
         </template>
         <template #default="{ row }">
           <el-dropdown>
@@ -106,27 +109,42 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination
+      class="p-2 bg-slate-100"
+      v-if="data?.total"
+      :current-page="page"
+      size="small"
+      background
+      layout="total, sizes, prev, pager, next"
+      :page-size="pageSize"
+      :page-sizes="[10, 25, 50, 100]"
+      :total="data?.total"
+      @current-change="currentChange"
+      @size-change="sizeChange"
+    />
+
     <SupplierForm />
   </nuxt-layout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const {
   openForm,
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
+  currentChange,
+  sizeChange,
   keyword,
+  page,
+  pageSize,
 } = useCrud({
   url: "/api/suppliers",
   queryKey: "suppliers",
 });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 const { mutate: remove } = removeMutation();
 </script>

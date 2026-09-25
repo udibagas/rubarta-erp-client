@@ -7,7 +7,7 @@
   >
     <el-form label-width="160px" label-position="left">
       <el-form-item label="Name" :error="errors.name">
-        <el-input placeholder="Name" v-model="form.name"></el-input>
+        <el-input placeholder="Name" v-model="form.name" />
       </el-form-item>
 
       <el-form-item label="Address" :error="errors.address">
@@ -15,15 +15,16 @@
           type="textarea"
           placeholder="Address"
           v-model="form.address"
-        ></el-input>
+          :rows="5"
+        />
       </el-form-item>
 
       <el-form-item label="Email" :error="errors.email">
-        <el-input placeholder="Email" v-model="form.email"></el-input>
+        <el-input placeholder="Email" v-model="form.email" />
       </el-form-item>
 
       <el-form-item label="Phone" :error="errors.phone">
-        <el-input placeholder="Phone" v-model="form.phone"></el-input>
+        <el-input placeholder="Phone" v-model="form.phone" />
       </el-form-item>
 
       <el-form-item label="Bank" :error="errors.bankId">
@@ -39,10 +40,7 @@
       </el-form-item>
 
       <el-form-item label="Bank Account" :error="errors.bankAccount">
-        <el-input
-          placeholder="Bank Account"
-          v-model="form.bankAccount"
-        ></el-input>
+        <el-input placeholder="Bank Account" v-model="form.bankAccount" />
       </el-form-item>
 
       <el-form-item label="Currency" :error="errors.currency">
@@ -56,8 +54,7 @@
             :value="c"
             :label="c"
             :key="i"
-          >
-          </el-option>
+          />
         </el-select>
       </el-form-item>
     </el-form>
