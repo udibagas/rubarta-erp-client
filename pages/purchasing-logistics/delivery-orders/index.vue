@@ -4,8 +4,6 @@
       <el-page-header @back="goBack" content="Delivery Orders">
         <template #extra>
           <div class="flex gap-2">
-            <el-button @click="refetch()" :icon="ElIconRefresh" />
-
             <el-dropdown split-button @command="handleExport">
               <el-icon class="mr-1"><ElIconDownload /></el-icon>
               Export
@@ -73,6 +71,8 @@
         :prefix-icon="ElIconSearch"
         class="w-70! ml-auto"
       />
+
+      <el-button @click="refetch()" :icon="ElIconRefresh" />
     </div>
 
     <el-table
@@ -124,7 +124,7 @@
         min-width="150"
       >
         <template #default="{ row }">
-          {{ row.referenceNumber || "-" }}
+          {{ row.SalesOrder?.referenceNumber || row.referenceNumber || "-" }}
         </template>
       </el-table-column>
 
@@ -152,7 +152,7 @@
       </el-table-column>
 
       <el-table-column
-        label="Items"
+        label="Parts"
         prop="_count.DeliveryOrderItems"
         width="80"
         align="center"
