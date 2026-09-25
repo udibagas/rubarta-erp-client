@@ -28,15 +28,12 @@
     >
       <el-table-column label="Name" prop="name">
         <template #default="{ row }">
-          <div
-            class="line-clamp-1 font-semibold cursor-pointer hover:underline"
-            @click="openForm(row)"
-          >
+          <div class="line-clamp-1 font-semibold" @click="openForm(row)">
             {{ row.name }}
           </div>
-          <span class="text-xs text-gray-500">
+          <div class="text-xs text-gray-500">
             {{ row.code }}
-          </span>
+          </div>
         </template>
       </el-table-column>
 
