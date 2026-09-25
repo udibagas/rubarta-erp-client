@@ -250,7 +250,12 @@ const openForm = (data = {}) => {
 };
 
 const handleExport = (format) => {
-  const url = `${config.public.apiBase}/api/delivery-orders/export/${format}`;
+  const params = new URLSearchParams({
+    keyword: keyword,
+    ...filters,
+  }).toString();
+
+  const url = `${config.public.apiBase}/api/delivery-orders/export/${format}?${params}`;
   window.open(url, "_blank");
 };
 </script>
