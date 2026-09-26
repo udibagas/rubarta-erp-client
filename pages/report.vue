@@ -1,37 +1,10 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="NKP REPORT">
+      <el-page-header @back="goBack" content="NKP Report">
         <template #extra>
           <div class="flex">
-            <el-radio-group
-              v-model="filters.paymentType"
-              class="mr-2"
-              fill="rgb(149, 212, 117)"
-            >
-              <el-radio-button value="ALL">ALL</el-radio-button>
-              <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
-              <el-radio-button value="VENDOR">VENDOR</el-radio-button>
-            </el-radio-group>
-
-            <el-date-picker
-              v-model="filters.dateRange"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="Start"
-              end-placeholder="End"
-              style="width: 200px"
-              value-format="YYYY-MM-DD"
-              format="DD/MM/YYYY"
-              class="mr-2"
-            />
-
-            <el-dropdown
-              split-button
-              type="success"
-              @command="download"
-              class="mr-2"
-            >
+            <el-dropdown split-button @command="download" class="mr-2">
               <el-icon class="mr-2">
                 <ElIconDownload />
               </el-icon>
@@ -47,50 +20,57 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-
-            <el-input
-              size="small"
-              v-model="keyword"
-              placeholder="Cari"
-              style="width: 150px; margin-right: 5px"
-              :prefix-icon="ElIconSearch"
-              :clearable="true"
-              @keydown.enter="
-                () => {
-                  page = 1;
-                  refreshData();
-                }
-              "
-              @clear="
-                () => {
-                  page = 1;
-                  refreshData();
-                }
-              "
-            >
-            </el-input>
-
-            <el-button
-              :icon="ElIconRefresh"
-              @click="
-                () => {
-                  page = 1;
-                  keyword = '';
-                  refreshData();
-                }
-              "
-            ></el-button>
           </div>
         </template>
       </el-page-header>
     </template>
+
+    <div
+      class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border-b border-gray-300"
+    >
+      <div class="flex items-center gap-2">
+        <el-radio-group
+          v-model="filters.paymentType"
+          class="mr-2"
+          fill="rgb(149, 212, 117)"
+          @change="refetch()"
+        >
+          <el-radio-button value="ALL">ALL</el-radio-button>
+          <el-radio-button value="EMPLOYEE">EMPLOYEE</el-radio-button>
+          <el-radio-button value="VENDOR">VENDOR</el-radio-button>
+        </el-radio-group>
+
+        <el-date-picker
+          v-model="filters.dateRange"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="Start"
+          end-placeholder="End"
+          value-format="YYYY-MM-DD"
+          format="DD-MMM-YYYY"
+          @change="refetch()"
+          class="w-70!"
+        />
+      </div>
+
+      <el-input
+        v-model="keyword"
+        @change="refetch()"
+        placeholder="Search"
+        clearable
+        :prefix-icon="ElIconSearch"
+        class="w-50! ml-auto"
+      />
+
+      <el-button @click="refetch()" :icon="ElIconRefresh" />
+    </div>
 
     <el-table
       stripe
       v-loading="isPending"
       :data="data?.data"
       table-layout="auto"
-      height="calc(100vh - 195px)"
+      height="calc(100vh - 254px)"
     >
       <el-table-column type="index" label="#"></el-table-column>
 
@@ -107,7 +87,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="Bank Ref No" prop="bankRefNo">
+      <el-table-column label="Bank Ref No" prop="bankRefNo" width="170">
         <template #default="{ row }">
           <span class="line-clamp-2">{{ row.bankRefNo }}</span>
         </template>
@@ -120,7 +100,11 @@
         width="200"
       />
 
-      <el-table-column label="Description" prop="description" min-width="150" />
+      <el-table-column label="Description" prop="description" min-width="150">
+        <template #default="{ row }">
+          <span class="line-clamp-2">{{ row.description }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="Amount" width="150" align="right" fixed="right">
         <template #default="{ row }">
@@ -149,7 +133,7 @@
       :total="data?.total"
       @current-change="currentChange"
       @size-change="sizeChange"
-    ></el-pagination>
+    />
   </nuxt-layout>
 </template>
 
@@ -159,8 +143,6 @@ definePageMeta({
 });
 
 const config = useRuntimeConfig();
-const url = "/api/nkp";
-const queryKey = "nkp-report";
 
 const {
   page,
@@ -170,11 +152,10 @@ const {
   keyword,
   sizeChange,
   currentChange,
-  refreshData,
   fetchData,
 } = useCrud({
-  url,
-  queryKey,
+  url: "/api/nkp",
+  queryKey: "nkp-report",
   defaultQuery: {
     orderBy: "createdAt",
     orderDirection: "asc",
@@ -183,30 +164,14 @@ const {
 
 watch(companyId, () => {
   page.value = 1;
-  refreshData();
+  refetch();
 });
-
-watch(
-  () => filters.value.paymentType,
-  () => {
-    page.value = 1;
-    refreshData();
-  },
-);
-
-watch(
-  () => filters.value.dateRange,
-  () => {
-    page.value = 1;
-    refreshData();
-  },
-);
 
 // Default filters
 filters.value.paymentType = "ALL";
 filters.value.action = "report";
 filters.value.dateRange = null;
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 
 async function download(format) {
   const params = {
