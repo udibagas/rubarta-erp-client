@@ -116,8 +116,8 @@
             <div class="text-gray-500 text-sm mb-1">Total Tasks</div>
             <div class="text-2xl font-bold">{{ summary?.total }}</div>
           </div>
-          <el-icon :size="50" class="text-blue-500">
-            <ElIconDocument />
+          <el-icon :size="50">
+            <ElIconDocument class="text-blue-500" />
           </el-icon>
         </div>
       </el-card>
