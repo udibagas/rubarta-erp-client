@@ -1,10 +1,14 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="CRM / Tasks">
+      <el-page-header @back="goBack" content="Tasks">
         <template #extra>
           <div class="flex gap-2 items-center">
-            <el-radio-group v-model="viewMode" size="default">
+            <el-radio-group
+              v-model="viewMode"
+              size="default"
+              fill="rgb(149, 212, 117)"
+            >
               <el-radio-button value="table">
                 <el-icon><ElIconList /></el-icon>
                 Table
@@ -15,81 +19,94 @@
               </el-radio-button>
             </el-radio-group>
 
-            <form
-              v-if="viewMode === 'table'"
-              class="flex gap-2"
-              @submit.prevent="
-                () => {
-                  page = 1;
-                  refreshData();
-                }
-              "
-            >
-              <el-select
-                v-model="filters.userId"
-                placeholder="User"
-                style="width: 150px"
-                clearable
-                @change="applyFilters"
-              >
-                <el-option
-                  v-for="user in users"
-                  :key="user.id"
-                  :label="user.name"
-                  :value="user.id"
-                />
-              </el-select>
-
-              <el-select
-                v-model="filters.status"
-                placeholder="Status"
-                style="width: 140px"
-                clearable
-                @change="applyFilters"
-              >
-                <el-option
-                  v-for="status in taskStatuses"
-                  :key="status"
-                  :label="status.replace(/([A-Z])/g, ' $1').trim()"
-                  :value="status"
-                />
-              </el-select>
-
-              <el-select
-                v-model="filters.priority"
-                placeholder="Priority"
-                style="width: 120px"
-                clearable
-                @change="applyFilters"
-              >
-                <el-option
-                  v-for="priority in taskPriorities"
-                  :key="priority"
-                  :label="priority"
-                  :value="priority"
-                />
-              </el-select>
-
-              <el-input
-                v-model="keyword"
-                placeholder="Search"
-                style="width: 180px"
-                :prefix-icon="ElIconSearch"
-                :clearable="true"
-                @clear="
-                  () => {
-                    page = 1;
-                    refreshData();
-                  }
-                "
-              />
-            </form>
-
-            <el-button :icon="ElIconPlus" type="success" @click="openForm()" />
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+              Add Task
+            </el-button>
           </div>
         </template>
       </el-page-header>
     </template>
+
+    <div
+      v-if="viewMode === 'table'"
+      class="flex flex-wrap items-center gap-2 justify-between p-3 bg-slate-50 border-b border-gray-300"
+    >
+      <div class="flex-1 flex items-center gap-2">
+        <el-select
+          v-model="filters.userId"
+          placeholder="User"
+          style="width: 150px"
+          clearable
+          @change="applyFilters"
+        >
+          <el-option
+            v-for="user in users"
+            :key="user.id"
+            :label="user.name"
+            :value="user.id"
+          />
+          <template #prefix>
+            <el-icon><ElIconUser /></el-icon>
+          </template>
+        </el-select>
+
+        <el-select
+          v-model="filters.status"
+          placeholder="Status"
+          style="width: 140px"
+          clearable
+          @change="applyFilters"
+        >
+          <el-option
+            v-for="status in taskStatuses"
+            :key="status"
+            :label="status.replace(/([A-Z])/g, ' $1').trim()"
+            :value="status"
+          />
+          <template #prefix>
+            <el-icon><ElIconFlag /></el-icon>
+          </template>
+        </el-select>
+
+        <el-select
+          v-model="filters.priority"
+          placeholder="Priority"
+          style="width: 120px"
+          clearable
+          @change="applyFilters"
+        >
+          <el-option
+            v-for="priority in taskPriorities"
+            :key="priority"
+            :label="priority"
+            :value="priority"
+          />
+          <template #prefix>
+            <el-icon><ElIconStar /></el-icon>
+          </template>
+        </el-select>
+      </div>
+
+      <div>
+        <el-input
+          v-model="keyword"
+          placeholder="Search"
+          style="width: 180px"
+          :prefix-icon="ElIconSearch"
+          :clearable="true"
+          class="mr-2"
+          @change="refetch()"
+          @clear="
+            () => {
+              page = 1;
+              refetch();
+            }
+          "
+        />
+
+        <el-button @click="refetch()" :icon="ElIconRefresh" />
+      </div>
+    </div>
 
     <!-- Table View -->
     <el-table
@@ -99,12 +116,14 @@
       :data="data"
       @row-click="openDetailDialog"
       style="cursor: pointer"
-      height="calc(100vh - 198px)"
+      height="calc(100vh - 215px)"
     >
       <el-table-column label="Title" prop="title">
         <template #default="{ row }">
           <div class="font-semibold">{{ row.title }}</div>
-          {{ row.description }}
+          <div class="text-xs text-gray-400">
+            {{ row.description }}
+          </div>
         </template>
       </el-table-column>
 
@@ -230,8 +249,7 @@
         fixed="right"
       >
         <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
+          <el-button link @click="refetch()" :icon="ElIconRefresh"> </el-button>
         </template>
         <template #default="{ row }">
           <el-dropdown>
@@ -269,7 +287,7 @@
       @open-detail="openDetailDialog"
       @edit-task="openForm"
       @delete-task="(id) => handleRemove(id, remove)"
-      @refresh="refreshData"
+      @refresh="refetch"
     />
 
     <TaskForm />
@@ -277,7 +295,7 @@
     <TaskDetailDialog
       v-model="showDetailDialog"
       :task-id="selectedTaskId"
-      @task-updated="refreshData"
+      @task-updated="refetch"
       @edit-task="openForm"
     />
   </nuxt-layout>
@@ -305,7 +323,6 @@ const {
   openForm,
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
   keyword,
   page,
@@ -315,7 +332,7 @@ const {
   queryKey: "tasks",
 });
 
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 const { mutate: remove } = removeMutation();
 
 // Fetch users for filter dropdown
@@ -328,7 +345,7 @@ const { data: users } = useQuery({
 // Apply filters
 const applyFilters = () => {
   page.value = 1;
-  refreshData();
+  refetch();
 };
 
 // Open task detail dialog
