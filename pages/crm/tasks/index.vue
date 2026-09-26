@@ -109,7 +109,10 @@
     </div>
 
     <!-- SUMMARY -->
-    <div class="grid grid-cols-4 gap-4 mb-2" v-if="viewMode === 'table'">
+    <div
+      class="grid grid-cols-4 gap-4 mb-2"
+      v-if="viewMode === 'table' && summary"
+    >
       <el-card shadow="hover" class="summary-card">
         <div class="flex items-center justify-between">
           <div>
