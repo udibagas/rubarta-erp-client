@@ -177,6 +177,7 @@
       @row-click="openDetailDialog"
       style="cursor: pointer"
       height="calc(100vh - 330px)"
+      @sort-change="sortChange"
     >
       <el-table-column label="Title" prop="title" min-width="200">
         <template #default="{ row }">
@@ -205,8 +206,9 @@
       <el-table-column
         label="Due Date"
         min-width="150"
+        column-key="dueDate"
+        prop="dueDate"
         sortable="custom"
-        :sort-method="sortByDueDate"
       >
         <template #default="{ row }">
           <div>
@@ -251,7 +253,7 @@
         align="center"
         header-align="center"
         sortable="custom"
-        :sort-method="sortByPriority"
+        column-key="priority"
       >
         <template #default="{ row }">
           <el-tag
@@ -292,8 +294,8 @@
         width="140"
         align="center"
         header-align="center"
+        column-key="status"
         sortable="custom"
-        :sort-method="sortByStatus"
       >
         <template #default="{ row }">
           <StatusTag :status="row.status" style="width: 100%" effect="plain">
@@ -370,9 +372,7 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
@@ -392,12 +392,18 @@ const {
   removeMutation,
   fetchData,
   handleRemove,
+  sortChange,
   keyword,
   page,
   filters,
 } = useCrud({
   url: "/api/tasks",
   queryKey: "tasks",
+  // disable default pagination by setting page and pageSize to undefined
+  defaultQuery: {
+    page: undefined,
+    pageSize: undefined,
+  },
 });
 
 const { isPending, data, refetch } = fetchData();
@@ -420,50 +426,5 @@ const applyFilters = () => {
 const openDetailDialog = (task) => {
   selectedTaskId.value = task.id;
   showDetailDialog.value = true;
-};
-
-// Summary statistics
-const totalTasks = computed(() => {
-  return data.value?.length || 0;
-});
-
-const pendingTasks = computed(() => {
-  if (!data.value) return 0;
-  return data.value.filter(
-    (task) => task.status === "Todo" || task.status === "InProgress",
-  ).length;
-});
-
-const completedTasks = computed(() => {
-  if (!data.value) return 0;
-  return data.value.filter((task) => task.status === "Completed").length;
-});
-
-const completionRate = computed(() => {
-  if (totalTasks.value === 0) return 0;
-  return Math.round((completedTasks.value / totalTasks.value) * 100);
-});
-
-// Sort functions
-const sortByPriority = (a, b) => {
-  const priorityOrder = { Urgent: 1, High: 2, Medium: 3, Low: 4 };
-  return (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
-};
-
-const sortByStatus = (a, b) => {
-  const statusOrder = {
-    Todo: 1,
-    InProgress: 2,
-    OnHold: 3,
-    Completed: 4,
-    Cancelled: 5,
-  };
-  return (statusOrder[a.status] || 6) - (statusOrder[b.status] || 6);
-};
-
-const sortByDueDate = (a, b) => {
-  const dateA = dayjs(a.dueDate);
-  const dateB = dayjs(b.dueDate);
-  return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
 };
 </script>
