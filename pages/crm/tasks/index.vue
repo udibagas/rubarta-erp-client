@@ -120,7 +120,7 @@
             <div class="text-2xl font-bold">{{ summary?.total }}</div>
           </div>
           <el-icon :size="40">
-            <ElIconDocument class="text-blue-500" />
+            <ListTodo class="text-blue-500" />
           </el-icon>
         </div>
       </el-card>
@@ -389,7 +389,7 @@
 <script setup>
 definePageMeta({ layout: false });
 
-import { ClockAlert } from "lucide-vue-next";
+import { ClockAlert, ListTodo } from "lucide-vue-next";
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
