@@ -118,16 +118,16 @@
       style="cursor: pointer"
       height="calc(100vh - 215px)"
     >
-      <el-table-column label="Title" prop="title">
+      <el-table-column label="Title" prop="title" min-width="200">
         <template #default="{ row }">
           <div class="font-semibold">{{ row.title }}</div>
-          <div class="text-xs text-gray-400">
+          <div class="text-xs text-gray-400 line-clamp-1">
             {{ row.description }}
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="User">
+      <el-table-column label="User" min-width="150">
         <template #default="{ row }">
           <div class="flex items-center gap-2">
             <el-avatar
@@ -137,16 +137,15 @@
             >
               {{ row.User?.name?.charAt(0) }}
             </el-avatar>
-            <span>{{ row.User?.name }}</span>
+            <span class="line-clamp-1">{{ row.User?.name }}</span>
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Due Date">
+      <el-table-column label="Due Date" min-width="150">
         <template #default="{ row }">
           <div>
             <div
-              class="font-semibold text-sm"
               :class="{
                 'text-red-500':
                   (row.status === 'Todo' || row.status === 'InProgress') &&
@@ -164,7 +163,7 @@
                 <ElIconWarning />
               </el-icon>
             </div>
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-gray-400">
               {{ formatDate(row.dueDate) }}
               <span
                 v-if="
@@ -177,28 +176,6 @@
               </span>
             </div>
           </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="Status"
-        prop="status"
-        width="140"
-        align="center"
-        header-align="center"
-      >
-        <template #default="{ row }">
-          <StatusTag :status="row.status" style="width: 100%" effect="dark">
-            <template #icon>
-              <el-icon>
-                <ElIconCircleCheck v-if="row.status === 'Completed'" />
-                <ElIconLoading v-else-if="row.status === 'InProgress'" />
-                <ElIconWarning v-else-if="row.status === 'OnHold'" />
-                <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
-                <ElIconClock v-else />
-              </el-icon>
-            </template>
-          </StatusTag>
         </template>
       </el-table-column>
 
@@ -232,13 +209,35 @@
       <el-table-column label="Last Update" width="150">
         <template #default="{ row }">
           <div>
-            <div class="font-semibold text-sm">
+            <div>
               {{ dayjs(row.updatedAt).fromNow() }}
             </div>
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-gray-400">
               {{ formatDate(row.updatedAt) }} {{ formatTime(row.updatedAt) }}
             </div>
           </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="Status"
+        prop="status"
+        width="140"
+        align="center"
+        header-align="center"
+      >
+        <template #default="{ row }">
+          <StatusTag :status="row.status" style="width: 100%" effect="plain">
+            <template #icon>
+              <el-icon>
+                <ElIconCircleCheck v-if="row.status === 'Completed'" />
+                <ElIconLoading v-else-if="row.status === 'InProgress'" />
+                <ElIconWarning v-else-if="row.status === 'OnHold'" />
+                <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
+                <ElIconClock v-else />
+              </el-icon>
+            </template>
+          </StatusTag>
         </template>
       </el-table-column>
 
