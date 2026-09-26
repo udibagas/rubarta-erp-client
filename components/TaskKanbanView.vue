@@ -39,51 +39,6 @@
         >
           <div class="kanban-card-header">
             <h4 class="kanban-card-title">{{ task.title }}</h4>
-            <el-dropdown trigger="click" @click.stop>
-              <el-icon class="kanban-card-menu">
-                <ElIconMoreFilled />
-              </el-icon>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item
-                    :icon="ElIconEdit"
-                    @click.stop="$emit('edit-task', task)"
-                  >
-                    Edit
-                  </el-dropdown-item>
-                  <el-dropdown-item
-                    :icon="ElIconDelete"
-                    @click.stop="$emit('delete-task', task.id)"
-                  >
-                    Delete
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-
-          <p v-if="task.description" class="kanban-card-description">
-            {{ task.description }}
-          </p>
-
-          <div class="kanban-card-footer">
-            <div class="flex items-center gap-2">
-              <el-avatar
-                size="small"
-                :style="{ backgroundColor: getAvatarColor(task.User?.name) }"
-              >
-                {{ task.User?.name?.charAt(0) }}
-              </el-avatar>
-              <span class="text-xs line-clamp-1">{{ task.User?.name }}</span>
-            </div>
-
-            <div class="text-xs text-gray-500">
-              <el-icon><ElIconCalendar /></el-icon>
-              {{ formatDate(task.dueDate) }}
-            </div>
-          </div>
-
-          <div v-if="task.priority" class="kanban-card-priority">
             <el-tag
               :type="
                 task.priority === 'High'
@@ -96,6 +51,31 @@
             >
               {{ task.priority }}
             </el-tag>
+          </div>
+
+          <p v-if="task.description" class="text-xs text-gray-400 mb-2">
+            {{ task.description }}
+          </p>
+
+          <div
+            class="flex justify-between items-center border-t border-gray-200 pt-3"
+          >
+            <div class="flex items-center gap-2">
+              <el-avatar
+                :size="18"
+                :style="{ backgroundColor: getAvatarColor(task.User?.name) }"
+              >
+                <span class="text-xs">
+                  {{ task.User?.name?.charAt(0) }}
+                </span>
+              </el-avatar>
+              <span class="text-xs line-clamp-1">{{ task.User?.name }}</span>
+            </div>
+
+            <div class="text-xs text-gray-500 w-22">
+              <el-icon><ElIconCalendar /></el-icon>
+              {{ formatDate(task.dueDate) }}
+            </div>
           </div>
         </div>
       </div>
@@ -183,17 +163,16 @@ const handleDrop = async (event, newStatus) => {
 <style scoped>
 .kanban-board {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 16px;
 }
 
 .kanban-column {
   flex: 1;
   min-width: 300px;
   border-radius: 8px;
-  padding: 12px;
-  max-height: calc(100vh - 200px);
+  padding: 8px;
+  max-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
 }
@@ -219,7 +198,7 @@ const handleDrop = async (event, newStatus) => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .kanban-card {
@@ -262,32 +241,5 @@ const handleDrop = async (event, newStatus) => {
 
 .kanban-card-menu:hover {
   color: #606266;
-}
-
-.kanban-card-description {
-  font-size: 13px;
-  color: #606266;
-  margin-bottom: 12px;
-  line-height: 1.5;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.kanban-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e4e7ed;
-}
-
-.kanban-card-priority {
-  position: absolute;
-  top: 12px;
-  right: 12px;
 }
 </style>

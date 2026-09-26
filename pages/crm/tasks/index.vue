@@ -170,7 +170,7 @@
                   (row.status === 'Todo' || row.status === 'InProgress') &&
                   dayjs(row.dueDate).isBefore(dayjs(), 'day')
                 "
-                class="text-red-500 font-semibold"
+                class="text-red-500"
               >
                 (Overdue)
               </span>
