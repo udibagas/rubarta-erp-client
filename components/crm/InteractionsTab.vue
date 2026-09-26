@@ -41,7 +41,7 @@
 
     <el-table-column label="Type" width="150" align="center">
       <template #default="{ row }">
-        <StatusTag :status="row.type" size="medium">
+        <StatusTag :status="row.type">
           <template #icon>
             <el-icon>
               <Phone v-if="row.type === 'Call'" />
@@ -105,7 +105,7 @@
     <el-table-column width="60" align="center" fixed="right">
       <template #header>
         <el-button
-          type="text"
+          link
           size="small"
           :icon="ElIconRefresh"
           circle

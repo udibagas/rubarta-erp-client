@@ -64,7 +64,7 @@
           {{ toCurrency(row.grandTotal, row.currency) }}
         </div>
         <span class="text-xs text-gray-400">
-          {{ toDecimal(row._count.InvoiceItems) }} items
+          {{ toDecimal(row._count.InvoiceItems) }} parts
         </span>
       </template>
     </el-table-column>
@@ -86,7 +86,18 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
-const { customerId } = defineProps(["customerId"]);
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
+const { customerId } = defineProps({
+  customerId: {
+    type: Number,
+    required: true,
+  },
+});
+
+const request = useRequest();
 
 const { data = [], isPending } = useQuery({
   queryKey: ["invoices", customerId],

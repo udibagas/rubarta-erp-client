@@ -49,7 +49,7 @@
     <el-table-column width="60" align="center" fixed="right">
       <template #header>
         <el-button
-          type="text"
+          link
           size="small"
           :icon="ElIconRefresh"
           circle

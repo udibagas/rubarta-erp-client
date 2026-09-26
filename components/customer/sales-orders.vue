@@ -65,7 +65,7 @@
           {{ toCurrency(row.grandTotal, row.currency) }}
         </div>
         <span class="text-xs text-gray-400">
-          {{ toDecimal(row._count.SalesOrderItems) }} items
+          {{ toDecimal(row._count.SalesOrderItems) }} parts
         </span>
       </template>
     </el-table-column>

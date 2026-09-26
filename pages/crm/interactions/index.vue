@@ -63,7 +63,7 @@
 
       <el-table-column label="Type" width="150" align="center">
         <template #default="{ row }">
-          <StatusTag :status="row.type" size="medium">
+          <StatusTag :status="row.type">
             <template #icon>
               <el-icon>
                 <ElIconPhone v-if="row.type === 'Call'" />

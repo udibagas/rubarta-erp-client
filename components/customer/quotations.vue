@@ -67,7 +67,7 @@
           {{ toCurrency(row.grandTotal, row.currency) }}
         </div>
         <span class="text-xs text-gray-400">
-          {{ toDecimal(row._count.QuotationItems) }} items
+          {{ toDecimal(row._count.QuotationItems) }} parts
         </span>
       </template>
     </el-table-column>
@@ -89,7 +89,15 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
-const { customerId } = defineProps(["customerId"]);
+
+const { customerId } = defineProps({
+  customerId: {
+    type: Number,
+    required: true,
+  },
+});
+
+const request = useRequest();
 
 const { data = [], isPending } = useQuery({
   queryKey: ["quotations", customerId],
