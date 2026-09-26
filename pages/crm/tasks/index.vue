@@ -119,7 +119,7 @@
             <div class="text-gray-500 text-sm mb-1">Total Tasks</div>
             <div class="text-2xl font-bold">{{ summary?.total }}</div>
           </div>
-          <el-icon :size="50">
+          <el-icon :size="40">
             <ElIconDocument class="text-blue-500" />
           </el-icon>
         </div>
@@ -133,7 +133,7 @@
               {{ summary?.pending }}
             </div>
           </div>
-          <el-icon :size="50">
+          <el-icon :size="40">
             <ElIconClock class="text-orange-500" />
           </el-icon>
         </div>
@@ -143,25 +143,28 @@
         <div class="flex items-center justify-between">
           <div class="flex-1">
             <div class="text-gray-500 text-sm mb-1">Completed Tasks</div>
-            <div class="text-2xl font-bold text-green-500">
-              {{ summary?.completed }}
-              <span class="text-xs text-yellow-500">{{ progress }}%</span>
+            <div class="flex items-center gap-4">
+              <div class="text-2xl font-bold text-green-500">
+                {{ summary?.completed }}
+              </div>
+              <div class="flex-1">
+                <el-progress
+                  :stroke-width="5"
+                  :percentage="progress"
+                  :color="
+                    progress >= 75
+                      ? '#67c23a'
+                      : progress >= 50
+                        ? '#e6a23c'
+                        : '#f56c6c'
+                  "
+                />
+              </div>
             </div>
           </div>
-          <el-progress
-            type="circle"
-            :stroke-width="5"
-            :width="50"
-            :percentage="progress"
-            status="success"
-            :color="
-              progress >= 75
-                ? '#67c23a'
-                : progress >= 50
-                  ? '#e6a23c'
-                  : '#f56c6c'
-            "
-          />
+          <el-icon :size="40">
+            <ElIconCircleCheck class="text-green-500" />
+          </el-icon>
         </div>
       </el-card>
 
@@ -173,7 +176,7 @@
               {{ summary?.overdue }}
             </div>
           </div>
-          <el-icon :size="50">
+          <el-icon :size="40">
             <ClockAlert class="text-red-500" />
           </el-icon>
         </div>
