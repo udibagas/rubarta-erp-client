@@ -118,10 +118,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Number" width="260" fixed="left">
+      <el-table-column label="Number" width="265" fixed="left">
         <template #default="{ row }">
           <div
-            class="font-mono cursor-pointer hover:underline font-semibold"
+            class="font-mono cursor-pointer hover:underline font-semibold line-clamp-1"
             @click="show(row.id)"
           >
             {{ row.number }}
