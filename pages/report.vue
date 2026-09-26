@@ -4,7 +4,7 @@
       <el-page-header @back="goBack" content="NKP Report">
         <template #extra>
           <div class="flex">
-            <el-dropdown split-button @command="download" class="mr-2">
+            <el-dropdown split-button @command="download">
               <el-icon class="mr-2">
                 <ElIconDownload />
               </el-icon>
