@@ -21,9 +21,9 @@
             <ElIconCircleClose v-else-if="status === 'Cancelled'" />
             <ElIconClock v-else />
           </el-icon>
-          <span class="font-semibold">{{
-            status.replace(/([A-Z])/g, " $1").trim()
-          }}</span>
+          <span class="font-semibold">
+            {{ status.replace(/([A-Z])/g, " $1").trim() }}
+          </span>
         </div>
         <el-badge :value="getTasksByStatus(status).length" />
       </div>
@@ -74,7 +74,7 @@
               >
                 {{ task.User?.name?.charAt(0) }}
               </el-avatar>
-              <span class="text-xs">{{ task.User?.name }}</span>
+              <span class="text-xs line-clamp-1">{{ task.User?.name }}</span>
             </div>
 
             <div class="text-xs text-gray-500">
