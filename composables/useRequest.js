@@ -55,10 +55,9 @@ export default () => {
 
       if (error.response?.status === 403 && import.meta.client) {
         // Handle 403 forbidden - show an error message
-        ElMessage({
+        ElNotification.error({
           message: "You do not have permission to perform this action.",
-          type: "error",
-          showClose: true,
+          title: "Unauthorized",
         });
       }
 

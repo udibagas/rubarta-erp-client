@@ -108,14 +108,15 @@
       </div>
     </div>
 
+    <!-- SUMMARY -->
     <div class="grid grid-cols-4 gap-4 mb-2" v-if="viewMode === 'table'">
       <el-card shadow="hover" class="summary-card">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-gray-500 text-sm mb-1">Total Tasks</div>
-            <div class="text-2xl font-bold">{{ totalTasks }}</div>
+            <div class="text-2xl font-bold">{{ summary?.total }}</div>
           </div>
-          <el-icon :size="40" class="text-blue-500">
+          <el-icon :size="50" class="text-blue-500">
             <ElIconDocument />
           </el-icon>
         </div>
@@ -126,10 +127,10 @@
           <div>
             <div class="text-gray-500 text-sm mb-1">Pending Tasks</div>
             <div class="text-2xl font-bold text-orange-500">
-              {{ pendingTasks }}
+              {{ summary?.pending }}
             </div>
           </div>
-          <el-icon :size="40">
+          <el-icon :size="50">
             <ElIconClock class="text-orange-500" />
           </el-icon>
         </div>
@@ -137,33 +138,41 @@
 
       <el-card shadow="hover" class="summary-card">
         <div class="flex items-center justify-between">
-          <div>
+          <div class="flex-1">
             <div class="text-gray-500 text-sm mb-1">Completed Tasks</div>
             <div class="text-2xl font-bold text-green-500">
-              {{ completedTasks }}
+              {{ summary?.completed }}
+              <span class="text-xs text-yellow-500">{{ progress }}%</span>
             </div>
           </div>
-          <el-icon :size="40">
-            <ElIconCircleCheck class="text-green-500" />
-          </el-icon>
+          <el-progress
+            type="circle"
+            :stroke-width="5"
+            :width="50"
+            :percentage="progress"
+            status="success"
+            :color="
+              progress >= 75
+                ? '#67c23a'
+                : progress >= 50
+                  ? '#e6a23c'
+                  : '#f56c6c'
+            "
+          />
         </div>
       </el-card>
 
       <el-card shadow="hover" class="summary-card">
         <div class="flex items-center justify-between">
-          <div class="flex-1">
-            <div class="text-gray-500 text-sm mb-2">Completion Rate</div>
-            <el-progress
-              :percentage="completionRate"
-              :color="
-                completionRate >= 75
-                  ? '#67c23a'
-                  : completionRate >= 50
-                    ? '#e6a23c'
-                    : '#f56c6c'
-              "
-            />
+          <div>
+            <div class="text-gray-500 text-sm mb-1">Overdue Tasks</div>
+            <div class="text-2xl font-bold text-red-500">
+              {{ summary?.overdue }}
+            </div>
           </div>
+          <el-icon :size="50">
+            <ClockAlert class="text-red-500" />
+          </el-icon>
         </div>
       </el-card>
     </div>
@@ -374,6 +383,7 @@
 <script setup>
 definePageMeta({ layout: false });
 
+import { ClockAlert } from "lucide-vue-next";
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -416,10 +426,28 @@ const { data: users } = useQuery({
   queryFn: () => request("/api/users"),
 });
 
+const { data: summary, refetch: refetchSummary } = useQuery({
+  queryKey: ["tasks-summary"],
+  queryFn: () =>
+    request("/api/tasks/summary", {
+      params: {
+        userId: filters.value.userId,
+        status: filters.value.status,
+        priority: filters.value.priority,
+      },
+    }),
+});
+
+const progress = computed(() => {
+  if (!summary.value.total) return 0;
+  return Math.round((summary.value.completed / summary.value.total) * 100);
+});
+
 // Apply filters
 const applyFilters = () => {
   page.value = 1;
   refetch();
+  refetchSummary();
 };
 
 // Open task detail dialog
