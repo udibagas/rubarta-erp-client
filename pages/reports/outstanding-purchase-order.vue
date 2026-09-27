@@ -3,7 +3,22 @@
     <template #header>
       <el-page-header @back="goBack" content="Outstanding Purchase Order">
         <template #extra>
-          <div class="flex gap-2"></div>
+          <div class="flex gap-2">
+            <el-dropdown split-button @command="handleExport">
+              <el-icon class="mr-1"><ElIconDownload /></el-icon>
+              Export
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="excel" :icon="ElIconMemo">
+                    Excel
+                  </el-dropdown-item>
+                  <el-dropdown-item command="pdf" :icon="ElIconDocument">
+                    PDF
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </template>
       </el-page-header>
     </template>
@@ -16,6 +31,7 @@
         placeholder="All Vendors"
         filterable
         clearable
+        default-first-option
         class="w-52!"
         @change="refetch()"
       >
@@ -135,6 +151,7 @@ const viewMode = ref<"supplier" | "po" | "item">("supplier");
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const request = useRequest();
 const suppliers = ref<{ id: number; name: string }[]>([]);
 const supplierId = ref<number | null>(null);
@@ -157,4 +174,13 @@ useGraphqlQuery<{ suppliers: { id: number; name: string }[] }>(gql`
 `).then((result) => {
   suppliers.value = result.data?.suppliers ?? [];
 });
+
+const handleExport = (format: "excel" | "pdf") => {
+  const params = new URLSearchParams({
+    supplierId: supplierId.value?.toString() ?? "",
+    groupBy: viewMode.value,
+  });
+  const url = `${config.public.apiBase}/api/purchase-orders/outstanding/export/${format}?${params.toString()}`;
+  window.open(url, "_blank");
+};
 </script>

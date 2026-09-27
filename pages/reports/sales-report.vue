@@ -9,6 +9,7 @@
               placeholder="All Customer"
               filterable
               clearable
+              default-first-option
               class="w-52!"
               @change="
                 {

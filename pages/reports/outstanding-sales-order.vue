@@ -3,7 +3,22 @@
     <template #header>
       <el-page-header @back="goBack" content="Outstanding Sales Order">
         <template #extra>
-          <div class="flex gap-2"></div>
+          <div class="flex gap-2">
+            <el-dropdown split-button @command="handleExport">
+              <el-icon class="mr-1"><ElIconDownload /></el-icon>
+              Export
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="excel" :icon="ElIconMemo">
+                    Excel
+                  </el-dropdown-item>
+                  <el-dropdown-item command="pdf" :icon="ElIconDocument">
+                    PDF
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </template>
       </el-page-header>
     </template>
@@ -16,14 +31,15 @@
         placeholder="All Customers"
         filterable
         clearable
+        default-first-option
         class="w-52!"
         @change="refetch()"
       >
         <el-option
-          v-for="supplier in customers"
-          :key="supplier.id"
-          :value="supplier.id"
-          :label="supplier.name"
+          v-for="customer in customers"
+          :key="customer.id"
+          :value="customer.id"
+          :label="customer.name"
         />
         <template #prefix>
           <el-icon><ElIconOfficeBuilding /></el-icon>
@@ -135,6 +151,7 @@ const viewMode = ref<"customer" | "so" | "item">("customer");
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const request = useRequest();
 const customers = ref<{ id: number; name: string }[]>([]);
 const customerId = ref<number | null>(null);
@@ -157,4 +174,13 @@ useGraphqlQuery<{ customers: { id: number; name: string }[] }>(gql`
 `).then((result) => {
   customers.value = result.data?.customers ?? [];
 });
+
+const handleExport = (format: "excel" | "pdf") => {
+  const params = new URLSearchParams({
+    customerId: customerId.value?.toString() ?? "",
+    groupBy: viewMode.value,
+  });
+  const url = `${config.public.apiBase}/api/sales-orders/outstanding/export/${format}?${params.toString()}`;
+  window.open(url, "_blank");
+};
 </script>
