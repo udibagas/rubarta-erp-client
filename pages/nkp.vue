@@ -4,7 +4,7 @@
       <el-page-header @back="goBack" content="Nota Kuasa Pembayaran (NKP)">
         <template #extra>
           <div class="flex items-center gap-2">
-            <el-dropdown split-button @command="download">
+            <el-dropdown split-button @command="handleExport">
               <el-icon class="mr-2">
                 <ElIconDownload />
               </el-icon>
@@ -313,17 +313,16 @@ function show(id) {
     });
 }
 
-async function download(format) {
+async function handleExport(format) {
   const params = {
     ...filters.value,
-    format,
     companyId: companyId.value,
-    action: "download",
   };
 
   const query = new URLSearchParams(params).toString();
+
   return window.open(
-    new URL(`${config.public.apiBase}/api/nkp?${query}`),
+    new URL(`${config.public.apiBase}/api/nkp/download/${format}?${query}`),
     "_blank",
   );
 }

@@ -4,7 +4,7 @@
       <el-page-header @back="goBack" content="NKP Report">
         <template #extra>
           <div class="flex">
-            <el-dropdown split-button @command="download">
+            <el-dropdown split-button @command="handleExport">
               <el-icon class="mr-2">
                 <ElIconDownload />
               </el-icon>
@@ -173,17 +173,16 @@ filters.value.action = "report";
 filters.value.dateRange = null;
 const { isPending, data, refetch } = fetchData();
 
-async function download(format) {
+async function handleExport(format) {
   const params = {
     ...filters.value,
-    format,
     companyId: companyId.value,
-    action: "download",
   };
 
   const query = new URLSearchParams(params).toString();
+
   return window.open(
-    new URL(`${config.public.apiBase}/api/nkp?${query}`),
+    new URL(`${config.public.apiBase}/api/nkp/download/${format}?${query}`),
     "_blank",
   );
 }
