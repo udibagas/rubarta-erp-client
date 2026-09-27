@@ -154,7 +154,7 @@ definePageMeta({ layout: false });
 const config = useRuntimeConfig();
 const request = useRequest();
 const customers = ref<{ id: number; name: string }[]>([]);
-const customerId = ref<number | null>(null);
+const customerId = ref<number | undefined>(undefined);
 
 const { data, isPending, refetch } = useQuery<any[]>({
   queryKey: ["outstanding-sales-order", customerId.value],
@@ -176,10 +176,12 @@ useGraphqlQuery<{ customers: { id: number; name: string }[] }>(gql`
 });
 
 const handleExport = (format: "excel" | "pdf") => {
-  const params = new URLSearchParams({
-    customerId: customerId.value?.toString() ?? "",
-    groupBy: viewMode.value,
-  });
+  const params = new URLSearchParams({ groupBy: viewMode.value });
+
+  if (customerId.value) {
+    params.append("customerId", customerId.value.toString());
+  }
+
   const url = `${config.public.apiBase}/api/sales-orders/outstanding/export/${format}?${params.toString()}`;
   window.open(url, "_blank");
 };
