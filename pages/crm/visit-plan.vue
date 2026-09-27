@@ -380,19 +380,16 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 import { useQuery } from "@tanstack/vue-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 dayjs.extend(relativeTime);
 
 const visitPlanFormRef = ref(null);
+const config = useRuntimeConfig();
 const request = useRequest();
 const viewMode = ref("calendar");
 const calendarDate = ref(new Date());
@@ -544,100 +541,17 @@ const submitCancel = async () => {
 
 // Export to PDF
 const exportToPdf = () => {
-  if (!data.value?.data?.length) {
-    ElMessage.warning("No data to export");
-    return;
-  }
+  const params = {
+    ...filters.value,
+  };
 
-  const doc = new jsPDF();
+  delete params.page;
+  delete params.pageSize;
 
-  // Add title
-  doc.setFontSize(18);
-  doc.text("Visit Plan Report", 14, 20);
-
-  // Add date
-  doc.setFontSize(10);
-  doc.text(`Generated on: ${dayjs().format("YYYY-MM-DD HH:mm")}`, 14, 28);
-
-  // Add filter information if any
-  let yPos = 35;
-  const activeFilters = [];
-  if (filters.value.userId) {
-    const user = users.value?.find((u) => u.id === filters.value.userId);
-    if (user) activeFilters.push(`Assigned To: ${user.name}`);
-  }
-  if (filters.value.status)
-    activeFilters.push(`Status: ${filters.value.status}`);
-  if (filters.value.visitType)
-    activeFilters.push(`Visit Type: ${filters.value.visitType}`);
-  if (keyword.value) activeFilters.push(`Search: ${keyword.value}`);
-
-  if (activeFilters.length > 0) {
-    doc.setFontSize(9);
-    doc.text(`Filters: ${activeFilters.join(", ")}`, 14, yPos);
-    yPos += 8;
-  }
-
-  // Prepare table data
-  const tableData = data.value.data.map((visit) => [
-    [formatDate(visit.scheduledDate), visit.scheduledTime || "-"].join(" "),
-    visit.title || "-",
-    visit.Customer?.name || "-",
-    visit.status || "-",
-    visit.visitType || "-",
-    visit.User?.name || "-",
-    visit.visitType === "Online"
-      ? visit.meetingUrl
-        ? "Online Meeting"
-        : "Online"
-      : visit.address || "-",
-  ]);
-
-  // Add table
-  autoTable(doc, {
-    head: [
-      [
-        "Scheduled Date",
-        "Title",
-        "Assigned To",
-        "Customer",
-        "Status",
-        "Visit Type",
-        "Location",
-      ],
-    ],
-    body: tableData,
-    startY: yPos,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [67, 160, 71], textColor: 255 },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 35 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 30 },
-      4: { cellWidth: 20 },
-      5: { cellWidth: 20 },
-      6: { cellWidth: 35 },
-    },
-  });
-
-  // Add footer
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      doc.internal.pageSize.width / 2,
-      doc.internal.pageSize.height - 10,
-      { align: "center" },
-    );
-  }
-
-  // Save the PDF
-  const fileName = `visit-plan-report-${dayjs().format("YYYY-MM-DD")}.pdf`;
-  doc.save(fileName);
-  ElMessage.success("PDF exported successfully");
+  const query = new URLSearchParams(params).toString();
+  const downloadUrl = new URL(
+    `${config.public.apiBase}/api/visit-plans/export/pdf?${query}`,
+  );
+  window.open(downloadUrl, "_blank");
 };
 </script>
