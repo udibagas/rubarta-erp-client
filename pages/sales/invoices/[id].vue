@@ -91,6 +91,52 @@
         }
       "
     />
+
+    <el-dialog
+      v-model="showPaidDialog"
+      title="Mark Invoice as Paid"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form label-position="top">
+        <el-form-item label="Receipt Number" :error="receiptNumberError">
+          <el-input
+            v-model="receiptNumber"
+            placeholder="Enter receipt number"
+            :disabled="isSubmittingPaidStatus"
+          />
+        </el-form-item>
+        <el-form-item label="Receipt Files" :error="receiptFilesError">
+          <el-upload
+            v-model:file-list="receiptFileList"
+            :action="`${config.public.apiBase}/api/file`"
+            :with-credentials="true"
+            :multiple="true"
+            :disabled="isSubmittingPaidStatus"
+            :on-preview="handleReceiptPreview"
+            :on-remove="handleReceiptRemove"
+            class="w-full"
+          >
+            <el-button :icon="ElIconUpload" :disabled="isSubmittingPaidStatus">
+              Upload receipts
+            </el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button :disabled="isSubmittingPaidStatus" @click="closePaidDialog">
+          Cancel
+        </el-button>
+        <el-button
+          type="success"
+          :loading="isSubmittingPaidStatus"
+          @click="submitPaidStatus"
+        >
+          Mark as Paid
+        </el-button>
+      </template>
+    </el-dialog>
   </nuxt-layout>
 </template>
 
@@ -107,6 +153,12 @@ const queryClient = useQueryClient();
 
 const invoiceFormRef = ref(null);
 const sendEmailRef = ref(null);
+const showPaidDialog = ref(false);
+const receiptNumber = ref("");
+const receiptFileList = ref([]);
+const receiptNumberError = ref("");
+const receiptFilesError = ref("");
+const isSubmittingPaidStatus = ref(false);
 
 const invoiceId = route.params.id;
 
@@ -215,6 +267,15 @@ function deleteInvoice() {
 }
 
 async function updateInvoiceStatus(status) {
+  if (status === "Paid") {
+    receiptNumber.value = "";
+    receiptFileList.value = [];
+    receiptNumberError.value = "";
+    receiptFilesError.value = "";
+    showPaidDialog.value = true;
+    return;
+  }
+
   const successMessages = {
     Confirmed: "Invoice marked as confirmed",
     Sent: "Invoice marked as sent",
@@ -261,6 +322,71 @@ async function updateInvoiceStatus(status) {
         message: `Invoice ${status.toLowerCase()} canceled`,
       });
     });
+}
+
+async function submitPaidStatus() {
+  receiptNumberError.value = receiptNumber.value.trim()
+    ? ""
+    : "Receipt number is required";
+  const uploadedFiles = receiptFileList.value
+    .filter((file) => file.status === "success" && file.response)
+    .map((file) => file.response);
+  const hasUploadingFiles = receiptFileList.value.some(
+    (file) => file.status === "uploading",
+  );
+  receiptFilesError.value = hasUploadingFiles
+    ? "Wait for all uploads to finish"
+    : uploadedFiles.length
+      ? ""
+      : "Upload at least one receipt file";
+
+  if (receiptNumberError.value || receiptFilesError.value) return;
+
+  isSubmittingPaidStatus.value = true;
+  try {
+    await request(`/api/invoices/${invoiceId}/status`, {
+      method: "PATCH",
+      body: {
+        status: "Paid",
+        receiptNumber: receiptNumber.value.trim(),
+        receiptFiles: uploadedFiles,
+      },
+    });
+
+    showPaidDialog.value = false;
+    ElNotification.success({
+      title: "Success",
+      message: "Invoice marked as paid",
+    });
+    refetch();
+    queryClient.invalidateQueries({ queryKey: ["invoices"] });
+  } catch (error) {
+    ElNotification.error({
+      title: "Error",
+      message: "Failed to update invoice status. " + error.message,
+    });
+  } finally {
+    isSubmittingPaidStatus.value = false;
+  }
+}
+
+function closePaidDialog() {
+  showPaidDialog.value = false;
+}
+
+function handleReceiptPreview(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  if (path) window.open(`${config.public.apiBase}/${path}`, "_blank");
+}
+
+function handleReceiptRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  if (!path) return;
+
+  request("/api/file", {
+    method: "DELETE",
+    params: { path },
+  });
 }
 
 function previewInvoice() {

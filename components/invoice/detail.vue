@@ -81,6 +81,29 @@
       </el-link>
     </div>
   </template>
+
+  <el-divider content-position="left">Payment Information</el-divider>
+  <el-descriptions :column="1" border label-width="200">
+    <el-descriptions-item label="Receipt Number">
+      {{ invoice.receiptNumber || "-" }}
+    </el-descriptions-item>
+    <el-descriptions-item label="Receipt Files">
+      <div class="flex gap-2">
+        <el-link
+          v-for="(doc, i) in invoice.receiptFiles"
+          :key="i"
+          type="success"
+          :href="`${config.public.apiBase}/${doc.filePath}`"
+          target="_blank"
+          :underline="false"
+          class="border border-green-500 px-2! py-1! rounded"
+        >
+          <el-icon class="mr-1"><ElIconDocument /></el-icon>
+          {{ doc.fileName }}
+        </el-link>
+      </div>
+    </el-descriptions-item>
+  </el-descriptions>
 </template>
 
 <script setup>
