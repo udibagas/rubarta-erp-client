@@ -13,7 +13,7 @@
     >
       <el-select
         v-model="customerId"
-        placeholder="All Vendors"
+        placeholder="All Customers"
         filterable
         clearable
         class="w-52!"
