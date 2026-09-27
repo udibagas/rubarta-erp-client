@@ -141,7 +141,10 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Delivery Order">
+            <el-form-item
+              label="Delivery Order"
+              :error="errors.deliveryOrderId"
+            >
               <el-select
                 v-model="form.deliveryOrderId"
                 placeholder="Select delivery order"
