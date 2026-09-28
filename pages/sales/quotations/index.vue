@@ -256,7 +256,7 @@ const openForm = (data = {}) => {
 
 const handleExport = (format) => {
   const params = new URLSearchParams({
-    keyword: keyword,
+    keyword: keyword.value,
     ...filters,
   }).toString();
 
