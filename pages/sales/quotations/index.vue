@@ -255,12 +255,15 @@ const openForm = (data = {}) => {
 };
 
 const handleExport = (format) => {
-  const params = new URLSearchParams({
-    keyword: keyword.value,
-    ...filters,
-  }).toString();
+  const params = new URLSearchParams();
+  if (keyword.value) params.append("keyword", keyword.value);
+  if (filters.value.customerId)
+    params.append("customerId", filters.value.customerId);
+  if (filters.value.status) params.append("status", filters.value.status);
+  if (filters.value.dateRange)
+    params.append("dateRange", filters.value.dateRange);
 
-  const url = `${config.public.apiBase}/api/quotations/export/${format}?${params}`;
+  const url = `${config.public.apiBase}/api/quotations/export/${format}?${params.toString()}`;
   window.open(url, "_blank");
 };
 </script>
