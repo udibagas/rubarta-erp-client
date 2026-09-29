@@ -534,6 +534,7 @@ const purchaseOrders = ref([]);
 const goodsReceipts = ref([]);
 
 function fetchPurchaseOrders(supplierId) {
+  if (!supplierId) return;
   useGraphqlQuery(
     gql`
       query ($status: [PurchaseOrderStatus!], $supplierId: Int!) {
@@ -547,6 +548,7 @@ function fetchPurchaseOrders(supplierId) {
             description
             quantity
             receivedQuantity
+            unitPrice
           }
         }
       }
@@ -563,6 +565,7 @@ function fetchPurchaseOrders(supplierId) {
 }
 
 function fetchGoodsReceipts(purchaseOrderId) {
+  if (!purchaseOrderId) return;
   useGraphqlQuery(
     gql`
       query ($purchaseOrderId: Int!) {
@@ -602,14 +605,26 @@ function handlePurchaseOrderChange(purchaseOrderId) {
 }
 
 function handleGoodsReceiptChange(goodsReceiptId) {
+  const gr = goodsReceipts.value.find((gr) => gr.id == goodsReceiptId);
+  if (!gr) return;
+
   const items =
-    goodsReceipts.value.find((gr) => gr.id == goodsReceiptId)
-      ?.GoodsReceiptItems || [];
-  form.value.NkpItem = items.map((i) => ({
-    description: i.description,
-    partNumber: i.partNumber,
-    quantityReceived: i.quantityReceived,
-  }));
+    purchaseOrders.value.find((po) => po.id == form.value.purchaseOrderId)
+      ?.PurchaseOrderItems || [];
+
+  form.value.NkpItem = items
+    .map((i) => {
+      const grItem = gr.GoodsReceiptItems.find(
+        (item) => item.partNumber == i.partNumber,
+      );
+
+      return {
+        date: gr.date,
+        description: `${i.partNumber} - ${i.description} (x${grItem?.quantityReceived || 0})`,
+        amount: i.unitPrice * (grItem?.quantityReceived || 0),
+      };
+    })
+    .filter((i) => i.amount > 0);
 }
 
 const { data: balances } = useQuery({
