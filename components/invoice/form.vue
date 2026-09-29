@@ -301,39 +301,35 @@
           <span class="font-semibold">BANK INFORMATION</span>
         </template>
 
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Bank Name">
-              <el-input
-                v-model="form.bank.name"
-                placeholder="Enter bank name"
-              />
-            </el-form-item>
-
-            <el-form-item label="Bank Branch">
-              <el-input
-                v-model="form.bank.nameOffice"
-                placeholder="Enter bank branch"
-              />
-            </el-form-item>
-          </el-col>
-
-          <el-col :span="12">
-            <el-form-item label="Bank Account Number">
-              <el-input
-                v-model="form.bank.accountNumber"
-                placeholder="Enter bank account number"
-              />
-            </el-form-item>
-
-            <el-form-item label="Bank Account Name">
-              <el-input
-                v-model="form.bank.accountName"
-                placeholder="Enter bank account name"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <div class="flex gap-4">
+          <div
+            v-for="bank in banks"
+            :key="bank.accountNumber"
+            class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full hover:border-green-500 hover:bg-green-50 cursor-pointer"
+            @click="() => setBank(bank)"
+            :class="{
+              'border-green-500 bg-green-50':
+                form.bank?.accountNumber === bank.accountNumber,
+            }"
+          >
+            <div class="flex justify-between gap-2">
+              <div class="font-semibold line-clamp-1">
+                {{ bank.accountName }}
+              </div>
+              <el-tag v-if="bank.isPrimary" type="success" plain size="small">
+                Primary
+              </el-tag>
+            </div>
+            <div class="font-mono text-sm tabular-nums text-gray-600">
+              Acc No. {{ bank.accountNumber }}
+            </div>
+            <div
+              class="text-xs font-medium uppercase tracking-wide text-gray-400"
+            >
+              {{ bank.name }} - {{ bank.branch }}
+            </div>
+          </div>
+        </div>
       </el-card>
 
       <!-- Invoice Items -->
@@ -519,6 +515,30 @@ const salesOrders = ref([]);
 const deliveryOrders = ref([]);
 const banks = ref([]);
 
+async function fetchBanks() {
+  try {
+    const { data } = await useGraphqlQuery(
+      gql`
+        query ($companyId: Int!) {
+          company(id: $companyId) {
+            banks {
+              name
+              branch
+              accountNumber
+              accountName
+              isPrimary
+            }
+          }
+        }
+      `,
+      { variables: { companyId: companyId.value } },
+    );
+    banks.value = data.company?.banks || [];
+  } catch (e) {
+    console.error("Failed to fetch banks:", e);
+  }
+}
+
 async function fetchCustomersAndContacts() {
   try {
     const { data } = await useGraphqlQuery(gql`
@@ -682,9 +702,18 @@ function loadItemsFromDeliveryOrder(deliveryOrderId) {
   }
 }
 
+function setBank(bank) {
+  form.value.bank = { ...bank };
+}
+
 // Expose method to open form from parent
-const openForm = (data = {}) => {
+const openForm = async (data = {}) => {
   fetchCustomersAndContacts();
+  await fetchBanks();
+
+  if (!data.bank?.accountNumber) {
+    data.bank = banks.value.find((b) => b.isPrimary) || banks.value[0];
+  }
 
   if (form.value.customerId) {
     fetchSoByCustomerId(form.value.customerId);

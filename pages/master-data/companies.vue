@@ -40,23 +40,28 @@
 
       <el-table-column label="Address" prop="address" min-width="200">
         <template #default="{ row }">
-          <span style="white-space: pre-line">
+          <span class="whitespace-pre-line text-xs">
             {{ row.address }}
           </span>
-          <div>Phone: {{ row.phone }}</div>
+          <div class="text-xs" v-if="row.phone">Phone: {{ row.phone }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Banks" prop="banks" min-width="200">
+      <el-table-column label="Banks" prop="banks" min-width="250">
         <template #default="{ row }">
           <div class="space-y-2">
             <div
               v-for="bank in row.banks"
               :key="bank.accountNumber"
-              class="rounded border border-gray-200 bg-gray-50 px-3 py-2"
+              class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full"
             >
-              <div class="font-semibold leading-5 text-gray-800">
-                {{ bank.accountName }}
+              <div class="flex justify-between gap-2">
+                <div class="font-semibold line-clamp-1">
+                  {{ bank.accountName }}
+                </div>
+                <el-tag v-if="bank.isPrimary" type="success" plain size="small">
+                  Primary
+                </el-tag>
               </div>
               <div class="font-mono text-sm tabular-nums text-gray-600">
                 Acc No. {{ bank.accountNumber }}
@@ -80,9 +85,8 @@
         <template #default="{ row }">
           <el-tag
             :type="row.isDefault ? 'success' : 'info'"
-            round
             style="width: 60px"
-            effect="dark"
+            effect="plain"
           >
             {{ row.isDefault ? "Yes" : "No" }}
           </el-tag>
