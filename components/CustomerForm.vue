@@ -174,7 +174,47 @@
       </div>
     </el-form>
 
-    <el-card header="CONTACTS" shadow="never" body-class="p-0!">
+    <el-card shadow="never" class="mb-4">
+      <template #header>
+        <span class="font-semibold">PREFERRED BANK</span>
+      </template>
+
+      <div class="flex gap-4">
+        <div
+          v-for="bank in banks"
+          :key="bank.accountNumber"
+          class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full hover:border-green-500 hover:bg-green-50 cursor-pointer"
+          @click="() => setBank(bank)"
+          :class="{
+            'border-green-500 bg-green-50':
+              form.preferredBank?.accountNumber === bank.accountNumber,
+          }"
+        >
+          <div class="flex justify-between gap-2">
+            <div class="font-semibold line-clamp-1">
+              {{ bank.accountName }}
+            </div>
+            <el-tag v-if="bank.isPrimary" type="success" plain size="small">
+              Primary
+            </el-tag>
+          </div>
+          <div class="font-mono text-sm tabular-nums text-gray-600">
+            Acc No. {{ bank.accountNumber }}
+          </div>
+          <div
+            class="text-xs font-medium uppercase tracking-wide text-gray-400"
+          >
+            {{ bank.name }} - {{ bank.branch }}
+          </div>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card shadow="never" body-class="p-0!">
+      <template #header>
+        <span class="font-semibold">CONTACTS</span>
+      </template>
+
       <el-table stripe v-loading="isPending" :data="form.Contacts || []">
         <template #empty>
           <el-empty description="No Items"> </el-empty>
@@ -272,8 +312,11 @@
 </template>
 
 <script setup>
+import { gql } from "@apollo/client";
 import { useQuery } from "@tanstack/vue-query";
 const emit = defineEmits(["saved"]);
+
+const { companyId } = storeToRefs(useSharedStore());
 
 const { errors, form, show, closeForm, saveMutation } = useCrud({
   url: "/api/customers",
@@ -307,4 +350,43 @@ function addContact() {
 function removeContact(index) {
   form.value.Contacts.splice(index, 1);
 }
+
+function setBank(bank) {
+  form.value.preferredBank = { ...bank };
+}
+
+const banks = ref([]);
+
+async function fetchBanks() {
+  try {
+    const { data } = await useGraphqlQuery(
+      gql`
+        query ($companyId: Int!) {
+          company(id: $companyId) {
+            banks {
+              name
+              branch
+              accountNumber
+              accountName
+              isPrimary
+            }
+          }
+        }
+      `,
+      { variables: { companyId: companyId.value } },
+    );
+    banks.value = data.company?.banks || [];
+  } catch (e) {
+    console.error("Failed to fetch banks:", e);
+  }
+}
+
+onMounted(async () => {
+  await fetchBanks();
+
+  if (!form.value.preferredBank?.accountNumber) {
+    form.value.preferredBank =
+      banks.value.find((b) => b.isPrimary) || banks.value[0];
+  }
+});
 </script>
