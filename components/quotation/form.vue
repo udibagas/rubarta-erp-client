@@ -655,6 +655,7 @@ useGraphqlQuery(gql`
       partNumber
       name
       model
+      moq
       description
       sellingPrice
     }
@@ -675,7 +676,7 @@ function setMaterial(partNumber, item) {
   if (material) {
     item.name = material.name;
     item.model = material.model;
-    item.moq = 0;
+    item.moq = material.moq;
     item.description = material.description;
     item.unitPrice = material.sellingPrice;
     calculateTotals();
