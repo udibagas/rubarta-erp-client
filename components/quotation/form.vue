@@ -675,7 +675,7 @@ function setMaterial(partNumber, item) {
   if (material) {
     item.name = material.name;
     item.model = material.model;
-    item.moq = 1;
+    item.moq = 0;
     item.description = material.description;
     item.unitPrice = material.sellingPrice;
     calculateTotals();
@@ -708,7 +708,7 @@ const openForm = (data = {}) => {
         name: "",
         model: "",
         description: "",
-        moq: 1,
+        moq: 0,
         quantity: 1,
         unitPrice: 0,
       },
@@ -786,7 +786,7 @@ function addItem() {
     name: "",
     model: "",
     description: "",
-    moq: 1,
+    moq: 0,
     quantity: 1,
     unitPrice: 0,
   });
