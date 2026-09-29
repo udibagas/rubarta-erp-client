@@ -19,117 +19,124 @@
               })
             "
           >
-            ADD NEW COMPANY
+            Add New Company
           </el-button>
+
+          <el-button
+            title="Refresh companies"
+            @click="refreshData"
+            :icon="ElIconRefresh"
+          />
         </template>
       </el-page-header>
     </template>
 
-    <el-table
-      stripe
-      :data="data"
+    <div
       v-loading="isPending"
-      height="calc(100vh - 155px)"
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2 p-2"
     >
-      <el-table-column label="Name" min-width="150" prop="name">
-        <template #default="{ row }">
-          <div class="font-semibold">{{ row.code }}</div>
-          <div>{{ row.name }}</div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Address" prop="address" min-width="200">
-        <template #default="{ row }">
-          <span class="whitespace-pre-line text-xs">
-            {{ row.address }}
-          </span>
-          <div class="text-xs" v-if="row.phone">Phone: {{ row.phone }}</div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Banks" prop="banks" min-width="250">
-        <template #default="{ row }">
-          <div class="space-y-2">
-            <div
-              v-for="bank in row.banks"
-              :key="bank.accountNumber"
-              class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full"
-            >
-              <div class="flex justify-between gap-2">
-                <div class="font-semibold line-clamp-1">
-                  {{ bank.accountName }}
-                </div>
-                <el-tag v-if="bank.isPrimary" type="success" plain size="small">
-                  Primary
-                </el-tag>
-              </div>
-              <div class="font-mono text-sm tabular-nums text-gray-600">
-                Acc No. {{ bank.accountNumber }}
-              </div>
+      <el-card v-for="row in data" :key="row.id" shadow="hover" class="h-full">
+        <template #header>
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
               <div
-                class="text-xs font-medium uppercase tracking-wide text-gray-400"
+                class="text-xs font-semibold uppercase tracking-wide text-gray-400"
               >
-                {{ bank.name }} - {{ bank.branch }}
+                {{ row.code }}
               </div>
+              <div class="truncate text-lg font-semibold text-gray-800">
+                {{ row.name }}
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <el-tag v-if="row.isDefault" type="success" effect="plain">
+                Default
+              </el-tag>
+              <el-dropdown>
+                <el-button
+                  link
+                  :icon="ElIconMoreFilled"
+                  title="Company actions"
+                />
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item :icon="ElIconEdit" @click="openForm(row)">
+                      Edit
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      :icon="ElIconDelete"
+                      @click="handleRemove(row.id, remove)"
+                      class="text-red-500!"
+                    >
+                      Delete
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </div>
           </div>
         </template>
-      </el-table-column>
 
-      <el-table-column
-        min-width="100"
-        label="Is Default"
-        prop="isDefault"
-        align="center"
-      >
-        <template #default="{ row }">
-          <el-tag
-            :type="row.isDefault ? 'success' : 'info'"
-            style="width: 60px"
-            effect="plain"
-          >
-            {{ row.isDefault ? "Yes" : "No" }}
-          </el-tag>
-        </template>
-      </el-table-column>
+        <div class="space-y-4">
+          <div>
+            <div
+              class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400"
+            >
+              <el-icon><ElIconLocation /></el-icon>
+              Address
+            </div>
+            <div class="whitespace-pre-line text-sm text-gray-600">
+              {{ row.address || "No address provided" }}
+            </div>
+            <div v-if="row.phone" class="mt-1 text-sm text-gray-500">
+              Phone: {{ row.phone }}
+            </div>
+          </div>
 
-      <el-table-column
-        fixed="right"
-        width="60px"
-        align="center"
-        header-align="center"
-      >
-        <template #header>
-          <el-button link @click="refreshData" :icon="ElIconRefresh">
-          </el-button>
-        </template>
-        <template #default="{ row }">
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-icon>
-                <ElIconMoreFilled />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  :icon="ElIconEdit"
-                  @click.native.prevent="openForm(row)"
+          <div>
+            <div
+              class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400"
+            >
+              <el-icon><ElIconCreditCard /></el-icon>
+              Bank accounts
+            </div>
+            <div v-if="row.banks?.length" class="space-y-2">
+              <div
+                v-for="bank in row.banks"
+                :key="bank.accountNumber"
+                class="rounded border border-gray-200 bg-gray-50 px-3 py-2 hover:bg-green-50 hover:border-green-500"
+              >
+                <div class="flex justify-between gap-2">
+                  <div class="line-clamp-1 font-semibold text-gray-800">
+                    {{ bank.accountName }}
+                  </div>
+                  <el-tag
+                    v-if="bank.isPrimary"
+                    type="success"
+                    plain
+                    size="small"
+                  >
+                    Primary
+                  </el-tag>
+                </div>
+                <div class="font-mono text-sm tabular-nums text-gray-600">
+                  Acc No. {{ bank.accountNumber }}
+                </div>
+                <div
+                  class="text-xs font-medium uppercase tracking-wide text-gray-400"
                 >
-                  Edit
-                </el-dropdown-item>
-                <el-dropdown-item
-                  :icon="ElIconDelete"
-                  @click.native.prevent="handleRemove(row.id, remove)"
-                >
-                  Delete
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
-      </el-table-column>
-    </el-table>
+                  {{ bank.name }} - {{ bank.branch }}
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-sm italic text-gray-400">
+              No bank accounts provided
+            </div>
+          </div>
+        </div>
+      </el-card>
+    </div>
 
     <CompanyForm />
   </nuxt-layout>
