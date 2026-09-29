@@ -12,7 +12,7 @@ export const toCurrency = (value: string, currency: string = "IDR") => {
   if (!value) return "0";
   return Number(value).toLocaleString(currency === "IDR" ? "id-ID" : "en-US", {
     style: "currency",
-    currency: currency,
+    currency: currency || "IDR",
     minimumFractionDigits: currency === "IDR" ? 0 : 2,
     maximumFractionDigits: currency === "IDR" ? 0 : 2,
   });

@@ -294,7 +294,6 @@ watch(companyId, () => {
 });
 
 filters.value.paymentType = "ALL";
-filters.value.action = "report";
 filters.value.dateRange = null;
 const { isPending, data, refetch } = fetchData();
 
@@ -317,6 +316,7 @@ async function handleExport(format) {
   const params = {
     ...filters.value,
     companyId: companyId.value,
+    action: "report",
   };
 
   const query = new URLSearchParams(params).toString();
