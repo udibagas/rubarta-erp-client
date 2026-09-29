@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column label="Bank Office">
         <template #default="{ row }">
-          <el-input placeholder="Bank Office" v-model="row.bankOffice" />
+          <el-input placeholder="Bank Office" v-model="row.branch" />
         </template>
       </el-table-column>
 
@@ -81,7 +81,7 @@
             @click="
               form.banks.push({
                 name: '',
-                bankOffice: '',
+                branch: '',
                 accountNumber: '',
                 accountName: '',
               })

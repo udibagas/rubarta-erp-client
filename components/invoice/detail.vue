@@ -70,7 +70,7 @@
       {{ invoice.bank?.name || "-" }}
     </el-descriptions-item>
     <el-descriptions-item label="Bank Branch">
-      {{ invoice.bank?.nameOffice || "-" }}
+      {{ invoice.bank?.branch || "-" }}
     </el-descriptions-item>
     <el-descriptions-item label="Account Number">
       {{ invoice.bank?.accountNumber || "-" }}

@@ -517,6 +517,7 @@ const customers = ref([]);
 const contacts = ref([]);
 const salesOrders = ref([]);
 const deliveryOrders = ref([]);
+const banks = ref([]);
 
 async function fetchCustomersAndContacts() {
   try {
@@ -708,7 +709,7 @@ const openForm = (data = {}) => {
     items: data.items || [],
     bank: {
       name: data.bank?.name || "",
-      nameOffice: data.bank?.nameOffice || "",
+      branch: data.bank?.branch || "",
       accountNumber: data.bank?.accountNumber || "",
       accountName: data.bank?.accountName || "",
     },
