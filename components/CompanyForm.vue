@@ -57,6 +57,21 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="Primary" prop="isPrimary" align="center">
+        <template #default="{ row }">
+          <el-switch
+            v-model="row.isPrimary"
+            inline-prompt
+            style="
+              --el-switch-on-color: #13ce66;
+              --el-switch-off-color: #ff4949;
+            "
+            active-text="Y"
+            inactive-text="N"
+          />
+        </template>
+      </el-table-column>
+
       <el-table-column width="80" align="center">
         <template #header>
           <el-button
