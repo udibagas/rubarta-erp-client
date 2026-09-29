@@ -10,6 +10,8 @@ export const colors = {
   REJECTED: "danger",
   VERIFIED: "success",
   AUTHORIZED: "success",
+  UNPAID: "danger",
+  PARTIAL: "warning",
   PAID: "success",
   CLOSED: "success",
   // Lead status

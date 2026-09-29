@@ -6,5 +6,7 @@ export const paymentStatuses = [
   "REJECTED",
   "VERIFIED",
   "AUTHORIZED",
+  "UNPAID",
+  "PARTIAL",
   "PAID",
 ];

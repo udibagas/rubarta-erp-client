@@ -159,6 +159,27 @@
           <StatusTag :status="row.status" effect="light" style="width: 100%" />
         </template>
       </el-table-column>
+
+      <el-table-column
+        label="Payment Status"
+        prop="paymentStatus"
+        width="165"
+        align="center"
+        header-align="center"
+        fixed="right"
+        column-key="paymentStatus"
+        :filters="
+          ['UNPAID', 'PARTIAL', 'PAID'].map((s) => ({ text: s, value: s }))
+        "
+      >
+        <template #default="{ row }">
+          <StatusTag
+            :status="row.paymentStatus"
+            effect="light"
+            style="width: 100%"
+          />
+        </template>
+      </el-table-column>
     </el-table>
 
     <el-pagination
@@ -188,7 +209,7 @@
 </template>
 
 <script setup>
-import { goodsReceiptStatuses } from "~/constants";
+import { goodsReceiptStatuses, paymentStatuses } from "~/constants";
 import { gql } from "@apollo/client";
 
 definePageMeta({ layout: false });
