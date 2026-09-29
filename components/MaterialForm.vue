@@ -137,6 +137,16 @@
         />
       </el-form-item>
 
+      <el-form-item label="MOQ" :error="errors.moq">
+        <el-input-number
+          v-model="form.moq"
+          :min="0"
+          :controls="false"
+          style="width: 100%"
+          placeholder="0"
+        />
+      </el-form-item>
+
       <el-form-item label="Min Stock" :error="errors.minStock">
         <el-input-number
           v-model="form.minStock"

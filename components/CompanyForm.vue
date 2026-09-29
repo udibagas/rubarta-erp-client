@@ -33,6 +33,56 @@
       </el-form-item>
     </el-form>
 
+    <el-table :data="form.banks" style="width: 100%">
+      <el-table-column label="Bank Name">
+        <template #default="{ row }">
+          <el-input placeholder="Bank Name" v-model="row.name" />
+        </template>
+      </el-table-column>
+      <el-table-column label="Bank Office">
+        <template #default="{ row }">
+          <el-input placeholder="Bank Office" v-model="row.bankOffice" />
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Account Number">
+        <template #default="{ row }">
+          <el-input placeholder="Account Number" v-model="row.accountNumber" />
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Account Name">
+        <template #default="{ row }">
+          <el-input placeholder="Account Name" v-model="row.accountName" />
+        </template>
+      </el-table-column>
+
+      <el-table-column width="100">
+        <template #header>
+          <el-button
+            type="success"
+            icon="ElIconPlus"
+            link
+            @click="
+              form.banks.push({
+                name: '',
+                bankOffice: '',
+                accountNumber: '',
+                accountName: '',
+              })
+            "
+          />
+        </template>
+        <template #default="{ row }">
+          <el-button
+            icon="ElIconDelete"
+            type="danger"
+            @click="form.banks.splice(form.banks.indexOf(row), 1)"
+          />
+        </template>
+      </el-table-column>
+    </el-table>
+
     <template #footer>
       <el-button
         :icon="ElIconCircleCloseFilled"

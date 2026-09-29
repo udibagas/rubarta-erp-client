@@ -94,6 +94,8 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="MOQ" prop="moq" width="120" align="center" />
+
       <el-table-column label="Stock" width="120" align="center">
         <template #default="{ row }">
           <div

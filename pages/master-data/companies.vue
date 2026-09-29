@@ -3,7 +3,22 @@
     <template #header>
       <el-page-header @back="goBack" content="Companies">
         <template #extra>
-          <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+          <el-button
+            :icon="ElIconPlus"
+            type="success"
+            @click="
+              openForm({
+                banks: [
+                  {
+                    name: '',
+                    bankOffice: '',
+                    accountNumber: '',
+                    accountName: '',
+                  },
+                ],
+              })
+            "
+          >
             ADD NEW COMPANY
           </el-button>
         </template>
