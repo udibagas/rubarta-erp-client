@@ -295,6 +295,47 @@
         </el-row>
       </el-card>
 
+      <!-- Bank Information -->
+      <el-card shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">BANK INFORMATION</span>
+        </template>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="Bank Name">
+              <el-input
+                v-model="form.bank.name"
+                placeholder="Enter bank name"
+              />
+            </el-form-item>
+
+            <el-form-item label="Bank Branch">
+              <el-input
+                v-model="form.bank.nameOffice"
+                placeholder="Enter bank branch"
+              />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="Bank Account Number">
+              <el-input
+                v-model="form.bank.accountNumber"
+                placeholder="Enter bank account number"
+              />
+            </el-form-item>
+
+            <el-form-item label="Bank Account Name">
+              <el-input
+                v-model="form.bank.accountName"
+                placeholder="Enter bank account name"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-card>
+
       <!-- Invoice Items -->
       <el-card shadow="never" body-style="padding: 0">
         <template #header>
@@ -665,6 +706,12 @@ const openForm = (data = {}) => {
     contactPhone: data.contactPhone || "",
     contactEmail: data.contactEmail || "",
     items: data.items || [],
+    bank: {
+      name: data.bank?.name || "",
+      nameOffice: data.bank?.nameOffice || "",
+      accountNumber: data.bank?.accountNumber || "",
+      accountName: data.bank?.accountName || "",
+    },
   };
 
   errors.value = {};

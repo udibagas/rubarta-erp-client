@@ -64,6 +64,22 @@
     </el-descriptions-item>
   </el-descriptions>
 
+  <el-divider content-position="left">Bank Information</el-divider>
+  <el-descriptions :column="1" border label-width="200">
+    <el-descriptions-item label="Bank Name">
+      {{ invoice.bank?.name || "-" }}
+    </el-descriptions-item>
+    <el-descriptions-item label="Bank Branch">
+      {{ invoice.bank?.nameOffice || "-" }}
+    </el-descriptions-item>
+    <el-descriptions-item label="Account Number">
+      {{ invoice.bank?.accountNumber || "-" }}
+    </el-descriptions-item>
+    <el-descriptions-item label="Account Name">
+      {{ invoice.bank?.accountName || "-" }}
+    </el-descriptions-item>
+  </el-descriptions>
+
   <template v-if="invoice.attachments?.length">
     <el-divider content-position="left">Attachments</el-divider>
     <div class="flex gap-2">
