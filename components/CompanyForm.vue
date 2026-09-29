@@ -2,7 +2,7 @@
   <el-dialog
     v-model="show"
     title="COMPANY"
-    width="500px"
+    width="900px"
     :close-on-click-modal="false"
     :before-close="closeForm"
   >
@@ -57,11 +57,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="100">
+      <el-table-column width="80" align="center">
         <template #header>
           <el-button
             type="success"
-            icon="ElIconPlus"
+            :icon="ElIconPlus"
             link
             @click="
               form.banks.push({
@@ -73,11 +73,12 @@
             "
           />
         </template>
-        <template #default="{ row }">
+        <template #default="{ row, $index }">
           <el-button
-            icon="ElIconDelete"
+            :icon="ElIconDelete"
+            text
             type="danger"
-            @click="form.banks.splice(form.banks.indexOf(row), 1)"
+            @click="form.banks.splice($index, 1)"
           />
         </template>
       </el-table-column>
