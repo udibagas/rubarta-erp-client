@@ -549,6 +549,13 @@ async function fetchCustomersAndContacts() {
           phone
           email
           address
+          preferredBank {
+            name
+            branch
+            accountNumber
+            accountName
+            isPrimary
+          }
           Contacts {
             name
             phone
@@ -638,6 +645,12 @@ function handleChangeCustomer(customerId) {
 
   form.value.billingAddress = customer.address || "";
   form.value.shippingAddress = customer.address || "";
+
+  if (customer.preferredBank) {
+    setBank(customer.preferredBank);
+  } else {
+    setBank(banks.value.find((b) => b.isPrimary) || banks.value[0]);
+  }
 
   contacts.value = customer.Contacts || [];
   const contact = customer.Contacts?.[0];
