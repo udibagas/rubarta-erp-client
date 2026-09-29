@@ -110,11 +110,16 @@
         <el-select
           v-model="form.supplierId"
           placeholder="Vendor"
-          @change="updateBank"
           @clear="resetBank"
           default-first-option
           filterable
           clearable
+          @change="
+            (v) => {
+              updateBank();
+              handleSupplierChange(v);
+            }
+          "
         >
           <el-option
             v-for="(el, i) in suppliers"
@@ -170,6 +175,42 @@
             :disabled="!!form.parentId"
           />
         </el-radio-group>
+      </el-form-item>
+
+      <el-form-item label="PO Number" v-if="form.paymentType == 'VENDOR'">
+        <el-select
+          v-model="form.purchaseOrderId"
+          placeholder="Select purchase order"
+          filterable
+          default-first-option
+          @change="(v) => handlePurchaseOrderChange(v)"
+          clearable
+        >
+          <el-option
+            v-for="purchaseOrder in purchaseOrders"
+            :key="purchaseOrder.id"
+            :value="purchaseOrder.id"
+            :label="purchaseOrder.number"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="GR Number" v-if="form.paymentType == 'VENDOR'">
+        <el-select
+          v-model="form.goodsReceiptId"
+          placeholder="Select goods receipt"
+          filterable
+          default-first-option
+          @change="(v) => handleGoodsReceiptChange(v)"
+          clearable
+        >
+          <el-option
+            v-for="gr in goodsReceipts"
+            :key="gr.id"
+            :value="gr.id"
+            :label="gr.number"
+          />
+        </el-select>
       </el-form-item>
 
       <el-form-item
@@ -488,6 +529,88 @@ const {
     }
   }
 `);
+
+const purchaseOrders = ref([]);
+const goodsReceipts = ref([]);
+
+function fetchPurchaseOrders(supplierId) {
+  useGraphqlQuery(
+    gql`
+      query ($status: [PurchaseOrderStatus!], $supplierId: Int!) {
+        purchaseOrders(status: $status, supplierId: $supplierId) {
+          id
+          number
+          date
+          supplierId
+          PurchaseOrderItems {
+            partNumber
+            description
+            quantity
+            receivedQuantity
+          }
+        }
+      }
+    `,
+    {
+      variables: {
+        status: ["Confirmed", "PartiallyReceived"],
+        supplierId: Number(supplierId),
+      },
+    },
+  ).then((response) => {
+    purchaseOrders.value = response.data.purchaseOrders;
+  });
+}
+
+function fetchGoodsReceipts(purchaseOrderId) {
+  useGraphqlQuery(
+    gql`
+      query ($purchaseOrderId: Int!) {
+        goodsReceipts(purchaseOrderId: $purchaseOrderId) {
+          id
+          number
+          date
+          supplierId
+          GoodsReceiptItems {
+            partNumber
+            description
+            quantityReceived
+          }
+        }
+      }
+    `,
+    {
+      variables: {
+        purchaseOrderId: Number(purchaseOrderId),
+      },
+    },
+  ).then((response) => {
+    goodsReceipts.value = response.data.goodsReceipts;
+  });
+}
+
+function handleSupplierChange(supplierId) {
+  console.log("Supplier changed:", supplierId);
+  fetchPurchaseOrders(supplierId);
+  form.value.purchaseOrderId = null;
+  form.value.goodsReceiptId = null;
+}
+
+function handlePurchaseOrderChange(purchaseOrderId) {
+  fetchGoodsReceipts(purchaseOrderId);
+  form.value.goodsReceiptId = null;
+}
+
+function handleGoodsReceiptChange(goodsReceiptId) {
+  const items =
+    goodsReceipts.value.find((gr) => gr.id == goodsReceiptId)
+      ?.GoodsReceiptItems || [];
+  form.value.NkpItem = items.map((i) => ({
+    description: i.description,
+    partNumber: i.partNumber,
+    quantityReceived: i.quantityReceived,
+  }));
+}
 
 const { data: balances } = useQuery({
   queryKey: ["user-balance"],
