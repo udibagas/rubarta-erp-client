@@ -401,6 +401,25 @@
             </template>
           </el-table-column>
 
+          <el-table-column label="MOQ" width="120" align="center">
+            <template #default="{ row }">
+              <el-input
+                v-model="row.moq"
+                style="width: 100%"
+                class="font-mono"
+                :parser="(v) => Number(v.replace(/\./g, '').replace(',', '.'))"
+                :formatter="
+                  (value) => {
+                    if (!value) return '';
+                    const parts = value.toString().split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    return parts.join(',');
+                  }
+                "
+              />
+            </template>
+          </el-table-column>
+
           <el-table-column label="Quantity" width="120" align="center">
             <template #default="{ row }">
               <el-input
@@ -656,6 +675,7 @@ function setMaterial(partNumber, item) {
   if (material) {
     item.name = material.name;
     item.model = material.model;
+    item.moq = 1;
     item.description = material.description;
     item.unitPrice = material.sellingPrice;
     calculateTotals();
@@ -688,6 +708,7 @@ const openForm = (data = {}) => {
         name: "",
         model: "",
         description: "",
+        moq: 1,
         quantity: 1,
         unitPrice: 0,
       },
@@ -765,6 +786,7 @@ function addItem() {
     name: "",
     model: "",
     description: "",
+    moq: 1,
     quantity: 1,
     unitPrice: 0,
   });

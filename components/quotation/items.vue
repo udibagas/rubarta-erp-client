@@ -1,6 +1,7 @@
 <template>
   <el-table :data="paginatedItems" stripe border>
     <el-table-column type="index" label="#" width="60" :index="indexOffset" />
+
     <el-table-column label="Part Number" prop="partNumber" width="130">
       <template #default="{ row }">
         <span class="font-mono font-semibold">
@@ -8,6 +9,7 @@
         </span>
       </template>
     </el-table-column>
+
     <el-table-column label="Description" min-width="150">
       <template #default="{ row }">
         <div class="font-medium">{{ row.name }}</div>
@@ -17,16 +19,25 @@
         </div>
       </template>
     </el-table-column>
+
+    <el-table-column label="MOQ" width="80" align="center">
+      <template #default="{ row }">
+        <span class="font-mono">{{ toDecimal(row.moq) }}</span>
+      </template>
+    </el-table-column>
+
     <el-table-column label="Qty" width="80" align="center">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.quantity) }}</span>
       </template>
     </el-table-column>
+
     <el-table-column label="Unit Price" width="120" align="right">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
       </template>
     </el-table-column>
+
     <el-table-column label="Amount" width="120" align="right">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
