@@ -11,7 +11,7 @@
                 banks: [
                   {
                     name: '',
-                    bankOffice: '',
+                    branch: '',
                     accountNumber: '',
                     accountName: '',
                   },
@@ -69,7 +69,7 @@
               <div
                 class="text-xs font-medium uppercase tracking-wide text-gray-400"
               >
-                {{ bank.name }} - {{ bank.bankOffice }}
+                {{ bank.name }} - {{ bank.branch }}
               </div>
             </div>
           </div>
