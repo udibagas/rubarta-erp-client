@@ -1,19 +1,25 @@
 <template>
-  <div class="p-5 space-y-5 h-[calc(100vh-87px)]">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <p class="text-sm font-medium uppercase tracking-widest text-green-700">
-          Workspace overview
-        </p>
-        <h1 class="mt-1 text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-500">
-          Keep track of today's visits, approvals, and tasks.
-        </p>
+  <nuxt-layout name="default">
+    <template #header>
+      <div class="flex justify-between items-center">
+        <div>
+          <p
+            class="text-sm font-medium uppercase tracking-widest text-green-700"
+          >
+            Workspace overview
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold text-gray-900">Dashboard</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            Keep track of today's visits, approvals, and tasks.
+          </p>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">{{ formatDate(new Date()) }}</div>
+        </div>
       </div>
-      <div class="text-sm text-gray-500">{{ formatDate(new Date()) }}</div>
-    </div>
+    </template>
 
-    <el-card shadow="never" body-class="p-0!">
+    <el-card shadow="never" body-class="p-2!" class="mb-2">
       <template #header>
         <div class="flex items-center justify-between gap-3">
           <div>
@@ -32,20 +38,32 @@
         </template>
         <el-table-column prop="date" label="Date" width="125" />
         <el-table-column prop="time" label="Time" width="110" />
-        <el-table-column prop="customer" label="Customer" min-width="180" />
-        <el-table-column prop="purpose" label="Purpose" min-width="190" />
-        <el-table-column label="Status" width="130" align="center">
+        <el-table-column prop="customer" label="Customer" width="180">
           <template #default="{ row }">
-            <el-tag :type="visitStatusType[row.status]" effect="plain">
-              {{ row.status }}
-            </el-tag>
+            <div class="font-semibold line-clamp-1">
+              {{ row.customer }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="owner" label="User" width="180">
+          <template #default="{ row }">
+            <div class="line-clamp-1">
+              {{ row.owner }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="purpose" label="Purpose" min-width="190">
+          <template #default="{ row }">
+            <div class="line-clamp-1">
+              {{ row.purpose }}
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
     <div class="grid gap-5 xl:grid-cols-2">
-      <el-card shadow="never" body-class="p-0!">
+      <el-card shadow="never" body-class="p-2!">
         <template #header>
           <div class="flex items-center justify-between gap-3">
             <div>
@@ -83,7 +101,7 @@
         </el-table>
       </el-card>
 
-      <el-card shadow="never" body-class="p-0!">
+      <el-card shadow="never" body-class="p-2!">
         <template #header>
           <div class="flex items-center justify-between gap-3">
             <div>
@@ -101,6 +119,13 @@
             <el-empty description="No pending tasks"></el-empty>
           </template>
           <el-table-column prop="task" label="Task" min-width="190" />
+          <el-table-column prop="assignee" label="Assignee" min-width="120">
+            <template #default="{ row }">
+              <div class="line-clamp-1">
+                {{ row.assignee }}
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column prop="dueDate" label="Due date" width="115" />
           <el-table-column label="Priority" width="105" align="center">
             <template #default="{ row }">
@@ -113,7 +138,12 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="Status" width="120" align="center">
+          <el-table-column
+            label="Status"
+            width="120"
+            align="center"
+            fixed="right"
+          >
             <template #default="{ row }">
               <el-tag
                 :type="taskStatusType[row.status]"
@@ -127,11 +157,13 @@
         </el-table>
       </el-card>
     </div>
-  </div>
+  </nuxt-layout>
 </template>
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+
+definePageMeta({ layout: false });
 
 const request = useRequest();
 
@@ -146,7 +178,7 @@ const { data: visitPlanResponse, isPending: visitPlansPending } = useQuery({
   queryKey: ["dashboard-visit-plans"],
   queryFn: () =>
     request("/api/visit-plans", {
-      params: { page: 1, pageSize: 5 },
+      params: { page: 1, pageSize: 5, status: ["Planned"] },
     }),
 });
 
@@ -159,7 +191,11 @@ const { data: taskResponse, isPending: tasksPending } = useQuery({
   queryKey: ["dashboard-pending-tasks"],
   queryFn: () =>
     request("/api/tasks", {
-      params: { page: 1, pageSize: 20 },
+      params: {
+        page: 1,
+        pageSize: 20,
+        status: ["Todo", "InProgress", "OnHold"],
+      },
     }),
 });
 
@@ -233,10 +269,5 @@ const taskStatusType = {
   "In progress": "primary",
   "To do": "warning",
   "On hold": "info",
-};
-
-const goToApproval = (row) => {
-  // Implement the navigation logic to the approval detail page
-  console.log("Navigating to approval:", row);
 };
 </script>
