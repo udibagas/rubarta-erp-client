@@ -79,7 +79,7 @@
           <template #empty>
             <el-empty description="No draft documents"></el-empty>
           </template>
-          <el-table-column prop="documentType" label="Type" width="130">
+          <el-table-column prop="documentType" label="Type" width="150">
             <template #default="{ row }">
               <el-tag effect="plain" type="warning">
                 {{ row.documentType }}
