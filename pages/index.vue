@@ -1,88 +1,242 @@
 <template>
-  <div class="h-[calc(100vh-87px)] bg-white">
-    <el-row v-if="isSuccess" :gutter="10">
-      <el-col :span="6">
-        <el-card>
-          <el-statistic :value="summary.nkpDraft">
-            <template #title>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                "
-              >
-                <div class="title">NKP</div>
-                <StatusTag status="DRAFT" />
-              </div>
-            </template>
-          </el-statistic>
-        </el-card>
-      </el-col>
+  <div class="p-5 space-y-5 h-[calc(100vh-87px)]">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="text-sm font-medium uppercase tracking-widest text-green-700">
+          Workspace overview
+        </p>
+        <h1 class="mt-1 text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Keep track of today's visits, approvals, and tasks.
+        </p>
+      </div>
+      <div class="text-sm text-gray-500">{{ formatDate(new Date()) }}</div>
+    </div>
 
-      <el-col :span="6">
-        <el-card>
-          <el-statistic :value="summary.nkpOpen">
-            <template #title>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                "
-              >
-                <div class="title">NKP</div>
-                <StatusTag status="OPEN" />
-              </div>
-            </template>
-          </el-statistic>
-        </el-card>
-      </el-col>
+    <el-card shadow="never" body-class="p-0!">
+      <template #header>
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="font-semibold text-gray-900">Visit plan</h2>
+            <p class="text-sm text-gray-500">Upcoming customer visits</p>
+          </div>
+          <el-tag type="success" effect="plain"
+            >{{ visitPlans.length }} visits</el-tag
+          >
+        </div>
+      </template>
 
-      <el-col :span="6">
-        <el-card>
-          <el-statistic :value="summary.nkpClosed">
-            <template #title>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                "
-              >
-                <div class="title">NKP</div>
-                <StatusTag status="CLOSED" />
-              </div>
-            </template>
-          </el-statistic>
-        </el-card>
-      </el-col>
+      <el-table :data="visitPlans" v-loading="visitPlansPending" stripe>
+        <template #empty>
+          <el-empty description="No upcoming visits"></el-empty>
+        </template>
+        <el-table-column prop="date" label="Date" width="125" />
+        <el-table-column prop="time" label="Time" width="110" />
+        <el-table-column prop="customer" label="Customer" min-width="180" />
+        <el-table-column prop="purpose" label="Purpose" min-width="190" />
+        <el-table-column label="Status" width="130" align="center">
+          <template #default="{ row }">
+            <el-tag :type="visitStatusType[row.status]" effect="plain">
+              {{ row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
 
-      <el-col :span="6">
-        <el-card>
-          <el-statistic :value="summary.pendingApprovalCount">
-            <template #title>
-              <div class="title">Pending Approval</div>
+    <div class="grid gap-5 xl:grid-cols-2">
+      <el-card shadow="never" body-class="p-0!">
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-semibold text-gray-900">Pending approval</h2>
+              <p class="text-sm text-gray-500">Documents waiting for review</p>
+            </div>
+            <el-tag type="warning" effect="plain">
+              {{ pendingApprovals.length }} pending
+            </el-tag>
+          </div>
+        </template>
+
+        <el-table :data="pendingApprovals" v-loading="approvalsPending" stripe>
+          <template #empty>
+            <el-empty description="No pending approvals"></el-empty>
+          </template>
+          <el-table-column prop="document" label="Document">
+            <template #default="{ row }">
+              <nuxt-link
+                class="line-clamp-1 font-semibold font-mono hover:underline cursor-pointer"
+                :to="row.link"
+              >
+                {{ row.document }}
+              </nuxt-link>
             </template>
-          </el-statistic>
-        </el-card>
-      </el-col>
-    </el-row>
+          </el-table-column>
+          <el-table-column prop="type" label="Type" width="120" align="center">
+            <template #default="{ row }">
+              <el-tag effect="plain" type="success">
+                {{ row.type }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="submitted" label="Submitted" width="115" />
+        </el-table>
+      </el-card>
+
+      <el-card shadow="never" body-class="p-0!">
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-semibold text-gray-900">Pending tasks</h2>
+              <p class="text-sm text-gray-500">Work that needs attention</p>
+            </div>
+            <el-tag type="danger" effect="plain">
+              {{ pendingTasks.length }} open
+            </el-tag>
+          </div>
+        </template>
+
+        <el-table :data="pendingTasks" v-loading="tasksPending" stripe>
+          <template #empty>
+            <el-empty description="No pending tasks"></el-empty>
+          </template>
+          <el-table-column prop="task" label="Task" min-width="190" />
+          <el-table-column prop="dueDate" label="Due date" width="115" />
+          <el-table-column label="Priority" width="105" align="center">
+            <template #default="{ row }">
+              <el-tag
+                :type="priorityType[row.priority]"
+                effect="plain"
+                size="small"
+              >
+                {{ row.priority }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="Status" width="120" align="center">
+            <template #default="{ row }">
+              <el-tag
+                :type="taskStatusType[row.status]"
+                effect="plain"
+                size="small"
+              >
+                {{ row.status }}
+              </el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+
 const request = useRequest();
 
-const { data: summary, isSuccess } = useQuery({
-  queryKey: ["summary"],
-  queryFn: () => request("/api/report/summary"),
-});
-</script>
+const rowsFrom = (response) => {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.data?.data)) return response.data.data;
+  return response?.items ?? [];
+};
 
-<style scoped>
-.title {
-  font-size: 1rem;
+const { data: visitPlanResponse, isPending: visitPlansPending } = useQuery({
+  queryKey: ["dashboard-visit-plans"],
+  queryFn: () =>
+    request("/api/visit-plans", {
+      params: { page: 1, pageSize: 5 },
+    }),
+});
+
+const { data: approvalResponse, isPending: approvalsPending } = useQuery({
+  queryKey: ["dashboard-pending-approvals"],
+  queryFn: () => request("/api/approvals"),
+});
+
+const { data: taskResponse, isPending: tasksPending } = useQuery({
+  queryKey: ["dashboard-pending-tasks"],
+  queryFn: () =>
+    request("/api/tasks", {
+      params: { page: 1, pageSize: 20 },
+    }),
+});
+
+const visitPlans = computed(() =>
+  rowsFrom(visitPlanResponse.value).map((visit) => ({
+    date: formatDate(visit.scheduledDate),
+    time: visit.scheduledTime || formatTime(visit.scheduledDate),
+    customer: visit.Customer?.name || "-",
+    purpose: visit.purpose || visit.title || "-",
+    owner: visit.User?.name || "-",
+    status: visit.status || "-",
+  })),
+);
+
+const pendingApprovals = computed(() =>
+  rowsFrom(approvalResponse.value).map((approval) => ({
+    document: approval.documentNumber || "-",
+    type: approval.approvalType?.replaceAll("_", " ") || "-",
+    submitted: formatDate(approval.createdAt),
+    link: getApprovalLink(approval),
+  })),
+);
+
+function getApprovalLink(approval) {
+  const { approvalType, moduleId, documentNumber } = approval;
+  switch (approvalType) {
+    case "NKP":
+      return `/nkp?number=${documentNumber}`;
+    case "QUOTATION":
+      return `/sales/quotations/${moduleId}`;
+    case "SALES_ORDER":
+      return `/sales/orders/${moduleId}`;
+    case "INVOICE":
+      return `/sales/invoices/${moduleId}`;
+    default:
+      return "/";
+  }
 }
-</style>
+
+const pendingTasks = computed(() =>
+  rowsFrom(taskResponse.value)
+    .filter((task) => ["Todo", "InProgress", "OnHold"].includes(task.status))
+    .slice(0, 5)
+    .map((task) => ({
+      task: task.title || "-",
+      assignee: task.User?.name || "-",
+      dueDate: formatDate(task.dueDate),
+      priority: task.priority || "Normal",
+      status:
+        task.status === "InProgress"
+          ? "In progress"
+          : task.status === "OnHold"
+            ? "On hold"
+            : "To do",
+    })),
+);
+
+const priorityType = {
+  High: "danger",
+  Normal: "warning",
+  Low: "info",
+};
+
+const visitStatusType = {
+  Confirmed: "success",
+  Planned: "primary",
+  Tentative: "warning",
+};
+
+const taskStatusType = {
+  "In progress": "primary",
+  "To do": "warning",
+  "On hold": "info",
+};
+
+const goToApproval = (row) => {
+  // Implement the navigation logic to the approval detail page
+  console.log("Navigating to approval:", row);
+};
+</script>
