@@ -310,7 +310,7 @@ function getDraftLink(document) {
     case "Invoice":
       return `/sales/invoices/${id}`;
     case "Purchase Order":
-      return `/purchasing-logistics/purchases-orders/${id}`;
+      return `/purchasing-logistics/purchase-orders/${id}`;
     case "Delivery Order":
       return `/purchasing-logistics/delivery-orders/${id}`;
     case "Goods Receipt":
