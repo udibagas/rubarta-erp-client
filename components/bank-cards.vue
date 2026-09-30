@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-4">
+  <div class="flex gap-4 flex-wrap">
     <div
       v-for="bank in banks"
       :key="bank.accountNumber"
