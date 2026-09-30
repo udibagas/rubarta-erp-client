@@ -1,9 +1,9 @@
 <template>
-  <div class="flex gap-4">
+  <div class="flex gap-4 flex-wrap">
     <div
       v-for="bank in banks"
       :key="bank.accountNumber"
-      class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full hover:border-green-500 hover:bg-green-50 cursor-pointer"
+      class="rounded border border-gray-200 bg-gray-50 px-3 py-2 min-w-80 flex-1 hover:border-green-500 hover:bg-green-50 cursor-pointer"
       @click="() => setBank(bank)"
       :class="{
         'border-green-500 bg-green-50': selectedAccount === bank.accountNumber,
