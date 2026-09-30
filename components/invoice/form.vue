@@ -300,7 +300,11 @@
         <template #header>
           <span class="font-semibold">BANK INFORMATION</span>
         </template>
-        <bank-cards :banks="banks" :form="form" @update:bank="setBank" />
+        <bank-cards
+          :banks="banks"
+          :selected-account="form.bank?.accountNumber"
+          @update:bank="setBank"
+        />
       </el-card>
 
       <!-- Invoice Items -->
@@ -755,7 +759,10 @@ const save = async () => {
       body: { ...form.value, companyId: companyId.value },
     });
 
-    ElMessage.success("Invoice saved successfully");
+    ElNotification.success({
+      title: "Success",
+      message: "Invoice saved successfully",
+    });
     emit("saved", res);
     closeForm();
   } catch (error) {

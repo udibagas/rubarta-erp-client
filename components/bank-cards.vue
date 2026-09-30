@@ -6,8 +6,7 @@
       class="rounded border border-gray-200 bg-gray-50 px-3 py-2 w-full hover:border-green-500 hover:bg-green-50 cursor-pointer"
       @click="() => setBank(bank)"
       :class="{
-        'border-green-500 bg-green-50':
-          form.bank?.accountNumber === bank.accountNumber,
+        'border-green-500 bg-green-50': selectedAccount === bank.accountNumber,
       }"
     >
       <div class="flex justify-between gap-2">
@@ -34,9 +33,9 @@ defineProps({
     type: Array,
     required: true,
   },
-  form: {
-    type: Object,
-    required: true,
+  selectedAccount: {
+    type: String,
+    required: false,
   },
 });
 
