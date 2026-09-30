@@ -109,7 +109,7 @@
 
           <a
             :href="selected.redirectUrl"
-            class="btn btn-outline btn-primary btn-sm"
+            class="btn btn-outline btn-success btn-sm w-50"
           >
             LIHAT DETAIL
           </a>
