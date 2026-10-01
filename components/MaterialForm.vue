@@ -1,179 +1,200 @@
 <template>
   <el-dialog
     v-model="show"
-    width="600px"
+    width="800px"
     :title="!!form.id ? 'EDIT MATERIAL' : 'ADD MATERIAL'"
     :close-on-click-modal="false"
   >
-    <el-form label-width="180px" label-position="left">
-      <el-form-item label="Part Number" required :error="errors.partNumber">
-        <el-input
-          placeholder="Part Number"
-          v-model="form.partNumber"
-        ></el-input>
-      </el-form-item>
+    <el-form label-position="top">
+      <el-divider content-position="left">Material Information</el-divider>
+      <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
+        <el-form-item label="Part Number" :error="errors.partNumber">
+          <el-input
+            placeholder="Part Number"
+            v-model="form.partNumber"
+          ></el-input>
+        </el-form-item>
 
-      <el-form-item label="Material Name" required :error="errors.name">
-        <el-input placeholder="Material Name" v-model="form.name"></el-input>
-      </el-form-item>
+        <el-form-item label="Material Name" :error="errors.name">
+          <el-input placeholder="Material Name" v-model="form.name"></el-input>
+        </el-form-item>
 
-      <el-form-item label="Model" :error="errors.model">
-        <el-input placeholder="Model" v-model="form.model"></el-input>
-      </el-form-item>
-
-      <el-form-item label="Description" :error="errors.description">
-        <el-input
-          type="textarea"
-          :rows="3"
-          placeholder="Description"
-          v-model="form.description"
-        ></el-input>
-      </el-form-item>
-
-      <el-form-item label="Category" :error="errors.category">
-        <el-select
-          v-model="form.category"
-          placeholder="Select Category"
-          style="width: 100%"
-          clearable
-        >
-          <el-option
-            v-for="cat in categories"
-            :key="cat"
-            :value="cat"
-            :label="cat"
+        <el-form-item label="Category" :error="errors.category">
+          <el-select
+            v-model="form.category"
+            placeholder="Select Category"
+            style="width: 100%"
+            clearable
           >
-          </el-option>
-        </el-select>
-      </el-form-item>
+            <el-option
+              v-for="cat in categories"
+              :key="cat"
+              :value="cat"
+              :label="cat"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
 
-      <el-form-item label="Supplier" :error="errors.supplierId">
-        <el-select
-          v-model="form.supplierId"
-          placeholder="Select Supplier"
-          style="width: 100%"
-          filterable
-          clearable
+        <el-form-item label="Model" :error="errors.model">
+          <el-input placeholder="Model" v-model="form.model"></el-input>
+        </el-form-item>
+
+        <el-form-item
+          label="Description"
+          :error="errors.description"
+          class="col-span-full"
         >
-          <el-option
-            v-for="supplier in suppliers"
-            :key="supplier.id"
-            :value="supplier.id"
-            :label="supplier.name"
+          <el-input
+            type="textarea"
+            :rows="3"
+            placeholder="Description"
+            v-model="form.description"
+          ></el-input>
+        </el-form-item>
+      </div>
+
+      <el-divider content-position="left"
+        >Sourcing &amp; Specifications</el-divider
+      >
+      <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
+        <el-form-item label="Supplier" :error="errors.supplierId">
+          <el-select
+            v-model="form.supplierId"
+            placeholder="Select Supplier"
+            style="width: 100%"
+            filterable
+            clearable
           >
-          </el-option>
-        </el-select>
-      </el-form-item>
+            <el-option
+              v-for="supplier in suppliers"
+              :key="supplier.id"
+              :value="supplier.id"
+              :label="supplier.name"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
 
-      <el-form-item label="Unit" :error="errors.unit">
-        <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit">
-        </el-input>
-      </el-form-item>
+        <el-form-item label="Unit" :error="errors.unit">
+          <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit">
+          </el-input>
+        </el-form-item>
 
-      <el-form-item label="Weight" :error="errors.weight">
-        <div class="flex gap-4 w-full">
+        <el-form-item label="Weight (kg)" :error="errors.weight">
           <el-input-number
             v-model="form.weight"
             placeholder="0"
             controls-position="right"
-            class="grow!"
+            style="width: 100%"
           >
           </el-input-number>
-          <span>Kg</span>
-        </div>
-      </el-form-item>
+        </el-form-item>
 
-      <el-form-item label="Purchase Price" :error="errors.purchasePrice">
-        <el-input
-          v-model="form.purchasePrice"
-          placeholder="0"
-          :formatter="formatNumberInput"
-          :parser="parseNumberInput"
-        >
-          <template #prepend>
-            <el-select
-              v-model="form.purchaseCurrency"
-              placeholder="Curr"
-              style="width: 100px"
-              clearable
-            >
-              <el-option label="USD" value="USD"></el-option>
-              <el-option label="EUR" value="EUR"></el-option>
-              <el-option label="IDR" value="IDR"></el-option>
-            </el-select>
-          </template>
-        </el-input>
-      </el-form-item>
+        <el-form-item label="Lead Time (days)" :error="errors.leadTimeDays">
+          <el-input-number
+            v-model="form.leadTimeDays"
+            :min="0"
+            :controls="false"
+            style="width: 100%"
+            placeholder="0"
+          />
+        </el-form-item>
+      </div>
 
-      <el-form-item label="Selling Price" :error="errors.sellingPrice">
-        <el-input
-          v-model="form.sellingPrice"
-          placeholder="0"
-          :formatter="formatNumberInput"
-          :parser="parseNumberInput"
-        >
-          <template #prepend>
-            <el-select
-              v-model="form.sellingCurrency"
-              placeholder="Curr"
-              style="width: 100px"
-              clearable
-            >
-              <el-option label="USD" value="USD"></el-option>
-              <el-option label="IDR" value="IDR"></el-option>
-              <el-option label="EUR" value="EUR"></el-option>
-            </el-select>
-          </template>
-        </el-input>
-      </el-form-item>
+      <el-divider content-position="left">Pricing</el-divider>
+      <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
+        <el-form-item label="Purchase Price" :error="errors.purchasePrice">
+          <el-input
+            v-model="form.purchasePrice"
+            placeholder="0"
+            :formatter="formatNumberInput"
+            :parser="parseNumberInput"
+          >
+            <template #prepend>
+              <el-select
+                v-model="form.purchaseCurrency"
+                placeholder="Curr"
+                style="width: 100px"
+                clearable
+              >
+                <el-option label="USD" value="USD"></el-option>
+                <el-option label="EUR" value="EUR"></el-option>
+                <el-option label="IDR" value="IDR"></el-option>
+              </el-select>
+            </template>
+          </el-input>
+        </el-form-item>
 
-      <el-form-item label="Current Stock" :error="errors.currentStock">
-        <el-input-number
-          v-model="form.currentStock"
-          :min="0"
-          :controls="false"
-          style="width: 100%"
-          placeholder="0"
-        />
-      </el-form-item>
+        <el-form-item label="Selling Price" :error="errors.sellingPrice">
+          <el-input
+            v-model="form.sellingPrice"
+            placeholder="0"
+            :formatter="formatNumberInput"
+            :parser="parseNumberInput"
+          >
+            <template #prepend>
+              <el-select
+                v-model="form.sellingCurrency"
+                placeholder="Curr"
+                style="width: 100px"
+                clearable
+              >
+                <el-option label="USD" value="USD"></el-option>
+                <el-option label="IDR" value="IDR"></el-option>
+                <el-option label="EUR" value="EUR"></el-option>
+              </el-select>
+            </template>
+          </el-input>
+        </el-form-item>
+      </div>
 
-      <el-form-item label="MOQ" :error="errors.moq">
-        <el-input-number
-          v-model="form.moq"
-          :min="0"
-          :controls="false"
-          style="width: 100%"
-          placeholder="0"
-        />
-      </el-form-item>
+      <el-divider content-position="left">Inventory</el-divider>
+      <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
+        <el-form-item label="Current Stock" :error="errors.currentStock">
+          <el-input-number
+            v-model="form.currentStock"
+            :min="0"
+            :controls="false"
+            style="width: 100%"
+            placeholder="0"
+          />
+        </el-form-item>
 
-      <el-form-item label="Min Stock" :error="errors.minStock">
-        <el-input-number
-          v-model="form.minStock"
-          :min="0"
-          :controls="false"
-          style="width: 100%"
-          placeholder="0"
-        />
-      </el-form-item>
+        <el-form-item label="MOQ" :error="errors.moq">
+          <el-input-number
+            v-model="form.moq"
+            :min="0"
+            :controls="false"
+            style="width: 100%"
+            placeholder="0"
+          />
+        </el-form-item>
 
-      <el-form-item label="Lead Time (days)" :error="errors.leadTimeDays">
-        <el-input-number
-          v-model="form.leadTimeDays"
-          :min="0"
-          :controls="false"
-          style="width: 100%"
-          placeholder="0"
-        />
-      </el-form-item>
+        <el-form-item label="Min Stock" :error="errors.minStock">
+          <el-input-number
+            v-model="form.minStock"
+            :min="0"
+            :controls="false"
+            style="width: 100%"
+            placeholder="0"
+          />
+        </el-form-item>
 
-      <el-form-item label="Status" :error="errors.isActive">
-        <el-switch
-          v-model="form.isActive"
-          active-text="Active"
-          inactive-text="Inactive"
-        />
-      </el-form-item>
+        <el-form-item label="Status" :error="errors.isActive">
+          <el-switch
+            v-model="form.isActive"
+            inline-prompt
+            active-text="Active"
+            inactive-text="Inactive"
+            size="large"
+            style="
+              --el-switch-on-color: #13ce66;
+              --el-switch-off-color: #ff4949;
+            "
+          />
+        </el-form-item>
+      </div>
     </el-form>
 
     <template #footer>
@@ -188,7 +209,7 @@
       <el-button
         :icon="ElIconSuccessFilled"
         type="success"
-        @click="save({ ...form, weight: form.weight * 1000 })"
+        @click="saveMaterial"
       >
         SAVE
       </el-button>
@@ -232,9 +253,10 @@ const formatNumberInput = (value) => {
   }
 
   const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const display = fractionPart
-    ? `${groupedInteger},${fractionPart}`
-    : groupedInteger;
+  const display =
+    fractionPart || decimalSeparator
+      ? `${groupedInteger},${fractionPart}`
+      : groupedInteger;
 
   return negative ? `-${display}` : display;
 };
@@ -242,10 +264,27 @@ const formatNumberInput = (value) => {
 const parseNumberInput = (value) => {
   if (value === null || value === undefined || value === "") return null;
 
-  const normalized = String(value).replace(/\./g, "").replace(",", ".");
+  const raw = String(value);
+  if (/[.,]$/.test(raw)) return `${raw.slice(0, -1).replace(/\./g, "")}.`;
+
+  const normalized = raw.replace(/\./g, "").replace(",", ".");
 
   const parsed = Number(normalized);
   return Number.isNaN(parsed) ? null : parsed;
+};
+
+const saveMaterial = () => {
+  const normalizePrice = (value) => {
+    if (typeof value !== "string" || !value.endsWith(".")) return value;
+    return Number(value.slice(0, -1));
+  };
+
+  save({
+    ...form.value,
+    purchasePrice: normalizePrice(form.value.purchasePrice),
+    sellingPrice: normalizePrice(form.value.sellingPrice),
+    weight: form.value.weight * 1000,
+  });
 };
 
 const { errors, form, show, closeForm, saveMutation, request } = useCrud({
