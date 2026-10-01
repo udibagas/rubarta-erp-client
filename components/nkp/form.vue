@@ -139,7 +139,7 @@
             clearable
             @change="
               (v) => {
-                updateBank();
+                updateBank(v);
                 handleSupplierChange(v);
               }
             "
@@ -639,7 +639,6 @@ function fetchGoodsReceipts(purchaseOrderId) {
 }
 
 function handleSupplierChange(supplierId) {
-  console.log("Supplier changed:", supplierId);
   fetchPurchaseOrders(supplierId);
   form.value.purchaseOrderId = null;
   form.value.goodsReceiptId = null;
