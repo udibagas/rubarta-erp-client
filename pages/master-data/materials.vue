@@ -522,6 +522,7 @@ const {
   queryKey: "materials",
 });
 
+pageSize.value = 25; // Set default page size
 const { isPending, data } = fetchData();
 const { mutate: remove } = removeMutation();
 
