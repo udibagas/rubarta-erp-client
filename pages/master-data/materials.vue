@@ -57,61 +57,44 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Material" min-width="150">
+      <el-table-column label="Description" min-width="150">
         <template #default="{ row }">
           <div class="line-clamp-1">{{ row.name }}</div>
-          <div v-if="row.model" class="text-xs text-gray-600">
-            Model: {{ row.model }}
-          </div>
-          <div
-            v-if="row.description"
-            class="text-xs text-gray-500 line-clamp-1"
-          >
-            {{ row.description }}
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Category" width="150">
-        <template #default="{ row }">
-          <el-tag
-            v-if="row.category"
-            type="warning"
-            size="small"
-            effect="plain"
-          >
-            {{ row.category }}
-          </el-tag>
-          <span v-else>-</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Supplier" min-width="180">
         <template #default="{ row }">
-          <span class="line-clamp-2">
+          <span class="line-clamp-1">
             {{ row.Supplier?.name || "-" }}
           </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="MOQ" prop="moq" width="120" align="center" />
+      <el-table-column label="Inventory" align="center">
+        <el-table-column label="MOQ" prop="moq" width="80" align="center" />
 
-      <el-table-column label="Stock" width="120" align="center">
-        <template #default="{ row }">
-          <div
-            :class="{
-              'text-red-600 font-bold':
-                row.currentStock !== null &&
-                row.minStock !== null &&
-                row.currentStock <= row.minStock,
-            }"
-          >
-            <div>{{ row.currentStock ?? "-" }}</div>
-            <div class="text-xs text-gray-500">
-              Min: {{ row.minStock ?? "-" }}
+        <el-table-column label="Stock" width="80" align="center">
+          <template #default="{ row }">
+            <div
+              :class="{
+                'text-red-600 font-bold':
+                  row.currentStock !== null &&
+                  row.minStock !== null &&
+                  row.currentStock <= row.minStock,
+              }"
+            >
+              {{ row.currentStock ?? "-" }}
             </div>
-          </div>
-        </template>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          label="Min"
+          prop="minStock"
+          width="80"
+          align="center"
+        />
       </el-table-column>
 
       <el-table-column label="Unit" width="80" align="center">
@@ -129,33 +112,34 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Purchase Price" width="150" align="right">
-        <template #default="{ row }">
-          <el-tag
-            v-if="row.purchasePrice"
-            size="small"
-            effect="plain"
-            class="font-mono"
-          >
-            {{ formatPrice(row.purchasePrice, row.purchaseCurrency) }}
-          </el-tag>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
+      <el-table-column label=" Price" align="center">
+        <el-table-column
+          label="Purchase"
+          width="150"
+          align="right"
+          header-align="center"
+        >
+          <template #default="{ row }">
+            <div v-if="row.purchasePrice" class="font-mono">
+              {{ formatPrice(row.purchasePrice, row.purchaseCurrency) }}
+            </div>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Selling Price" width="150" align="right">
-        <template #default="{ row }">
-          <el-tag
-            v-if="row.sellingPrice"
-            size="small"
-            effect="plain"
-            class="font-mono"
-            type="success"
-          >
-            {{ formatPrice(row.sellingPrice, row.sellingCurrency) }}
-          </el-tag>
-          <span v-else>-</span>
-        </template>
+        <el-table-column
+          label="Sell"
+          width="150"
+          align="right"
+          header-align="center"
+        >
+          <template #default="{ row }">
+            <div v-if="row.sellingPrice" class="font-mono">
+              {{ formatPrice(row.sellingPrice, row.sellingCurrency) }}
+            </div>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
       </el-table-column>
 
       <el-table-column label="Status" width="100" align="center">
