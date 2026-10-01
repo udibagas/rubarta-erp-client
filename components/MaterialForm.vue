@@ -269,14 +269,12 @@ const parseNumberInput = (value) => {
 
   const normalized = raw.replace(/\./g, "").replace(",", ".");
 
-  const parsed = Number(normalized);
-  return Number.isNaN(parsed) ? null : parsed;
+  return Number.isNaN(Number(normalized)) ? null : normalized;
 };
 
 const saveMaterial = () => {
   const normalizePrice = (value) => {
-    if (typeof value !== "string" || !value.endsWith(".")) return value;
-    return Number(value.slice(0, -1));
+    return typeof value === "string" ? Number(value) : value;
   };
 
   save({
