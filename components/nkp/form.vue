@@ -555,7 +555,7 @@ function fetchPurchaseOrders(supplierId) {
     `,
     {
       variables: {
-        status: ["Confirmed", "PartiallyReceived"],
+        status: ["Completed", "PartiallyReceived"],
         supplierId: Number(supplierId),
       },
     },
