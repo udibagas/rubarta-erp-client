@@ -6,7 +6,7 @@
     :close-on-click-modal="false"
   >
     <br />
-    <el-form label-width="150px" label-position="left">
+    <el-form label-width="150px" label-position="top">
       <el-form-item label="Parent" v-if="form.parentId">
         <strong>{{ form.Parent.number }}</strong>
       </el-form-item>
@@ -23,203 +23,248 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Payment Target" :error="errors.paymentType">
-        <el-radio-group v-model="form.paymentType" @change="resetBank">
-          <el-radio
-            value="EMPLOYEE"
-            label="EMPLOYEE"
-            :disabled="!!form.parentId"
-          />
-          <el-radio value="VENDOR" label="VENDOR" :disabled="!!form.parentId" />
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item
-        v-if="form.paymentType"
-        label="NKP Type"
-        :error="errors.nkpType"
-      >
-        <el-radio-group v-model="form.nkpType" @change="resetBank">
-          <el-radio
-            v-if="form.paymentType == 'EMPLOYEE'"
-            value="CASH_ADVANCE"
-            label="CASH ADVANCE"
-            :disabled="!!form.parentId"
-          />
-
-          <el-radio
-            v-if="form.paymentType == 'EMPLOYEE'"
-            value="DECLARATION"
-            label="DECLARATION"
-            :disabled="!!form.parentId"
-          />
-
-          <el-radio
-            v-if="form.paymentType == 'EMPLOYEE'"
-            value="SALARY"
-            label="SALARY"
-            :disabled="!!form.parentId"
-          />
-
-          <el-radio
-            v-if="form.paymentType == 'VENDOR'"
-            value="DOWN_PAYMENT"
-            label="DOWN PAYMENT"
-            :disabled="!!form.parentId"
-          />
-
-          <el-radio
-            v-if="form.paymentType == 'VENDOR'"
-            value="SETTLEMENT"
-            label="SETTLEMENT"
-            :disabled="!!form.parentId"
-          />
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item
-        v-if="form.paymentType == 'EMPLOYEE'"
-        label="Employee"
-        :error="errors.employeeId"
-      >
-        <el-select
-          v-model="form.employeeId"
-          placeholder="Employee"
-          @change="updateBank"
-          @clear="resetBank"
-          default-first-option
-          filterable
-          clearable
-          :disabled="!!form.parentId"
+      <div class="flex gap-4">
+        <el-form-item
+          label="Payment Target"
+          :error="errors.paymentType"
+          class="flex-1"
         >
-          <el-option
-            v-for="(el, i) in users"
-            :value="el.id"
-            :label="`${el.code} - ${el.name}`"
-            :key="i"
+          <el-radio-group
+            v-model="form.paymentType"
+            @change="resetBank"
+            fill="rgb(149, 212, 117)"
           >
-          </el-option>
-        </el-select>
-      </el-form-item>
+            <el-radio-button
+              value="EMPLOYEE"
+              label="EMPLOYEE"
+              :disabled="!!form.parentId"
+            />
+            <el-radio-button
+              value="VENDOR"
+              label="VENDOR"
+              :disabled="!!form.parentId"
+            />
+          </el-radio-group>
+        </el-form-item>
 
-      <el-form-item
-        v-if="form.paymentType == 'VENDOR'"
-        label="Vendor"
-        :error="errors.supplierId"
-      >
-        <el-select
-          v-model="form.supplierId"
-          placeholder="Vendor"
-          @clear="resetBank"
-          default-first-option
-          filterable
-          clearable
-          @change="
-            (v) => {
-              updateBank();
-              handleSupplierChange(v);
-            }
-          "
+        <el-form-item
+          v-if="form.paymentType"
+          label="NKP Type"
+          :error="errors.nkpType"
+          class="flex-1"
         >
-          <el-option
-            v-for="(el, i) in suppliers"
-            :value="el.id"
-            :label="`${el.code} - ${el.name}`"
-            :key="i"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-
-      <el-form-item v-if="form.paymentType" label="Bank" :error="errors.bankId">
-        <el-select
-          v-model="form.bankId"
-          placeholder="Bank"
-          default-first-option
-          filterable
-          :disabled="!!form.parentId"
-        >
-          <el-option
-            v-for="(el, i) in banks"
-            :value="el.id"
-            :label="`${el.code} - ${el.name}`"
-            :key="i"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-
-      <el-form-item
-        v-if="form.paymentType"
-        label="Bank Account"
-        :error="errors.bankAccount"
-      >
-        <el-input
-          v-model="form.bankAccount"
-          placeholder="Bank Account"
-          :disabled="!!form.parentId"
-        />
-      </el-form-item>
-
-      <el-form-item
-        v-if="form.paymentType"
-        label="Currency"
-        :error="errors.currency"
-      >
-        <el-radio-group v-model="form.currency">
-          <el-radio
-            v-for="(currency, i) in [...currencies, null]"
-            :value="currency"
-            :label="currency"
-            :key="i"
+          <el-select
+            v-model="form.nkpType"
+            placeholder="NKP Type"
+            @change="resetBank"
             :disabled="!!form.parentId"
-          />
-        </el-radio-group>
-      </el-form-item>
+          >
+            <el-option
+              v-if="form.paymentType == 'EMPLOYEE'"
+              value="CASH_ADVANCE"
+              label="CASH ADVANCE"
+            />
 
-      <el-form-item label="PO Number" v-if="form.paymentType == 'VENDOR'">
-        <el-select
-          v-model="form.purchaseOrderId"
-          placeholder="Select purchase order"
-          filterable
-          default-first-option
-          @change="(v) => handlePurchaseOrderChange(v)"
-          clearable
+            <el-option
+              v-if="form.paymentType == 'EMPLOYEE'"
+              value="DECLARATION"
+              label="DECLARATION"
+            />
+
+            <el-option
+              v-if="form.paymentType == 'EMPLOYEE'"
+              value="SALARY"
+              label="SALARY"
+            />
+
+            <el-option
+              v-if="form.paymentType == 'VENDOR'"
+              value="DOWN_PAYMENT"
+              label="DOWN PAYMENT"
+            />
+
+            <el-option
+              v-if="form.paymentType == 'VENDOR'"
+              value="SETTLEMENT"
+              label="SETTLEMENT"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item
+          v-if="form.paymentType == 'EMPLOYEE'"
+          label="Employee"
+          :error="errors.employeeId"
+          class="flex-1"
         >
-          <el-option
-            v-for="purchaseOrder in purchaseOrders"
-            :key="purchaseOrder.id"
-            :value="purchaseOrder.id"
-            :label="purchaseOrder.number"
-          />
-        </el-select>
-      </el-form-item>
+          <el-select
+            v-model="form.employeeId"
+            placeholder="Employee"
+            @change="updateBank"
+            @clear="resetBank"
+            default-first-option
+            fit-input-width
+            filterable
+            clearable
+            :disabled="!!form.parentId"
+          >
+            <el-option
+              v-for="(el, i) in users"
+              :value="el.id"
+              :label="el.name"
+              :key="i"
+            />
 
-      <el-form-item label="GR Number" v-if="form.paymentType == 'VENDOR'">
-        <el-select
-          v-model="form.goodsReceiptId"
-          placeholder="Select goods receipt"
-          filterable
-          default-first-option
-          @change="(v) => handleGoodsReceiptChange(v)"
-          clearable
+            <template #prefix>
+              <el-icon>
+                <el-icon-user />
+              </el-icon>
+            </template>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item
+          v-if="form.paymentType == 'VENDOR'"
+          label="Vendor"
+          :error="errors.supplierId"
+          class="flex-1"
         >
-          <el-option
-            v-for="gr in goodsReceipts"
-            :key="gr.id"
-            :value="gr.id"
-            :label="gr.number"
-          />
-        </el-select>
-      </el-form-item>
+          <el-select
+            v-model="form.supplierId"
+            placeholder="Vendor"
+            @clear="resetBank"
+            default-first-option
+            fit-input-width
+            filterable
+            clearable
+            @change="
+              (v) => {
+                updateBank();
+                handleSupplierChange(v);
+              }
+            "
+          >
+            <el-option
+              v-for="(el, i) in suppliers"
+              :value="el.id"
+              :label="el.name"
+              :key="i"
+            />
+            <template #prefix>
+              <el-icon>
+                <el-icon-shop />
+              </el-icon>
+            </template>
+          </el-select>
+        </el-form-item>
+      </div>
 
-      <el-form-item
-        v-if="form.paymentType == 'VENDOR'"
-        label="Invoice Number"
-        :error="errors.invoiceNumber"
-      >
-        <el-input v-model="form.invoiceNumber" placeholder="Invoice Number" />
-      </el-form-item>
+      <div class="flex gap-4">
+        <el-form-item
+          v-if="form.paymentType"
+          label="Bank"
+          :error="errors.bankId"
+          class="flex-1"
+        >
+          <el-select
+            v-model="form.bankId"
+            placeholder="Bank"
+            default-first-option
+            filterable
+            :disabled="!!form.parentId"
+          >
+            <el-option
+              v-for="(el, i) in banks"
+              :value="el.id"
+              :label="`${el.code} - ${el.name}`"
+              :key="i"
+            />
+
+            <template #prefix>
+              <el-icon>
+                <el-icon-school />
+              </el-icon>
+            </template>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item
+          v-if="form.paymentType"
+          label="Bank Account"
+          :error="errors.bankAccount"
+          class="flex-1"
+        >
+          <el-input
+            v-model="form.bankAccount"
+            placeholder="Bank Account"
+            :disabled="!!form.parentId"
+            :prefix-icon="ElIconCreditCard"
+          />
+        </el-form-item>
+
+        <el-form-item
+          v-if="form.paymentType"
+          label="Currency"
+          :error="errors.currency"
+          class="flex-1"
+        >
+          <el-radio-group v-model="form.currency" fill="rgb(149, 212, 117)">
+            <el-radio-button
+              v-for="(currency, i) in [...currencies]"
+              :value="currency"
+              :label="currency"
+              :key="i"
+              :disabled="!!form.parentId"
+            />
+          </el-radio-group>
+        </el-form-item>
+      </div>
+
+      <div class="flex gap-4" v-if="form.paymentType == 'VENDOR'">
+        <el-form-item label="PO Number" class="flex-1">
+          <el-select
+            v-model="form.purchaseOrderId"
+            placeholder="Select purchase order"
+            filterable
+            default-first-option
+            @change="(v) => handlePurchaseOrderChange(v)"
+            clearable
+          >
+            <el-option
+              v-for="purchaseOrder in purchaseOrders"
+              :key="purchaseOrder.id"
+              :value="purchaseOrder.id"
+              :label="purchaseOrder.number"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="GR Number" class="flex-1">
+          <el-select
+            v-model="form.goodsReceiptId"
+            placeholder="Select goods receipt"
+            filterable
+            default-first-option
+            @change="(v) => handleGoodsReceiptChange(v)"
+            clearable
+          >
+            <el-option
+              v-for="gr in goodsReceipts"
+              :key="gr.id"
+              :value="gr.id"
+              :label="gr.number"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item
+          label="Invoice Number"
+          :error="errors.invoiceNumber"
+          class="flex-1"
+        >
+          <el-input v-model="form.invoiceNumber" placeholder="Invoice Number" />
+        </el-form-item>
+      </div>
 
       <el-form-item
         v-if="form.paymentType == 'VENDOR'"
@@ -231,7 +276,8 @@
             type="number"
             v-model="form.totalAmount"
             placeholder="Total Amount"
-            class="mr-3"
+            class="mr-4 w-70!"
+            :prefix-icon="ElIconMoney"
           />
           <span class="font-mono font-bold">
             {{ toCurrency(form.totalAmount, form.currency) }}
