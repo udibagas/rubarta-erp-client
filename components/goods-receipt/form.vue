@@ -48,8 +48,7 @@
               <el-select
                 v-model="form.supplierId"
                 placeholder="Select supplier"
-                filterable
-                default-first-option
+                disabled
               >
                 <el-option
                   v-for="supplier in suppliers"
@@ -354,7 +353,9 @@ function fetchGraphqlData() {
       }
     `,
     {
-      status: ["Confirmed", "PartiallyReceived"],
+      variables: {
+        status: ["Confirmed", "PartiallyReceived"],
+      },
     },
   )
     .then((result) => {
