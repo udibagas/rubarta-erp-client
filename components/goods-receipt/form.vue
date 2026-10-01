@@ -104,33 +104,29 @@
       <el-card shadow="never" body-style="padding: 0">
         <template #header>
           <div class="flex items-center justify-between">
-            <div>
-              <div class="font-semibold mb-1">
-                GOODS RECEIPT ITEMS ({{ form.items.length }})
-              </div>
-              <div class="flex gap-2">
-                <el-tag effect="plain" size="large" class="font-semibold">
-                  Total Ordered: {{ toDecimal(totalOrdered) }}
-                </el-tag>
-                <el-tag
-                  type="success"
-                  effect="plain"
-                  size="large"
-                  class="font-semibold"
-                >
-                  Total Received: {{ toDecimal(totalReceived) }}
-                </el-tag>
-                <el-tag
-                  :type="totalOutstanding > 0 ? 'danger' : 'success'"
-                  effect="plain"
-                  size="large"
-                  class="font-semibold"
-                >
-                  Outstanding: {{ toDecimal(totalOutstanding) }}
-                </el-tag>
-              </div>
+            <div class="font-semibold">
+              GOODS RECEIPT ITEMS ({{ form.items.length }})
             </div>
             <div class="flex items-center gap-2">
+              <el-tag effect="plain" size="large" class="font-semibold">
+                Total Ordered: {{ toDecimal(totalOrdered) }}
+              </el-tag>
+              <el-tag
+                type="success"
+                effect="plain"
+                size="large"
+                class="font-semibold"
+              >
+                Total Received: {{ toDecimal(totalReceived) }}
+              </el-tag>
+              <el-tag
+                :type="totalOutstanding > 0 ? 'danger' : 'success'"
+                effect="plain"
+                size="large"
+                class="font-semibold"
+              >
+                Outstanding: {{ toDecimal(totalOutstanding) }}
+              </el-tag>
               <el-button
                 v-if="form.items.length > 0"
                 :icon="ElIconUpload"
