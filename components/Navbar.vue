@@ -17,9 +17,29 @@
         />
       </el-select>
 
-      <el-badge :value="unread == 0 ? undefined : unread" :max="10">
+      <el-dropdown>
+        <el-button type="danger" :icon="ElIconPlus"> Create New </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item
+              v-for="menu in menus"
+              :key="menu.name"
+              :icon="menu.icon"
+              @click.native.prevent="navigateTo(menu.link)"
+            >
+              {{ menu.name }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
+      <el-badge
+        :value="unread == 0 ? undefined : unread"
+        :max="10"
+        class="mx-4"
+      >
         <NuxtLink to="/notifications">
-          <el-icon :size="24">
+          <el-icon :size="20">
             <ElIconBell />
           </el-icon>
         </NuxtLink>
@@ -37,13 +57,15 @@
             <el-dropdown-item
               :icon="ElIconUser"
               @click.native.prevent="showProfile = true"
-              >My Profile</el-dropdown-item
             >
+              My Profile
+            </el-dropdown-item>
             <el-dropdown-item
               :icon="ElIconArrowRight"
               @click.native.prevent="handleClickLogout"
-              >Sign Out</el-dropdown-item
             >
+              Sign Out
+            </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -116,4 +138,44 @@ const handleClickLogout = () => {
     .then(() => logout())
     .catch(() => console.log("Action cancelled"));
 };
+
+const menus = [
+  { name: "NKP", link: "/nkp?new=true", icon: ElIconDocumentCopy },
+  {
+    name: "Quotation",
+    link: "/sales/quotations?new=true",
+    icon: ElIconDocument,
+  },
+  {
+    name: "Sales Order",
+    link: "/sales/orders?new=true",
+    icon: ElIconShoppingCart,
+  },
+  { name: "Invoice", link: "/sales/invoices?new=true", icon: ElIconCreditCard },
+  {
+    name: "Purchase Order",
+    link: "/purchasing-logistics/purchase-orders?new=true",
+    icon: ElIconShoppingCart,
+  },
+  {
+    name: "Goods Receipt",
+    link: "/purchasing-logistics/goods-receipts?new=true",
+    icon: ElIconGoods,
+  },
+  {
+    name: "Delivery Order",
+    link: "/purchasing-logistics/delivery-orders?new=true",
+    icon: ElIconVan,
+  },
+  {
+    name: "Visit Plan",
+    link: "/crm/visit-plan?new=true",
+    icon: ElIconCalendar,
+  },
+  {
+    name: "Task",
+    link: "/crm/tasks?new=true",
+    icon: ElIconMemo,
+  },
+];
 </script>

@@ -295,6 +295,8 @@ const openForm = (data = {}) => {
   purchaseOrderFormRef.value?.openForm(data);
 };
 
+useNewQuery(() => openForm());
+
 const handleExport = (format) => {
   const params = new URLSearchParams();
   if (keyword.value) params.append("keyword", keyword.value);

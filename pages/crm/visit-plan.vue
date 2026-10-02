@@ -462,6 +462,8 @@ const openFormWithDate = (date) => {
   visitPlanFormRef.value?.openForm({ scheduledDate: formattedDate });
 };
 
+useNewQuery(() => visitPlanFormRef.value?.openForm());
+
 const openEditFromDialog = () => {
   showDetailDialog.value = false;
   visitPlanFormRef.value?.openForm(selectedVisit.value);

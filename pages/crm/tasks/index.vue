@@ -461,4 +461,6 @@ const openDetailDialog = (task) => {
   selectedTaskId.value = task.id;
   showDetailDialog.value = true;
 };
+
+useNewQuery(() => openForm());
 </script>

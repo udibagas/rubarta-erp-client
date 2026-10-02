@@ -22,19 +22,7 @@
             </el-dropdown>
 
             <el-button
-              @click="
-                openForm({
-                  companyId: companyId,
-                  cashAdvanceBalance: 0,
-                  deduction: 0,
-                  tax: 0,
-                  downPayment: 0,
-                  NkpItem: [
-                    { date: undefined, description: undefined, amount: 0 },
-                  ],
-                  NkpAttachment: [],
-                })
-              "
+              @click="openForm(defaultData)"
               type="success"
               :icon="ElIconPlus"
             >
@@ -230,9 +218,7 @@
 import { openDetail } from "~/stores/detail";
 import { openForm } from "~/stores/form";
 
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const url = "/api/nkp";
 const queryKey = "nkp";
@@ -258,6 +244,18 @@ const {
     orderDirection: "desc",
   },
 });
+
+const defaultData = {
+  companyId: companyId.value,
+  cashAdvanceBalance: 0,
+  deduction: 0,
+  tax: 0,
+  downPayment: 0,
+  NkpItem: [{ date: undefined, description: undefined, amount: 0 }],
+  NkpAttachment: [],
+};
+
+useNewQuery(() => openForm(defaultData));
 
 // Helper function to format NKP type display
 function formatNkpType(type) {
