@@ -9,14 +9,21 @@
       <el-divider content-position="left">Material Information</el-divider>
       <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
         <el-form-item label="Part Number" :error="errors.partNumber">
+          <el-input placeholder="Part Number" v-model="form.partNumber" />
+        </el-form-item>
+
+        <el-form-item
+          label="Interchange Part Number"
+          :error="errors.interchangePartNumber"
+        >
           <el-input
-            placeholder="Part Number"
-            v-model="form.partNumber"
-          ></el-input>
+            placeholder="Interchange Part Number"
+            v-model="form.interchangePartNumber"
+          />
         </el-form-item>
 
         <el-form-item label="Material Name" :error="errors.name">
-          <el-input placeholder="Material Name" v-model="form.name"></el-input>
+          <el-input placeholder="Material Name" v-model="form.name" />
         </el-form-item>
 
         <el-form-item label="Category" :error="errors.category">
@@ -37,20 +44,16 @@
         </el-form-item>
 
         <el-form-item label="Model" :error="errors.model">
-          <el-input placeholder="Model" v-model="form.model"></el-input>
+          <el-input placeholder="Model" v-model="form.model" />
         </el-form-item>
 
-        <el-form-item
-          label="Description"
-          :error="errors.description"
-          class="col-span-full"
-        >
+        <el-form-item label="Description" :error="errors.description">
           <el-input
             type="textarea"
-            :rows="3"
+            autosize
             placeholder="Description"
             v-model="form.description"
-          ></el-input>
+          />
         </el-form-item>
       </div>
 
@@ -77,8 +80,7 @@
         </el-form-item>
 
         <el-form-item label="Unit" :error="errors.unit">
-          <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit">
-          </el-input>
+          <el-input placeholder="e.g., pcs, kg, meter" v-model="form.unit" />
         </el-form-item>
 
         <el-form-item label="Weight (kg)" :error="errors.weight">

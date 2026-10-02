@@ -13,10 +13,11 @@
 
             <el-input
               v-model="keyword"
-              placeholder="Search..."
+              placeholder="P/N, Description, Supplier"
               clearable
               :prefix-icon="ElIconSearch"
               @clear="refreshData()"
+              class="w-60!"
             />
 
             <el-dropdown>
@@ -54,6 +55,9 @@
       <el-table-column label="Part Number" width="150" fixed="left">
         <template #default="{ row }">
           <div class="font-semibold font-mono">{{ row.partNumber }}</div>
+          <div class="text-xs text-gray-500" v-if="row.interchangePartNumber">
+            {{ row.interchangePartNumber }}
+          </div>
         </template>
       </el-table-column>
 
