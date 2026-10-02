@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center justify-between gap-4 w-full">
-    <div class="flex items-center gap-7">
-      <div class="text-green-600 font-bold text-lg">RUBARTA ERP SYSTEM</div>
+    <div class="text-green-600 font-bold text-lg">RUBARTA ERP SYSTEM</div>
 
+    <div class="flex items-center gap-2">
       <el-select
         v-model="search"
         placeholder="Search document number"
@@ -13,7 +13,7 @@
         :remote-method="searchDocuments"
         :loading="loading"
         @change="openDocument"
-        class="w-80!"
+        class="w-80! bg-gray-100!"
       >
         <template #prefix>
           <el-icon>
@@ -40,9 +40,6 @@
           </el-option>
         </el-option-group>
       </el-select>
-    </div>
-
-    <div class="flex items-center gap-4">
       <el-select
         v-model="companyId"
         placeholder="Select Company"
@@ -73,11 +70,9 @@
         </template>
       </el-dropdown>
 
-      <el-badge
-        :value="unread == 0 ? undefined : unread"
-        :max="10"
-        class="mx-4"
-      >
+      <el-divider direction="vertical" />
+
+      <el-badge :value="unread == 0 ? undefined : unread" :max="10">
         <NuxtLink to="/notifications">
           <el-icon :size="20">
             <ElIconBell />
@@ -85,7 +80,7 @@
         </NuxtLink>
       </el-badge>
 
-      <el-dropdown>
+      <el-dropdown class="ml-4">
         <el-avatar
           :size="30"
           :style="{ backgroundColor: getAvatarColor(user?.name) }"
