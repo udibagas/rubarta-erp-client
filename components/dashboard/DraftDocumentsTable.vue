@@ -26,13 +26,7 @@
           sub-title="You have no draft documents"
         />
       </template>
-      <el-table-column prop="documentType" label="Type" width="150">
-        <template #default="{ row }">
-          <el-tag effect="plain" type="warning">
-            {{ row.documentType }}
-          </el-tag>
-        </template>
-      </el-table-column>
+
       <el-table-column prop="number" label="Number" width="140">
         <template #default="{ row }">
           <nuxt-link
@@ -43,6 +37,15 @@
           </nuxt-link>
         </template>
       </el-table-column>
+
+      <el-table-column prop="documentType" label="Type" width="150">
+        <template #default="{ row }">
+          <el-tag effect="plain" type="warning">
+            {{ row.documentType }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="party" label="Party" min-width="150">
         <template #default="{ row }">
           <div class="line-clamp-1">{{ row.party }}</div>

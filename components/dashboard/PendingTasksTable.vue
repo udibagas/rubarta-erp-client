@@ -46,13 +46,17 @@
       </el-table-column>
       <el-table-column label="Status" width="120" align="center" fixed="right">
         <template #default="{ row }">
-          <el-tag
-            :type="taskStatusType[row.status]"
-            effect="plain"
-            size="small"
-          >
-            {{ row.status }}
-          </el-tag>
+          <StatusTag :status="row.status" style="width: 100%" effect="plain">
+            <template #icon>
+              <el-icon>
+                <ElIconCircleCheck v-if="row.status === 'Completed'" />
+                <ElIconLoading v-else-if="row.status === 'InProgress'" />
+                <ElIconWarning v-else-if="row.status === 'OnHold'" />
+                <ElIconCircleClose v-else-if="row.status === 'Cancelled'" />
+                <ElIconClock v-else />
+              </el-icon>
+            </template>
+          </StatusTag>
         </template>
       </el-table-column>
     </el-table>
@@ -96,12 +100,7 @@ const pendingTasks = computed(() =>
       assignee: task.User?.name || "-",
       dueDate: formatDate(task.dueDate),
       priority: task.priority || "Normal",
-      status:
-        task.status === "InProgress"
-          ? "In progress"
-          : task.status === "OnHold"
-            ? "On hold"
-            : "To do",
+      status: task.status || "Todo",
     })),
 );
 
@@ -109,11 +108,5 @@ const priorityType = {
   High: "danger",
   Normal: "warning",
   Low: "info",
-};
-
-const taskStatusType = {
-  "In progress": "primary",
-  "To do": "warning",
-  "On hold": "info",
 };
 </script>

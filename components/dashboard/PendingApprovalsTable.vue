@@ -36,9 +36,9 @@
           </nuxt-link>
         </template>
       </el-table-column>
-      <el-table-column prop="type" label="Type" width="120" align="center">
+      <el-table-column prop="type" label="Type" min-width="120" align="center">
         <template #default="{ row }">
-          <el-tag effect="plain" type="success">
+          <el-tag effect="plain" type="success" size="small">
             {{ row.type }}
           </el-tag>
         </template>
