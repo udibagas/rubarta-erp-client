@@ -1,6 +1,46 @@
 <template>
   <div class="flex items-center justify-between gap-4 w-full">
-    <div class="text-green-600 font-bold text-xl">RUBARTA ERP SYSTEM</div>
+    <div class="flex items-center gap-7">
+      <div class="text-green-600 font-bold text-lg">RUBARTA ERP SYSTEM</div>
+
+      <el-select
+        v-model="search"
+        placeholder="Search document number"
+        filterable
+        clearable
+        remote
+        reserve-keyword
+        :remote-method="searchDocuments"
+        :loading="loading"
+        @change="openDocument"
+        class="w-80!"
+      >
+        <template #prefix>
+          <el-icon>
+            <ElIconSearch />
+          </el-icon>
+        </template>
+        <el-option-group
+          v-for="group in options"
+          :key="group.type"
+          :label="group.label"
+        >
+          <el-option
+            v-for="document in group.options"
+            :key="`${document.type}:${document.id}`"
+            :label="document.number"
+            :value="`${document.type}:${document.id}`"
+          >
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-medium">{{ document.number }}</span>
+              <span class="text-xs text-gray-500">
+                {{ formatDocumentDate(document.date) }}
+              </span>
+            </div>
+          </el-option>
+        </el-option-group>
+      </el-select>
+    </div>
 
     <div class="flex items-center gap-4">
       <el-select
@@ -78,12 +118,99 @@
 <script setup lang="ts">
 import { gql } from "@apollo/client";
 import { useQuery, useMutation } from "@tanstack/vue-query";
+import { documentTypeMeta } from "~/utils/documentType";
 const emit = defineEmits(["toggle"]);
 const shared = useSharedStore();
 const { companyId } = storeToRefs(shared);
 const request = useRequest();
 const { user, logout } = useAuth();
 const showProfile = ref(false);
+const search = ref("");
+const loading = ref(false);
+interface SearchDocument {
+  type: string;
+  id: number;
+  number: string;
+  date: string;
+}
+
+const documents = ref<SearchDocument[]>([]);
+
+const searchDocuments = async (keyword: string) => {
+  loading.value = true;
+  try {
+    const res = await request<SearchDocument[]>(`/api/documents/search`, {
+      params: {
+        keyword,
+      },
+    });
+
+    documents.value = res;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const normalizeDocumentType = (type: string) =>
+  type.replace(/[^a-z0-9]/gi, "").toLowerCase();
+
+const getDocumentTypeLabel = (type: string) => {
+  if (normalizeDocumentType(type) === "nkp") return "NKP";
+
+  const entry = Object.entries(documentTypeMeta).find(
+    ([key]) => normalizeDocumentType(key) === normalizeDocumentType(type),
+  );
+  return entry?.[1].label ?? type;
+};
+
+const options = computed(() => {
+  const groups = new Map<
+    string,
+    { type: string; label: string; options: SearchDocument[] }
+  >();
+
+  for (const document of documents.value) {
+    const type = normalizeDocumentType(document.type);
+    let group = groups.get(type);
+
+    if (!group) {
+      group = {
+        type,
+        label: getDocumentTypeLabel(document.type),
+        options: [],
+      };
+      groups.set(type, group);
+    }
+
+    group.options.push(document);
+  }
+
+  return Array.from(groups.values());
+});
+
+const formatDocumentDate = (date: string) =>
+  new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
+    new Date(date),
+  );
+
+const openDocument = (value: string) => {
+  const document = documents.value.find(
+    (item) => `${item.type}:${item.id}` === value,
+  );
+  if (!document) return;
+
+  const normalizedType = normalizeDocumentType(document.type);
+  if (normalizedType === "nkp") {
+    navigateTo({ path: "/nkp", query: { number: document.number } });
+  } else {
+    const entry = Object.entries(documentTypeMeta).find(
+      ([key]) => normalizeDocumentType(key) === normalizedType,
+    );
+    if (entry) navigateTo(`${entry[1].route}/${document.id}`);
+  }
+
+  search.value = "";
+};
 
 interface Company {
   id: number;
