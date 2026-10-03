@@ -4,10 +4,10 @@
       <el-page-header @back="goBack" content="Cash & Bank">
         <template #extra>
           <el-button :icon="ElIconPlus" @click="openAccountForm()">
-            NEW ACCOUNT
+            New Account
           </el-button>
           <el-button :icon="ElIconPlus" type="success" @click="showTrx = true">
-            NEW TRANSACTION
+            New Transaction
           </el-button>
         </template>
       </el-page-header>
@@ -27,19 +27,19 @@
             <div class="text-xs text-gray-400 uppercase">
               {{ a.type }}{{ a.accountNumber ? ` - ${a.accountNumber}` : "" }}
             </div>
-            <div class="font-semibold">{{ a.name }}</div>
+            <div class="font-semibold line-clamp-1">{{ a.name }}</div>
           </div>
           <el-button link :icon="ElIconEdit" @click.stop="openAccountForm(a)" />
         </div>
-        <div class="text-lg font-semibold mt-2">
-          {{ toCurrency(a.balance) }}
+        <div class="text-xl font-mono text-green-500">
+          {{ toCurrency(a.balance, a.currency) }}
         </div>
       </el-card>
     </div>
 
     <el-table
       :data="filteredTrx"
-      v-loading="isPending || transactionsQuery.isFetching"
+      v-loading="isPending"
       stripe
       height="calc(100vh - 290px)"
     >
@@ -51,19 +51,19 @@
           row.cashBankAccount?.name ?? accountOf(row.cashBankAccountId)?.name
         }}</template>
       </el-table-column>
-      <el-table-column label="Description" prop="description" min-width="240" />
+      <el-table-column label="Description" prop="description" min-width="200" />
       <el-table-column label="Money In" width="160" align="right">
         <template #default="{ row }">
-          <span class="text-green-600">{{
-            row.type === "IN" ? toCurrency(row.amount) : "-"
-          }}</span>
+          <span class="text-green-600">
+            {{ row.type === "IN" ? toCurrency(row.amount) : "-" }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="Money Out" width="160" align="right">
         <template #default="{ row }">
-          <span class="text-red-500">{{
-            row.type === "OUT" ? toCurrency(row.amount) : "-"
-          }}</span>
+          <span class="text-red-500">
+            {{ row.type === "OUT" ? toCurrency(row.amount) : "-" }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="Reconciled" width="120" align="center">
