@@ -5,7 +5,6 @@
     title="NOTA KUASA PEMBAYARAN"
     :close-on-click-modal="false"
   >
-    <br />
     <el-form label-width="150px" label-position="top">
       <el-form-item label="Parent" v-if="form.parentId">
         <strong>{{ form.Parent.number }}</strong>
