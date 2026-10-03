@@ -265,33 +265,35 @@
         </el-form-item>
       </div>
 
-      <el-form-item
-        v-if="form.paymentType == 'VENDOR'"
-        label="Total Amount"
-        :error="errors.totalAmount"
-      >
-        <div class="flex">
+      <div class="flex gap-4">
+        <el-form-item
+          v-if="form.paymentType == 'VENDOR'"
+          label="Total Amount"
+          :error="errors.totalAmount"
+        >
           <el-input
-            type="number"
             v-model="form.totalAmount"
             placeholder="Total Amount"
-            class="mr-4 w-70!"
+            class="w-70! font-semibold font-mono"
             :prefix-icon="ElIconMoney"
+            :formatter="formatNumberInput"
+            :parser="parseNumberInput"
           />
-          <span class="font-mono font-bold">
-            {{ toCurrency(form.totalAmount, form.currency) }}
-          </span>
-        </div>
-      </el-form-item>
+        </el-form-item>
 
-      <el-form-item label="Description" :error="errors.description">
-        <el-input
-          type="textarea"
-          :rows="3"
-          v-model="form.description"
-          placeholder="Description"
-        />
-      </el-form-item>
+        <el-form-item
+          label="Description"
+          :error="errors.description"
+          class="flex-1"
+        >
+          <el-input
+            type="textarea"
+            autosize
+            v-model="form.description"
+            placeholder="Description"
+          />
+        </el-form-item>
+      </div>
     </el-form>
 
     <el-table :data="form.NkpItem" table-layout="auto">
@@ -305,7 +307,7 @@
             placeholder="Date"
             format="DD-MMM-YYYY"
             value-format="YYYY-MM-DD"
-            style="width: 140px"
+            style="width: 150px"
           />
         </template>
       </el-table-column>
@@ -322,25 +324,27 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="AMOUNT" width="200">
+      <el-table-column label="AMOUNT" width="170">
         <template #default="{ row, $index }">
           <el-input
-            type="numeric"
             v-model="row.amount"
             placeholder="Amount"
             @keydown.tab="(e) => handleTab(e, $index)"
+            :formatter="formatNumberInput"
+            :parser="parseNumberInput"
+            class="font-mono"
           >
           </el-input>
         </template>
       </el-table-column>
 
-      <el-table-column align="right">
+      <!-- <el-table-column align="right">
         <template #default="{ row }">
           <span class="font-mono font-semibold">
             {{ toCurrency(row.amount, form.currency) }}
           </span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <!-- <el-table-column
         label="CURR"

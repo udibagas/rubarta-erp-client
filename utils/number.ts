@@ -222,3 +222,57 @@ export function terbilang(a: number): string {
 
   return result;
 }
+
+export const formatNumberInput = (
+  value: string | number | null | undefined,
+) => {
+  if (value === null || value === undefined || value === "") return "";
+
+  const raw = String(value).trim();
+  const negative = raw.startsWith("-");
+  const unsigned = raw.replace("-", "");
+
+  const hasComma = unsigned.includes(",");
+  const hasDot = unsigned.includes(".");
+  const decimalSeparator =
+    hasComma && hasDot
+      ? unsigned.lastIndexOf(",") > unsigned.lastIndexOf(".")
+        ? ","
+        : "."
+      : hasComma
+        ? ","
+        : hasDot
+          ? "."
+          : null;
+
+  let integerPart = unsigned;
+  let fractionPart = "";
+
+  if (decimalSeparator) {
+    const parts = unsigned.split(decimalSeparator);
+    integerPart = parts[0] || "0";
+    fractionPart = parts
+      .slice(1)
+      .join(decimalSeparator)
+      .replace(/[^0-9]/g, "");
+  }
+
+  const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const display =
+    fractionPart || decimalSeparator
+      ? `${groupedInteger},${fractionPart}`
+      : groupedInteger;
+
+  return negative ? `-${display}` : display;
+};
+
+export const parseNumberInput = (value: string | number | null | undefined) => {
+  if (value === null || value === undefined || value === "") return null;
+
+  const raw = String(value);
+  if (/[.,]$/.test(raw)) return `${raw.slice(0, -1).replace(/\./g, "")}.`;
+
+  const normalized = raw.replace(/\./g, "").replace(",", ".");
+
+  return Number.isNaN(Number(normalized)) ? null : normalized;
+};
