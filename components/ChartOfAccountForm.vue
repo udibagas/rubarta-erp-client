@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="show"
-    title="ACCOUNT"
+    title="Account"
     width="500px"
     :close-on-click-modal="false"
   >
@@ -39,13 +39,25 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Postable">
-        <el-switch v-model="form.isPostable" />
+        <el-switch
+          v-model="form.isPostable"
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          inline-prompt
+          active-text="Yes"
+          inactive-text="No"
+        />
       </el-form-item>
       <el-form-item label="Description">
         <el-input v-model="form.description" type="textarea" />
       </el-form-item>
       <el-form-item label="Active">
-        <el-switch v-model="form.isActive" />
+        <el-switch
+          v-model="form.isActive"
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          inline-prompt
+          active-text="Yes"
+          inactive-text="No"
+        />
       </el-form-item>
     </el-form>
 

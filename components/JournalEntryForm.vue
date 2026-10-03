@@ -1,11 +1,11 @@
 <template>
   <el-dialog
     v-model="show"
-    title="JOURNAL ENTRY"
+    title="Journal Entry"
     width="900px"
     :close-on-click-modal="false"
   >
-    <el-form label-width="120px" label-position="left">
+    <el-form label-width="120px" label-position="top">
       <div class="grid grid-cols-2 gap-x-4">
         <el-form-item label="Number">
           <el-input v-model="form.number" placeholder="Auto" disabled />
@@ -14,6 +14,7 @@
           <el-date-picker
             v-model="form.date"
             type="date"
+            format="DD-MMM-YYYY"
             value-format="YYYY-MM-DD"
             class="w-full!"
           />
@@ -32,13 +33,13 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="Description" :error="errors.description">
+          <el-input v-model="form.description" placeholder="Description" />
+        </el-form-item>
       </div>
-      <el-form-item label="Description" :error="errors.description">
-        <el-input v-model="form.description" placeholder="Description" />
-      </el-form-item>
     </el-form>
 
-    <el-table :data="form.lines" border size="small">
+    <el-table :data="form.lines">
       <el-table-column label="Account" min-width="220">
         <template #default="{ row }">
           <el-select v-model="row.accountId" filterable placeholder="Account">
@@ -60,7 +61,7 @@
       </el-table-column>
       <el-table-column label="Debit" width="160">
         <template #default="{ row }">
-          <el-input-number
+          <el-input
             v-model="row.debit"
             :min="0"
             :controls="false"
@@ -70,7 +71,7 @@
       </el-table-column>
       <el-table-column label="Credit" width="160">
         <template #default="{ row }">
-          <el-input-number
+          <el-input
             v-model="row.credit"
             :min="0"
             :controls="false"
@@ -92,12 +93,23 @@
     </el-table>
 
     <div class="flex items-center justify-between mt-2">
-      <el-button :icon="ElIconPlus" @click="addLine">ADD LINE</el-button>
-      <div class="flex items-center gap-6 text-sm">
-        <span>Debit: {{ toCurrency(totals.debit) }}</span>
-        <span>Credit: {{ toCurrency(totals.credit) }}</span>
-        <el-tag :type="balanced ? 'success' : 'danger'">
-          {{ balanced ? "Balanced" : "Not balanced" }}
+      <el-button :icon="ElIconPlus" @click="addLine">Add Line</el-button>
+      <div class="flex items-center gap-2 text-sm">
+        <el-tag size="large" type="success" effect="plain" class="font-mono">
+          Debit: {{ toCurrency(totals.debit) }}
+        </el-tag>
+        <el-tag size="large" type="warning" effect="plain" class="font-mono">
+          Credit: {{ toCurrency(totals.credit) }}
+        </el-tag>
+        <el-tag size="large" :type="balanced ? 'success' : 'danger'">
+          <span class="flex items-center gap-1">
+            <el-icon>
+              <component
+                :is="balanced ? ElIconSuccessFilled : ElIconCircleCloseFilled"
+              />
+            </el-icon>
+            {{ balanced ? "Balanced" : "Not balanced" }}
+          </span>
         </el-tag>
       </div>
     </div>

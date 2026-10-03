@@ -4,7 +4,7 @@
       <el-page-header @back="goBack" content="Chart of Accounts">
         <template #extra>
           <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            ADD NEW ACCOUNT
+            Add New Account
           </el-button>
         </template>
       </el-page-header>
@@ -42,9 +42,11 @@
       <el-table-column type="index" label="#" width="60" />
       <el-table-column label="Code" prop="code" width="120" sortable />
       <el-table-column label="Name" prop="name" min-width="220" />
-      <el-table-column label="Type" width="130">
+      <el-table-column label="Type" width="130" align="center">
         <template #default="{ row }">
-          <el-tag effect="plain">{{ row.type }}</el-tag>
+          <el-tag :type="tagTypes[row.type]" effect="plain">{{
+            row.type
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Postable" width="110" align="center">
@@ -72,7 +74,11 @@
                 <el-dropdown-item :icon="ElIconEdit" @click="openForm(row)">
                   Edit
                 </el-dropdown-item>
-                <el-dropdown-item :icon="ElIconDelete" @click="remove(row)">
+                <el-dropdown-item
+                  :icon="ElIconDelete"
+                  @click="remove(row)"
+                  class="text-error!"
+                >
                   Delete
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -103,6 +109,14 @@ const search = ref("");
 const typeFilter = ref("");
 const showForm = ref(false);
 const selected = ref(null);
+
+const tagTypes = {
+  ASSET: "info",
+  LIABILITY: "warning",
+  EQUITY: "success",
+  REVENUE: "primary",
+  EXPENSE: "danger",
+};
 
 const filtered = computed(() =>
   accounts.value.filter(

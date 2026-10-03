@@ -4,7 +4,7 @@
       <el-page-header @back="goBack" content="Journal Entries">
         <template #extra>
           <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            NEW JOURNAL ENTRY
+            New Journal Entry
           </el-button>
         </template>
       </el-page-header>
@@ -42,16 +42,16 @@
       <el-table-column type="expand">
         <template #default="{ row }">
           <div class="px-10 py-2">
-            <el-table :data="row.lines" size="small" border>
+            <el-table :data="row.lines" size="small" border class="w-200!">
               <el-table-column label="Account" width="120">
-                <template #default="{ row: l }">{{
-                  l.account?.code ?? accountCode(l.accountId)
-                }}</template>
+                <template #default="{ row: l }">
+                  {{ l.account?.code ?? accountCode(l.accountId) }}
+                </template>
               </el-table-column>
               <el-table-column label="Account Name" min-width="180">
-                <template #default="{ row: l }">{{
-                  l.account?.name ?? accountName(l.accountId)
-                }}</template>
+                <template #default="{ row: l }">
+                  {{ l.account?.name ?? accountName(l.accountId) }}
+                </template>
               </el-table-column>
               <el-table-column
                 label="Description"
@@ -59,28 +59,38 @@
                 min-width="180"
               />
               <el-table-column label="Debit" width="160" align="right">
-                <template #default="{ row: l }">{{
-                  l.debit ? toCurrency(l.debit) : "-"
-                }}</template>
+                <template #default="{ row: l }">
+                  <span class="font-mono">
+                    {{ l.debit ? toCurrency(l.debit.d[0]) : "-" }}
+                  </span>
+                </template>
               </el-table-column>
               <el-table-column label="Credit" width="160" align="right">
-                <template #default="{ row: l }">{{
-                  l.credit ? toCurrency(l.credit) : "-"
-                }}</template>
+                <template #default="{ row: l }">
+                  <span class="font-mono">
+                    {{ l.credit ? toCurrency(l.credit.d[0]) : "-" }}
+                  </span>
+                </template>
               </el-table-column>
             </el-table>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="Number" prop="number" width="150" />
+      <el-table-column label="Number" prop="number" width="210">
+        <template #default="{ row }">
+          <div class="line-clamp-1 font-mono">
+            {{ row.number }}
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="Date" width="130">
         <template #default="{ row }">{{ formatDate(row.date) }}</template>
       </el-table-column>
       <el-table-column label="Description" prop="description" min-width="220" />
       <el-table-column label="Amount" width="160" align="right">
-        <template #default="{ row }">{{
-          toCurrency(sumDebitCredit(row.lines).debit)
-        }}</template>
+        <template #default="{ row }">
+          {{ toCurrency(sumDebitCredit(row.lines).debit) }}
+        </template>
       </el-table-column>
       <el-table-column label="Status" width="120" align="center">
         <template #default="{ row }">
