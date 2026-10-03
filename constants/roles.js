@@ -1,5 +1,6 @@
 export const roles = [
   "USER",
+  "STAFF",
   "SALES_REP",
   // "CASHIER",
   // "FINANCE",
@@ -7,6 +8,5 @@ export const roles = [
   // "APPROVER",
   // "VERIFIER",
   // "AUTHORIZER",
-  "STAFF",
   "ADMIN",
 ];
