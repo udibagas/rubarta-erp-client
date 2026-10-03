@@ -7,5 +7,6 @@ export const roles = [
   // "APPROVER",
   // "VERIFIER",
   // "AUTHORIZER",
+  "STAFF",
   "ADMIN",
 ];
