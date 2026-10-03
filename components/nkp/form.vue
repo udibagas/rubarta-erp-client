@@ -381,9 +381,8 @@
     <table class="table">
       <tbody>
         <tr>
-          <td style="width: 300px">Grand Total</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">GRAND TOTAL</td>
+          <td class="text-right">
             <span class="font-mono font-semibold">
               {{ toCurrency(grandTotal, form.currency) }}
             </span>
@@ -391,43 +390,36 @@
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
-          <td>Tax</td>
-          <td>
+          <td class="font-semibold bg-gray-100 text-right">TAX</td>
+          <td class="text-right">
             <el-input
-              type="number"
               v-model="form.tax"
               placeholder="Tax"
               style="width: 150px"
+              class="font-mono"
+              :formatter="formatNumberInput"
+              :parser="parseNumberInput"
             />
-          </td>
-          <td class="text-right" style="padding-right: 25px">
-            <span class="font-mono font-semibold">
-              {{ toCurrency(form.tax, form.currency) }}
-            </span>
           </td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
-          <td>Deduction</td>
-          <td>
+          <td class="font-semibold bg-gray-100 text-right">DEDUCTION</td>
+          <td class="text-right">
             <el-input
-              type="number"
               v-model="form.deduction"
               placeholder="Deduction"
               style="width: 150px"
+              class="font-mono"
+              :formatter="formatNumberInput"
+              :parser="parseNumberInput"
             />
-          </td>
-          <td class="text-right" style="padding-right: 25px">
-            <span class="font-mono font-semibold">
-              {{ toCurrency(form.deduction, form.currency) }}
-            </span>
           </td>
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR'">
-          <td>Net Amount</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">NET AMOUNT</td>
+          <td class="text-right">
             <span class="font-mono font-semibold">
               {{ toCurrency(netAmount, form.currency) }}
             </span>
@@ -435,9 +427,10 @@
         </tr>
 
         <tr v-if="form.paymentType == 'EMPLOYEE' && form.cashAdvanceBalance">
-          <td>Cash Advance Balance</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">
+            CASH ADVANCE BALANCE
+          </td>
+          <td class="text-right">
             <span class="font-mono font-semibold">
               {{ toCurrency(form.cashAdvanceBalance, form.currency) }}
             </span>
@@ -445,9 +438,8 @@
         </tr>
 
         <tr v-if="form.paymentType == 'VENDOR' && form.nkpType == 'SETTLEMENT'">
-          <td>Down Payment</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">DOWN PAYMENT</td>
+          <td class="text-right">
             <span class="font-mono font-semibold">
               {{ toCurrency(form.downPayment, form.currency) }}
             </span>
@@ -455,9 +447,10 @@
         </tr>
 
         <tr v-if="form.nkpType !== 'DECLARATION'">
-          <td>TRANSFER TO {{ form.paymentType }}</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">
+            TRANSFER TO {{ form.paymentType }}
+          </td>
+          <td class="text-right">
             <span class="font-mono font-semibold text-green-500">
               {{ toCurrency(finalPayment, form.currency) }}
             </span>
@@ -465,9 +458,10 @@
         </tr>
 
         <tr v-if="form.paymentType == 'EMPLOYEE' && form.parentId">
-          <td>Kembali Ke {{ finalPayment > 0 ? "Karyawan" : "Perusahaan" }}</td>
-          <td></td>
-          <td class="text-right" style="padding-right: 25px">
+          <td class="font-semibold bg-gray-100 text-right">
+            Kembali Ke {{ finalPayment > 0 ? "Karyawan" : "Perusahaan" }}
+          </td>
+          <td class="text-right">
             <el-text
               :type="finalPayment > 0 ? 'success' : 'danger'"
               class="font-mono font-semibold"
@@ -478,11 +472,8 @@
         </tr>
 
         <tr>
-          <td>Terbilang</td>
-          <td class="text-right" colspan="2" style="padding-right: 25px">
-            <strong>
-              {{ terbilang(finalPayment).toUpperCase() }}
-            </strong>
+          <td class="font-semibold bg-green-50" colspan="2">
+            {{ terbilang(finalPayment).toUpperCase() }}
           </td>
         </tr>
       </tbody>
