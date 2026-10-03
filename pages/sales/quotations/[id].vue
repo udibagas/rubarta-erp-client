@@ -110,6 +110,7 @@ const queryClient = useQueryClient();
 const route = useRoute();
 const config = useRuntimeConfig();
 const request = useRequest();
+const { user } = useAuth();
 const quotationFormRef = ref(null);
 const sendEmailRef = ref(null);
 
@@ -120,53 +121,71 @@ const { data: quotation, refetch } = useQuery({
   queryFn: () => request(`/api/quotations/${quotationId}`),
 });
 
+const canEditDeleteOrSubmit = computed(
+  () =>
+    quotation.value?.status === "Draft" &&
+    user.value?.id === quotation.value?.userId,
+);
+
+const canSendOrMarkAsSent = computed(
+  () =>
+    quotation.value?.status === "Approved" &&
+    user.value?.id === quotation.value?.userId,
+);
+
+const canAcceptOrReject = computed(
+  () =>
+    quotation.value?.status === "Sent" &&
+    user.value?.id === quotation.value?.userId,
+);
+
 const menus = computed(() => [
   {
     label: "Edit",
     action: editQuotation,
     icon: ElIconEdit,
-    visible: quotation.value?.status === "Draft",
+    visible: canEditDeleteOrSubmit.value,
   },
   {
     label: "Delete",
     action: deleteQuotation,
     icon: ElIconDelete,
     class: "text-error!",
-    visible: quotation.value?.status === "Draft",
+    visible: canEditDeleteOrSubmit.value,
   },
   {
     label: "Submit",
     action: handleSubmitButton,
     icon: ElIconCircleCheck,
     class: "text-success!",
-    visible: quotation.value?.status === "Draft",
+    visible: canEditDeleteOrSubmit.value,
   },
   {
     label: "Send",
     action: () => sendEmailRef.value?.openDialog(),
     icon: ElIconMessage,
-    visible: quotation.value?.status === "Approved",
+    visible: canSendOrMarkAsSent.value,
   },
   {
     label: "Mark As Sent",
     action: () => updateQuotationStatus("Sent"),
     icon: ElIconCircleCheckFilled,
     class: "text-warning!",
-    visible: quotation.value?.status === "Approved",
+    visible: canSendOrMarkAsSent.value,
   },
   {
     label: "Set To Accepted",
     action: () => updateQuotationStatus("Accepted"),
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
-    visible: quotation.value?.status === "Sent",
+    visible: canAcceptOrReject.value,
   },
   {
     label: "Set To Rejected",
     action: () => updateQuotationStatus("Rejected"),
     icon: ElIconCircleCloseFilled,
     class: "text-error!",
-    visible: quotation.value?.status === "Sent",
+    visible: canAcceptOrReject.value,
   },
   {
     label: "Print PDF",
