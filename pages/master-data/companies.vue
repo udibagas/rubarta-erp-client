@@ -87,7 +87,9 @@
               Address
             </div>
             <el-card shadow="never">
-              {{ row.address || "No address provided" }}
+              <div class="whitespace-pre-line">
+                {{ row.address || "No address provided" }}
+              </div>
               <div v-if="row.phone">Phone: {{ row.phone }}</div>
             </el-card>
           </div>
