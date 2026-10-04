@@ -51,7 +51,7 @@
                   {{ formatTime(row.date) }}
                 </span>
                 <div
-                  :class="['line-clamp-1', !row.readAt ? 'font-semibold' : '']"
+                  :class="['line-clamp-2', !row.readAt ? 'font-semibold' : '']"
                 >
                   {{ row.title }}
                 </div>
