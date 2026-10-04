@@ -188,7 +188,12 @@
 
     <el-card shadow="never" body-class="p-0!">
       <template #header>
-        <span class="font-semibold">CONTACTS</span>
+        <div class="flex items-center justify-between">
+          <span class="font-semibold">CONTACTS</span>
+          <el-button @click="addContact" :icon="ElIconPlus">
+            Add Contact
+          </el-button>
+        </div>
       </template>
 
       <el-table stripe :data="form.Contacts || []">
@@ -266,14 +271,6 @@
           header-align="center"
           fixed="right"
         >
-          <template #header>
-            <el-button
-              type="primary"
-              link
-              @click="() => addContact()"
-              :icon="ElIconPlus"
-            />
-          </template>
           <template #default="{ row, $index }">
             <el-button
               type="danger"
