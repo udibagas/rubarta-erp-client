@@ -26,16 +26,17 @@
     >
       <el-table-column label="Name" prop="name" min-width="200">
         <template #default="{ row }">
-          <el-link
+          <div
+            class="font-semibold hover:underline cursor-pointer"
             @click="navigateTo(`/crm/customers/${row.id}`)"
-            type="success"
           >
             {{ row.name }}
-          </el-link>
-          <br />
-          <el-link :href="row.website" target="_blank" class="text-xs!">
-            {{ row.website }}
-          </el-link>
+          </div>
+          <div v-if="row.website" class="text-xs! text-gray-400!">
+            <a :href="row.website" target="_blank" class="hover:underline">
+              {{ row.website }}
+            </a>
+          </div>
         </template>
       </el-table-column>
 

@@ -6,18 +6,7 @@
           <el-button
             :icon="ElIconPlus"
             type="success"
-            @click="
-              openForm({
-                banks: [
-                  {
-                    name: '',
-                    branch: '',
-                    accountNumber: '',
-                    accountName: '',
-                  },
-                ],
-              })
-            "
+            @click="openForm(defaultData)"
           >
             Add New Company
           </el-button>
@@ -115,9 +104,18 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
+
+const defaultData = {
+  banks: [
+    {
+      name: "",
+      branch: "",
+      accountNumber: "",
+      accountName: "",
+    },
+  ],
+};
 
 const { openForm, removeMutation, fetchData, refreshData, handleRemove } =
   useCrud({
