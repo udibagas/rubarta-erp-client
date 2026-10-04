@@ -256,7 +256,7 @@ const menus = computed(() => [
     ],
   },
   {
-    label: "Purchase Orders",
+    label: "Purchasing",
     icon: ElIconShoppingTrolley,
     path: "/purchasing-logistics",
     visible: hasRole(["ADMIN"]),
