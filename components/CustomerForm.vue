@@ -1,11 +1,11 @@
 <template>
   <el-dialog
     v-model="show"
-    width="1200px"
+    width="900px"
     :title="!!form.id ? 'Edit Customer' : 'Add New Customer'"
     :close-on-click-modal="false"
   >
-    <el-form label-width="160px" label-position="left">
+    <el-form label-width="130px" label-position="left">
       <div class="flex gap-8">
         <div class="flex-1">
           <el-form-item label="Name" :error="errors.name">
@@ -196,37 +196,56 @@
           <el-empty description="No Items"> </el-empty>
         </template>
 
-        <el-table-column label="Name">
+        <el-table-column label="Name/Position">
           <template #default="{ row }">
-            <el-input v-model="row.name" placeholder="Name" />
+            <el-input
+              v-model="row.name"
+              placeholder="Name"
+              :prefix-icon="ElIconUser"
+              class="mb-1"
+            />
+            <el-input
+              v-model="row.position"
+              placeholder="Position"
+              :prefix-icon="ElIconBriefcase"
+            />
           </template>
         </el-table-column>
 
-        <el-table-column label="Position">
+        <el-table-column label="Email/Phone">
           <template #default="{ row }">
-            <el-input v-model="row.position" placeholder="Position" />
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Email">
-          <template #default="{ row }">
-            <el-input v-model="row.email" placeholder="Email" />
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Phone">
-          <template #default="{ row }">
-            <el-input v-model="row.phone" placeholder="Phone" />
+            <el-input
+              v-model="row.email"
+              placeholder="Email"
+              :prefix-icon="ElIconMessage"
+              class="mb-1"
+            />
+            <el-input
+              v-model="row.phone"
+              placeholder="Phone"
+              :prefix-icon="ElIconPhone"
+            />
           </template>
         </el-table-column>
 
         <el-table-column label="Notes">
           <template #default="{ row }">
-            <el-input v-model="row.notes" placeholder="Notes" />
+            <el-input
+              type="textarea"
+              :rows="2"
+              v-model="row.notes"
+              placeholder="Notes"
+              :prefix-icon="ElIconDocument"
+            />
           </template>
         </el-table-column>
 
-        <el-table-column label="Primary" prop="isPrimary" align="center">
+        <el-table-column
+          label="Primary"
+          prop="isPrimary"
+          align="center"
+          width="90px"
+        >
           <template #default="{ row }">
             <el-switch
               v-model="row.isPrimary"
