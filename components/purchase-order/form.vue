@@ -573,7 +573,7 @@
                   "
                 />
               </div>
-              <div class="flex justify-between text-base">
+              <div class="flex justify-between text-base" v-if="form.applyVat">
                 <span class="flex-1">VAT (11%):</span>
                 <div
                   class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
