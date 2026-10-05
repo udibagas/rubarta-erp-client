@@ -117,6 +117,7 @@
     </el-descriptions-item>
 
     <el-descriptions-item
+      v-if="purchaseOrder.applyVat"
       label="VAT (11%)"
       align="right"
       class-name="font-mono"
