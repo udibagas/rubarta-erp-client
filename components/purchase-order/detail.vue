@@ -48,6 +48,9 @@
     <el-descriptions-item label="Payment Method">
       {{ purchaseOrder.paymentMethod || "-" }}
     </el-descriptions-item>
+    <el-descriptions-item label="VAT Applicable">
+      {{ purchaseOrder.applyVat ? "Yes" : "No" }}
+    </el-descriptions-item>
     <el-descriptions-item label="Term of Payment">
       {{ purchaseOrder.termOfPayment || "-" }}
     </el-descriptions-item>
