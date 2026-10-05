@@ -131,9 +131,10 @@
 
 <script setup>
 definePageMeta({ layout: false });
-import { useQuery, useMutation } from "@tanstack/vue-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 const url = "/api/notifications";
 const selected = ref({});
+const queryClient = useQueryClient();
 
 const {
   handleRemove,
@@ -157,6 +158,7 @@ const { mutate: remove } = useMutation({
   mutationFn: (id) => request(`${url}/${id}`, { method: "DELETE" }),
   onSuccess: () => {
     refresh();
+    invalidateNotificationQueries();
     ElMessage({
       message: "Data berhasil dihapus",
       type: "success",
@@ -169,6 +171,7 @@ const { mutate: removeAll } = useMutation({
   mutationFn: () => request(url, { method: "DELETE" }),
   onSuccess: () => {
     refresh();
+    invalidateNotificationQueries();
     ElMessage({
       message: "Data berhasil dihapus",
       type: "success",
@@ -176,6 +179,13 @@ const { mutate: removeAll } = useMutation({
     });
   },
 });
+
+function invalidateNotificationQueries() {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["unread-notifications"] }),
+    queryClient.invalidateQueries({ queryKey: ["notification-preview"] }),
+  ]);
+}
 
 function handleRemoveAll(callback) {
   ElMessageBox.confirm(
