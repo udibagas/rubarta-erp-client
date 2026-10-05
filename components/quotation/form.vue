@@ -190,39 +190,45 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Currency" :error="errors.currency">
-              <el-select
-                v-model="form.currency"
-                placeholder="Select currency"
-                default-first-option
-              >
-                <el-option
+              <el-radio-group v-model="form.currency" fill="rgb(149, 212, 117)">
+                <el-radio-button
                   v-for="curr in currencies"
                   :key="curr"
                   :value="curr"
                   :label="curr"
                 />
-              </el-select>
+              </el-radio-group>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
             <el-form-item label="Payment Method" :error="errors.paymentMethod">
-              <el-select
+              <el-radio-group
                 v-model="form.paymentMethod"
-                placeholder="Select payment method"
-                default-first-option
+                fill="rgb(149, 212, 117)"
               >
-                <el-option
+                <el-radio-button
                   v-for="method in paymentMethods"
                   :key="method.value"
                   :value="method.value"
-                  :label="method.label"
-                />
-              </el-select>
+                >
+                  {{ method.label }}
+                </el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item label="Apply VAT">
+              <el-switch
+                v-model="form.applyVat"
+                @change="calculateTotals"
+                style="
+                  --el-switch-on-color: rgb(149, 212, 117);
+                  --el-switch-off-color: #ff4949;
+                "
+                inline-prompt
+                active-text="Yes"
+                inactive-text="No"
+              />
             </el-form-item>
           </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Term of Payment" :error="errors.termOfPayment">
               <el-select
@@ -238,8 +244,7 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
             <el-form-item
               label="Term of Delivery"
               :error="errors.termOfDelivery"
@@ -536,7 +541,7 @@
                   "
                 />
               </div>
-              <div class="flex justify-between text-base">
+              <div class="flex justify-between text-base" v-if="form.applyVat">
                 <span class="flex-1">VAT (11%):</span>
                 <div
                   class="font-mono font-semibold w-50! text-right border border-[#dcdfe6] rounded-sm px-2 py-1"
@@ -608,6 +613,7 @@ const defaultValue = {
   termOfPayment: "30 Days",
   termOfDelivery: "FOB",
   paymentMethod: "Bank Transfer",
+  applyVat: true,
   requestType: "Sales",
   customerAddress: "",
   contactPerson: "",
@@ -698,6 +704,7 @@ const openForm = (data = {}) => {
     termOfPayment: data.termOfPayment || "30 Days",
     termOfDelivery: data.termOfDelivery || "FOB",
     paymentMethod: data.paymentMethod || "Bank Transfer",
+    applyVat: data.applyVat ?? true,
     requestType: data.requestType || "Sales",
     customerAddress: data.customerAddress || "",
     contactPerson: data.contactPerson || "",
@@ -818,7 +825,7 @@ function calculateTotals() {
     0,
   );
 
-  totals.vat = totals.subtotal * 0.11;
+  totals.vat = form.value.applyVat ? totals.subtotal * 0.11 : 0;
   totals.grandTotal = totals.subtotal + totals.vat - (form.value.discount || 0);
 }
 
