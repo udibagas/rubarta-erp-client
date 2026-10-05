@@ -220,6 +220,14 @@
       </div>
 
       <div class="flex gap-4" v-if="form.paymentType == 'VENDOR'">
+        <el-form-item
+          label="Invoice Number"
+          :error="errors.invoiceNumber"
+          class="flex-1"
+        >
+          <el-input v-model="form.invoiceNumber" placeholder="Invoice Number" />
+        </el-form-item>
+
         <el-form-item label="PO Number" class="flex-1">
           <el-select
             v-model="form.purchaseOrderId"
@@ -254,14 +262,6 @@
               :label="gr.number"
             />
           </el-select>
-        </el-form-item>
-
-        <el-form-item
-          label="Invoice Number"
-          :error="errors.invoiceNumber"
-          class="flex-1"
-        >
-          <el-input v-model="form.invoiceNumber" placeholder="Invoice Number" />
         </el-form-item>
       </div>
 
