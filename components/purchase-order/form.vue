@@ -135,18 +135,14 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Currency" :error="errors.currency">
-              <el-select
-                v-model="form.currency"
-                placeholder="Select currency"
-                default-first-option
-              >
-                <el-option
+              <el-radio-group v-model="form.currency" fill="rgb(149, 212, 117)">
+                <el-radio-button
                   v-for="curr in currencies"
                   :key="curr"
                   :value="curr"
                   :label="curr"
                 />
-              </el-select>
+              </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -159,18 +155,18 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Payment Method" :error="errors.paymentMethod">
-              <el-select
+              <el-radio-group
                 v-model="form.paymentMethod"
-                placeholder="Select payment method"
-                default-first-option
+                fill="rgb(149, 212, 117)"
               >
-                <el-option
+                <el-radio-button
                   v-for="method in paymentMethods"
                   :key="method.value"
                   :value="method.value"
-                  :label="method.label"
-                />
-              </el-select>
+                >
+                  {{ method.label }}
+                </el-radio-button>
+              </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -196,7 +192,7 @@
             v-model="form.applyVat"
             @change="calculateTotals"
             style="
-              --el-switch-on-color: #13ce66;
+              --el-switch-on-color: rgb(149, 212, 117);
               --el-switch-off-color: #ff4949;
             "
             inline-prompt
@@ -311,7 +307,7 @@
               <el-switch
                 v-model="form.partialShipment"
                 style="
-                  --el-switch-on-color: #13ce66;
+                  --el-switch-on-color: rgb(149, 212, 117);
                   --el-switch-off-color: #ff4949;
                 "
                 inline-prompt
