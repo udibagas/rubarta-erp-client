@@ -1,11 +1,11 @@
 <template>
   <el-dialog
-    title="CLOSE NKP"
-    width="550"
+    title="Close NKP"
+    width="450"
     :model-value="prop.show"
     :before-close="() => close()"
   >
-    <el-form label-width="150px" label-position="left">
+    <el-form label-width="150px" label-position="top">
       <el-form-item label="Bank Ref No." :error="errors.bankRefNo">
         <el-input
           v-model="form.bankRefNo"
@@ -23,20 +23,18 @@
           :multiple="true"
           style="width: 100%"
         >
-          <el-button type="success" plain :icon="ElIconUpload"
-            >Upload</el-button
-          >
+          <el-button plain :icon="ElIconUpload"> Upload </el-button>
         </el-upload>
       </el-form-item>
     </el-form>
 
     <template #footer>
       <el-button :icon="ElIconCircleCloseFilled" @click="close()">
-        CLOSE
+        Cancel
       </el-button>
 
       <el-button :icon="ElIconSuccessFilled" type="success" @click="submit()">
-        SUBMIT
+        Close NKP
       </el-button>
     </template>
   </el-dialog>
@@ -55,7 +53,10 @@ const attachments = ref([]);
 async function submit() {
   try {
     await ElMessageBox.confirm("Ada yakin akan menutup NKP ini?", "Perhatian", {
-      center: true,
+      // center: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      confirmButtonClass: "el-button--danger",
     });
 
     await request(`/api/nkp/close/${prop.id}`, {
@@ -66,7 +67,7 @@ async function submit() {
     emit("refresh");
   } catch (error) {
     if (error.response?.status == 400) {
-      errors.value = error.response._data.errors;
+      errors.value = parseError(error);
     }
 
     console.log(error);
