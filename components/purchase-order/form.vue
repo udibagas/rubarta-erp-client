@@ -296,7 +296,7 @@
             >
               <el-input
                 type="textarea"
-                :rows="3"
+                :rows="4"
                 placeholder="Shipping address"
                 v-model="form.shippingAddress"
               />
