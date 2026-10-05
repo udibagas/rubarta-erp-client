@@ -126,10 +126,10 @@
         </el-form-item>
       </el-card>
 
-      <!-- Payment & Delivery Terms -->
+      <!-- Payment Terms -->
       <el-card shadow="never" class="mb-4">
         <template #header>
-          <span class="font-semibold">PAYMENT & DELIVERY TERMS</span>
+          <span class="font-semibold">PAYMENT TERMS</span>
         </template>
 
         <el-row :gutter="20">
@@ -151,11 +151,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="Currency Rate" :error="errors.currencyRate">
-              <el-input-number
-                type="number"
-                v-model="form.currencyRate"
-                :min="0"
-              />
+              <el-input type="number" v-model="form.currencyRate" :min="0" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -194,6 +190,27 @@
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-form-item label="Apply VAT">
+          <el-switch
+            v-model="form.applyVat"
+            @change="calculateTotals"
+            style="
+              --el-switch-on-color: #13ce66;
+              --el-switch-off-color: #ff4949;
+            "
+            inline-prompt
+            active-text="Yes"
+            inactive-text="No"
+          />
+        </el-form-item>
+      </el-card>
+
+      <!-- Delivery Terms -->
+      <el-card shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">DELIVERY TERMS</span>
+        </template>
 
         <el-row :gutter="20">
           <el-col :span="12">
@@ -283,7 +300,7 @@
             >
               <el-input
                 type="textarea"
-                :rows="2"
+                :rows="3"
                 placeholder="Shipping address"
                 v-model="form.shippingAddress"
               />
@@ -291,7 +308,16 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="Partial Shipment">
-              <el-switch v-model="form.partialShipment" />
+              <el-switch
+                v-model="form.partialShipment"
+                style="
+                  --el-switch-on-color: #13ce66;
+                  --el-switch-off-color: #ff4949;
+                "
+                inline-prompt
+                active-text="Yes"
+                inactive-text="No"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -635,6 +661,7 @@ const defaultValue = {
   paymentMethod: "Bank Transfer",
   deliveryMethod: "Freight",
   partialShipment: false,
+  applyVat: true,
   referenceNumber: "",
   supplierAddress: "",
 };
@@ -734,6 +761,7 @@ const openForm = (data = {}) => {
     paymentMethod: data.paymentMethod || "Bank Transfer",
     deliveryMethod: data.deliveryMethod || "Freight",
     partialShipment: data.partialShipment || false,
+    applyVat: data.applyVat ?? true,
     referenceNumber: data.referenceNumber || "",
     supplierAddress: data.supplierAddress || "",
     items: data.items || [
@@ -838,7 +866,7 @@ function calculateTotals() {
     0,
   );
 
-  totals.vat = totals.subtotal * 0.11;
+  totals.vat = form.value.applyVat ? totals.subtotal * 0.11 : 0;
   totals.grandTotal = totals.subtotal + totals.vat - (form.value.discount || 0);
 }
 
@@ -948,6 +976,7 @@ function loadFormfromSalesOrder(salesOrderId) {
   form.value = {
     ...rest,
     salesOrderId: id,
+    applyVat: form.value.applyVat ?? true,
     items,
   };
   calculateTotals();
