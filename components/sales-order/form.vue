@@ -176,14 +176,13 @@
         </div>
       </el-card>
 
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <!-- Payment Terms -->
-          <el-card shadow="never" class="mb-4">
-            <template #header>
-              <span class="font-semibold">PAYMENT TERMS</span>
-            </template>
+      <el-card shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">PAYMENT TERMS</span>
+        </template>
 
+        <div class="flex gap-6">
+          <div class="flex-1 min-w-0">
             <el-form-item label="Currency" :error="errors.currency">
               <el-radio-group v-model="form.currency" fill="rgb(149, 212, 117)">
                 <el-radio-button
@@ -209,21 +208,9 @@
                 </el-radio-button>
               </el-radio-group>
             </el-form-item>
+          </div>
 
-            <el-form-item label="Apply VAT">
-              <el-switch
-                v-model="form.applyVat"
-                @change="calculateTotals"
-                style="
-                  --el-switch-on-color: rgb(149, 212, 117);
-                  --el-switch-off-color: #ff4949;
-                "
-                inline-prompt
-                active-text="Yes"
-                inactive-text="No"
-              />
-            </el-form-item>
-
+          <div class="flex-1 min-w-0">
             <el-form-item label="Term of Payment" :error="errors.termOfPayment">
               <el-select
                 v-model="form.termOfPayment"
@@ -239,27 +226,39 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item
-              label="Billing Address"
-              :error="errors.billingAddress"
-            >
-              <el-input
-                type="textarea"
-                :rows="4"
-                v-model="form.billingAddress"
-                placeholder="Enter billing address"
+            <el-form-item label="Apply VAT">
+              <el-switch
+                v-model="form.applyVat"
+                @change="calculateTotals"
+                style="
+                  --el-switch-on-color: rgb(149, 212, 117);
+                  --el-switch-off-color: #ff4949;
+                "
+                inline-prompt
+                active-text="Yes"
+                inactive-text="No"
               />
             </el-form-item>
-          </el-card>
-        </el-col>
+          </div>
+        </div>
 
-        <el-col :span="12">
-          <!-- Delivery Terms -->
-          <el-card shadow="never" class="mb-4">
-            <template #header>
-              <span class="font-semibold">DELIVERY TERMS</span>
-            </template>
+        <el-form-item label="Billing Address" :error="errors.billingAddress">
+          <el-input
+            type="textarea"
+            :rows="4"
+            v-model="form.billingAddress"
+            placeholder="Enter billing address"
+          />
+        </el-form-item>
+      </el-card>
 
+      <el-card shadow="never" class="mb-4">
+        <template #header>
+          <span class="font-semibold">DELIVERY TERMS</span>
+        </template>
+
+        <div class="flex gap-6">
+          <div class="flex-1 min-w-0">
             <el-form-item
               label="Term of Delivery"
               :error="errors.termOfDelivery"
@@ -278,6 +277,16 @@
               </el-select>
             </el-form-item>
 
+            <el-form-item label="Delivery Date" :error="errors.deliveryDate">
+              <el-date-picker
+                v-model="form.deliveryDate"
+                type="date"
+                placeholder="Select delivery date"
+                format="DD-MMM-YYYY"
+                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+                style="width: 100%"
+              />
+            </el-form-item>
             <el-form-item
               label="Delivery Method"
               :error="errors.deliveryMethod"
@@ -295,32 +304,23 @@
                 />
               </el-select>
             </el-form-item>
+          </div>
 
-            <el-form-item label="Delivery Date" :error="errors.deliveryDate">
-              <el-date-picker
-                v-model="form.deliveryDate"
-                type="date"
-                placeholder="Select delivery date"
-                format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
-                style="width: 100%"
-              />
-            </el-form-item>
-
+          <div class="flex-1 min-w-0">
             <el-form-item
               label="Shipping Address"
               :error="errors.shippingAddress"
             >
               <el-input
                 type="textarea"
-                :rows="4"
+                :rows="6"
                 v-model="form.shippingAddress"
                 placeholder="Enter shipping address"
               />
             </el-form-item>
-          </el-card>
-        </el-col>
-      </el-row>
+          </div>
+        </div>
+      </el-card>
 
       <!-- Terms & Conditions -->
       <el-card shadow="never" class="mb-4">
