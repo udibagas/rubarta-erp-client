@@ -128,7 +128,9 @@ const menus = computed(() => [
     label: "Edit",
     action: editPurchaseOrder,
     icon: ElIconEdit,
-    visible: purchaseOrder.value?.status === "Draft",
+    visible: ["Draft", "Confirmed", "Sent"].includes(
+      purchaseOrder.value?.status,
+    ),
   },
   {
     label: "Delete",
