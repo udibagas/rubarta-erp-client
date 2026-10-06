@@ -48,6 +48,10 @@
         {{ detail.bankAccount }} ({{ detail.currency }})
       </el-descriptions-item>
 
+      <el-descriptions-item label="Account Holder">
+        {{ detail.bankAccountHolder }}
+      </el-descriptions-item>
+
       <el-descriptions-item
         label="Invoice Number"
         v-if="detail.paymentType == 'VENDOR'"
