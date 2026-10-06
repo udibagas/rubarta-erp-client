@@ -13,7 +13,7 @@
               @clear="refetch()"
             />
             <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-              ADD NEW VENDOR
+              Add New Vendor
             </el-button>
           </form>
         </template>
@@ -67,7 +67,10 @@
         <template #default="{ row }">
           <div class="line-clamp-1">{{ row.Bank?.name }}</div>
           <div class="text-xs text-gray-400">
-            {{ row.bankAccount }} ({{ row.currency }})
+            <el-icon><ElIconCreditCard /></el-icon>
+            {{ row.bankAccount }} ({{ row.currency }}) <br />
+            <el-icon v-if="row.bankAccountHolder"><ElIconUser /></el-icon>
+            {{ row.bankAccountHolder }}
           </div>
         </template>
       </el-table-column>
@@ -99,6 +102,7 @@
                 <el-dropdown-item
                   :icon="ElIconDelete"
                   @click.native.prevent="handleRemove(row.id, remove)"
+                  class="text-error!"
                 >
                   Delete
                 </el-dropdown-item>

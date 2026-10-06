@@ -198,24 +198,36 @@
             placeholder="Bank Account"
             :disabled="!!form.parentId"
             :prefix-icon="ElIconCreditCard"
-          />
+          >
+            <template #append>
+              <el-select
+                v-model="form.currency"
+                placeholder="&bull;&bull;&bull;"
+                style="width: 75px"
+              >
+                <el-option
+                  v-for="(curr, i) in currencies"
+                  :key="i"
+                  :label="curr"
+                  :value="curr"
+                />
+              </el-select>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item
           v-if="form.paymentType"
-          label="Currency"
-          :error="errors.currency"
+          label="Account Holder"
+          :error="errors.bankAccountHolder"
           class="flex-1"
         >
-          <el-radio-group v-model="form.currency" fill="rgb(149, 212, 117)">
-            <el-radio-button
-              v-for="(currency, i) in [...currencies]"
-              :value="currency"
-              :label="currency"
-              :key="i"
-              :disabled="!!form.parentId"
-            />
-          </el-radio-group>
+          <el-input
+            v-model="form.bankAccountHolder"
+            placeholder="Account Holder"
+            :disabled="!!form.parentId"
+            :prefix-icon="ElIconUser"
+          />
         </el-form-item>
       </div>
 
@@ -553,6 +565,7 @@ const {
       bankId
       currency
       bankAccount
+      bankAccountHolder
     }
     banks {
       id
@@ -685,6 +698,7 @@ function updateBank(id) {
   if (data) {
     form.value.bankId = data.bankId;
     form.value.bankAccount = data.bankAccount;
+    form.value.bankAccountHolder = data.bankAccountHolder;
     form.value.currency = data.currency;
   }
 }
@@ -694,6 +708,7 @@ function resetBank() {
   form.value.supplierId = null;
   form.value.bankId = null;
   form.value.bankAccount = null;
+  form.value.bankAccountHolder = null;
   form.value.currency = null;
 }
 
