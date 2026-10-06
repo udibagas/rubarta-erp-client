@@ -52,6 +52,14 @@
             <el-tab-pane label="QUOTATION ITEMS">
               <QuotationItems :quotation="quotation" />
             </el-tab-pane>
+            <el-tab-pane label="QUOTATION DOCUMENT">
+              <iframe
+                :src="`${config.public.apiBase}/api/quotations/${quotation.id}/preview`"
+                width="100%"
+                style="height: calc(100vh - 200px)"
+                frameborder="0"
+              ></iframe>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
