@@ -43,6 +43,16 @@
         <el-input placeholder="Bank Account" v-model="form.bankAccount" />
       </el-form-item>
 
+      <el-form-item
+        label="Bank Account Holder"
+        :error="errors.bankAccountHolder"
+      >
+        <el-input
+          placeholder="Bank Account Holder"
+          v-model="form.bankAccountHolder"
+        />
+      </el-form-item>
+
       <el-form-item label="Currency" :error="errors.currency">
         <el-select
           v-model="form.currency"
