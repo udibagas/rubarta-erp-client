@@ -38,7 +38,7 @@
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refreshPage"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -53,6 +53,15 @@
             </el-tab-pane>
             <el-tab-pane label="INVOICE ITEMS">
               <InvoiceItems :invoice="invoice" />
+            </el-tab-pane>
+            <el-tab-pane label="INVOICE DOCUMENT">
+              <iframe
+                :key="previewKey"
+                :src="`${config.public.apiBase}/api/invoices/${invoice.id}/preview`"
+                width="100%"
+                style="height: calc(100vh - 200px)"
+                frameborder="0"
+              ></iframe>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -72,7 +81,7 @@
       :from-name="invoice?.User?.name ?? ''"
       @sent="
         () => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({
             queryKey: ['invoices'],
           });
@@ -84,7 +93,7 @@
       ref="invoiceFormRef"
       @saved="
         (res) => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({
             queryKey: ['invoices'],
           });
@@ -159,6 +168,7 @@ const receiptFileList = ref([]);
 const receiptNumberError = ref("");
 const receiptFilesError = ref("");
 const isSubmittingPaidStatus = ref(false);
+const previewKey = ref(0);
 
 const invoiceId = route.params.id;
 
@@ -166,6 +176,11 @@ const { data: invoice, refetch } = useQuery({
   queryKey: ["invoice", invoiceId],
   queryFn: () => request(`/api/invoices/${invoiceId}`),
 });
+
+function refreshPage() {
+  refetch();
+  previewKey.value += 1;
+}
 
 const menus = computed(() => [
   {
@@ -305,7 +320,7 @@ async function updateInvoiceStatus(status) {
           message: successMessage,
         });
 
-        refetch();
+        refreshPage();
         queryClient.invalidateQueries({
           queryKey: ["invoices"],
         });
@@ -358,7 +373,7 @@ async function submitPaidStatus() {
       title: "Success",
       message: "Invoice marked as paid",
     });
-    refetch();
+    refreshPage();
     queryClient.invalidateQueries({ queryKey: ["invoices"] });
   } catch (error) {
     ElNotification.error({

@@ -36,7 +36,7 @@
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refreshPage"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -55,6 +55,15 @@
             <el-tab-pane label="GOODS RECEIPTS">
               <PurchaseOrderGoodsReceipts :purchaseOrder="purchaseOrder" />
             </el-tab-pane>
+            <el-tab-pane label="PURCHASE ORDER DOCUMENT">
+              <iframe
+                :key="previewKey"
+                :src="`${config.public.apiBase}/api/purchase-orders/${purchaseOrder.id}/preview`"
+                width="100%"
+                style="height: calc(100vh - 200px)"
+                frameborder="0"
+              ></iframe>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -63,7 +72,7 @@
             v-if="purchaseOrder.status !== 'Draft'"
             approvalType="PURCHASE_ORDER"
             :moduleId="purchaseOrderId"
-            @update="() => refetch()"
+            @update="refreshPage"
           />
           <PurchaseOrderSummary :purchaseOrder="purchaseOrder" />
         </div>
@@ -81,7 +90,7 @@
       :from-name="purchaseOrder?.User?.name ?? ''"
       @sent="
         () => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({
             queryKey: ['purchase-orders'],
           });
@@ -93,7 +102,7 @@
       ref="purchaseOrderFormRef"
       @saved="
         (res) => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({
             queryKey: ['purchase-orders'],
           });
@@ -115,6 +124,7 @@ const request = useRequest();
 const queryClient = useQueryClient();
 const purchaseOrderFormRef = ref(null);
 const sendEmailRef = ref(null);
+const previewKey = ref(0);
 
 const purchaseOrderId = route.params.id;
 
@@ -122,6 +132,11 @@ const { data: purchaseOrder, refetch } = useQuery({
   queryKey: ["purchaseOrder", purchaseOrderId],
   queryFn: () => request(`/api/purchase-orders/${purchaseOrderId}`),
 });
+
+function refreshPage() {
+  refetch();
+  previewKey.value += 1;
+}
 
 const menus = computed(() => [
   {
@@ -277,7 +292,7 @@ async function updatePurchaseOrderStatus(status) {
           title: "Success",
           message: successMessage,
         });
-        refetch();
+        refreshPage();
         queryClient.invalidateQueries({
           queryKey: ["purchase-orders"],
         });
@@ -316,7 +331,7 @@ async function handleSubmitButton() {
         message: "Purchase order submitted successfully",
       });
 
-      refetch();
+      refreshPage();
       queryClient.invalidateQueries({
         queryKey: ["purchase-orders"],
       });

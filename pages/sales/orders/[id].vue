@@ -36,7 +36,7 @@
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refreshPage"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -139,6 +139,15 @@
           <el-tab-pane label="INVOICES">
             <SalesOrderInvoices :invoices="order.Invoices" />
           </el-tab-pane>
+          <el-tab-pane label="SALES ORDER DOCUMENT">
+            <iframe
+              :key="previewKey"
+              :src="`${config.public.apiBase}/api/sales-orders/${order.id}/preview`"
+              width="100%"
+              style="height: calc(100vh - 200px)"
+              frameborder="0"
+            ></iframe>
+          </el-tab-pane>
         </el-tabs>
       </div>
 
@@ -156,7 +165,7 @@
       :from-name="order?.User?.name ?? ''"
       @sent="
         () => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({ queryKey: ['orders'] });
         }
       "
@@ -166,7 +175,7 @@
       ref="orderFormRef"
       @saved="
         (res) => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({ queryKey: ['orders'] });
         }
       "
@@ -186,6 +195,7 @@ const request = useRequest();
 const queryClient = useQueryClient();
 const orderFormRef = ref(null);
 const sendEmailRef = ref(null);
+const previewKey = ref(0);
 
 const soId = route.params.id;
 
@@ -193,6 +203,11 @@ const { data: order, refetch } = useQuery({
   queryKey: ["order", soId],
   queryFn: () => request(`/api/sales-orders/${soId}`),
 });
+
+function refreshPage() {
+  refetch();
+  previewKey.value += 1;
+}
 
 const totalOrdered = computed(() => {
   return order.value.SalesOrderItems.reduce(
@@ -380,7 +395,7 @@ async function updateSalesOrderStatus(status) {
           title: "Success",
           message: successMessage,
         });
-        refetch();
+        refreshPage();
         queryClient.invalidateQueries({ queryKey: ["orders"] });
       } catch (error) {
         ElNotification.error({

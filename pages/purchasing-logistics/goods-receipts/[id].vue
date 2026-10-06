@@ -38,7 +38,7 @@
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refreshPage"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -54,6 +54,15 @@
             <el-tab-pane label="GOODS RECEIPT ITEMS">
               <GoodsReceiptItems :goodsReceipt="goodsReceipt" />
             </el-tab-pane>
+            <el-tab-pane label="GOODS RECEIPT DOCUMENT">
+              <iframe
+                :key="previewKey"
+                :src="`${config.public.apiBase}/api/goods-receipts/${goodsReceipt.id}/preview`"
+                width="100%"
+                style="height: calc(100vh - 200px)"
+                frameborder="0"
+              ></iframe>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -65,7 +74,7 @@
       ref="goodsReceiptFormRef"
       @saved="
         () => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({ queryKey: ['goods-receipts'] });
         }
       "
@@ -84,6 +93,7 @@ const config = useRuntimeConfig();
 const request = useRequest();
 const queryClient = useQueryClient();
 const goodsReceiptFormRef = ref(null);
+const previewKey = ref(0);
 
 const grId = route.params.id;
 
@@ -91,6 +101,11 @@ const { data: goodsReceipt, refetch } = useQuery({
   queryKey: ["goodsReceipt", grId],
   queryFn: () => request(`/api/goods-receipts/${grId}`),
 });
+
+function refreshPage() {
+  refetch();
+  previewKey.value += 1;
+}
 
 const menus = computed(() => [
   {
@@ -189,7 +204,7 @@ function markAsConfirmed() {
         type: "success",
         message: `Goods receipt status updated to Confirmed`,
       });
-      refetch();
+      refreshPage();
     })
     .catch((error) => {
       console.error("Update goods receipt status error:", error);

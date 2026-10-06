@@ -38,7 +38,7 @@
               </template>
             </el-dropdown>
 
-            <el-button :icon="ElIconRefresh" @click="refetch"> </el-button>
+            <el-button :icon="ElIconRefresh" @click="refreshPage"> </el-button>
           </div>
         </template>
       </el-page-header>
@@ -54,6 +54,15 @@
             <el-tab-pane label="DELIVERY ORDER ITEMS">
               <DeliveryOrderItems :deliveryOrder="deliveryOrder" />
             </el-tab-pane>
+            <el-tab-pane label="DELIVERY ORDER DOCUMENT">
+              <iframe
+                :key="previewKey"
+                :src="`${config.public.apiBase}/api/delivery-orders/${deliveryOrder.id}/preview`"
+                width="100%"
+                style="height: calc(100vh - 200px)"
+                frameborder="0"
+              ></iframe>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -65,7 +74,7 @@
       ref="deliveryOrderFormRef"
       @saved="
         (res) => {
-          refetch();
+          refreshPage();
           queryClient.invalidateQueries({
             queryKey: ['delivery-orders'],
           });
@@ -86,6 +95,7 @@ const config = useRuntimeConfig();
 const request = useRequest();
 const queryClient = useQueryClient();
 const deliveryOrderFormRef = ref(null);
+const previewKey = ref(0);
 
 const doId = route.params.id;
 
@@ -93,6 +103,11 @@ const { data: deliveryOrder, refetch } = useQuery({
   queryKey: ["deliveryOrder", doId],
   queryFn: () => request(`/api/delivery-orders/${doId}`),
 });
+
+function refreshPage() {
+  refetch();
+  previewKey.value += 1;
+}
 
 const menus = computed(() => [
   {
@@ -199,7 +214,7 @@ function markAsConfirmed() {
           message: `Delivery order status updated to Confirmed`,
         });
 
-        refetch();
+        refreshPage();
         queryClient.invalidateQueries({
           queryKey: ["delivery-orders"],
         });
