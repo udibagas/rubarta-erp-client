@@ -425,7 +425,7 @@ async function getGrBySoId(salesOrderId) {
   }
 
   const GET_GR = gql`
-    query GoodsReceipts($salesOrderId: Int, $status: GoodsReceiptStatus!) {
+    query GoodsReceipts($salesOrderId: Int, $status: [GoodsReceiptStatus!]) {
       goodsReceipts(salesOrderId: $salesOrderId, status: $status) {
         id
         number
@@ -450,7 +450,7 @@ async function getGrBySoId(salesOrderId) {
     const { data } = await useGraphqlQuery(GET_GR, {
       variables: {
         salesOrderId,
-        status: "Confirmed",
+        status: ["Confirmed"],
       },
     });
     goodsReceipts.value = data.goodsReceipts;
