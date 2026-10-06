@@ -113,7 +113,7 @@
               v-model="form.scheduledDate"
               type="date"
               placeholder="Select date"
-              value-format="YYYY-MM-DDTHH:mm:ssZ"
+              value-format="YYYY-MM-DD"
               format="DD-MMM-YYYY"
               style="width: 100%"
             />

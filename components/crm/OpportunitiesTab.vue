@@ -181,7 +181,7 @@
               v-model="opportunityFormData.expectedCloseDate"
               type="date"
               placeholder="Select Date"
-              value-format="YYYY-MM-DDT00:00:00Z"
+              value-format="YYYY-MM-DD"
               format="DD-MMM-YYYY"
               style="width: 100%"
             />

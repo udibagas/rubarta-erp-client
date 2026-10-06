@@ -88,7 +88,7 @@
                 type="date"
                 placeholder="Date of delivery order"
                 format="DD-MMM-YYYY"
-                value-format="YYYY-MM-DDTHH:mm:ss.SSSZ"
+                value-format="YYYY-MM-DD"
                 style="width: 100%"
               />
             </el-form-item>

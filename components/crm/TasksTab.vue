@@ -398,7 +398,7 @@
           v-model="taskFormData.dueDate"
           type="date"
           placeholder="Due date"
-          value-format="YYYY-MM-DDT00:00:00Z"
+          value-format="YYYY-MM-DD"
           format="DD-MMM-YYYY"
           style="width: 100%"
         />

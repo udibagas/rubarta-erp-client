@@ -111,7 +111,7 @@
               v-model="form.expectedCloseDate"
               placeholder="Select Date"
               format="DD-MMM-YYYY"
-              value-format="YYYY-MM-DDT00:00:00Z"
+              value-format="YYYY-MM-DD"
               style="width: 100%"
             >
             </el-date-picker>

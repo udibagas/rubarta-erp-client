@@ -14,7 +14,7 @@
               range-separator="To"
               start-placeholder="Start date"
               end-placeholder="End date"
-              format="YYYY/MM/DD"
+              format="DD-MMM-YYYY"
               value-format="YYYY-MM-DD"
               @change="refreshData"
             >
