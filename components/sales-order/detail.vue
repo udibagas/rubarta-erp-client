@@ -84,6 +84,24 @@
       {{ order.notes }}
     </el-descriptions-item>
   </el-descriptions>
+
+  <template v-if="order.attachments?.length">
+    <el-divider content-position="left">Attachments</el-divider>
+    <div class="flex gap-2">
+      <el-link
+        v-for="(doc, i) in order.attachments"
+        :key="i"
+        type="success"
+        :href="`${config.public.apiBase}/${doc.filePath}`"
+        target="_blank"
+        :underline="false"
+        class="border border-green-500 px-2! py-1! rounded"
+      >
+        <el-icon class="mr-1"><ElIconDocument /></el-icon>
+        {{ doc.fileName }}
+      </el-link>
+    </div>
+  </template>
 </template>
 
 <script setup>
@@ -93,4 +111,6 @@ defineProps({
     required: true,
   },
 });
+
+const config = useRuntimeConfig();
 </script>
