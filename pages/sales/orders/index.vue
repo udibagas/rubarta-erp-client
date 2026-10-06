@@ -101,7 +101,7 @@
             {{ row.number }}
           </el-link>
           <div class="text-xs text-gray-400">
-            {{ formatDate(row.createdAt) }}
+            {{ formatDate(row.date) }}
           </div>
         </template>
       </el-table-column>
@@ -135,14 +135,19 @@
         <template #default="{ row }">
           <div class="flex items-center gap-2">
             <el-avatar
-              :size="24"
+              :size="30"
               :style="{ backgroundColor: getAvatarColor(row.User?.name || '') }"
               class="shrink-0"
             >
               {{ row.User?.name?.charAt(0).toUpperCase() }}
             </el-avatar>
-            <div class="line-clamp-1 font-semibold">
-              {{ row.User?.name || "-" }}
+            <div>
+              <div class="line-clamp-1 font-semibold">
+                {{ row.User?.name || "-" }}
+              </div>
+              <div class="text-xs text-gray-400">
+                {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
+              </div>
             </div>
           </div>
         </template>
