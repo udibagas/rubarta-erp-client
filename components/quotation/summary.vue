@@ -1,15 +1,7 @@
 <template>
-  <el-card v-if="quotation" shadow="never" class="sticky top-4 w-80">
+  <el-card v-if="quotation" shadow="never" class="sticky top-4 w-85">
     <template #header>
-      <div class="flex items-center justify-between w-full">
-        <span class="font-semibold">QUOTATION SUMMARY</span>
-        <!-- <StatusTag
-          :status="quotation.status || 'Draft'"
-          effect="dark"
-          size="small"
-          :round="false"
-        /> -->
-      </div>
+      <span class="font-semibold">QUOTATION SUMMARY</span>
     </template>
 
     <div class="space-y-4">
