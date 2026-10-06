@@ -203,9 +203,8 @@
                   v-for="method in paymentMethods"
                   :key="method.value"
                   :value="method.value"
-                >
-                  {{ method.label }}
-                </el-radio-button>
+                  :label="method.label"
+                />
               </el-radio-group>
             </el-form-item>
           </div>
@@ -327,7 +326,6 @@
         <template #header>
           <span class="font-semibold">TERMS & CONDITIONS</span>
         </template>
-
         <el-form-item
           label="Terms & Conditions"
           :error="errors.termsAndConditions"
@@ -347,6 +345,20 @@
             placeholder="Additional notes"
             v-model="form.notes"
           />
+        </el-form-item>
+        <el-form-item label="Attachments">
+          <el-upload
+            v-model:file-list="fileList"
+            :action="`${config.public.apiBase}/api/file`"
+            :with-credentials="true"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-success="handleSuccess"
+            :multiple="true"
+            class="w-full"
+          >
+            <el-button plain :icon="ElIconUpload"> Upload </el-button>
+          </el-upload>
         </el-form-item>
       </el-card>
 
@@ -1019,6 +1031,61 @@ function loadFormfromQuotation(quotationId) {
     };
     calculateTotals();
   }
+}
+
+// UPLOAD RELATED
+const fileList = ref([]);
+
+watch(
+  () => form.value.attachments,
+  (value) => {
+    if (!value) {
+      return (fileList.value = []);
+    }
+
+    fileList.value = form.value.attachments.map((el) => {
+      const { fileName: name, fileSize: size, filePath, fileType } = el;
+      return {
+        name,
+        size,
+        url: `${config.public.apiBase}/${filePath}`,
+        filePath,
+      };
+    });
+  },
+);
+
+function handleSuccess(file) {
+  if (!form.value.attachments) {
+    form.value.attachments = [];
+  }
+
+  form.value.attachments.push(file);
+}
+
+function handlePreview(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  window.open(`${config.public.apiBase}/${path}`, "_blank");
+}
+
+function handleRemove(file) {
+  const path = file.response?.filePath ?? file.filePath;
+  const index = form.value.attachments.findIndex((f) => f.filePath == path);
+
+  if (index !== -1) {
+    form.value.attachments.splice(index, 1);
+  }
+
+  request(`/api/file`, {
+    method: "DELETE",
+    params: { path },
+  }).then((res) => {
+    ElMessage({
+      message: res.message,
+      type: "success",
+      showClose: true,
+    });
+  });
 }
 
 defineExpose({ openForm });
