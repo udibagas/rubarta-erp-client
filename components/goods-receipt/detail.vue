@@ -14,6 +14,9 @@
         {{ goodsReceipt.PurchaseOrder?.number || "-" }}
       </nuxt-link>
     </el-descriptions-item>
+    <el-descriptions-item label="Vendor Invoice Number">
+      {{ goodsReceipt.vendorInvoiceNumber || "-" }}
+    </el-descriptions-item>
     <el-descriptions-item label="Sender">
       {{ goodsReceipt.sender || "-" }}
     </el-descriptions-item>

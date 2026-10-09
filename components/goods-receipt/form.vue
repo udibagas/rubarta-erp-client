@@ -1,19 +1,19 @@
 <template>
   <el-dialog
     v-model="show"
-    width="1000px"
+    width="900px"
     :title="!!form?.id ? 'EDIT GOODS RECEIPT' : 'CREATE NEW GOODS RECEIPT'"
     :close-on-click-modal="false"
     top="5vh"
   >
-    <el-form label-width="160px" label-position="left">
+    <el-form label-width="180px" label-position="top">
       <!-- Goods Receipt Header -->
       <el-card shadow="never" class="mb-4">
         <template #header>
           <span class="font-semibold">GOODS RECEIPT INFORMATION</span>
         </template>
 
-        <el-row :gutter="20">
+        <el-row :gutter="24">
           <el-col :span="12">
             <el-form-item label="PO Number">
               <el-select
@@ -60,6 +60,16 @@
                   <el-icon><ElIconOfficeBuilding /></el-icon>
                 </template>
               </el-select>
+            </el-form-item>
+
+            <el-form-item
+              label="Vendor Invoice Number"
+              :error="errors.vendorInvoiceNumber"
+            >
+              <el-input
+                placeholder="e.g INV-12345"
+                v-model="form.vendorInvoiceNumber"
+              />
             </el-form-item>
 
             <el-form-item label="Supporting Document">
@@ -170,7 +180,7 @@
           <el-table-column label="Part Number" header-align="center">
             <el-table-column
               label="Ordered"
-              min-width="150"
+              min-width="130"
               header-align="center"
             >
               <template #default="{ row }">
@@ -182,13 +192,13 @@
 
             <el-table-column
               label="Supplied"
-              min-width="150"
+              min-width="130"
               header-align="center"
             >
               <template #default="{ row }">
                 <el-input
                   v-model="row.partNumberSupplier"
-                  placeholder="Part number from supplier"
+                  placeholder="Supplied P/N"
                 />
               </template>
             </el-table-column>
@@ -222,23 +232,30 @@
 
             <el-table-column
               label="Received"
-              width="120"
+              width="140"
               header-align="center"
               align="center"
             >
               <template #default="{ row }">
-                <el-input-number
+                <el-input
+                  type="number"
                   v-model="row.quantityReceived"
                   :min="0"
                   :max="row.quantityOrder"
-                  style="width: 100%"
-                  controls-position="right"
-                />
+                >
+                  <template #append>
+                    <el-button
+                      @click="row.quantityReceived = row.quantityOrder"
+                    >
+                      All
+                    </el-button>
+                  </template>
+                </el-input>
               </template>
             </el-table-column>
           </el-table-column>
 
-          <el-table-column width="80" align="center">
+          <el-table-column width="60" align="center">
             <template #header>
               <el-button
                 type="success"
@@ -586,7 +603,7 @@ const totalOrdered = computed(() => {
 
 const totalReceived = computed(() => {
   return form.value.items.reduce(
-    (sum, item) => sum + (item.quantityReceived || 0),
+    (sum, item) => sum + (Number(item.quantityReceived) || 0),
     0,
   );
 });
