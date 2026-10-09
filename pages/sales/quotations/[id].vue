@@ -274,7 +274,7 @@ async function updateQuotationStatus(status) {
   )
     .then(async () => {
       try {
-        await request(`/api/quotations/${quotationId}`, {
+        await request(`/api/quotations/${quotationId}/status`, {
           method: "PATCH",
           body: { status },
         });
