@@ -182,7 +182,11 @@
         :filters="quotationStatuses.map((s) => ({ text: s, value: s }))"
       >
         <template #default="{ row }">
-          <StatusTag :status="row.status" effect="light" style="width: 100%" />
+          <StatusTag
+            :status="row.status"
+            :effect="row.status === 'Accepted' ? 'dark' : 'light'"
+            style="width: 100%"
+          />
         </template>
       </el-table-column>
     </el-table>
