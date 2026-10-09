@@ -37,7 +37,7 @@
           filterable
           clearable
           default-first-option
-          class="w-52!"
+          class="w-50!"
           @change="refetch()"
         >
           <el-option
@@ -59,7 +59,7 @@
           end-placeholder="End"
           value-format="YYYY-MM-DD"
           format="DD-MMM-YYYY"
-          class="w-70!"
+          class="w-65!"
           @change="refetch()"
         />
       </div>
@@ -70,7 +70,7 @@
         @change="refetch()"
         clearable
         :prefix-icon="ElIconSearch"
-        class="w-70! ml-auto"
+        class="w-65! ml-auto"
       />
 
       <el-button @click="refetch()" :icon="ElIconRefresh" />
