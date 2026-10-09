@@ -3,58 +3,82 @@
     <template #header>
       <el-page-header @back="goBack" content="Materials">
         <template #extra>
-          <form @submit.prevent="refreshData()" class="flex gap-2">
-            <el-checkbox
-              v-model="filters.lowStock"
-              @change="refreshData()"
-              label="Low Stock Only"
-              border
-            />
-
-            <el-input
-              v-model="keyword"
-              placeholder="P/N, Description, Supplier"
-              clearable
-              :prefix-icon="ElIconSearch"
-              @clear="refreshData()"
-              class="w-60!"
-            />
-
-            <el-dropdown>
-              <el-button type="success" :icon="ElIconMoreFilled">
-                Actions
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="openForm()" :icon="ElIconPlus">
-                    Add New Material
-                  </el-dropdown-item>
-                  <el-dropdown-item
-                    @click="exportExcel()"
-                    :icon="ElIconDownload"
-                  >
-                    Export to Excel
-                  </el-dropdown-item>
-                  <el-dropdown-item @click="importData()" :icon="ElIconUpload">
-                    Import from Excel
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </form>
+          <el-button :icon="ElIconDownload" @click="exportExcel()">
+            Export to Excel
+          </el-button>
+          <el-button :icon="ElIconUpload" @click="importData()" class="ml-2!">
+            Import from Excel
+          </el-button>
+          <el-button
+            type="success"
+            :icon="ElIconPlus"
+            @click="openForm()"
+            class="ml-2!"
+          >
+            Add New Material
+          </el-button>
         </template>
       </el-page-header>
     </template>
+
+    <div
+      class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border-b border-gray-300"
+    >
+      <div class="flex items-center gap-2">
+        <el-select
+          v-model="filters.supplierId"
+          placeholder="Supplier"
+          filterable
+          clearable
+          default-first-option
+          class="w-50!"
+          @change="refetch()"
+        >
+          <el-option
+            v-for="supplier in suppliers"
+            :key="supplier.id"
+            :value="supplier.id"
+            :label="supplier.name"
+          />
+          <template #prefix>
+            <el-icon><ElIconOfficeBuilding /></el-icon>
+          </template>
+        </el-select>
+
+        <el-checkbox
+          v-model="filters.lowStock"
+          @change="refetch()"
+          label="Low Stock Only"
+          border
+        />
+      </div>
+
+      <el-input
+        v-model="keyword"
+        placeholder="P/N, Description, Supplier"
+        @change="refetch()"
+        clearable
+        :prefix-icon="ElIconSearch"
+        class="w-65! ml-auto"
+      />
+
+      <el-button @click="refetch()" :icon="ElIconRefresh" />
+    </div>
 
     <el-table
       stripe
       v-loading="isPending"
       :data="data?.data ?? []"
-      height="calc(100vh - 198px)"
+      height="calc(100vh - 254px)"
     >
       <el-table-column label="Part Number" width="150" fixed="left">
         <template #default="{ row }">
-          <div class="font-semibold font-mono">{{ row.partNumber }}</div>
+          <div
+            class="font-semibold font-mono hover:underline cursor-pointer"
+            @click="showDetail(row)"
+          >
+            {{ row.partNumber }}
+          </div>
           <div class="text-xs text-gray-500" v-if="row.interchangePartNumber">
             {{ row.interchangePartNumber }}
           </div>
@@ -160,10 +184,6 @@
         header-align="center"
         fixed="right"
       >
-        <template #header>
-          <el-button link @click="refreshData()" :icon="ElIconRefresh">
-          </el-button>
-        </template>
         <template #default="{ row }">
           <el-dropdown>
             <span class="el-dropdown-link">
@@ -194,6 +214,8 @@
                 <el-dropdown-item
                   :icon="ElIconDelete"
                   @click.native.prevent="handleRemove(row.id, remove)"
+                  divided
+                  class="text-error!"
                 >
                   Delete
                 </el-dropdown-item>
@@ -230,9 +252,9 @@
       <div v-if="detailDialog.material" class="space-y-4">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="Part Number" :span="2">
-            <span class="font-mono font-bold">{{
-              detailDialog.material.partNumber
-            }}</span>
+            <span class="font-mono font-bold">
+              {{ detailDialog.material.partNumber }}
+            </span>
           </el-descriptions-item>
           <el-descriptions-item label="Name" :span="2">
             <strong>{{ detailDialog.material.name }}</strong>
@@ -502,18 +524,16 @@
 </template>
 
 <script setup>
+import { gql } from "@apollo/client";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 const config = useRuntimeConfig();
 
-definePageMeta({
-  layout: false,
-});
+definePageMeta({ layout: false });
 
 const {
   openForm,
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
   currentChange,
   sizeChange,
@@ -527,10 +547,22 @@ const {
 });
 
 pageSize.value = 25; // Set default page size
-const { isPending, data } = fetchData();
+const { isPending, data, refetch } = fetchData();
 const { mutate: remove } = removeMutation();
 
 const request = useRequest();
+const suppliers = ref([]);
+
+useGraphqlQuery(gql`
+  query {
+    suppliers {
+      id
+      name
+    }
+  }
+`).then((result) => {
+  suppliers.value = result.data.suppliers;
+});
 
 // Material detail dialog
 const detailDialog = reactive({
@@ -602,6 +634,8 @@ async function exportExcel() {
     const params = new URLSearchParams();
     if (keyword.value) params.append("keyword", keyword.value);
     if (filters.value.lowStock) params.append("lowStock", "true");
+    if (filters.value.supplierId)
+      params.append("supplierId", filters.value.supplierId);
 
     const queryString = params.toString();
     const url = `${config.public.apiBase}/api/materials/export/excel${queryString ? `?${queryString}` : ""}`;
