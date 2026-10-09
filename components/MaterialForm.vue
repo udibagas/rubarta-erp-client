@@ -120,9 +120,12 @@
                 style="width: 100px"
                 clearable
               >
-                <el-option label="USD" value="USD"></el-option>
-                <el-option label="EUR" value="EUR"></el-option>
-                <el-option label="IDR" value="IDR"></el-option>
+                <el-option
+                  :label="c"
+                  :value="c"
+                  v-for="c in currencies"
+                  :key="c"
+                ></el-option>
               </el-select>
             </template>
           </el-input>
@@ -142,9 +145,12 @@
                 style="width: 100px"
                 clearable
               >
-                <el-option label="USD" value="USD"></el-option>
-                <el-option label="IDR" value="IDR"></el-option>
-                <el-option label="EUR" value="EUR"></el-option>
+                <el-option
+                  :label="c"
+                  :value="c"
+                  v-for="c in currencies"
+                  :key="c"
+                ></el-option>
               </el-select>
             </template>
           </el-input>
@@ -221,6 +227,7 @@
 
 <script setup>
 import { useQuery } from "@tanstack/vue-query";
+import { currencies } from "@/constants";
 
 const saveMaterial = () => {
   const normalizePrice = (value) => {
