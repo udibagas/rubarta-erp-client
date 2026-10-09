@@ -1,1 +1,1 @@
-export const currencies = ["IDR", "USD", "AUD"];
+export const currencies = ["IDR", "USD", "AUD", "RMB", "SGD"];
