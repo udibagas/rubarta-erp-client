@@ -5,7 +5,92 @@
         <div :id="titleId" :class="titleClass" style="font-weight: bold">
           NKP #{{ detail.number }}
         </div>
-        <StatusTag :status="detail.status" />
+        <div class="header-actions">
+          <StatusTag :status="detail.status" size="large" />
+          <el-dropdown trigger="hover">
+            <el-button :icon="ElIconMore" type="success"> Actions </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-if="
+                    detail.status == 'CLOSED' &&
+                    detail.nkpType == 'DOWN_PAYMENT' &&
+                    detail.Parent == null
+                  "
+                  :icon="ElIconPlus"
+                  @click="addDownPayment"
+                >
+                  Add Down Payment
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-if="
+                    detail.paymentType == 'EMPLOYEE' &&
+                    detail.status == 'CLOSED' &&
+                    detail.Parent == null &&
+                    !detail.Child
+                  "
+                  :icon="ElIconDocument"
+                  @click="declare"
+                >
+                  Declare
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-if="
+                    detail.paymentType == 'VENDOR' &&
+                    detail.status == 'CLOSED' &&
+                    detail.Parent == null
+                  "
+                  :icon="ElIconDocument"
+                  @click="declare"
+                >
+                  Settlement
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  v-if="allowClose"
+                  :icon="ElIconSuccessFilled"
+                  @click="showCloseForm = true"
+                >
+                  Close
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  v-if="allowAction"
+                  :icon="ElIconSuccessFilled"
+                  @click="submit(detail.id)"
+                  class="text-success!"
+                >
+                  Submit
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  :icon="ElIconPrinter"
+                  @click="handlePrint(detail.id)"
+                >
+                  Print
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  v-if="allowAction"
+                  :icon="ElIconEdit"
+                  @click="editDetail"
+                >
+                  Edit
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  v-if="allowdDelete"
+                  :icon="ElIconDelete"
+                  @click="handleRemove(detail.id, closeDetailAndRemove)"
+                  class="text-error!"
+                  divided
+                >
+                  Delete
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
     </template>
 
@@ -234,98 +319,6 @@
       :request-id="detail.id"
       @reload="reload"
     />
-
-    <template #footer>
-      <el-button
-        v-if="allowAction"
-        :icon="ElIconSuccessFilled"
-        type="warning"
-        @click="
-          () => {
-            const { id } = detail;
-            closeDetail();
-            edit(id);
-          }
-        "
-      >
-        EDIT
-      </el-button>
-
-      <el-button
-        v-if="
-          detail.status == 'CLOSED' &&
-          detail.nkpType == 'DOWN_PAYMENT' &&
-          detail.Parent == null
-        "
-        :icon="ElIconPlus"
-        type="warning"
-        @click="addDownPayment"
-      >
-        ADD DOWN PAYMENT
-      </el-button>
-
-      <el-button
-        v-if="
-          detail.paymentType == 'EMPLOYEE' &&
-          detail.status == 'CLOSED' &&
-          detail.Parent == null &&
-          !detail.Child
-        "
-        :icon="ElIconDocument"
-        type="warning"
-        @click="declare"
-      >
-        DECLARE
-      </el-button>
-
-      <el-button
-        v-if="
-          detail.paymentType == 'VENDOR' &&
-          detail.status == 'CLOSED' &&
-          detail.Parent == null
-        "
-        :icon="ElIconDocument"
-        type="warning"
-        @click="declare"
-      >
-        SETTLEMENT
-      </el-button>
-
-      <el-button
-        :icon="ElIconPrinter"
-        type="warning"
-        @click="handlePrint(detail.id)"
-      >
-        PRINT
-      </el-button>
-
-      <el-button
-        v-if="allowClose"
-        :icon="ElIconSuccessFilled"
-        type="success"
-        @click="showCloseForm = true"
-      >
-        CLOSE
-      </el-button>
-
-      <el-button
-        v-if="allowdDelete"
-        :icon="ElIconDelete"
-        type="danger"
-        @click="handleRemove(detail.id, closeDetailAndRemove)"
-      >
-        DELETE
-      </el-button>
-
-      <el-button
-        v-if="allowAction"
-        :icon="ElIconSuccessFilled"
-        type="success"
-        @click="submit(detail.id)"
-      >
-        SUBMIT
-      </el-button>
-    </template>
   </el-dialog>
 
   <NkpCloseForm
@@ -369,6 +362,12 @@ const { request, edit, handleRemove, removeMutation, refreshData, openForm } =
   useCrud({ url: "/api/nkp", queryKey: "nkp" });
 
 const { mutate: remove } = removeMutation();
+
+function editDetail() {
+  const { id } = detail.value;
+  closeDetail();
+  edit(id);
+}
 
 function reload() {
   request(`/api/nkp/${detail.value.id}`).then((res) => {
@@ -480,5 +479,11 @@ function handlePrint(id) {
   flex-direction: row;
   justify-content: space-between;
   gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>
