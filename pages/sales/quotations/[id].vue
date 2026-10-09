@@ -29,6 +29,7 @@
                     :icon="m.icon"
                     @click="m.action"
                     :class="m.class || ''"
+                    :divided="m.divided || false"
                   >
                     {{ m.label }}
                   </el-dropdown-item>
@@ -149,19 +150,6 @@ const canAcceptOrReject = computed(
 
 const menus = computed(() => [
   {
-    label: "Edit",
-    action: editQuotation,
-    icon: ElIconEdit,
-    visible: canEditDeleteOrSubmit.value,
-  },
-  {
-    label: "Delete",
-    action: deleteQuotation,
-    icon: ElIconDelete,
-    class: "text-error!",
-    visible: canEditDeleteOrSubmit.value,
-  },
-  {
     label: "Submit",
     action: handleSubmitButton,
     icon: ElIconCircleCheck,
@@ -200,6 +188,20 @@ const menus = computed(() => [
     action: previewQuotation,
     icon: ElIconPrinter,
     visible: true,
+  },
+  {
+    label: "Edit",
+    action: editQuotation,
+    icon: ElIconEdit,
+    visible: canEditDeleteOrSubmit.value,
+  },
+  {
+    label: "Delete",
+    divided: true,
+    action: deleteQuotation,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: canEditDeleteOrSubmit.value,
   },
 ]);
 

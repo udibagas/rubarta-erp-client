@@ -31,6 +31,7 @@
                     :icon="m.icon"
                     @click="m.action"
                     :class="m.class || ''"
+                    :divided="m.divided || false"
                   >
                     {{ m.label }}
                   </el-dropdown-item>
@@ -111,19 +112,6 @@ function refreshPage() {
 
 const menus = computed(() => [
   {
-    label: "Edit",
-    action: editDeliveryOrder,
-    icon: ElIconEdit,
-    visible: deliveryOrder.value?.status === "Draft",
-  },
-  {
-    label: "Delete",
-    action: deleteDeliveryOrder,
-    icon: ElIconDelete,
-    class: "text-error!",
-    visible: deliveryOrder.value?.status === "Draft",
-  },
-  {
     label: "Mark As Confirmed",
     action: markAsConfirmed,
     icon: ElIconCircleCheck,
@@ -135,6 +123,20 @@ const menus = computed(() => [
     action: previewDeliveryOrder,
     icon: ElIconPrinter,
     visible: true,
+  },
+  {
+    label: "Edit",
+    action: editDeliveryOrder,
+    icon: ElIconEdit,
+    visible: deliveryOrder.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    divided: true,
+    action: deleteDeliveryOrder,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: deliveryOrder.value?.status === "Draft",
   },
 ]);
 

@@ -29,6 +29,7 @@
                     :icon="m.icon"
                     @click="m.action"
                     :class="m.class || ''"
+                    :divided="m.divided || false"
                   >
                     {{ m.label }}
                   </el-dropdown-item>
@@ -248,19 +249,6 @@ const invoiceProgress = computed(() => {
 
 const menus = computed(() => [
   {
-    label: "Edit",
-    action: editOrder,
-    icon: ElIconEdit,
-    visible: order.value?.status === "Draft",
-  },
-  {
-    label: "Delete",
-    action: deleteOrder,
-    icon: ElIconDelete,
-    class: "text-error!",
-    visible: order.value?.status === "Draft",
-  },
-  {
     label: "Mark As Confirmed",
     action: () => updateSalesOrderStatus("Confirmed"),
     icon: ElIconCircleCheck,
@@ -313,6 +301,20 @@ const menus = computed(() => [
     action: previewOrder,
     icon: ElIconPrinter,
     visible: true,
+  },
+  {
+    label: "Edit",
+    action: editOrder,
+    icon: ElIconEdit,
+    visible: order.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    divided: true,
+    action: deleteOrder,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: order.value?.status === "Draft",
   },
 ]);
 

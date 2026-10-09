@@ -31,6 +31,7 @@
                     :icon="m.icon"
                     @click="m.action"
                     :class="m.class || ''"
+                    :divided="m.divided || false"
                   >
                     {{ m.label }}
                   </el-dropdown-item>
@@ -184,19 +185,6 @@ function refreshPage() {
 
 const menus = computed(() => [
   {
-    label: "Edit",
-    action: editInvoice,
-    icon: ElIconEdit,
-    visible: invoice.value?.status === "Draft",
-  },
-  {
-    label: "Delete",
-    action: deleteInvoice,
-    icon: ElIconDelete,
-    class: "text-error!",
-    visible: invoice.value?.status === "Draft",
-  },
-  {
     label: "Mark As Confirmed",
     action: () => updateInvoiceStatus("Confirmed"),
     icon: ElIconCircleCheck,
@@ -228,6 +216,20 @@ const menus = computed(() => [
     action: previewInvoice,
     icon: ElIconPrinter,
     visible: true,
+  },
+  {
+    label: "Edit",
+    action: editInvoice,
+    icon: ElIconEdit,
+    visible: invoice.value?.status === "Draft",
+  },
+  {
+    label: "Delete",
+    divided: true,
+    action: deleteInvoice,
+    icon: ElIconDelete,
+    class: "text-error!",
+    visible: invoice.value?.status === "Draft",
   },
 ]);
 
