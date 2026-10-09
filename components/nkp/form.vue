@@ -698,7 +698,7 @@ function updateBank(id) {
   if (data) {
     form.value.bankId = data.bankId;
     form.value.bankAccount = data.bankAccount;
-    form.value.bankAccountHolder = data.bankAccountHolder;
+    form.value.bankAccountHolder = data.bankAccountHolder || data.name;
     form.value.currency = data.currency;
   }
 }
