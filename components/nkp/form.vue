@@ -596,6 +596,7 @@ function fetchGoodsReceipts(supplierId) {
           vendorInvoiceNumber
           referenceNumber
           purchaseOrderId
+          supportingDocument
           GoodsReceiptItems {
             partNumber
             description
@@ -642,6 +643,9 @@ function handleGoodsReceiptChange(goodsReceiptId) {
     gr.referenceNumber || gr.PurchaseOrder.referenceNumber;
   form.value.totalAmount = gr.PurchaseOrder.grandTotal || 0;
   form.value.PurchaseOrder = gr.PurchaseOrder;
+  if (gr.supportingDocument) {
+    form.value.NkpAttachment = gr.supportingDocument;
+  }
 
   const items = gr.PurchaseOrder?.PurchaseOrderItems ?? [];
 
