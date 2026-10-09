@@ -108,7 +108,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Supplier" min-width="200">
+      <el-table-column label="Supplier" min-width="180">
         <template #default="{ row }">
           <div class="font-semibold line-clamp-1">
             {{ row.Supplier?.name || "-" }}
@@ -116,6 +116,18 @@
           <div class="text-xs text-gray-400 line-clamp-1">
             PO No. {{ row.PurchaseOrder?.number }}
           </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="Invoice No."
+        prop="vendorInvoiceNumber"
+        min-width="130"
+      >
+        <template #default="{ row }">
+          <el-tag class="font-mono" size="small" effect="plain" type="info">
+            {{ row.vendorInvoiceNumber || "-" }}
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -128,20 +140,6 @@
       <el-table-column label="Recipient" prop="recipient" min-width="150">
         <template #default="{ row }">
           {{ row.recipient || "-" }}
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="Parts"
-        prop="_count.GoodsReceiptItems"
-        width="80"
-        align="center"
-        header-align="center"
-      >
-        <template #default="{ row }">
-          <el-tag class="font-mono" size="small" effect="plain" type="info">
-            {{ toDecimal(row._count.GoodsReceiptItems) }}
-          </el-tag>
         </template>
       </el-table-column>
 
