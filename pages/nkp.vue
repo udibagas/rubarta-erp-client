@@ -246,6 +246,7 @@ const {
 });
 
 const defaultData = {
+  paymentType: "EMPLOYEE",
   companyId: companyId.value,
   cashAdvanceBalance: 0,
   deduction: 0,
