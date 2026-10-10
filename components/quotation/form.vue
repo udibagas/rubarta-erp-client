@@ -395,12 +395,8 @@
             <template #default="{ row }">
               <div>
                 <strong>{{ row.name }}</strong>
-                <div
-                  v-if="row.model || row.description"
-                  class="text-xs text-gray-500"
-                >
+                <div v-if="row.model" class="text-xs text-gray-500">
                   {{ row.model }}
-                  {{ row.description ? "- " + row.description : "" }}
                 </div>
               </div>
             </template>
