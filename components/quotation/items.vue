@@ -13,9 +13,8 @@
     <el-table-column label="Description" min-width="150">
       <template #default="{ row }">
         <div class="font-medium">{{ row.name }}</div>
-        <div v-if="row.model || row.description" class="text-sm text-gray-500">
+        <div v-if="row.model" class="text-sm text-gray-500">
           {{ row.model }}
-          {{ row.description }}
         </div>
       </template>
     </el-table-column>
