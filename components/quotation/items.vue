@@ -31,13 +31,13 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="Unit Price" width="120" align="right">
+    <el-table-column label="Unit Price" min-width="120" align="right">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.unitPrice) }}</span>
       </template>
     </el-table-column>
 
-    <el-table-column label="Amount" width="120" align="right">
+    <el-table-column label="Amount" min-width="120" align="right">
       <template #default="{ row }">
         <span class="font-mono">{{ toDecimal(row.totalPrice) }}</span>
       </template>
