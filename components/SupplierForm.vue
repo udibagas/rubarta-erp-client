@@ -67,6 +67,19 @@
           />
         </el-select>
       </el-form-item>
+
+      <el-form-item label="Status" :error="errors.active">
+        <el-switch
+          :active-value="true"
+          :inactive-value="false"
+          v-model="form.active"
+          inline-prompt
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="Active"
+          inactive-text="Inactive"
+        >
+        </el-switch>
+      </el-form-item>
     </el-form>
 
     <template #footer>

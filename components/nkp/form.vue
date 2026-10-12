@@ -541,37 +541,40 @@ const { mutate: save } = saveMutation();
 
 const {
   data: { companies, suppliers, banks, users },
-} = await useGraphqlQuery(gql`
-  query {
-    companies {
-      id
-      code
-      name
+} = await useGraphqlQuery(
+  gql`
+    query ($active: Boolean) {
+      companies {
+        id
+        code
+        name
+      }
+      suppliers(active: $active) {
+        id
+        code
+        name
+        bankId
+        currency
+        bankAccount
+        bankAccountHolder
+      }
+      banks {
+        id
+        code
+        name
+      }
+      users(active: $active) {
+        id
+        code
+        name
+        bankId
+        bankAccount
+        currency
+      }
     }
-    suppliers {
-      id
-      code
-      name
-      bankId
-      currency
-      bankAccount
-      bankAccountHolder
-    }
-    banks {
-      id
-      code
-      name
-    }
-    users {
-      id
-      code
-      name
-      bankId
-      bankAccount
-      currency
-    }
-  }
-`);
+  `,
+  { variables: { active: true } },
+);
 
 const goodsReceipts = ref([]);
 

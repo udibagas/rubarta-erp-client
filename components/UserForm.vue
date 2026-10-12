@@ -95,17 +95,12 @@
           :active-value="true"
           :inactive-value="false"
           v-model="form.active"
+          inline-prompt
           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          active-text="Active"
+          inactive-text="Inactive"
         >
         </el-switch>
-        <el-tag
-          :type="form.active ? 'success' : 'danger'"
-          size="small"
-          style="margin-left: 10px"
-          effect="dark"
-        >
-          {{ !!form.active ? "Aktif" : "Nonaktif" }}
-        </el-tag>
       </el-form-item>
 
       <el-form-item

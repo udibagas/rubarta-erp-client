@@ -76,6 +76,25 @@
       </el-table-column>
 
       <el-table-column
+        prop="status"
+        label="Status"
+        align="center"
+        header-align="center"
+        width="100"
+      >
+        <template #default="{ row }">
+          <el-tag
+            :type="row.active ? 'success' : 'danger'"
+            size="small"
+            style="width: 100%"
+            effect="plain"
+          >
+            {{ row.active ? "Aktif" : "Nonaktif" }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column
         width="60px"
         align="center"
         header-align="center"
