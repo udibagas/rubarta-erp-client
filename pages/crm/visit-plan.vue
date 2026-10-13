@@ -1,7 +1,7 @@
 <template>
   <nuxt-layout name="default">
     <template #header>
-      <el-page-header @back="goBack" content="CRM / Visit Plan">
+      <el-page-header @back="goBack" content="Visit Plans">
         <template #extra>
           <div class="flex gap-2">
             <el-radio-group
@@ -16,7 +16,7 @@
                     pageSize: v === 'calendar' ? 1_000_000 : 10,
                   };
 
-                  refreshData();
+                  refetch();
                 }
               "
             >
@@ -30,33 +30,14 @@
               </el-radio-button>
             </el-radio-group>
 
-            <template v-if="viewMode === 'table'">
-              <el-input
-                v-model="keyword"
-                placeholder="Search"
-                @change="refreshData()"
-                clearable
-                :prefix-icon="ElIconSearch"
-                style="width: 180px"
-              />
-            </template>
-
-            <el-button
-              v-if="viewMode === 'table'"
-              :icon="ElIconPrinter"
-              @click="exportToPdf"
-              :disabled="!data?.data?.length"
-              type="info"
-              plain
-            >
-              Export PDF
-            </el-button>
-
             <el-button
               :icon="ElIconPlus"
               type="success"
               @click="visitPlanFormRef?.openForm()"
-            />
+              class="ml-0!"
+            >
+              Add Visit Plan
+            </el-button>
           </div>
         </template>
       </el-page-header>
@@ -64,13 +45,70 @@
 
     <!-- Table View -->
     <div v-if="viewMode === 'table'">
+      <div
+        class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border-b border-gray-300"
+      >
+        <div class="flex items-center gap-2">
+          <el-select
+            v-model="filters.userId"
+            placeholder="User"
+            filterable
+            clearable
+            default-first-option
+            class="w-50!"
+            @change="refetch()"
+          >
+            <el-option
+              v-for="user in users"
+              :key="user.id"
+              :value="user.id"
+              :label="user.name"
+            />
+            <template #prefix>
+              <el-icon><ElIconUser /></el-icon>
+            </template>
+          </el-select>
+
+          <el-date-picker
+            v-model="filters.dateRange"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="Start"
+            end-placeholder="End"
+            value-format="YYYY-MM-DD"
+            format="DD-MMM-YYYY"
+            class="w-65!"
+            @change="refetch()"
+          />
+        </div>
+
+        <el-input
+          v-model="keyword"
+          placeholder="Search"
+          @change="refetch()"
+          clearable
+          :prefix-icon="ElIconSearch"
+          class="w-50! ml-auto"
+        />
+
+        <el-button
+          v-if="viewMode === 'table'"
+          :icon="ElIconPrinter"
+          @click="exportToPdf"
+          :disabled="!data?.data?.length"
+        >
+          Export PDF
+        </el-button>
+
+        <el-button @click="refetch()" :icon="ElIconRefresh" class="ml-0!" />
+      </div>
       <el-table
         stripe
         v-loading="isPending"
         :data="data?.data || []"
         @filter-change="filterChange"
         @sort-change="sortChange"
-        height="calc(100vh - 195px)"
+        height="calc(100vh - 254px)"
       >
         <el-table-column
           label="Scheduled Date"
@@ -227,7 +265,7 @@
 
         <el-table-column width="60" align="center" fixed="right">
           <template #header>
-            <el-button link @click="refreshData()" :icon="ElIconRefresh" />
+            <el-button link @click="refetch()" :icon="ElIconRefresh" />
           </template>
           <template #default="{ row }">
             <el-dropdown>
@@ -248,6 +286,7 @@
                     v-if="row.status === 'Planned'"
                     :icon="ElIconCircleCheck"
                     @click="markAsCompleted(row.id)"
+                    class="text-success!"
                   >
                     Mark as Completed
                   </el-dropdown-item>
@@ -262,6 +301,8 @@
                     v-if="row.status == 'Planned'"
                     :icon="ElIconDelete"
                     @click="handleRemove(row.id, remove)"
+                    class="text-error!"
+                    divided
                   >
                     Delete
                   </el-dropdown-item>
@@ -410,7 +451,6 @@ const cancelForm = ref({
 const {
   removeMutation,
   fetchData,
-  refreshData,
   handleRemove,
   keyword,
   page,
@@ -429,13 +469,13 @@ const {
   },
 });
 
+const { isPending, data, refetch } = fetchData();
+const { mutate: remove } = removeMutation();
+
 watch(companyId, () => {
   page.value = 1;
-  refreshData();
+  refetch();
 });
-
-const { isPending, data } = fetchData();
-const { mutate: remove } = removeMutation();
 
 // Fetch users for filter dropdown
 const { data: users } = useQuery({
@@ -505,7 +545,7 @@ const submitComplete = async () => {
     });
     ElMessage.success("Visit plan marked as completed");
     showCompleteDialog.value = false;
-    refreshData();
+    refetch();
   } catch (error) {
     ElMessage.error("Failed to update visit plan status");
   }
@@ -535,7 +575,7 @@ const submitCancel = async () => {
     });
     ElMessage.success("Visit plan cancelled");
     showCancelDialog.value = false;
-    refreshData();
+    refetch();
   } catch (error) {
     ElMessage.error("Failed to update visit plan status");
   }
