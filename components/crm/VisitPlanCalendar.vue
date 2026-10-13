@@ -25,7 +25,7 @@
             <div
               v-for="visit in getVisitsForDate(data.date)"
               :key="visit.id"
-              class="calendar-event"
+              class="calendar-event mb-1"
               :class="`calendar-event-${visit.status.toLowerCase()}`"
               @click="$emit('open-detail', visit)"
             >
@@ -147,12 +147,12 @@ const getVisitsForDate = (date) => {
 }
 
 .calendar-event-completed {
-  background-color: #f0f9ff;
+  background-color: #97ffc6;
   border-left-color: #67c23a;
 }
 
 .calendar-event-cancelled {
-  background-color: #fef0f0;
+  background-color: #fecece;
   border-left-color: #f56c6c;
 }
 
