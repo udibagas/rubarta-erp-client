@@ -480,17 +480,18 @@ watch(companyId, () => {
 // Fetch users for filter dropdown
 const { data: users } = useQuery({
   queryKey: ["users"],
-  queryFn: () => request("/api/users"),
+  queryFn: () =>
+    request("/api/users", {
+      params: {
+        active: true,
+      },
+    }),
 });
 
 const { data: customers } = useQuery({
   queryKey: ["customers"],
   queryFn: () => request("/api/customers"),
 });
-
-const goBack = () => {
-  navigateTo("/crm/dashboard");
-};
 
 const openDetailDialog = (visit) => {
   selectedVisit.value = visit;
@@ -583,12 +584,24 @@ const submitCancel = async () => {
 
 // Export to PDF
 const exportToPdf = () => {
-  const params = {
-    ...filters.value,
-  };
+  const params = {};
 
-  delete params.page;
-  delete params.pageSize;
+  if (filters.value.userId) {
+    params.userId = filters.value.userId;
+  }
+
+  if (filters.value.status) {
+    params.status = filters.value.status;
+  }
+
+  if (filters.value.dateRange) {
+    params["dateRange[0]"] = filters.value.dateRange[0];
+    params["dateRange[1]"] = filters.value.dateRange[1];
+  }
+
+  if (filters.value.keyword) {
+    params.keyword = filters.value.keyword;
+  }
 
   const query = new URLSearchParams(params).toString();
   const downloadUrl = new URL(
