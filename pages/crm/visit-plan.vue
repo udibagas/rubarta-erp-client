@@ -272,12 +272,6 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
-                    :icon="ElIconEdit"
-                    @click="visitPlanFormRef?.openForm(row)"
-                  >
-                    Edit
-                  </el-dropdown-item>
-                  <el-dropdown-item
                     v-if="row.status === 'Planned'"
                     :icon="ElIconCircleCheck"
                     @click="markAsCompleted(row.id)"
@@ -289,9 +283,17 @@
                     v-if="row.status === 'Planned'"
                     :icon="ElIconCircleClose"
                     @click="markAsCancelled(row.id)"
+                    class="text-error!"
                   >
                     Mark as Cancelled
                   </el-dropdown-item>
+                  <el-dropdown-item
+                    :icon="ElIconEdit"
+                    @click="visitPlanFormRef?.openForm(row)"
+                  >
+                    Edit
+                  </el-dropdown-item>
+
                   <el-dropdown-item
                     v-if="row.status == 'Planned'"
                     :icon="ElIconDelete"
