@@ -17,8 +17,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/");
   }
 
+  const publicPaths = ["/login", "/forgot-password", "/reset-password"];
+
   // If not authenticated and not going to login page, redirect to login
-  if ((!isAuthenticated.value || !user.value) && to.path !== "/login") {
+  if ((!isAuthenticated.value || !user.value) && !publicPaths.includes(to.path)) {
     console.log("Redirecting unauthenticated user to login");
     return navigateTo("/login");
   }

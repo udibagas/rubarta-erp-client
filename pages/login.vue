@@ -84,15 +84,15 @@
         </el-form-item>
 
         <!-- Forgot Password -->
-        <!-- <div class="text-center">
+        <div class="text-center">
           <el-link
             type="primary"
-            @click="handleForgotPassword"
+            @click="navigateTo('/forgot-password')"
             class="forgot-password-link"
           >
             Forgot your password?
           </el-link>
-        </div> -->
+        </div>
       </el-form>
 
       <!-- Two-factor code form -->
