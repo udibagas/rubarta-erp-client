@@ -29,11 +29,11 @@ export const useAuth = () => {
   const router = useRouter();
 
   const login = async (credentials: LoginCredentials) => {
-    const response = await request<LoginResponse>("/api/auth/login", {
+    const response = (await request("/api/auth/login", {
       method: "POST",
       body: credentials,
       headers: await csrfHeaders(),
-    });
+    })) as LoginResponse;
 
     if (response.twoFactorRequired) {
       return response;
@@ -53,11 +53,11 @@ export const useAuth = () => {
   };
 
   const verifyTwoFactor = async (challengeId: string, code: string) => {
-    const response = await request<AuthResponse>("/api/auth/2fa/verify", {
+    const response = (await request("/api/auth/2fa/verify", {
       method: "POST",
       body: { challengeId, code },
       headers: await csrfHeaders(),
-    });
+    })) as AuthResponse;
 
     authStore.setUser(response.user);
     ElMessage({
@@ -68,14 +68,14 @@ export const useAuth = () => {
   };
 
   const setTwoFactorEnabled = async (enabled: boolean, password: string) => {
-    const response = await request<{ twoFactorEnabled: boolean }>(
+    const response = (await request(
       "/api/auth/2fa",
       {
         method: "POST",
         body: { enabled, password },
         headers: await csrfHeaders(),
       },
-    );
+    )) as { twoFactorEnabled: boolean };
 
     if (authStore.user) {
       authStore.setUser({
@@ -114,9 +114,9 @@ export const useAuth = () => {
   const fetchUser = async () => {
     try {
       // With cookie auth, we don't need to send any token - cookies are automatic
-      const user = await request<User>("/api/auth/me", {
+      const user = (await request("/api/auth/me", {
         method: "GET",
-      });
+      })) as User;
 
       authStore.setUser(user);
       return user;

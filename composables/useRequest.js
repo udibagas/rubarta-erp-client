@@ -1,8 +1,10 @@
+let refreshPromise;
+
 export default () => {
   const config = useRuntimeConfig();
   const router = useRouter();
 
-  return $fetch.create({
+  const apiFetch = $fetch.create({
     baseURL: config.public.apiBase,
     credentials: "include", // This ensures cookies are sent with requests
     headers: {
@@ -46,27 +48,6 @@ export default () => {
         });
       }
 
-      const requestUrl =
-        typeof error.request === "string"
-          ? error.request
-          : error.request?.url ?? "";
-      const isExpectedAuthRejection =
-        requestUrl.includes("/api/auth/login") ||
-        requestUrl.includes("/api/auth/2fa");
-
-      // Handle 401 unauthorized - redirect to login
-      if (
-        error.response?.status === 401 &&
-        import.meta.client &&
-        !isExpectedAuthRejection &&
-        router.currentRoute.value.path !== "/login"
-      ) {
-        // Clear auth store and redirect to login
-        const { clearAuth } = useAuth();
-        clearAuth();
-        navigateTo("/login");
-      }
-
       if (error.response?.status === 403 && import.meta.client) {
         // Handle 403 forbidden - show an error message
         ElNotification.error({
@@ -84,4 +65,87 @@ export default () => {
       }
     },
   });
+
+  const refreshAuth = () => {
+    if (!refreshPromise) {
+      refreshPromise = (async () => {
+        const csrfResponse = await apiFetch("/api/auth/csrf", {
+          method: "GET",
+        });
+
+        await apiFetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "csrf-token": csrfResponse.token },
+        });
+      })().finally(() => {
+        refreshPromise = undefined;
+      });
+    }
+
+    return refreshPromise;
+  };
+
+  const clearAuthAndRedirect = () => {
+    const { clearAuth } = useAuth();
+    clearAuth();
+    if (router.currentRoute.value.path !== "/login") {
+      navigateTo("/login");
+    }
+  };
+
+  const getRequestUrl = (request) =>
+    typeof request === "string" ? request : request?.url ?? "";
+
+  return async (request, options) => {
+    try {
+      return await apiFetch(request, options);
+    } catch (error) {
+      const requestUrl = getRequestUrl(request);
+      const shouldRefresh =
+        import.meta.client &&
+        error.response?.status === 401 &&
+        !requestUrl.includes("/api/auth/login") &&
+        !requestUrl.includes("/api/auth/2fa") &&
+        !requestUrl.includes("/api/auth/refresh") &&
+        !requestUrl.includes("/api/auth/csrf");
+
+      if (!shouldRefresh) {
+        const isExpectedAuthRejection =
+          requestUrl.includes("/api/auth/login") ||
+          requestUrl.includes("/api/auth/2fa");
+        if (
+          import.meta.client &&
+          error.response?.status === 401 &&
+          !isExpectedAuthRejection &&
+          router.currentRoute.value.path !== "/login"
+        ) {
+          clearAuthAndRedirect();
+        }
+        throw error;
+      }
+
+      try {
+        await refreshAuth();
+      } catch (refreshError) {
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 403
+        ) {
+          clearAuthAndRedirect();
+          throw error;
+        }
+
+        throw refreshError;
+      }
+
+      try {
+        return await apiFetch(request, options);
+      } catch (retryError) {
+        if (retryError.response?.status === 401) {
+          clearAuthAndRedirect();
+        }
+        throw retryError;
+      }
+    }
+  };
 };
