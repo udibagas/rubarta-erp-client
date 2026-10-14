@@ -56,7 +56,7 @@
       </el-form-item>
 
       <el-button
-        type="primary"
+        type="success"
         native-type="submit"
         :loading="loading"
         class="w-full"
@@ -102,7 +102,9 @@ const rules = {
   confirm: [
     {
       validator: (_: unknown, value: string, cb: (e?: Error) => void) =>
-        value === form.password ? cb() : cb(new Error("Passwords do not match")),
+        value === form.password
+          ? cb()
+          : cb(new Error("Passwords do not match")),
       trigger: "blur",
     },
   ],

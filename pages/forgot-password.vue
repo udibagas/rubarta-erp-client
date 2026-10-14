@@ -34,7 +34,7 @@
       </el-form-item>
 
       <el-button
-        type="primary"
+        type="success"
         native-type="submit"
         :loading="loading"
         class="w-full"
