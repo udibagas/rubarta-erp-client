@@ -423,6 +423,12 @@ const menus = computed(() => [
       },
     ],
   },
+  {
+    label: "Logs",
+    path: "/logs",
+    icon: ElIconDocument,
+    visible: hasRole(["ADMIN"]),
+  },
 ]);
 
 function hasRole(roles: string[]): boolean {

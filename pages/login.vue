@@ -3,12 +3,36 @@
     <div class="login-card-body">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h2 class="login-title">Welcome Back</h2>
-        <p class="login-subtitle">Please sign in to your account</p>
+        <h2 class="login-title">
+          {{ challengeId ? "Verify your email" : "Welcome Back" }}
+        </h2>
+        <p class="login-subtitle">
+          {{
+            challengeId
+              ? "Enter the 6-digit code sent to your email. It is valid for 5 minutes."
+              : "Please sign in to your account"
+          }}
+        </p>
+      </div>
+
+      <div v-if="!csrfReady" class="text-center">
+        <p v-if="!csrfError">Preparing secure sign-in...</p>
+        <template v-else>
+          <el-alert :title="csrfError" type="error" :closable="false" />
+          <el-button
+            class="mt-4"
+            type="primary"
+            :loading="isCsrfLoading"
+            @click="prepareLogin"
+          >
+            Retry
+          </el-button>
+        </template>
       </div>
 
       <!-- Login Form -->
       <el-form
+        v-else-if="!challengeId"
         @submit.native.prevent="doLogin"
         :model="loginForm"
         :rules="loginRules"
@@ -71,6 +95,60 @@
         </div> -->
       </el-form>
 
+      <!-- Two-factor code form -->
+      <el-form
+        v-else
+        @submit.native.prevent="doVerify"
+        :model="verificationForm"
+        :rules="verificationRules"
+        ref="verificationFormRef"
+        class="login-form"
+        label-position="top"
+        size="large"
+      >
+        <el-form-item label="Authentication code" prop="code">
+          <el-input
+            v-model="verificationForm.code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            placeholder="Enter 6-digit code"
+            :prefix-icon="ElIconLock"
+            @input="sanitizeCode"
+          />
+        </el-form-item>
+
+        <el-form-item class="mb-4">
+          <el-button
+            type="primary"
+            size="large"
+            native-type="submit"
+            :loading="isLoading"
+            class="w-full login-button"
+          >
+            {{ isLoading ? "Verifying..." : "Verify code" }}
+          </el-button>
+        </el-form-item>
+
+        <div class="flex justify-between gap-3">
+          <el-button
+            native-type="button"
+            :disabled="isLoading"
+            @click="backToLogin"
+          >
+            Back to login
+          </el-button>
+          <el-button
+            native-type="button"
+            :loading="isLoading"
+            @click="resendCode"
+          >
+            Resend code
+          </el-button>
+        </div>
+      </el-form>
+
       <!-- Footer -->
       <el-divider class="my-8" />
       <div class="text-center text-sm login-footer">
@@ -81,22 +159,28 @@
 </template>
 
 <script setup>
-const { login } = useAuth();
+const { login, verifyTwoFactor } = useAuth();
+const { fetchCsrfToken } = useCsrf();
 
 definePageMeta({ layout: "login" });
 
 // Form reference
 const loginFormRef = ref();
+const verificationFormRef = ref();
 
 // Form data
 const loginForm = reactive({
   email: "",
   password: "",
 });
+const verificationForm = reactive({ code: "" });
 
-const rememberMe = ref(false);
 const showPassword = ref(false);
 const isLoading = ref(false);
+const isCsrfLoading = ref(false);
+const csrfReady = ref(false);
+const csrfError = ref("");
+const challengeId = ref("");
 
 // Form validation rules
 const loginRules = reactive({
@@ -109,6 +193,16 @@ const loginRules = reactive({
     {
       min: 6,
       message: "Password must be at least 6 characters",
+      trigger: "blur",
+    },
+  ],
+});
+const verificationRules = reactive({
+  code: [
+    { required: true, message: "Please input the code", trigger: "blur" },
+    {
+      pattern: /^\d{6}$/,
+      message: "Code must be 6 digits",
       trigger: "blur",
     },
   ],
@@ -135,30 +229,95 @@ const doLogin = async () => {
   isLoading.value = true;
 
   try {
-    await login({
-      email: loginForm.email,
-      password: loginForm.password,
-      remember: rememberMe.value,
-    });
+    await submitLogin();
   } catch (error) {
-    // Error handling is already done in useAuth and useRequest
-    console.error("Login error:", error);
+    showRequestError(error);
   } finally {
     isLoading.value = false;
   }
 };
 
-// Handle forgot password
-const handleForgotPassword = () => {
-  ElMessage({
-    message: "Forgot password functionality coming soon!",
-    type: "info",
+const submitLogin = async () => {
+  const response = await login({
+    email: loginForm.email,
+    password: loginForm.password,
   });
+
+  if (response.twoFactorRequired) {
+    challengeId.value = response.challengeId;
+    verificationForm.code = "";
+    await nextTick();
+    document.querySelector('input[autocomplete="one-time-code"]')?.focus();
+  }
+};
+
+const resendCode = async () => {
+  isLoading.value = true;
+  try {
+    await submitLogin();
+  } catch (error) {
+    showRequestError(error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const doVerify = async () => {
+  if (!verificationFormRef.value) return;
+
+  try {
+    await verificationFormRef.value.validate();
+  } catch (error) {
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    await verifyTwoFactor(challengeId.value, verificationForm.code);
+  } catch (error) {
+    showRequestError(error, "Invalid or expired code");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const sanitizeCode = (value) => {
+  verificationForm.code = value.replace(/\D/g, "").slice(0, 6);
+};
+
+const backToLogin = () => {
+  challengeId.value = "";
+  verificationForm.code = "";
+};
+
+const showRequestError = (error, fallback = "Unable to sign in") => {
+  const message =
+    error?.data?.message ??
+    error?.response?._data?.message ??
+    (error?.response ? fallback : error?.message) ??
+    fallback;
+  ElMessage.error(message);
+};
+
+const prepareLogin = async () => {
+  isCsrfLoading.value = true;
+  csrfError.value = "";
+  try {
+    await fetchCsrfToken();
+    csrfReady.value = true;
+  } catch (error) {
+    csrfError.value =
+      error?.data?.message ??
+      error?.response?._data?.message ??
+      "Could not prepare secure sign-in. Please try again.";
+  } finally {
+    isCsrfLoading.value = false;
+  }
 };
 
 // Focus on email field when component mounts
-onMounted(() => {
-  // Auto-focus on email field for better UX
+onMounted(async () => {
+  await prepareLogin();
   nextTick(() => {
     const emailInput = document.querySelector('.el-input__inner[type="email"]');
     if (emailInput) {

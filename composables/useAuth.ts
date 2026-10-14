@@ -10,47 +10,81 @@ interface User {
   name: string;
   email: string;
   roles: string[];
+  twoFactorEnabled?: boolean;
+}
+
+type LoginResponse =
+  | { twoFactorRequired: true; challengeId: string }
+  | { twoFactorRequired?: false; token: string; user: User };
+
+interface AuthResponse {
+  token: string;
+  user: User;
 }
 
 export const useAuth = () => {
   const authStore = useAuthStore();
   const request = useRequest();
+  const { csrfHeaders } = useCsrf();
   const router = useRouter();
 
   const login = async (credentials: LoginCredentials) => {
-    try {
-      console.log("Login attempt with:", credentials);
-      const response = await request<{ user: User }>("/api/auth/login", {
-        method: "POST",
-        body: credentials,
-      });
+    const response = await request<LoginResponse>("/api/auth/login", {
+      method: "POST",
+      body: credentials,
+      headers: await csrfHeaders(),
+    });
 
-      console.log("Login response:", response);
-
-      // With cookie authentication, the server will set the authentication cookie
-      // We just need to store the user data
-      const { user } = response;
-      console.log("Setting user:", user);
-      authStore.setUser(user);
-
-      ElMessage({
-        message: "Login successful",
-        type: "success",
-      });
-
-      // Redirect to dashboard or home page after successful login
-      console.log("Attempting navigation to /");
-      await nextTick();
-      console.log("Auth state after nextTick:", {
-        isAuthenticated: authStore.isLoggedIn,
-        user: authStore.user,
-      });
-      return navigateTo("/");
-    } catch (error) {
-      console.error("Login error in composable:", error);
-      // Error handling is already done in useRequest onResponseError
-      throw error;
+    if (response.twoFactorRequired) {
+      return response;
     }
+
+    const { user } = response;
+    authStore.setUser(user);
+
+    ElMessage({
+      message: "Login successful",
+      type: "success",
+    });
+
+    await nextTick();
+    await navigateTo("/");
+    return { twoFactorRequired: false as const };
+  };
+
+  const verifyTwoFactor = async (challengeId: string, code: string) => {
+    const response = await request<AuthResponse>("/api/auth/2fa/verify", {
+      method: "POST",
+      body: { challengeId, code },
+      headers: await csrfHeaders(),
+    });
+
+    authStore.setUser(response.user);
+    ElMessage({
+      message: "Login successful",
+      type: "success",
+    });
+    await navigateTo("/");
+  };
+
+  const setTwoFactorEnabled = async (enabled: boolean, password: string) => {
+    const response = await request<{ twoFactorEnabled: boolean }>(
+      "/api/auth/2fa",
+      {
+        method: "POST",
+        body: { enabled, password },
+        headers: await csrfHeaders(),
+      },
+    );
+
+    if (authStore.user) {
+      authStore.setUser({
+        ...authStore.user,
+        twoFactorEnabled: response.twoFactorEnabled,
+      });
+    }
+
+    return response.twoFactorEnabled;
   };
 
   const logout = async () => {
@@ -58,6 +92,7 @@ export const useAuth = () => {
       // Call logout endpoint to clear server-side session/cookie
       await request("/api/auth/logout", {
         method: "POST",
+        headers: await csrfHeaders(),
       }).catch(() => {
         // Ignore logout endpoint errors - still clear local auth
         console.log("Logout endpoint failed, clearing local auth anyway");
@@ -120,6 +155,8 @@ export const useAuth = () => {
 
     // Methods
     login,
+    verifyTwoFactor,
+    setTwoFactorEnabled,
     logout,
     fetchUser,
     checkAuth,

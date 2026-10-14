@@ -18,13 +18,26 @@
         <el-tag
           v-for="role in formModel.roles"
           :key="role"
-          type="info"
-          size="small"
-          effect="dark"
+          type="success"
+          size="large"
+          effect="plain"
           class="mr-1"
         >
           {{ role }}
         </el-tag>
+      </el-form-item>
+
+      <el-form-item label="Email 2FA">
+        <el-switch
+          v-model="twoFactorEnabled"
+          :loading="isTwoFactorLoading"
+          :disabled="isTwoFactorLoading"
+          active-text="Enabled"
+          inactive-text="Disabled"
+          @change="changeTwoFactor"
+          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+          inline-prompt
+        />
       </el-form-item>
 
       <el-form-item label="Password" :error="formErrors.password">
@@ -133,13 +146,57 @@
 import { gql } from "@apollo/client";
 import { currencies } from "~/constants/currencies";
 
-const { user, refreshIdentity } = useAuth();
+const { user, refreshIdentity, setTwoFactorEnabled } = useAuth();
 const { show } = defineProps(["show"]);
 const emit = defineEmits(["close"]);
 const request = useRequest();
 const config = useRuntimeConfig();
 const formModel = ref({ ...user.value });
 const formErrors = ref({});
+const twoFactorEnabled = ref(!!user.value?.twoFactorEnabled);
+const isTwoFactorLoading = ref(false);
+
+watch(
+  () => user.value?.twoFactorEnabled,
+  (enabled) => {
+    twoFactorEnabled.value = !!enabled;
+  },
+);
+
+const changeTwoFactor = async (enabled) => {
+  isTwoFactorLoading.value = true;
+  try {
+    const { value: password } = await ElMessageBox.prompt(
+      "Enter your current password to change this setting.",
+      "Confirm password",
+      {
+        inputType: "password",
+        inputValidator: (value) => !!value || "Password is required",
+        confirmButtonText: "Confirm",
+        cancelButtonText: "Cancel",
+      },
+    );
+
+    twoFactorEnabled.value = await setTwoFactorEnabled(enabled, password);
+    ElMessage.success(
+      `Email two-factor authentication ${
+        twoFactorEnabled.value ? "enabled" : "disabled"
+      }`,
+    );
+  } catch (error) {
+    twoFactorEnabled.value = !enabled;
+    if (error === "cancel" || error === "close") return;
+
+    const message =
+      error?.data?.message ??
+      error?.response?._data?.message ??
+      error?.message ??
+      "Could not update two-factor authentication";
+    ElMessage.error(message);
+  } finally {
+    isTwoFactorLoading.value = false;
+  }
+};
 
 const save = () => {
   const loadingInstance = ElLoading.service({ target: ".el-dialog" });

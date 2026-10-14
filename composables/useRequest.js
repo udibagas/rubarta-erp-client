@@ -1,5 +1,6 @@
 export default () => {
   const config = useRuntimeConfig();
+  const router = useRouter();
 
   return $fetch.create({
     baseURL: config.public.apiBase,
@@ -45,8 +46,21 @@ export default () => {
         });
       }
 
+      const requestUrl =
+        typeof error.request === "string"
+          ? error.request
+          : error.request?.url ?? "";
+      const isExpectedAuthRejection =
+        requestUrl.includes("/api/auth/login") ||
+        requestUrl.includes("/api/auth/2fa");
+
       // Handle 401 unauthorized - redirect to login
-      if (error.response?.status === 401 && import.meta.client) {
+      if (
+        error.response?.status === 401 &&
+        import.meta.client &&
+        !isExpectedAuthRejection &&
+        router.currentRoute.value.path !== "/login"
+      ) {
         // Clear auth store and redirect to login
         const { clearAuth } = useAuth();
         clearAuth();
