@@ -133,15 +133,20 @@
         <template #default="{ row }">
           <div class="flex items-center gap-2">
             <el-avatar
-              size="small"
-              :style="{ backgroundColor: getAvatarColor(row.User?.name) }"
+              :size="30"
+              :style="{ backgroundColor: getAvatarColor(row.User?.name || '') }"
               class="shrink-0"
             >
-              {{ row.User?.name?.charAt(0) || "?" }}
+              {{ row.User?.name?.charAt(0).toUpperCase() }}
             </el-avatar>
-            <span class="line-clamp-1">
-              {{ row.User?.name || "-" }}
-            </span>
+            <div>
+              <div class="line-clamp-1 font-semibold">
+                {{ row.User?.name || "-" }}
+              </div>
+              <div class="text-xs text-gray-400">
+                {{ formatDate(row.createdAt) }} {{ formatTime(row.createdAt) }}
+              </div>
+            </div>
           </div>
         </template>
       </el-table-column>
