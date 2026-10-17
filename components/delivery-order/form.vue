@@ -50,7 +50,14 @@
                   :key="salesOrder.id"
                   :value="salesOrder.id"
                   :label="salesOrder.number"
-                />
+                >
+                  <div class="flex justify-between">
+                    <div>{{ salesOrder.number }}</div>
+                    <div class="text-gray-500">
+                      {{ salesOrder.referenceNumber }}
+                    </div>
+                  </div>
+                </el-option>
               </el-select>
             </el-form-item>
 
