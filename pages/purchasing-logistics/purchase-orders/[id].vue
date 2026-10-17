@@ -210,7 +210,7 @@ const menus = computed(() => [
     action: deletePurchaseOrder,
     icon: ElIconDelete,
     class: "text-error!",
-    visible: purchaseOrder.value?.status === "Draft",
+    visible: ["Draft", "Cancelled"].includes(purchaseOrder.value?.status),
   },
 ]);
 
