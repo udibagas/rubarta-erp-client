@@ -725,8 +725,10 @@ useGraphqlQuery(
     }
   `,
   {
-    status: ["Confirmed", "Sent"],
-    unProcessed: true,
+    variables: {
+      status: ["Confirmed", "Sent"],
+      unProcessed: true,
+    },
   },
 )
   .then((result) => {
