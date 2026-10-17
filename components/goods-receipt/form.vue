@@ -256,14 +256,6 @@
           </el-table-column>
 
           <el-table-column width="60" align="center">
-            <template #header>
-              <el-button
-                type="success"
-                :icon="ElIconPlus"
-                @click="addItem"
-                link
-              />
-            </template>
             <template #default="{ row }">
               <el-button
                 tabindex="-1"
@@ -445,20 +437,6 @@ const pagedItems = computed(() => {
 
 function lastPage() {
   return Math.max(1, Math.ceil(form.value.items.length / pageSize));
-}
-
-function addItem() {
-  if (!form.value.items) {
-    form.value.items = [];
-  }
-  form.value.items.push({
-    partNumber: "",
-    partNumberSupplier: "",
-    description: "",
-    quantityOrder: 1,
-    quantityReceived: 1,
-  });
-  currentPage.value = lastPage();
 }
 
 function removeItem(row) {
