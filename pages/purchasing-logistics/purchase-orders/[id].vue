@@ -243,7 +243,7 @@ function deletePurchaseOrder() {
           message: "Purchase Order deleted successfully",
         });
 
-        navigateTo("/sales/purchase-orders");
+        navigateTo("/purchasing-logistics/purchase-orders");
         queryClient.invalidateQueries({
           queryKey: ["purchase-orders"],
         });
