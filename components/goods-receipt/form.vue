@@ -371,7 +371,7 @@ function fetchGraphqlData() {
     `,
     {
       variables: {
-        status: ["Confirmed", "PartiallyReceived"],
+        status: ["Confirmed", "Sent", "PartiallyReceived"],
       },
     },
   )
