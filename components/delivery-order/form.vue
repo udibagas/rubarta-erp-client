@@ -51,7 +51,7 @@
                   :value="salesOrder.id"
                   :label="salesOrder.number"
                 >
-                  <div class="flex justify-between">
+                  <div class="flex gap-2 justify-between">
                     <div>{{ salesOrder.number }}</div>
                     <div class="text-gray-500">
                       {{ salesOrder.referenceNumber }}
