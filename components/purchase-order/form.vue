@@ -15,7 +15,10 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="Sales Order Number">
+            <el-form-item
+              label="Sales Order Number"
+              :error="errors.salesOrderId"
+            >
               <el-select
                 v-model="form.salesOrderId"
                 placeholder="Select sales order"
