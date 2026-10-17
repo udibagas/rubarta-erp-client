@@ -515,18 +515,20 @@ async function handleImportItems(e) {
       quantityReceived: i.packedQty,
     }));
 
-    form.value.items = form.value.items.map((item, index) => {
-      // Find the matching item from the imported items based on the part number supplier
-      const matchItem = items.find(
-        (i) => i.partNumberSupplier === item.partNumber,
-      );
+    form.value.items = form.value.items
+      .map((item, index) => {
+        // Find the matching item from the imported items based on the part number supplier
+        const matchItem = items.find(
+          (i) => i.partNumberSupplier === item.partNumber,
+        );
 
-      return {
-        ...item,
-        partNumberSupplier: matchItem?.partNumberSupplier ?? "",
-        quantityReceived: matchItem?.quantityReceived ?? 0,
-      };
-    });
+        return {
+          ...item,
+          partNumberSupplier: matchItem?.partNumberSupplier ?? "",
+          quantityReceived: matchItem?.quantityReceived ?? 0,
+        };
+      })
+      .filter((item) => item.quantityReceived > 0);
 
     currentPage.value = 1;
   } catch (error) {
