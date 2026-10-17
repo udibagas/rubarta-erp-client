@@ -683,7 +683,7 @@ const salesOrders = ref([]);
 
 useGraphqlQuery(
   gql`
-    query ($status: [SalesOrderStatus!]) {
+    query ($status: [SalesOrderStatus!], $unProcessed: Boolean) {
       suppliers {
         id
         name
@@ -700,7 +700,7 @@ useGraphqlQuery(
         description
         purchasePrice
       }
-      salesOrders(status: $status) {
+      salesOrders(status: $status, unProcessed: $unProcessed) {
         id
         number
         date
@@ -726,6 +726,7 @@ useGraphqlQuery(
   `,
   {
     status: ["Confirmed", "Sent"],
+    unProcessed: true,
   },
 )
   .then((result) => {
