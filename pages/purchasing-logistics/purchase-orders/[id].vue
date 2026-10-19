@@ -206,9 +206,10 @@ const menus = computed(() => [
     action: () => updatePurchaseOrderPaymentStatus(),
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
-    visible: ["Confirmed", "Sent", "Pending", "Processing"].includes(
-      purchaseOrder.value?.status,
-    ),
+    visible:
+      ["Confirmed", "Sent", "Pending", "Processing", "Completed"].includes(
+        purchaseOrder.value?.status,
+      ) && purchaseOrder.value?.paymentStatus !== "PAID",
   },
   {
     label: "Print PDF",
