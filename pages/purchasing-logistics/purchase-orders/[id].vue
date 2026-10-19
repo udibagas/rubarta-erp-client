@@ -19,6 +19,17 @@
               </template>
             </status-tag>
 
+            <status-tag
+              :status="purchaseOrder?.paymentStatus || 'UNPAID'"
+              effect="plain"
+              size="large"
+              :round="true"
+            >
+              <template #icon>
+                <el-icon><Flag /></el-icon>
+              </template>
+            </status-tag>
+
             <el-dropdown>
               <el-button :icon="ElIconMore"></el-button>
               <template #dropdown>
@@ -338,7 +349,7 @@ async function updatePurchaseOrderPaymentStatus() {
           `/api/purchase-orders/${purchaseOrderId}/payment-status`,
           {
             method: "PATCH",
-            body: { status: "PAID" },
+            body: { paymentStatus: "PAID" },
           },
         );
 
