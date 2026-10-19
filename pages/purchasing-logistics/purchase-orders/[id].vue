@@ -191,6 +191,15 @@ const menus = computed(() => [
     ),
   },
   {
+    label: "Mark As Paid",
+    action: () => updatePurchaseOrderPaymentStatus(),
+    icon: ElIconCircleCheckFilled,
+    class: "text-success!",
+    visible: ["Confirmed", "Sent", "Pending", "Processing"].includes(
+      purchaseOrder.value?.status,
+    ),
+  },
+  {
     label: "Print PDF",
     action: previewPurchaseOrder,
     icon: ElIconPrinter,
@@ -285,7 +294,7 @@ async function updatePurchaseOrderStatus(status) {
   )
     .then(async () => {
       try {
-        await request(`/api/purchase-orders/${purchaseOrderId}`, {
+        await request(`/api/purchase-orders/${purchaseOrderId}/status`, {
           method: "PATCH",
           body: { status },
         });
@@ -309,6 +318,50 @@ async function updatePurchaseOrderStatus(status) {
       ElNotification.info({
         title: "Info",
         message: `Purchase order ${status.toLowerCase()} canceled`,
+      });
+    });
+}
+
+async function updatePurchaseOrderPaymentStatus() {
+  ElMessageBox.confirm(
+    `Anda yakin akan mengubah status pembayaran? Aksi ini tidak bisa dibatalkan.`,
+    "Confirm",
+    {
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel",
+      type: "success",
+    },
+  )
+    .then(async () => {
+      try {
+        await request(
+          `/api/purchase-orders/${purchaseOrderId}/payment-status`,
+          {
+            method: "PATCH",
+            body: { status: "PAID" },
+          },
+        );
+
+        ElNotification.success({
+          title: "Success",
+          message: `Purchase order payment status updated to paid`,
+        });
+        refreshPage();
+        queryClient.invalidateQueries({
+          queryKey: ["purchase-orders"],
+        });
+      } catch (error) {
+        ElNotification.error({
+          title: "Error",
+          message:
+            "Failed to update purchase order payment status. " + error.message,
+        });
+      }
+    })
+    .catch(() => {
+      ElNotification.info({
+        title: "Info",
+        message: `Purchase order payment status update canceled`,
       });
     });
 }
