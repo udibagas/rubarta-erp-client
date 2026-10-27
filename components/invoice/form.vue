@@ -354,9 +354,12 @@
 
           <el-table-column label="Quantity" width="120" align="center">
             <template #default="{ row }">
-              <span class="font-mono">
-                {{ toDecimal(row.quantity) }}
-              </span>
+              <el-input-number
+                v-model="row.quantity"
+                :min="0"
+                style="width: 100%"
+                controls-position="right"
+              />
             </template>
           </el-table-column>
 
