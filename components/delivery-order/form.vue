@@ -575,7 +575,6 @@ function loadItemFromGoodsReceipt(goodsReceiptId) {
       return {
         ...item,
         partNumberSupply: grItem?.partNumberSupplier ?? item.partNumberSupply,
-        quantityOrder: grItem?.quantityOrder ?? item.quantityOrder,
         quantitySupply: grItem?.quantityReceived ?? 0,
       };
     });
