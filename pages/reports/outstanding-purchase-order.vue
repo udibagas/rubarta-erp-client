@@ -92,7 +92,7 @@
       <el-table-column
         v-if="viewMode === 'po' || viewMode === 'item'"
         label="Ref. Number"
-        width="140"
+        min-width="140"
       >
         <template #default="{ row }"> {{ row.referenceNumber }}</template>
       </el-table-column>
