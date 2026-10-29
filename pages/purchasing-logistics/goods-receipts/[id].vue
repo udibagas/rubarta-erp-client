@@ -50,7 +50,10 @@
         <div class="grow overflow-auto">
           <el-tabs type="card">
             <el-tab-pane label="GOODS RECEIPT INFORMATION">
-              <GoodsReceiptDetail :goodsReceipt="goodsReceipt" />
+              <GoodsReceiptDetail
+                :goodsReceipt="goodsReceipt"
+                @refresh="refetch"
+              />
             </el-tab-pane>
             <el-tab-pane label="GOODS RECEIPT ITEMS">
               <GoodsReceiptItems :goodsReceipt="goodsReceipt" />

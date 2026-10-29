@@ -15,7 +15,36 @@
       </nuxt-link>
     </el-descriptions-item>
     <el-descriptions-item label="Vendor Invoice Number">
-      {{ goodsReceipt.vendorInvoiceNumber || "-" }}
+      <div class="flex items-center justify-between gap-2">
+        <span v-if="!editInvoiceNumber">
+          {{ goodsReceipt.vendorInvoiceNumber || "-" }}
+        </span>
+
+        <el-button
+          v-if="!editInvoiceNumber"
+          type="success"
+          text
+          size="small"
+          :icon="ElIconEdit"
+          @click="editInvoiceNumber = true"
+        />
+
+        <el-input
+          v-if="editInvoiceNumber"
+          placeholder="e.g. INV-12345"
+          v-model="invoiceNumber"
+        />
+
+        <el-button
+          v-if="editInvoiceNumber"
+          type="success"
+          :icon="ElIconCheck"
+          @click="
+            updateInvoiceNumber();
+            editInvoiceNumber = false;
+          "
+        />
+      </div>
     </el-descriptions-item>
     <el-descriptions-item label="Sender">
       {{ goodsReceipt.sender || "-" }}
@@ -58,7 +87,7 @@
 </template>
 
 <script setup>
-defineProps({
+const { goodsReceipt } = defineProps({
   goodsReceipt: {
     type: Object,
     required: true,
@@ -66,4 +95,30 @@ defineProps({
 });
 
 const config = useRuntimeConfig();
+const emit = defineEmits(["refresh"]);
+const editInvoiceNumber = ref(false);
+const invoiceNumber = ref(goodsReceipt.vendorInvoiceNumber);
+const request = useRequest();
+
+function updateInvoiceNumber() {
+  request(`/api/goods-receipts/${goodsReceipt.id}`, {
+    method: "PATCH",
+    body: {
+      vendorInvoiceNumber: invoiceNumber.value,
+    },
+  })
+    .then((response) => {
+      ElNotification.success({
+        title: "Success",
+        message: "Invoice number updated successfully",
+      });
+      emit("refresh");
+    })
+    .catch((error) => {
+      ElNotification.error({
+        title: "Error",
+        message: error.message || "Failed to update invoice number",
+      });
+    });
+}
 </script>
