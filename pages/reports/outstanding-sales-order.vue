@@ -90,6 +90,14 @@
       </el-table-column>
 
       <el-table-column
+        v-if="viewMode === 'so' || viewMode === 'item'"
+        label="Ref. Number"
+        width="140"
+      >
+        <template #default="{ row }"> {{ row.referenceNumber }}</template>
+      </el-table-column>
+
+      <el-table-column
         v-if="viewMode === 'item'"
         label="Part Number"
         width="140"
