@@ -20,14 +20,15 @@
           {{ goodsReceipt.vendorInvoiceNumber || "-" }}
         </span>
 
-        <el-button
-          v-if="!editInvoiceNumber"
-          type="success"
-          text
-          size="small"
-          :icon="ElIconEdit"
-          @click="editInvoiceNumber = true"
-        />
+        <el-tooltip content="Edit" placement="top" v-if="!editInvoiceNumber">
+          <el-button
+            type="success"
+            text
+            size="small"
+            :icon="ElIconEdit"
+            @click="editInvoiceNumber = true"
+          />
+        </el-tooltip>
 
         <el-input
           v-if="editInvoiceNumber"
@@ -35,15 +36,25 @@
           v-model="invoiceNumber"
         />
 
-        <el-button
-          v-if="editInvoiceNumber"
-          type="success"
-          :icon="ElIconCheck"
-          @click="
-            updateInvoiceNumber();
-            editInvoiceNumber = false;
-          "
-        />
+        <el-tooltip content="Save" placement="top" v-if="editInvoiceNumber">
+          <el-button
+            type="success"
+            :icon="ElIconCheck"
+            @click="
+              updateInvoiceNumber();
+              editInvoiceNumber = false;
+            "
+          />
+        </el-tooltip>
+
+        <el-tooltip content="Cancel" placement="top" v-if="editInvoiceNumber">
+          <el-button
+            plain
+            :icon="ElIconClose"
+            @click="editInvoiceNumber = false"
+            class="ml-0!"
+          />
+        </el-tooltip>
       </div>
     </el-descriptions-item>
     <el-descriptions-item label="Sender">
