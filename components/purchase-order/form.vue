@@ -400,7 +400,21 @@
           </div>
         </template>
 
-        <el-table :data="pagedItems" stripe v-loading="isImporting" border>
+        <ItemErrorsAlert :errors="errors.items" />
+
+        <el-table
+          :data="pagedItems"
+          stripe
+          v-loading="isImporting"
+          border
+          :row-class-name="
+            ({ rowIndex }) =>
+              Array.isArray(errors.items) &&
+              errors.items.some((e) => Number(e.property) === rowIndex)
+                ? 'bg-red-100!'
+                : ''
+          "
+        >
           <el-table-column
             label="#"
             width="60"

@@ -203,14 +203,19 @@
         </div>
       </template>
 
+      <ItemErrorsAlert :errors="errors.items" />
+
       <el-table
         :data="pagedItems"
         border
         :row-class-name="
-          ({ row }) =>
-            row.quantityOrder === row.quantitySupply
-              ? 'bg-green-100!'
-              : 'bg-red-100!'
+          ({ row, rowIndex }) =>
+            Array.isArray(errors.items) &&
+            errors.items.some((e) => Number(e.property) === rowIndex)
+              ? 'bg-red-100!'
+              : row.quantityOrder === row.quantitySupply
+                ? 'bg-green-100!'
+                : 'bg-red-100!'
         "
       >
         <template #empty>

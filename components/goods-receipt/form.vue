@@ -157,14 +157,19 @@
           </div>
         </template>
 
+        <ItemErrorsAlert :errors="errors.items" />
+
         <el-table
           :data="pagedItems"
           border
           :row-class-name="
-            ({ row }) =>
-              row.quantityReceived < row.quantityOrder
+            ({ row, rowIndex }) =>
+              Array.isArray(errors.items) &&
+              errors.items.some((e) => Number(e.property) === rowIndex)
                 ? 'bg-red-100!'
-                : 'bg-green-100!'
+                : row.quantityReceived < row.quantityOrder
+                  ? 'bg-red-100!'
+                  : 'bg-green-100!'
           "
         >
           <template #empty>

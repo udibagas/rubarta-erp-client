@@ -324,7 +324,20 @@
           </div>
         </template>
 
-        <el-table :data="pagedItems" stripe border>
+        <ItemErrorsAlert :errors="errors.items" />
+
+        <el-table
+          :data="pagedItems"
+          stripe
+          border
+          :row-class-name="
+            ({ rowIndex }) =>
+              Array.isArray(errors.items) &&
+              errors.items.some((e) => Number(e.property) === rowIndex)
+                ? 'bg-red-100!'
+                : ''
+          "
+        >
           <template #empty>
             <el-empty description="No Items"> </el-empty>
           </template>
