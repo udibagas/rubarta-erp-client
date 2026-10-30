@@ -351,6 +351,25 @@
           </div>
         </template>
 
+        <el-alert
+          v-if="errors.items"
+          title="Invalid Items"
+          type="error"
+          show-icon
+          :closable="false"
+        >
+          <ul v-if="Array.isArray(errors.items)">
+            <li v-for="(error, i) in errors.items" :key="i">
+              #{{ Number(error.property) + 1 }}:
+              {{ error.children.map((child) => child.error).join(", ") }}
+            </li>
+          </ul>
+
+          <div v-else>
+            {{ errors.items }}
+          </div>
+        </el-alert>
+
         <el-table :data="pagedItems" stripe v-loading="isImporting" border>
           <el-table-column
             label="#"

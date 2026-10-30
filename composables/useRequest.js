@@ -17,22 +17,21 @@ export default () => {
         const messages = [];
 
         if (error.response?._data?.errors) {
-          error.response._data.errors.forEach((e) => {
-            if (e.error) {
+          error.response._data.errors.forEach(({ error, children }) => {
+            if (error) {
               messages.push(
-                `<li class="text-red-500 list-disc">${e.error}</li>`,
+                `<li class="text-red-500 list-disc">${error}</li>`,
               );
-            }
+            } else if (children && children.length > 0) {
+              children.forEach(({ property, children: nestedChildren }) => {
+                const childErrors = nestedChildren
+                  ?.map(({ error: childError }) => childError)
+                  .filter(Boolean);
 
-            if (e.children) {
-              e.children.forEach((child) => {
-                for (let i = 0; i < child.children.length; i++) {
-                  const c = child.children[i];
-                  if (c.error) {
-                    messages.push(
-                      `<li class="text-red-500 list-disc">${c.error}</li>`,
-                    );
-                  }
+                if (childErrors?.length) {
+                  messages.push(
+                    `<li class="text-red-500 list-disc">#${Number(property) + 1}: ${childErrors.join(", ")}</li>`,
+                  );
                 }
               });
             }
