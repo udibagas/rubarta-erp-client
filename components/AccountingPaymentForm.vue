@@ -18,7 +18,12 @@
         :label="form.direction === 'IN' ? 'Customer' : 'Vendor'"
         :error="errors.partyId"
       >
-        <el-select v-model="form.partyId" filterable class="w-full">
+        <el-select
+          v-model="form.partyId"
+          filterable
+          class="w-full"
+          @change="handleCustomerOrVendorChange"
+        >
           <el-option
             v-for="party in parties"
             :key="party.id"
@@ -134,7 +139,7 @@ function submit() {
   if (!form.value.amount) errors.value.amount = "Amount is required";
   if (Object.keys(errors.value).length) return;
   const numberPrefix = form.value.direction === "IN" ? "RCV" : "PAY";
-  const document = props.documents.find(
+  const document = documents.value.find(
     (item) => item.id === form.value.documentId,
   );
   emit("save", {
@@ -170,6 +175,7 @@ const { rows: bills } = useAccountingQuery(
 const customers = ref([]);
 const suppliers = ref([]);
 const invoices = ref([]);
+const filteredInvoices = ref([]);
 
 useGraphqlQuery(gql`
   query {
@@ -185,9 +191,7 @@ useGraphqlQuery(gql`
       id
       number
       referenceNumber
-      Customer {
-        name
-      }
+      customerId
     }
   }
 `)
@@ -201,10 +205,22 @@ useGraphqlQuery(gql`
   });
 
 const documents = computed(() => {
-  return props.direction === "IN" ? invoices.value : bills.value;
+  return props.direction === "IN" ? filteredInvoices.value : bills.value;
 });
 
 const parties = computed(() => {
   return props.direction === "IN" ? customers.value : suppliers.value;
 });
+
+function handleCustomerOrVendorChange(id) {
+  if (props.direction === "IN") {
+    filteredInvoices.value = invoices.value.filter(
+      (invoice) => invoice.customerId == id,
+    );
+  }
+
+  if (props.direction === "OUT") {
+    bills.value = bills.value.filter((bill) => bill.supplierId == id);
+  }
+}
 </script>
