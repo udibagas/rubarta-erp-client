@@ -89,35 +89,42 @@
       </el-table-column>
       <el-table-column label="Bank Ref No" prop="bankRefNo" width="170">
         <template #default="{ row }">
-          <span class="line-clamp-2">{{ row.bankRefNo }}</span>
+          <span class="line-clamp-1">{{ row.bankRefNo }}</span>
         </template>
       </el-table-column>
 
       <el-table-column
-        v-if="filters.paymentType == 'VENDOR'"
+        v-show="filters.paymentType == 'VENDOR'"
         label="Invoice Number"
         prop="invoiceNumber"
         width="200"
-      />
+      >
+        <template #default="{ row }">
+          <span class="line-clamp-1">{{ row.invoiceNumber }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="Description" prop="description" min-width="150">
         <template #default="{ row }">
-          <span class="line-clamp-2">{{ row.description }}</span>
+          <span class="line-clamp-1 text-xs">{{ row.description }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Amount" width="150" align="right" fixed="right">
         <template #default="{ row }">
-          <el-tag type="success" class="font-mono" effect="plain">
+          <span class="font-mono">
             {{
-              toCurrency(
+              toDecimal(
                 row.paymentType == "EMPLOYEE"
                   ? row.grandTotal
                   : row.finalPayment,
-                row.currency,
+                row.currency === "IDR" ? 0 : 2,
               )
             }}
-          </el-tag>
+          </span>
+          <span class="font-mono text-gray-400 ml-1">
+            {{ row.currency }}
+          </span>
         </template>
       </el-table-column>
     </el-table>
