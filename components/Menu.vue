@@ -341,12 +341,12 @@ const menus = computed(() => [
         icon: ElIconPriceTag,
         visible: true,
       },
-      {
-        label: "Expenses",
-        path: "/accounting/expenses",
-        icon: ElIconWallet,
-        visible: true,
-      },
+      // {
+      //   label: "Expenses",
+      //   path: "/accounting/expenses",
+      //   icon: ElIconWallet,
+      //   visible: true,
+      // },
       {
         label: "Fiscal Periods",
         path: "/accounting/fiscal-periods",
