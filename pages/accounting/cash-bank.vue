@@ -47,9 +47,14 @@
         <template #default="{ row }">{{ formatDate(row.date) }}</template>
       </el-table-column>
       <el-table-column label="Account" min-width="160">
-        <template #default="{ row }">{{
-          row.cashBankAccount?.name ?? accountOf(row.cashBankAccountId)?.name
-        }}</template>
+        <template #default="{ row }">
+          <span class="truncate">
+            {{
+              row.cashBankAccount?.name ??
+              accountOf(row.cashBankAccountId)?.name
+            }}
+          </span>
+        </template>
       </el-table-column>
       <el-table-column label="Description" prop="description" min-width="200" />
       <el-table-column label="Money In" width="160" align="right">
@@ -62,7 +67,7 @@
       <el-table-column label="Money Out" width="160" align="right">
         <template #default="{ row }">
           <span class="text-red-500">
-            {{ row.type === "OUT" ? toCurrency(row.amount) : "-" }}
+            {{ row.type === "OUT" ? toCurrency(row.amount.d[0]) : "-" }}
           </span>
         </template>
       </el-table-column>
