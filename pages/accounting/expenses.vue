@@ -28,11 +28,11 @@
           {{ row.account?.name ?? accountName(row.accountId) }}</template
         >
       </el-table-column>
-      <el-table-column label="Amount" width="180" align="right"
-        ><template #default="{ row }">{{
-          toCurrency(row.amount)
-        }}</template></el-table-column
-      >
+      <el-table-column label="Amount" width="180" align="right">
+        <template #default="{ row }">
+          {{ toCurrency(row.amount.d[0]) }}
+        </template>
+      </el-table-column>
       <el-table-column fixed="right" width="60" align="center">
         <template #default="{ row }">
           <el-dropdown>
