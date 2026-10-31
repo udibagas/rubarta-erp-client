@@ -99,9 +99,6 @@
       :row="selected"
       :direction="direction"
       :cash-banks="cashBanks"
-      :customers="customers"
-      :suppliers="suppliers"
-      :documents="direction === 'IN' ? invoices : bills"
       @save="save"
     />
 
@@ -160,18 +157,13 @@ const { rows: cashBanks } = useAccountingQuery(
   "cash-bank-accounts",
   "/api/accounting/cash-bank/accounts",
 );
+
 const { rows: accounts } = useAccountingQuery("accounts", "/api/accounts");
 const { rows: periods } = useAccountingQuery(
   "periods",
   "/api/accounting/periods",
 );
-const { rows: customers } = useAccountingQuery("customers", "/api/customers");
-const { rows: suppliers } = useAccountingQuery("suppliers", "/api/suppliers");
-const { rows: invoices } = useAccountingQuery("invoices", "/api/invoices");
-const { rows: bills } = useAccountingQuery(
-  "vendor-bills",
-  "/api/accounting/vendor-bills",
-);
+
 const tab = ref("ALL");
 const showForm = ref(false);
 const selected = ref(null);
