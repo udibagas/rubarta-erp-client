@@ -30,7 +30,7 @@
       </el-table-column>
       <el-table-column label="Amount" width="180" align="right">
         <template #default="{ row }">
-          {{ toCurrency(row.amount.d[0]) }}
+          {{ toCurrency(row.amount) }}
         </template>
       </el-table-column>
       <el-table-column fixed="right" width="60" align="center">

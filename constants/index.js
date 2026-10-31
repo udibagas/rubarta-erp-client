@@ -8,6 +8,7 @@ export * from "./deliveryOrderStatuses.js";
 export * from "./goodsReceiptStatuses.js";
 export * from "./interactionTypes.js";
 export * from "./invoiceStatuses.js";
+export * from "./invoiceSubmissionStatuses.js";
 export * from "./leadSources.js";
 export * from "./leadStatuses.js";
 export * from "./nkpTypes.js";

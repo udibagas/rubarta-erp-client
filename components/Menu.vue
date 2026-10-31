@@ -253,6 +253,12 @@ const menus = computed(() => [
         icon: ElIconCreditCard,
         visible: true,
       },
+      {
+        label: "Invoice Submissions",
+        path: "/sales/invoice-submissions",
+        icon: ElIconDocument,
+        visible: true,
+      },
     ],
   },
   {

@@ -61,14 +61,14 @@
               <el-table-column label="Debit" width="160" align="right">
                 <template #default="{ row: l }">
                   <span class="font-mono">
-                    {{ l.debit ? toCurrency(l.debit.d[0]) : "-" }}
+                    {{ l.debit ? toCurrency(l.debit) : "-" }}
                   </span>
                 </template>
               </el-table-column>
               <el-table-column label="Credit" width="160" align="right">
                 <template #default="{ row: l }">
                   <span class="font-mono">
-                    {{ l.credit ? toCurrency(l.credit.d[0]) : "-" }}
+                    {{ l.credit ? toCurrency(l.credit) : "-" }}
                   </span>
                 </template>
               </el-table-column>

@@ -25,13 +25,11 @@ export const accountingTagType = (status: string) =>
 
 export const PAYMENT_METHODS = ["TRANSFER", "CASH", "CHEQUE", "GIRO"];
 
-export const sumDebitCredit = (
-  lines: { debit?: { d: number[] }; credit?: { d: number[] } }[],
-) =>
+export const sumDebitCredit = (lines: { debit?: number; credit?: number }[]) =>
   lines.reduce(
     (acc, l) => ({
-      debit: (acc?.debit || 0) + (Number(l.debit?.d[0]) || 0),
-      credit: (acc?.credit || 0) + (Number(l.credit?.d[0]) || 0),
+      debit: (acc?.debit || 0) + (Number(l.debit) || 0),
+      credit: (acc?.credit || 0) + (Number(l.credit) || 0),
     }),
     { debit: 0, credit: 0 },
   );

@@ -54,6 +54,7 @@ export const colors = {
   Expired: "info",
   // invoice status
   Submitted: "warning",
+  Received: "primary",
   Paid: "success",
   // order status
   Confirmed: "primary",
