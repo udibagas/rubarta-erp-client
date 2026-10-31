@@ -38,7 +38,7 @@
             v-for="document in documents"
             :key="document.id"
             :value="document.id"
-            :label="`${document.number} - ${document.party ?? document.supplier?.name ?? document.Customer?.name ?? ''}`"
+            :label="`${document.number} - ${document.referenceNumber}`"
           />
         </el-select>
       </el-form-item>
@@ -92,14 +92,14 @@
 </template>
 
 <script setup>
+import { gql } from "@apollo/client";
+
 const props = defineProps({
   row: { type: Object, default: null },
   direction: { type: String, default: "IN" },
   cashBanks: { type: Array, default: () => [] },
-  customers: { type: Array, default: () => [] },
-  suppliers: { type: Array, default: () => [] },
-  documents: { type: Array, default: () => [] },
 });
+
 const emit = defineEmits(["save"]);
 const show = defineModel("show", { default: false });
 
@@ -161,4 +161,50 @@ function submit() {
       : [],
   });
 }
+
+const { rows: bills } = useAccountingQuery(
+  "vendor-bills",
+  "/api/accounting/vendor-bills",
+);
+
+const customers = ref([]);
+const suppliers = ref([]);
+const invoices = ref([]);
+
+useGraphqlQuery(gql`
+  query {
+    customers {
+      id
+      name
+    }
+    suppliers {
+      id
+      name
+    }
+    invoices {
+      id
+      number
+      referenceNumber
+      Customer {
+        name
+      }
+    }
+  }
+`)
+  .then((result) => {
+    customers.value = result.data.customers;
+    suppliers.value = result.data.suppliers;
+    invoices.value = result.data.invoices;
+  })
+  .catch((error) => {
+    console.error("Failed to fetch GraphQL data:", error);
+  });
+
+const documents = computed(() => {
+  return props.direction === "IN" ? invoices.value : bills.value;
+});
+
+const parties = computed(() => {
+  return props.direction === "IN" ? customers.value : suppliers.value;
+});
 </script>
