@@ -116,20 +116,25 @@ const filteredInvoices = computed(() => {
 
 async function fetchCustomers() {
   try {
-    const { data } = await useGraphqlQuery(gql`
-      query {
-        customers {
-          id
-          name
+    const { data } = await useGraphqlQuery(
+      gql`
+        query ($status: [InvoiceStatus!]) {
+          customers {
+            id
+            name
+          }
+          invoices(status: $status) {
+            id
+            number
+            referenceNumber
+            customerId
+          }
         }
-        invoices {
-          id
-          number
-          referenceNumber
-          customerId
-        }
-      }
-    `);
+      `,
+      {
+        variables: { status: ["Confirmed"] },
+      },
+    );
     customers.value = data.customers;
     invoices.value = data.invoices;
   } catch (e) {
