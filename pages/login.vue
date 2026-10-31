@@ -107,15 +107,10 @@
         size="large"
       >
         <el-form-item label="Authentication code" prop="code">
-          <el-input
+          <el-input-otp
+            size="large"
+            type="filled"
             v-model="verificationForm.code"
-            type="text"
-            inputmode="numeric"
-            autocomplete="one-time-code"
-            maxlength="6"
-            placeholder="Enter 6-digit code"
-            :prefix-icon="ElIconLock"
-            @input="sanitizeCode"
           />
         </el-form-item>
 
@@ -342,7 +337,8 @@ onMounted(async () => {
 .login-card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
