@@ -14,7 +14,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-      <el-card shadow="never">
+      <el-card shadow="never" body-class="p-0!">
         <template #header>
           <div class="flex justify-between items-center">
             <b>Recent Journal Entries</b>
@@ -49,7 +49,7 @@
         </el-table>
       </el-card>
 
-      <el-card shadow="never">
+      <el-card shadow="never" body-class="p-0!">
         <template #header>
           <div class="flex justify-between items-center">
             <b>Overdue Receivables & Payables</b>
@@ -84,7 +84,7 @@
 
       <el-card shadow="never" class="col-span-2">
         <template #header><b>Cash & Bank Balances</b></template>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-5">
           <div
             v-for="a in cashBanks"
             :key="a.id"

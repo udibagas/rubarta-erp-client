@@ -312,6 +312,12 @@ const menus = computed(() => [
         visible: true,
       },
       {
+        label: "General Ledger",
+        path: "/accounting/reports/general-ledger",
+        icon: ElIconReading,
+        visible: true,
+      },
+      {
         label: "Accounts Receivable",
         path: "/accounting/accounts-receivable",
         icon: ElIconBottom,
@@ -341,12 +347,6 @@ const menus = computed(() => [
         icon: ElIconWallet,
         visible: true,
       },
-      {
-        label: "Tax Rates",
-        path: "/accounting/tax-rates",
-        icon: ElIconPriceTag,
-        visible: true,
-      },
       // {
       //   label: "Expenses",
       //   path: "/accounting/expenses",
@@ -354,23 +354,12 @@ const menus = computed(() => [
       //   visible: true,
       // },
       {
-        label: "Fiscal Periods",
-        path: "/accounting/fiscal-periods",
-        icon: ElIconCalendar,
-        visible: true,
-      },
-      {
         label: "Trial Balance",
         path: "/accounting/reports/trial-balance",
         icon: ElIconScaleToOriginal,
         visible: true,
       },
-      {
-        label: "General Ledger",
-        path: "/accounting/reports/general-ledger",
-        icon: ElIconReading,
-        visible: true,
-      },
+
       {
         label: "Income Statement",
         path: "/accounting/reports/income-statement",
@@ -381,6 +370,18 @@ const menus = computed(() => [
         label: "Balance Sheet",
         path: "/accounting/reports/balance-sheet",
         icon: ElIconHistogram,
+        visible: true,
+      },
+      {
+        label: "Tax Rates",
+        path: "/accounting/tax-rates",
+        icon: ElIconPriceTag,
+        visible: true,
+      },
+      {
+        label: "Fiscal Periods",
+        path: "/accounting/fiscal-periods",
+        icon: ElIconCalendar,
         visible: true,
       },
     ],
