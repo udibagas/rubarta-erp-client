@@ -56,7 +56,9 @@
         }}</template>
       </el-table-column>
       <el-table-column label="Amount" width="160" align="right">
-        <template #default="{ row }">{{ toCurrency(row.amount) }}</template>
+        <template #default="{ row }">{{
+          toCurrency(row.amount.d[0])
+        }}</template>
       </el-table-column>
       <el-table-column label="Status" width="120" align="center">
         <template #default="{ row }">
