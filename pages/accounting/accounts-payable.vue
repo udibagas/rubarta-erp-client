@@ -64,12 +64,12 @@
       </el-table-column>
       <el-table-column label="Amount" width="160" align="right">
         <template #default="{ row }">{{
-          toCurrency(row.total, row.currency)
+          toCurrency(row.total.d[1], row.currency)
         }}</template>
       </el-table-column>
       <el-table-column label="Paid" width="160" align="right">
         <template #default="{ row }">{{
-          toCurrency(row.paidAmount, row.currency)
+          toCurrency(row.paidAmount.d[0], row.currency)
         }}</template>
       </el-table-column>
       <el-table-column label="Outstanding" width="160" align="right">
@@ -129,7 +129,8 @@ const statusFilter = ref("");
 const showForm = ref(false);
 const draft = ref(null);
 
-const outstanding = (r) => Number(r.total ?? 0) - Number(r.paidAmount ?? 0);
+const outstanding = (r) =>
+  Number(r.total.d[1] ?? 0) - Number(r.paidAmount.d[0] ?? 0);
 const totalOutstanding = computed(() =>
   items.value.reduce((s, r) => s + outstanding(r), 0),
 );
