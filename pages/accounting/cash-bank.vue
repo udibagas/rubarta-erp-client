@@ -59,14 +59,14 @@
       <el-table-column label="Description" prop="description" min-width="200" />
       <el-table-column label="Money In" width="160" align="right">
         <template #default="{ row }">
-          <span class="text-green-600">
-            {{ row.type === "IN" ? toCurrency(row.amount) : "-" }}
+          <span class="text-green-600 font-mono">
+            {{ row.type === "IN" ? toCurrency(row.amount.d[0]) : "-" }}
           </span>
         </template>
       </el-table-column>
       <el-table-column label="Money Out" width="160" align="right">
         <template #default="{ row }">
-          <span class="text-red-500">
+          <span class="text-red-500 font-mono">
             {{ row.type === "OUT" ? toCurrency(row.amount.d[0]) : "-" }}
           </span>
         </template>
