@@ -19,11 +19,7 @@
       </el-page-header>
     </template>
 
-    <el-card
-      v-loading="report.isFetching"
-      shadow="never"
-      class="max-w-3xl mx-auto"
-    >
+    <el-card shadow="never" class="max-w-3xl mx-auto">
       <template v-for="section in sections" :key="section.title">
         <div class="font-semibold text-gray-700 mt-3 mb-1 uppercase text-sm">
           {{ section.title }}

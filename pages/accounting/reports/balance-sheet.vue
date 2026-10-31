@@ -19,7 +19,7 @@
       </el-page-header>
     </template>
 
-    <div v-loading="report.isFetching" class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2">
       <el-card shadow="never">
         <template #header><b>ASSETS</b></template>
         <div
