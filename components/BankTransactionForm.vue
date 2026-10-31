@@ -117,7 +117,7 @@ function submit() {
   if (!form.value.accountId) errors.value.accountId = "Required";
   if (!form.value.offsetAccountId) errors.value.offsetAccountId = "Required";
   if (
-    cashBanks.find((account) => account.id === form.value.accountId)
+    props.cashBanks.find((account) => account.id === form.value.accountId)
       ?.accountId === form.value.offsetAccountId
   )
     errors.value.offsetAccountId =
