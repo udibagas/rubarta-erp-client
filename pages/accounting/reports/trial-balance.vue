@@ -21,7 +21,6 @@
 
     <el-table
       :data="rows"
-      v-loading="report.isFetching"
       stripe
       show-summary
       :summary-method="summary"
