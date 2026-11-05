@@ -1,11 +1,12 @@
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 let refreshPromise;
 
 export default () => {
-  const config = useRuntimeConfig();
   const router = useRouter();
 
   const apiFetch = $fetch.create({
-    baseURL: config.public.apiBase,
+    baseURL: BASE_URL,
     credentials: "include", // This ensures cookies are sent with requests
     headers: {
       "Content-Type": "application/json",
@@ -19,9 +20,7 @@ export default () => {
         if (error.response?._data?.errors) {
           error.response._data.errors.forEach(({ error, children }) => {
             if (error) {
-              messages.push(
-                `<li class="text-red-500 list-disc">${error}</li>`,
-              );
+              messages.push(`<li class="text-red-500 list-disc">${error}</li>`);
             } else if (children && children.length > 0) {
               children.forEach(({ property, children: nestedChildren }) => {
                 const childErrors = nestedChildren
@@ -93,7 +92,7 @@ export default () => {
   };
 
   const getRequestUrl = (request) =>
-    typeof request === "string" ? request : request?.url ?? "";
+    typeof request === "string" ? request : (request?.url ?? "");
 
   return async (request, options) => {
     try {

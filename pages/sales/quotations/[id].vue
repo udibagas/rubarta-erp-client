@@ -136,6 +136,18 @@ const canEditDeleteOrSubmit = computed(
     user.value?.id === quotation.value?.userId,
 );
 
+const canEdit = computed(() => {
+  const allowedStatuses = ["Draft", "Submitted", "Approved"];
+  if (!allowedStatuses.includes(quotation.value?.status)) {
+    return false;
+  }
+
+  return (
+    user.value?.id === quotation.value?.userId ||
+    user.value?.roles.includes("ADMIN")
+  );
+});
+
 const canSendOrMarkAsSent = computed(
   () =>
     quotation.value?.status === "Approved" &&
@@ -193,7 +205,7 @@ const menus = computed(() => [
     label: "Edit",
     action: editQuotation,
     icon: ElIconEdit,
-    visible: canEditDeleteOrSubmit.value,
+    visible: canEdit.value,
   },
   {
     label: "Delete",

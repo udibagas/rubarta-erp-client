@@ -19,8 +19,8 @@
 
     <el-tabs v-model="tab">
       <el-tab-pane label="All" name="ALL" />
-      <el-tab-pane label="Receipts" name="IN" />
-      <el-tab-pane label="Payments" name="OUT" />
+      <el-tab-pane label="RECEIPTS" name="IN" />
+      <el-tab-pane label="PAYMENTS" name="OUT" />
     </el-tabs>
 
     <el-table
