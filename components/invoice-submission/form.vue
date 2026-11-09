@@ -1,14 +1,14 @@
 <template>
   <el-dialog
     v-model="show"
-    width="500px"
+    width="450px"
     :title="
-      !!form?.id ? 'EDIT INVOICE SUBMISSION' : 'CREATE NEW INVOICE SUBMISSION'
+      !!form?.id ? 'Edit Invoice Submission' : 'Create New Invoice Submission'
     "
     :close-on-click-modal="false"
     top="5vh"
   >
-    <el-form label-width="140px" label-position="left">
+    <el-form label-width="140px" label-position="top">
       <el-form-item label="Date" :error="errors.date">
         <el-date-picker
           v-model="form.date"
@@ -71,7 +71,7 @@
         type="info"
         plain
       >
-        CANCEL
+        Cancel
       </el-button>
       <el-button
         :icon="ElIconSuccessFilled"
@@ -79,7 +79,7 @@
         @click="save"
         :loading="isSaving"
       >
-        SAVE SUBMISSION
+        Save Submission
       </el-button>
     </template>
   </el-dialog>
