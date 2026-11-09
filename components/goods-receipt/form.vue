@@ -385,18 +385,20 @@ function fetchGraphqlData() {
 const openForm = (data = {}) => {
   // Fetch the latest suppliers and purchase orders from the GraphQL API
   fetchGraphqlData();
+  const { supportingDocument, items, ...rest } = data;
 
   form.value = {
-    ...data,
+    ...rest,
     date: data.date || dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
     sender: data.sender || "",
     recipient: data.recipient || "",
     notes: data.notes || "",
-    supportingDocument: data.supportingDocument || [],
-    items: data.items || [],
+    supportingDocument: JSON.parse(JSON.stringify(supportingDocument)),
+    items: JSON.parse(JSON.stringify(items)),
   };
 
   errors.value = {};
+  initializeFileList();
   show.value = true;
   currentPage.value = 1;
 };
@@ -525,24 +527,22 @@ async function handleImportItems(e) {
 // UPLOAD RELATED
 const fileList = ref([]);
 
-watch(
-  () => form.value.supportingDocument,
-  (value) => {
-    if (!value) {
-      return (fileList.value = []);
-    }
+const initializeFileList = () => {
+  if (!form.value.supportingDocument) {
+    fileList.value = [];
+    return;
+  }
 
-    fileList.value = form.value.supportingDocument.map((el) => {
-      const { fileName: name, fileSize: size, filePath, fileType } = el;
-      return {
-        name,
-        size,
-        url: `${config.public.apiBase}/${filePath}`,
-        filePath,
-      };
-    });
-  },
-);
+  fileList.value = form.value.supportingDocument.map((el) => {
+    const { fileName: name, fileSize: size, filePath, fileType } = el;
+    return {
+      name,
+      size,
+      url: `${config.public.apiBase}/${filePath}`,
+      filePath,
+    };
+  });
+};
 
 function handleSuccess(file) {
   if (!form.value.supportingDocument) {
