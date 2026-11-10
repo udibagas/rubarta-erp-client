@@ -385,7 +385,7 @@ function fetchGraphqlData() {
 const openForm = (data = {}) => {
   // Fetch the latest suppliers and purchase orders from the GraphQL API
   fetchGraphqlData();
-  const { supportingDocument, items, ...rest } = data;
+  const { supportingDocument = [], items = [], ...rest } = data;
 
   form.value = {
     ...rest,
