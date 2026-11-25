@@ -55,7 +55,7 @@
 
       <el-input
         v-model="keyword"
-        placeholder="P/N, Description, Supplier"
+        placeholder="P/N or Description"
         @change="refetch()"
         clearable
         :prefix-icon="ElIconSearch"
