@@ -124,6 +124,7 @@ import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const route = useRoute();
 const request = useRequest();
 const queryClient = useQueryClient();
@@ -161,6 +162,12 @@ const menus = computed(() => [
     icon: ElIconCircleCheckFilled,
     class: "text-success!",
     visible: submission.value?.status === "Received",
+  },
+  {
+    label: "Print PDF",
+    action: previewInvoiceSubmission,
+    icon: ElIconPrinter,
+    visible: true,
   },
   {
     label: "Edit",
@@ -222,5 +229,10 @@ function deleteSubmission() {
       }
     })
     .catch(() => {});
+}
+
+function previewInvoiceSubmission() {
+  const pdfUrl = `${config.public.apiBase}/api/invoice-submissions/${submissionId}/preview`;
+  window.open(pdfUrl, "_blank");
 }
 </script>

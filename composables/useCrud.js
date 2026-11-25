@@ -49,10 +49,8 @@ export default ({ url, queryKey, defaultQuery = {} }) => {
   }
 
   function saveMutation() {
-    let loadingInstance;
     return useMutation({
       mutationFn: (data) => {
-        loadingInstance = ElLoading.service({ target: ".el-dialog" });
         return data.id
           ? request(`${url}/${data.id}`, { method: "PATCH", body: data })
           : request(url, { method: "POST", body: data });
@@ -68,9 +66,6 @@ export default ({ url, queryKey, defaultQuery = {} }) => {
       },
       onError: (error) => {
         errors.value = parseError(error);
-      },
-      onSettled: () => {
-        loadingInstance.close();
       },
     });
   }

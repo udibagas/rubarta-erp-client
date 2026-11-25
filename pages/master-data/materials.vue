@@ -75,7 +75,7 @@
         <template #default="{ row }">
           <div
             class="font-semibold font-mono hover:underline cursor-pointer"
-            @click="showDetail(row)"
+            @click="openDetailDialog(row)"
           >
             {{ row.partNumber }}
           </div>
@@ -91,11 +91,17 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Supplier" min-width="180">
+      <el-table-column
+        label="Supplier(s)"
+        min-width="180"
+        show-overflow-tooltip
+      >
         <template #default="{ row }">
-          <span class="line-clamp-1">
+          <!-- <span class="line-clamp-1" v-if="row.Supplier?.name">
             {{ row.Supplier?.name || "-" }}
-          </span>
+          </span> -->
+
+          {{ row.suppliers?.map((s) => s).join(", ") || "-" }}
         </template>
       </el-table-column>
 
@@ -283,8 +289,11 @@
               {{ detailDialog.material.isActive ? "Active" : "Inactive" }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="Supplier" :span="2">
-            {{ detailDialog.material.Supplier?.name || "-" }}
+          <el-descriptions-item label="Supplier(s)" :span="2">
+            <!-- {{ detailDialog.material.Supplier?.name || "-" }} -->
+            {{
+              detailDialog.material.suppliers?.map((s) => s).join(", ") || "-"
+            }}
           </el-descriptions-item>
         </el-descriptions>
 

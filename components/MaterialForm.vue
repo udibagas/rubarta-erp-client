@@ -61,13 +61,16 @@
         >Sourcing &amp; Specifications</el-divider
       >
       <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
-        <el-form-item label="Supplier" :error="errors.supplierId">
+        <el-form-item label="Supplier" :error="errors.supplierIds">
           <el-select
-            v-model="form.supplierId"
+            v-model="form.supplierIds"
             placeholder="Select Supplier"
             style="width: 100%"
             filterable
             clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
           >
             <el-option
               v-for="supplier in suppliers"

@@ -3,9 +3,19 @@
     <template #header>
       <el-page-header @back="goBack" content="Chart of Accounts">
         <template #extra>
-          <el-button :icon="ElIconPlus" type="success" @click="openForm()">
-            Add New Account
-          </el-button>
+          <div class="flex gap-2">
+            <el-upload
+              :multiple="false"
+              :show-file-list="false"
+              :on-success="() => invalidate()"
+            >
+              <el-button :icon="ElIconUpload"> Import CoA </el-button>
+            </el-upload>
+
+            <el-button :icon="ElIconPlus" type="success" @click="openForm()">
+              Add New Account
+            </el-button>
+          </div>
         </template>
       </el-page-header>
     </template>
@@ -100,11 +110,14 @@
 <script setup>
 definePageMeta({ layout: false });
 
+const config = useRuntimeConfig();
 const {
   rows: accounts,
   isPending,
   send,
+  invalidate,
 } = useAccountingQuery("accounts", "/api/accounts");
+
 const search = ref("");
 const typeFilter = ref("");
 const showForm = ref(false);
