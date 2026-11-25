@@ -166,9 +166,9 @@
           <el-input-number
             v-model="form.currentStock"
             :min="0"
-            :controls="false"
             style="width: 100%"
             placeholder="0"
+            controls-position="right"
           />
         </el-form-item>
 
@@ -176,9 +176,9 @@
           <el-input-number
             v-model="form.moq"
             :min="0"
-            :controls="false"
             style="width: 100%"
             placeholder="0"
+            controls-position="right"
           />
         </el-form-item>
 
@@ -186,7 +186,7 @@
           <el-input-number
             v-model="form.minStock"
             :min="0"
-            :controls="false"
+            controls-position="right"
             style="width: 100%"
             placeholder="0"
           />
