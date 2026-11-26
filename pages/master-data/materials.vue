@@ -142,18 +142,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column label=" Price" align="center">
-        <el-table-column
-          label="Purchase"
-          width="150"
-          align="right"
-          header-align="center"
-        >
+      <el-table-column label="Price" align="center">
+        <el-table-column label="Purchase" align="right" header-align="center">
           <template #default="{ row }">
-            <div v-if="row.purchasePrice" class="font-mono">
+            <div
+              v-if="row.materialPrices?.length"
+              v-for="price in row.materialPrices"
+              :key="price.supplierId"
+              class="font-mono"
+            >
+              {{ formatPrice(price.purchasePrice, price.currency) }}
+            </div>
+            <div v-else-if="row.purchasePrice" class="font-mono">
               {{ formatPrice(row.purchasePrice, row.purchaseCurrency) }}
             </div>
-            <span v-else>-</span>
+            <div v-else>-</div>
           </template>
         </el-table-column>
 
