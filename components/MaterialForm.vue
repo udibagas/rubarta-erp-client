@@ -71,6 +71,7 @@
             multiple
             collapse-tags
             collapse-tags-tooltip
+            @change="(v) => syncMaterialPrices(v)"
           >
             <el-option
               v-for="supplier in suppliers"
@@ -100,7 +101,7 @@
           <el-input-number
             v-model="form.leadTimeDays"
             :min="0"
-            :controls="false"
+            controls-position="right"
             style="width: 100%"
             placeholder="0"
           />
@@ -109,31 +110,6 @@
 
       <el-divider content-position="left">Pricing</el-divider>
       <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
-        <el-form-item label="Purchase Price" :error="errors.purchasePrice">
-          <el-input
-            v-model="form.purchasePrice"
-            placeholder="0"
-            :formatter="formatNumberInput"
-            :parser="parseNumberInput"
-          >
-            <template #prepend>
-              <el-select
-                v-model="form.purchaseCurrency"
-                placeholder="Curr"
-                style="width: 100px"
-                clearable
-              >
-                <el-option
-                  :label="c"
-                  :value="c"
-                  v-for="c in currencies"
-                  :key="c"
-                ></el-option>
-              </el-select>
-            </template>
-          </el-input>
-        </el-form-item>
-
         <el-form-item label="Selling Price" :error="errors.sellingPrice">
           <el-input
             v-model="form.sellingPrice"
@@ -159,6 +135,53 @@
           </el-input>
         </el-form-item>
       </div>
+
+      <el-table :data="form.materialPrices || []">
+        <el-table-column label="Supplier">
+          <template #default="{ row }">
+            <el-select
+              v-model="row.supplierId"
+              placeholder="Select Supplier"
+              disabled
+            >
+              <el-option
+                v-for="s in suppliers.filter((s) =>
+                  form.supplierIds.includes(s.id),
+                )"
+                :label="s.name"
+                :value="s.id"
+                :key="s.id"
+              />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column label="Price">
+          <template #default="{ row }">
+            <el-input
+              v-model="row.purchasePrice"
+              placeholder="0"
+              :formatter="formatNumberInput"
+              :parser="parseNumberInput"
+            >
+              <template #prepend>
+                <el-select
+                  v-model="row.currency"
+                  placeholder="Curr"
+                  style="width: 100px"
+                  clearable
+                >
+                  <el-option
+                    :label="c"
+                    :value="c"
+                    v-for="c in currencies"
+                    :key="c"
+                  />
+                </el-select>
+              </template>
+            </el-input>
+          </template>
+        </el-table-column>
+      </el-table>
 
       <el-divider content-position="left">Inventory</el-divider>
       <div class="grid grid-cols-1 gap-x-5 md:grid-cols-2">
@@ -237,11 +260,18 @@ const saveMaterial = () => {
     return typeof value === "string" ? Number(value) : value;
   };
 
+  const { materialPrices, ...data } = form.value;
+
   save({
-    ...form.value,
+    ...data,
     purchasePrice: normalizePrice(form.value.purchasePrice),
     sellingPrice: normalizePrice(form.value.sellingPrice),
     weight: form.value.weight * 1000,
+    materialPrices: materialPrices.map((mp) => ({
+      supplierId: mp.supplierId,
+      purchasePrice: normalizePrice(mp.purchasePrice),
+      currency: mp.currency,
+    })),
   });
 };
 
@@ -277,6 +307,18 @@ watch(show, (newValue) => {
     form.value.minStock = 0;
     form.value.unitPrice = 0;
     form.value.leadTimeDays = 0;
+    form.value.materialPrices = [];
   }
 });
+
+function syncMaterialPrices(newSupplierIds) {
+  form.value.materialPrices = newSupplierIds.map((id) => {
+    const existing = form.value.materialPrices.find(
+      (mp) => mp.supplierId === id,
+    );
+    return (
+      existing || { supplierId: id, purchasePrice: 0, currency: currencies[0] }
+    );
+  });
+}
 </script>
