@@ -97,10 +97,6 @@
         show-overflow-tooltip
       >
         <template #default="{ row }">
-          <!-- <span class="line-clamp-1" v-if="row.Supplier?.name">
-            {{ row.Supplier?.name || "-" }}
-          </span> -->
-
           {{ row.suppliers?.map((s) => s).join(", ") || "-" }}
         </template>
       </el-table-column>
@@ -255,136 +251,179 @@
       title="Material Details"
       :close-on-click-modal="false"
     >
-      <div v-if="detailDialog.material" class="space-y-4">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="Part Number" :span="2">
-            <span class="font-mono font-bold">
-              {{ detailDialog.material.partNumber }}
-            </span>
-          </el-descriptions-item>
-          <el-descriptions-item label="Name" :span="2">
-            <strong>{{ detailDialog.material.name }}</strong>
-          </el-descriptions-item>
-          <el-descriptions-item label="Model" :span="2">
-            {{ detailDialog.material.model || "-" }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Description" :span="2">
-            {{ detailDialog.material.description || "-" }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Category">
-            <el-tag
-              v-if="detailDialog.material.category"
-              type="warning"
-              size="small"
-            >
-              {{ detailDialog.material.category }}
-            </el-tag>
-            <span v-else>-</span>
-          </el-descriptions-item>
-          <el-descriptions-item label="Status">
-            <el-tag
-              :type="detailDialog.material.isActive ? 'success' : 'info'"
-              size="small"
-            >
-              {{ detailDialog.material.isActive ? "Active" : "Inactive" }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="Supplier(s)" :span="2">
-            <!-- {{ detailDialog.material.Supplier?.name || "-" }} -->
-            {{
-              detailDialog.material.suppliers?.map((s) => s).join(", ") || "-"
-            }}
-          </el-descriptions-item>
-        </el-descriptions>
+      <el-card shadow="never" v-if="detailDialog.material">
+        <el-tabs v-model="detailDialog.activeTab">
+          <el-tab-pane label="Material Information" name="information">
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="Part Number" :span="2">
+                <span class="font-mono font-bold">
+                  {{ detailDialog.material.partNumber }}
+                </span>
+              </el-descriptions-item>
+              <el-descriptions-item label="Name" :span="2">
+                <strong>{{ detailDialog.material.name }}</strong>
+              </el-descriptions-item>
+              <el-descriptions-item label="Model" :span="2">
+                {{ detailDialog.material.model || "-" }}
+              </el-descriptions-item>
+              <el-descriptions-item label="Description" :span="2">
+                {{ detailDialog.material.description || "-" }}
+              </el-descriptions-item>
+              <el-descriptions-item label="Category">
+                <el-tag
+                  v-if="detailDialog.material.category"
+                  type="warning"
+                  size="small"
+                >
+                  {{ detailDialog.material.category }}
+                </el-tag>
+                <span v-else>-</span>
+              </el-descriptions-item>
+              <el-descriptions-item label="Status">
+                <el-tag
+                  :type="detailDialog.material.isActive ? 'success' : 'info'"
+                  size="small"
+                >
+                  {{ detailDialog.material.isActive ? "Active" : "Inactive" }}
+                </el-tag>
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-tab-pane>
 
-        <el-divider content-position="left">Stock Information</el-divider>
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="Current Stock">
-            <span
-              :class="{
-                'text-red-600 font-bold':
-                  detailDialog.material.currentStock !== null &&
-                  detailDialog.material.minStock !== null &&
-                  detailDialog.material.currentStock <=
-                    detailDialog.material.minStock,
-              }"
+          <el-tab-pane label="Sourcing & Specifications" name="sourcing">
+            <el-descriptions :column="2" border label-width="200px">
+              <el-descriptions-item label="Supplier(s)" :span="2">
+                <div
+                  class="line-clamp-1"
+                  v-for="s in detailDialog.material.suppliers"
+                  :key="s"
+                >
+                  &bull; {{ s }}
+                </div>
+              </el-descriptions-item>
+              <el-descriptions-item label="Unit">
+                {{ detailDialog.material.unit || "-" }}
+              </el-descriptions-item>
+              <el-descriptions-item label="Weight (Kg)">
+                {{
+                  detailDialog.material.weight
+                    ? formatNumber(detailDialog.material.weight / 1000)
+                    : "-"
+                }}
+              </el-descriptions-item>
+              <el-descriptions-item label="Lead Time">
+                {{
+                  detailDialog.material.leadTimeDays
+                    ? `${detailDialog.material.leadTimeDays} days`
+                    : "-"
+                }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-tab-pane>
+
+          <el-tab-pane label="Pricing" name="pricing">
+            <el-descriptions :column="1" border label-width="200px">
+              <el-descriptions-item label="Selling Price">
+                <span class="font-mono font-semibold">
+                  {{
+                    detailDialog.material.sellingPrice
+                      ? formatPrice(
+                          detailDialog.material.sellingPrice,
+                          detailDialog.material.sellingCurrency,
+                        )
+                      : "-"
+                  }}
+                </span>
+              </el-descriptions-item>
+            </el-descriptions>
+
+            <el-card
+              header="Purchase Prices"
+              shadow="never"
+              class="mt-4"
+              body-class="p-0!"
             >
-              {{ detailDialog.material.currentStock ?? "-" }}
-            </span>
-          </el-descriptions-item>
-          <el-descriptions-item label="Minimum Stock">
-            {{ detailDialog.material.minStock ?? "-" }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Unit">
-            {{ detailDialog.material.unit || "-" }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Lead Time">
-            {{
-              detailDialog.material.leadTimeDays
-                ? `${detailDialog.material.leadTimeDays} days`
-                : "-"
-            }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Weight">
-            {{
-              detailDialog.material.weight
-                ? `${formatNumber(detailDialog.material.weight / 1000)} Kg`
-                : "-"
-            }}
-          </el-descriptions-item>
-        </el-descriptions>
+              <el-table :data="detailDialog.material.materialPrices" stripe>
+                <el-table-column
+                  prop="Supplier.name"
+                  label="Supplier"
+                  show-overflow-tooltip
+                >
+                  <template #default="{ row }">
+                    <span class="font-semibold">{{
+                      row.Supplier?.name || "-"
+                    }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="purchasePrice"
+                  label="Price"
+                  align="right"
+                >
+                  <template #default="{ row }">
+                    <span class="font-mono font-semibold">
+                      {{
+                        row.purchasePrice
+                          ? formatPrice(row.purchasePrice, row.currency)
+                          : "-"
+                      }}
+                    </span>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-card>
+          </el-tab-pane>
 
-        <el-divider content-position="left">Pricing Information</el-divider>
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="Purchase Price">
-            {{
-              detailDialog.material.purchasePrice
-                ? formatPrice(
-                    detailDialog.material.purchasePrice,
-                    detailDialog.material.purchaseCurrency,
-                  )
-                : "-"
-            }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Selling Price">
-            {{
-              detailDialog.material.sellingPrice
-                ? formatPrice(
-                    detailDialog.material.sellingPrice,
-                    detailDialog.material.sellingCurrency,
-                  )
-                : "-"
-            }}
-          </el-descriptions-item>
-        </el-descriptions>
+          <el-tab-pane label="Inventory & System" name="inventory">
+            <el-divider content-position="left">Inventory</el-divider>
+            <el-descriptions :column="2" border label-width="200px">
+              <el-descriptions-item label="Current Stock">
+                <span
+                  :class="{
+                    'text-red-600 font-bold':
+                      detailDialog.material.currentStock !== null &&
+                      detailDialog.material.minStock !== null &&
+                      detailDialog.material.currentStock <=
+                        detailDialog.material.minStock,
+                  }"
+                >
+                  {{ detailDialog.material.currentStock ?? "-" }}
+                </span>
+              </el-descriptions-item>
+              <el-descriptions-item label="Minimum Stock">
+                {{ detailDialog.material.minStock ?? "-" }}
+              </el-descriptions-item>
+            </el-descriptions>
 
-        <el-divider content-position="left">System Information</el-divider>
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="Created At">
-            {{
-              detailDialog.material.createdAt
-                ? new Date(detailDialog.material.createdAt).toLocaleString(
-                    "id-ID",
-                  )
-                : "-"
-            }}
-          </el-descriptions-item>
-          <el-descriptions-item label="Updated At">
-            {{
-              detailDialog.material.updatedAt
-                ? new Date(detailDialog.material.updatedAt).toLocaleString(
-                    "id-ID",
-                  )
-                : "-"
-            }}
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
+            <el-divider content-position="left">System Information</el-divider>
+            <el-descriptions :column="2" border label-width="200px">
+              <el-descriptions-item label="Created At" :span="2">
+                {{
+                  detailDialog.material.createdAt
+                    ? new Date(detailDialog.material.createdAt).toLocaleString(
+                        "id-ID",
+                      )
+                    : "-"
+                }}
+              </el-descriptions-item>
+              <el-descriptions-item label="Updated At" :span="2">
+                {{
+                  detailDialog.material.updatedAt
+                    ? new Date(detailDialog.material.updatedAt).toLocaleString(
+                        "id-ID",
+                      )
+                    : "-"
+                }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-tab-pane>
+        </el-tabs>
+      </el-card>
 
       <template #footer>
         <el-button
           :icon="ElIconEdit"
-          type="primary"
+          type="success"
           @click="editFromDetail"
           plain
         >
@@ -393,7 +432,8 @@
         <el-button
           :icon="ElIconCircleCloseFilled"
           @click="closeDetailDialog"
-          type="info"
+          bg
+          text
         >
           CLOSE
         </el-button>
@@ -577,16 +617,19 @@ useGraphqlQuery(gql`
 const detailDialog = reactive({
   show: false,
   material: null,
+  activeTab: "information",
 });
 
 function openDetailDialog(material) {
   detailDialog.show = true;
   detailDialog.material = material;
+  detailDialog.activeTab = "information";
 }
 
 function closeDetailDialog() {
   detailDialog.show = false;
   detailDialog.material = null;
+  detailDialog.activeTab = "information";
 }
 
 function editFromDetail() {
