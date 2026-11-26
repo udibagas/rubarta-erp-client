@@ -34,10 +34,10 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
-    "@element-plus/nuxt": "^1.1.4",
+    "@element-plus/nuxt": "^1.2.0",
     "@types/node": "^24.10.0",
     "daisyui": "^5.4.3",
-    "element-plus": "^2.11.7",
+    "element-plus": "^2.14.8",
     "nuxt": "^4.2.0"
   }
 }
