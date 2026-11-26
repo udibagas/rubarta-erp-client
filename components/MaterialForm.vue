@@ -2,7 +2,9 @@
   <el-dialog
     v-model="show"
     width="700px"
-    :title="!!form.id ? 'EDIT MATERIAL' : 'ADD MATERIAL'"
+    :title="
+      !!form.id ? `EDIT MATERIAL ${form.partNumber || ''}` : 'ADD MATERIAL'
+    "
     :close-on-click-modal="false"
   >
     <el-card shadow="never">
