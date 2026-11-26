@@ -205,7 +205,7 @@
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="Price">
+            <el-table-column label="Purchase Price">
               <template #default="{ row }">
                 <el-input
                   v-model="row.purchasePrice"
