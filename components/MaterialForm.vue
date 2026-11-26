@@ -152,9 +152,41 @@
                 </template>
               </el-input>
             </el-form-item>
+
+            <el-form-item
+              label="Purchase Price"
+              v-if="form.supplierIds?.length == 0"
+              :error="errors.purchasePrice"
+            >
+              <el-input
+                v-model="form.purchasePrice"
+                placeholder="0"
+                :formatter="formatNumberInput"
+                :parser="parseNumberInput"
+              >
+                <template #prepend>
+                  <el-select
+                    v-model="form.purchaseCurrency"
+                    placeholder="Curr"
+                    style="width: 100px"
+                    clearable
+                  >
+                    <el-option
+                      :label="c"
+                      :value="c"
+                      v-for="c in currencies"
+                      :key="c"
+                    ></el-option>
+                  </el-select>
+                </template>
+              </el-input>
+            </el-form-item>
           </div>
 
-          <el-table :data="form.materialPrices || []">
+          <el-table
+            :data="form.materialPrices || []"
+            v-if="form.supplierIds?.length > 0"
+          >
             <el-table-column label="Supplier">
               <template #default="{ row }">
                 <el-select
